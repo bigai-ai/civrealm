@@ -26,8 +26,7 @@ from players.government import GovernmentCtrl
 from players.player_actions import IncreaseLux, DecreaseLux, IncreaseSci, DecreaseSci
 
 from research.tech import TECH_KNOWN
-from city.city import CityState
-
+from city.city_state import CityState
 
 MAX_NUM_PLAYERS = 30
 MAX_AI_LOVE = 1000
@@ -35,8 +34,6 @@ MAX_AI_LOVE = 1000
 PLRF_AI = 0
 PLRF_SCENARIO_RESERVED = 1
 PLRF_COUNT = 2
-
-
 
 class PlayerCtrl(CivEvtHandler):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):

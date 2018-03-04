@@ -30,6 +30,10 @@ def byte_to_bit_array(abyte_array):
     for abyte in abyte_array:
         bit_array.extend([int(x) for x in "{0:0>8}".format(bin(abyte)[2:])])
     return bit_array
+
+def sign(x):
+    return (x > 0) - (x < 0)
+
 """
 
 ****************************************************************************

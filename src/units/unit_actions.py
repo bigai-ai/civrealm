@@ -3,11 +3,17 @@ Created on 13.02.2018
 
 @author: christian
 '''
-from mapping.tile import TileState
-from research.tech import TechCtrl, TECH_UNKNOWN, TECH_KNOWN, TECH_PREREQS_KNOWN
-from city.city import CityState, INCITE_IMPOSSIBLE_COST
-from game_info import ruleset
 from copy import copy
+import urllib
+
+from mapping.tile import TileState
+from research.tech import TechCtrl, TECH_KNOWN, TECH_PREREQS_KNOWN
+from city.city_state import CityState
+from city.city_ctrl import INCITE_IMPOSSIBLE_COST
+from game_info import ruleset
+from game_info.game import EXTRA_NONE
+from game_info.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
+
 from utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
     ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, packet_unit_autosettlers,\
@@ -23,11 +29,8 @@ from utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
     ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
     ACTION_ATTACK
-from game_info.game import EXTRA_NONE
-import urllib
-from units.action_dialog import action_prob_possible, encode_building_id
 from utils import base_action
-from game_info.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
+from units.action_dialog import action_prob_possible, encode_building_id
 
 class UnitAction(base_action.Action):
     def __init__(self, cur_focus, ws_client):

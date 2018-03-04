@@ -104,22 +104,20 @@ class TechCtrl(CivEvtHandler):
           If pplayer is None this checks whether any player knows the tech (used
           by the client).
         """
-        if pplayer == None:
+        if (pplayer is None) or ("inventions" not in pplayer) or tech_id >= len(pplayer["inventions"]):
             return TECH_UNKNOWN
+        else:
+            #/* Research can be None in client when looking for tech_leakage
+            # * from player not yet received. */
+            return pplayer['inventions'][tech_id]
+            
         #/* FIXME: add support for global advances
         #if (tech != A_FUTURE and game_info.info.global_advances[tech_id]) {
         #  return TECH_KNOWN
         #} else {
         #  return TECH_UNKNOWN
         #}*/
-        else:
-            #/* Research can be None in client when looking for tech_leakage
-            # * from player not yet received. */
-            if pplayer['inventions'] != None and pplayer['inventions'][tech_id] != None:
-                return pplayer['inventions'][tech_id]
-            else:
-                return TECH_UNKNOWN
-
+            
     def get_current_state(self, pplayer):
         if self.tech_state is None:
             self.init_tech_state()
@@ -135,8 +133,7 @@ class TechCtrl(CivEvtHandler):
 
             cur_tech['reqs'] = {}
             for req in ptech['research_reqs']:
-                req_active = ReqCtrl.is_req_active(pplayer, None, None, None, None, None, None,
-                                                   req, RPT_CERTAIN)
+                req_active = ReqCtrl.is_req_active(pplayer, req, RPT_CERTAIN)
                 self.tech_state[tech_id]['reqs'][req['value']] = req_active
 
     def get_current_options(self, pplayer):
@@ -152,9 +149,7 @@ class TechCtrl(CivEvtHandler):
     def init_tech_state(self):
         if self.rule_ctrl.ruleset_control['name'] == "Civ2Civ3 ruleset":
             self.reqtree = reqtree_civ2civ3
-        elif self.rule_ctrl.ruleset_control['name'] == "Multiplayer ruleset":
-            self.reqtree = reqtree_multiplayer
-        elif self.rule_ctrl.ruleset_control['name'] == "Longturn-Web-X ruleset":
+        elif self.rule_ctrl.ruleset_control['name'] in ["Multiplayer ruleset", "Longturn-Web-X ruleset"]: 
             self.reqtree = reqtree_multiplayer
         else:
             self.reqtree = reqtree
@@ -222,34 +217,29 @@ class TechCtrl(CivEvtHandler):
         tech_url = self.wikipedia_url + freeciv_wiki_docs[tech_name]['title']
         return tech_url, tech_info
 
-
-
     def get_tech_info(self, unit_type_id, improvement_id):
         """Shows info about a tech, unit or improvement based on helptext and wikipedia."""
-        return
+        tech_info = {}
         if unit_type_id != None:
             punit_type = self.rule_ctrl.unit_types[unit_type_id]
-            punit_type['helptext']
-            punit_type['build_cost']
-            punit_type['attack_strength']
-            punit_type['defense_strength']
-            punit_type['firepower']
-            punit_type['hp']
-            punit_type['move_rate']
-            punit_type['vision_radius_sq']
+            for info_key in ["helptext", "build_cost", "attack_strength",
+                             "defense_strength", "firepower", "hp", "move_rate",
+                             "vision_radius_sq"]:
+                tech_info[info_key] = punit_type[info_key]
 
         if improvement_id != None:
-            self.rule_ctrl.improvements[improvement_id]['helptext']
+            tech_info["helptext"] = self.rule_ctrl.improvements[improvement_id]['helptext']
 
+        return tech_info
     @staticmethod
-    def can_player_build_unit_direct(p, punittype):
+    def can_player_build_unit_direct(pplayer, punittype):
         """
         Whether player can build given unit somewhere,
         ignoring whether unit is obsolete and assuming the
         player has a coastal city.
         """
 
-        if TechCtrl.player_invention_state(p, punittype['tech_requirement']) != TECH_KNOWN:
+        if TechCtrl.player_invention_state(pplayer, punittype['tech_requirement']) != TECH_KNOWN:
             return False
 
         #FIXME: add support for global advances, check for building reqs etc.*/
@@ -312,15 +302,7 @@ class ReqCtrl(CivEvtHandler):
         CivEvtHandler.__init__(self, ws_client)
         self.requirements = {}
     @staticmethod
-    def is_req_active(target_player,
-               target_city,
-               target_building,
-               target_tile,
-               target_unittype,
-               target_output,
-               target_specialist,
-               req,
-               prob_type):
+    def is_req_active(target_player, req, prob_type):
         """
           Checks the requirement to see if it is active on the given target.
 
@@ -373,15 +355,7 @@ class ReqCtrl(CivEvtHandler):
             return result == TRI_NO
 
     @staticmethod
-    def are_reqs_active(target_player,
-                        target_city,
-                        target_building,
-                        target_tile,
-                        target_unittype,
-                        target_output,
-                        target_specialist,
-                        reqs,
-                        prob_type):
+    def are_reqs_active(target_player, reqs, prob_type):
 
         """
           Checks the requirement(s) to see if they are active on the given target.
@@ -398,12 +372,9 @@ class ReqCtrl(CivEvtHandler):
         """
 
         for req in reqs:
-            if (not ReqCtrl.is_req_active(target_player, target_city, target_building,
-                   target_tile, target_unittype, target_output,
-                   target_specialist,
-                   req, prob_type)):
+            if not ReqCtrl.is_req_active(target_player, req, prob_type):
                 return False
-            return True
+        return True
 
     @staticmethod
     def is_tech_in_range(target_player, trange, tech):

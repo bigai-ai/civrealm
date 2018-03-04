@@ -15,13 +15,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
+from math import floor, sqrt
+import numpy as np
 
 from connectivity.Basehandler import CivEvtHandler
-from math import floor
-from utils.utility import FC_WRAP, byte_to_bit_array
+from utils.utility import FC_WRAP, byte_to_bit_array, sign
 from BitVector import BitVector
-from mapping.tile import TileState, TILE_UNKNOWN, TILE_KNOWN_SEEN
-import numpy as np
+from mapping.tile import TileState, TILE_UNKNOWN
 
 DIR8_STAY = -1
 DIR8_NORTHWEST = 0
@@ -247,6 +247,17 @@ class MapCtrl(CivEvtHandler):
             dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world
 
         return [dx, dy]
+    
+    def map_distances(self, dx, dy):
+        if self.topo_has_flag(TF_WRAPX):
+            half_world = floor(self.map["xsize"] / 2)
+            dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
+
+        if self.topo_has_flag(TF_WRAPY):
+            half_world = floor(self.map["ysize"] / 2)
+            dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world
+
+        return [dx, dy]        
 
     def mapstep(self, ptile, dir8):
         """
@@ -271,6 +282,7 @@ class MapCtrl(CivEvtHandler):
 
         return -1
 
+    
     @staticmethod
     def dir_get_name(dir8):
         """Return the debugging name of the direction."""
@@ -365,6 +377,125 @@ class MapCtrl(CivEvtHandler):
                 player_map["extras"][x, y, :] = self.tiles[x + y * self.map['xsize']]["extras"]
 
         return player_map
+
+def get_dist(a, b): 
+    d = a[2] - b[2]
+    if (d != 0):
+        return sign(d)
+    d = a[0] - b[0]
+    if (d != 0):
+        return sign(d);
+    return sign(a[1] - b[1])
+
+def dxy_to_center_index(dx, dy, r):
+    """ Returns an index for a flat array containing x,y data.
+        dx,dy are displacements from the center, r is the "radius" of the data
+        in the array. That is, for r=0, the array would just have the center;
+        for r=1 it'd be (-1,-1), (-1,0), (-1,1), (0,-1), (0,0), etc.
+        There's no check for coherence.
+    """
+    return (dx + r) * (2 * r + 1) + dy + r;
+
+class CityTileMap():
+    """Builds city_tile_map info for a given squared city radius."""
+    def __init__(self, radius_sq, map_ctrl):
+        self.radius_sq = radius_sq
+        self.radius = None
+        self.base_sorted = None
+        self.maps = None
+        self.map_ctrl = map_ctrl
+
+    def update_map(self, new_radius):
+        if self.maps is None or self.radius_sq < new_radius:
+            r = int(floor(sqrt(new_radius)))
+            vectors = []
+            
+            for dx in range(-r, r+1):
+                for dy in range(-r, r+1):
+                    d_sq = self.map_ctrl.map_vector_to_sq_distance(dx, dy)
+
+                    if d_sq <= new_radius:
+                        vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)]);
+            vectors.sort(cmp=get_dist) 
+            base_map = [None for _ in range((2*r+1)*(2*r+1))]
+            
+            for vnum, vec in enumerate(vectors):
+                base_map[vec[3]] = vnum
+            
+            self.radius_sq = new_radius
+            self.radius = r
+            self.base_sorted = vectors
+            self.maps = [base_map]
+    
+    @staticmethod
+    def delta_tile_helper(pos, r, size):
+        """ Helper for get_city_tile_map_for_pos.
+            From position, radius and size, returns an array with delta_min,
+            delta_max and clipped tile_map index.
+        """
+        d_min = -pos
+        d_max = (size-1) - pos
+        i = 0
+        if d_min > -r:
+            i = r + d_min
+        elif d_max < r:
+            i = 2*r - d_max;
+        return [d_min, d_max, i]
+
+    def build_city_tile_map_with_limits(self, dx_min, dx_max, dy_min, dy_max):
+        """Builds the city_tile_map with the given delta limits.
+              Helper for get_city_tile_map_for_pos."""
+        v = self.base_sorted
+        vl = len(v)
+        clipped_map = [-1 for _ in range(vl*10)]
+        max_ind = 0
+        ind = 0
+        for vi in range(vl):
+            tile_data = v[vi]
+            if dx_min <= tile_data[0] <= dx_max and dy_min <= tile_data[1] <= dy_max:
+                clipped_map[tile_data[3]] = ind
+                if max_ind < tile_data[3]:
+                    max_ind = tile_data[3]
+                ind += 1
+        return clipped_map[:max_ind+1]
+    
+    def get_city_tile_map_for_pos(self, x, y):
+        """Returns the mapping of position from city center to index in city_info."""
+        topo_has_flag = self.map_ctrl.topo_has_flag
+        if topo_has_flag(TF_WRAPX) and topo_has_flag(TF_WRAPY):
+            return self.maps[0]
+        
+        r = self.radius;
+        limit_args = {"dx_min": -r, "dx_max": r, "dy_min": -r, "dy_max": r}
+        target_map = None
+        
+        if topo_has_flag(TF_WRAPX):#Cylinder with N-S axis
+            dy = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
+            limit_args["dy_min"] = dy[0]
+            limit_args["dy_max"] = dy[1]
+            target_map = dy[2]
+        
+        if topo_has_flag(TF_WRAPY):#Cylinder with E-W axis
+            dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
+            limit_args["dx_min"] = dx[0]
+            limit_args["dx_max"] = dx[1]
+            if target_map != None:
+                target_map = (2*r + 1) * dx[2] + dy[2]
+            else:
+                target_map = dx[2]
+        
+        if target_map >= len(self.maps):
+            self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
+        return self.maps[target_map]
+
+    def get_city_dxy_to_index(self, dx, dy, city_tile):
+        """
+          Converts from coordinate offset from city center (dx, dy),
+          to index in the city_info['food_output'] packet.
+        """
+        city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
+        a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
+        return a_map[city_tile_map_index]
 
 if __name__ == "__main__":
     print(MapCtrl.dir_get_name(7))

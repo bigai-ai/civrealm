@@ -59,9 +59,9 @@ class FreeCivBot:
                 if a_option[1] == DIR8_STAY and a_option[0] in ["explore"]:
                     action_wants[punit][a_option] = ACTION_WANTED
                 elif a_option[1] != DIR8_STAY and a_option[0] == "goto":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()
+                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.25
                 elif a_option[1] == DIR8_STAY and a_option[0] == "build":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()
+                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.75
                 else:
                     action_wants[punit][a_option] = ACTION_UNWANTED
         return action_wants

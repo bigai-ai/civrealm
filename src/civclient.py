@@ -36,7 +36,7 @@ from game_info.options import OptionCtrl
 
 from units.unit import UnitCtrl
 from mapping.map import MapCtrl
-from city.city import CityCtrl
+from city.city_ctrl import CityCtrl
 from research.tech import TechCtrl
 from utils.fc_events import E_UNDEFINED
 from utils.fc_types import packet_nation_select_req, packet_player_phase_done
@@ -206,15 +206,14 @@ class CivClient(CivEvtHandler):
         #clearInterval(nation_select_id)
 
     def change_ruleset(self, to):
+        #"""Change the ruleset to"""
+        
+        #send_message("/rulesetdir " + to)
+        #// reset some ruleset defined settings.
+        #send_message("/set nationset all")
+        #submit_nation_choice(chosen_nation, choosing_player)
         raise Exception("Not implemented")
 
-        #"""Change the ruleset to"""
-        """
-        send_message("/rulesetdir " + to)
-        #// reset some ruleset defined settings.
-        send_message("/set nationset all")
-        submit_nation_choice(chosen_nation, choosing_player)
-        """
     def handle_early_chat_msg(self, packet):
         """
         Handle an early message packet. Thease have format like other chat
@@ -305,15 +304,12 @@ class CivClient(CivEvtHandler):
 
             self.clstate.conn_list_append(packet)
 
-        if self.clstate.has_id(packet["id"]):
-            if self.clstate.cur_player() != packet['playing']:
-                self.clstate.set_client_state(C_S_PREPARING)
+        if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
+            self.clstate.set_client_state(C_S_PREPARING)
 
-        """
-        /* FIXME: not implemented yet.
-        update_players_dialog()
-        update_conn_list_dialog()*/
-        """
+        #/* FIXME: not implemented yet.
+        #update_players_dialog()
+        #update_conn_list_dialog()
 
     def conduct_turn(self):
         '''

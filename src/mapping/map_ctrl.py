@@ -76,7 +76,12 @@ class MapCtrl(CivEvtHandler):
     def __init__(self, ws_client, rule_ctrl):
         CivEvtHandler.__init__(self, ws_client)
         self.map = {}
-        self.tiles = {}
+        self.tiles = []
+        self.player_map = {}
+        self.player_map["status"] = None
+        self.player_map["terrain"] = None
+        self.player_map["extras"] = None
+         
         self.rule_ctrl = rule_ctrl
         self.register_handler(15, "handle_tile_info")
         self.register_handler(17, "handle_map_info")
@@ -91,22 +96,30 @@ class MapCtrl(CivEvtHandler):
 
         return self.index_to_tile(pcity['tile'])
 
+    def get_current_state(self, pplayer):
+        return self.player_map
+
     def map_allocate(self):
         """
             Allocate space for mapping, and initialise the tiles.
             Uses current mapping.xsize and mapping.ysize.
         """
 
-        self.tiles = {}
+        self.tiles = []
         """
         Note this use of whole_map_iterate may be a bit sketchy, since the
         tile values (ptile->index, etc.) haven't been set yet.  It might be
         better to do a manual loop here.
         """
-
-        for x in range(self.map['xsize']):
-            for y in range(self.map['ysize']):
-
+        
+        shape_map = (self.map['xsize'], self.map['ysize'])
+        
+        self.player_map["status"] = np.zeros(shape_map)
+        self.player_map["terrain"] = np.zeros(shape_map)
+        
+        for y in range(self.map['ysize']):
+            for x in range(self.map['xsize']):
+                self.tiles.append(None)
                 tile = {}
                 tile['index'] = x + y * self.map['xsize']
                 tile['x'] = x
@@ -152,7 +165,7 @@ class MapCtrl(CivEvtHandler):
                 self.map["num_cardinal_dirs"] += 1
 
     def set_tile_worked(self, packet):
-        if packet['tile'] in self.tiles:
+        if packet['tile'] < len(self.tiles) and self.tiles[packet['tile']] != None:
             self.tiles[packet['tile']]['worked'] = packet['id']
 
     def is_valid_dir(self, dir8):
@@ -317,10 +330,18 @@ class MapCtrl(CivEvtHandler):
     def handle_tile_info(self, packet):
         if self.tiles != None:
             packet['extras'] = BitVector(bitlist=byte_to_bit_array(packet["extras"]))
-            if self.tiles[packet['tile']] == None:
-                self.tiles[packet['tile']] = {}
+            if self.player_map["extras"] is None:
+                extras_map = (self.map['xsize'], self.map['ysize'], len(packet['extras']))
+                self.player_map["extras"] = np.zeros(extras_map)
+                
+            ptile = packet['tile']
+            if self.tiles[ptile] == None:
+                self.tiles[ptile] = {}
 
-            self.tiles[packet['tile']].update(packet)
+            self.tiles[ptile].update(packet)
+            self.player_map["status"][self.tiles[ptile]['x'], self.tiles[ptile]['y']] = packet['known']
+            self.player_map["terrain"][self.tiles[ptile]['x'], self.tiles[ptile]['y']] = packet['terrain']
+            self.player_map["extras"][self.tiles[ptile]['x'], self.tiles[ptile]['y'], :] = packet['extras']  
 
     def handle_set_topology(self, packet):
         """
@@ -359,25 +380,7 @@ class MapCtrl(CivEvtHandler):
             tterrain_near[dir8] = self.rule_ctrl.tile_terrain(ptile)
             #FIXME: BV_CLR_ALL(tspecial_near[dir])
         return tterrain_near
-
-    def get_current_options(self, pplayer):
-        return CivEvtHandler.get_current_options(self, pplayer)
-
-    def get_current_state(self, pplayer):
-        num_extras = len(self.tiles[0]["extras"])
-        player_map = {}
-        player_map["status"] = np.zeros((self.map['xsize'], self.map['ysize']))
-        player_map["terrain"] = np.zeros((self.map['xsize'], self.map['ysize']))
-        player_map["extras"] = np.zeros((self.map['xsize'], self.map['ysize'], num_extras)) 
-
-        for x in range(self.map['xsize']):
-            for y in range(self.map['ysize']):
-                player_map["status"][x, y] = self.tiles[x + y * self.map['xsize']]["known"]
-                player_map["terrain"][x, y] = self.tiles[x + y * self.map['xsize']]["terrain"]
-                player_map["extras"][x, y, :] = self.tiles[x + y * self.map['xsize']]["extras"]
-
-        return player_map
-
+    
 def get_dist(a, b): 
     d = a[2] - b[2]
     if (d != 0):

@@ -29,7 +29,7 @@ from units.unit_action import UnitActionCtrl, FocusUnit
 
 from game_info.game import IDENTITY_NUMBER_ZERO
 from players.diplomacy import DS_ALLIANCE, DS_TEAM
-from mapping.map import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
+from mapping.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
     DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_STAY
 
 class UnitCtrl(CivEvtHandler):

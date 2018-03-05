@@ -32,21 +32,80 @@ A simple bot can move units randomly, create cities and auto-explores territory.
 
 Just run
 ```
-python civclient.py
+python template.py
 ```
 On the bottom of the file you will see, the key interface on how to connect to the server and
 to link the bot to the server.
 
+Create the SimpleBot instance - which is a simple bot that randomly moves units and builds cities
+
 ```
-my_bot = FreeCivBot()
-my_civ_client = CivClient(my_bot, client_port=6000)
-clinet.CivConnection(my_civ_client)
+my_bot = SimpleBot()
+```
+Create the CivClient instance - which handles all controllers (i.e., state, potential actions and processing server messages)
+
+```
+my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
+```
+
+Create the CivConnection - which establishes a handshake to the freeciv server on http://localhost and hands over control to CivClient my_civ_client and its controllers once handshake is complete
+
+```
+CivConnection(my_civ_client, 'http://localhost')
 ```
 
 Prerequisites
 --------
 
-In order to test the overall bot, kindly follow the docker installation instructions on https://github.com/freeciv/freeciv-web.
+In order to test the overall bot on http://localhost, kindly follow the docker installation instructions on https://github.com/freeciv/freeciv-web.
 
 Building your own bot
 --------
+
+The file template.py gives an initial example on how a bot should work. The basic idea is that a bot is only responsible for calculating the "action_want" of a certain action given the full state of the board. In SimpleBot, only unit_actions have been defined.
+
+```
+class SimpleBot(BaseBot):
+    def calculate_unit_actions(self, turn_no, full_state, a_options):
+        action_wants = {}
+```
+
+The overwritten function needs to return a dictionary with the "action_want" for each action of each unit (or more general an actor - see utils.base_action.ActionList as reference). Hence, one needs to iterate over all units punit and all action_optoins a_option.
+
+```
+        for punit in a_options: 
+            action_wants[punit] = {}
+            for a_option in a_options[punit]:
+```
+
+First one needs to ensure that the action is actually valid.
+
+```
+        if a_options[punit][a_option] is None:
+            continue
+```
+Than likelihood/wantedness of moves needs to be set.
+
+Example 1: Enable Auto-explore - 
+
+a_option[0] refers to the type of action the unit should conduct
+a_option[1] refers to the direction the unit should move/act 
+
+```
+				if a_option[1] == DIR8_STAY and a_option[0] in ["explore"]:
+					action_wants[punit][a_option] = ACTION_WANTED
+```
+                
+Example 2: Move randomly in all directions, i.e., set random likelihood for moves that are not DIR8_STAY
+
+```
+                elif a_option[1] != DIR8_STAY and a_option[0] == "goto":
+                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.25
+```
+
+Example 3: Build city with high likelihood
+
+```
+                elif a_option[1] == DIR8_STAY and a_option[0] == "build":
+                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.75
+```

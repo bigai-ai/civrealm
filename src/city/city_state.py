@@ -71,6 +71,8 @@ class CityState():
                 cur_state["impr_int"][z] = True
                 cur_state["impr_name"][imp_name] = True
         
+        return cur_state
+        
     @staticmethod
     def is_city_center(city, tile):
         return (city['tile'] == tile['index'])

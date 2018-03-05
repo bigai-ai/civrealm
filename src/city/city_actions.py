@@ -225,7 +225,7 @@ class CityDoWorklist(Action):
     """Set worklist for city - Irrelevant for bot - can automatically assess production each turn"""
     def send_city_worklist(self, city_id):
         """Notifies the server about a change in the city worklist."""
-        
+        """
         worklist = self.cities[city_id]['worklist']
         overflow = worklist.length - MAX_LEN_WORKLIST
         if overflow > 0:
@@ -235,15 +235,17 @@ class CityDoWorklist(Action):
                  "city_id" : city_id,
                  "worklist": worklist}
         self.ws_client.send_request(packet)
-    
+        """
+        
     def send_city_worklist_add(self, city_id, kind, value):
+        """
         pcity = self.cities[city_id]
         if len(pcity['worklist']) >= MAX_LEN_WORKLIST:
             return
 
         pcity['worklist'].append({"kind" : kind, "value" : value})
         self.send_city_worklist(city_id)
-    
+        """
     @staticmethod
     def find_universal_in_worklist(universal, worklist):
         for i, work_item in enumerate(worklist):

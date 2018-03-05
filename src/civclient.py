@@ -20,7 +20,7 @@
 '''
 
 import random
-from time import sleep
+from time import sleep, time
 
 from connectivity import clinet
 from connectivity.Basehandler import CivEvtHandler
@@ -35,22 +35,21 @@ from game_info.ruleset import RulesetCtrl
 from game_info.options import OptionCtrl
 
 from units.unit import UnitCtrl
-from mapping.map import MapCtrl
+from mapping.map_ctrl import MapCtrl
 from city.city_ctrl import CityCtrl
 from research.tech import TechCtrl
 from utils.fc_events import E_UNDEFINED
 from utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from utils.freecivlog import freelog
 
-from bot.base_bot import FreeCivBot, ACTION_UNWANTED
-
 class CivClient(CivEvtHandler):
-    def __init__(self, a_bot, client_port=6001):
+    def __init__(self, a_bot, user_name, client_port=6001):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.bot = a_bot
         self.turn = -1
         self.client_port = client_port
+        self.user_name = user_name
 
         self.game_ctrl = None
         self.opt_ctrl = None
@@ -68,8 +67,6 @@ class CivClient(CivEvtHandler):
         self.gov_ctrl = None
 
         self.controller_list = {}
-        self.username = None
-        self.fc_seedrandom = None
 
     def init_controller(self):
         CivEvtHandler.__init__(self, self.ws_client)
@@ -130,7 +127,7 @@ class CivClient(CivEvtHandler):
         sha_password = None
         google_user_subject = None
 
-        login_message = {"pid": 4, "username": "chrisrocks",
+        login_message = {"pid": 4, "username": self.user_name,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version" : 2, "minor_version" : 5, "patch_version" : 99,
                          "port": self.client_port, "password" : sha_password,
@@ -268,7 +265,16 @@ class CivClient(CivEvtHandler):
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
-        self.conduct_turn()
+        
+        self.turn += 1
+        if self.clstate.client_is_observer() or not self.clstate.is_playing():
+            self.send_end_turn()
+            return
+
+        pplayer = self.clstate.cur_player()
+
+        self.bot.conduct_turn(pplayer, self.controller_list)
+        self.send_end_turn()
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
@@ -311,52 +317,6 @@ class CivClient(CivEvtHandler):
         #update_players_dialog()
         #update_conn_list_dialog()
 
-    def conduct_turn(self):
-        '''
-        Main starting point for Freeciv-web Bot - to be called when game_info is ready
-        '''
-        print("Starting Turn")
-
-        self.turn += 1
-        if self.clstate.client_is_observer() or not self.clstate.is_playing():
-            self.send_end_turn()
-            return
-
-        pplayer = self.clstate.cur_player()
-
-        turn_state = {}
-        turn_opts = {}
-
-        print("Acquiring state and action options for: ")
-        for ctrl_type in self.controller_list:
-            print("....: " + ctrl_type)
-            ctrl = self.controller_list[ctrl_type]
-            turn_state[ctrl_type] = ctrl.get_current_state(pplayer)
-            turn_opts[ctrl_type] = ctrl.get_current_options(pplayer)
-
-        print("Bot calculates want for controller moves")
-        turn_wants = self.bot.calculate_want_of_move(self.turn, turn_state, turn_opts)
-
-        print("Carry out controller moves")
-        for ctrl_type in self.controller_list:
-            ctrl = self.controller_list[ctrl_type]
-            for a_actor in turn_wants[ctrl_type]:
-                wants = turn_wants[ctrl_type][a_actor]
-                if wants == {}:
-                    print(a_actor, ctrl_type)
-                    continue
-                try:
-                    act_most_wanted = max(wants.iterkeys(), key=(lambda key: wants[key]))
-                except:
-                    print(a_actor, ctrl_type, turn_wants[ctrl_type])
-                    raise
-                if wants[act_most_wanted] != ACTION_UNWANTED:
-                    print(act_most_wanted)
-                    turn_opts[ctrl_type][a_actor][act_most_wanted].trigger_action()
-        print("Finish turn")
-        sleep(4)
-        self.send_end_turn()
-
     def send_end_turn(self):
         """Ends the current turn."""
         if self.rule_ctrl.game_info == {}:
@@ -365,8 +325,3 @@ class CivClient(CivEvtHandler):
         packet = {"pid" : packet_player_phase_done, "turn" : self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         #update_turn_change_timer()
-
-if __name__ == "__main__":
-    my_bot = FreeCivBot()
-    my_civ_client = CivClient(my_bot, client_port=6000)
-    clinet.CivConnection(my_civ_client)

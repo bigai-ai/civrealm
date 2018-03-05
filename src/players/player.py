@@ -27,7 +27,7 @@ from players.player_actions import IncreaseLux, DecreaseLux, IncreaseSci, Decrea
 
 from research.tech import TECH_KNOWN
 from city.city_state import CityState
-
+from time import time
 MAX_NUM_PLAYERS = 30
 MAX_AI_LOVE = 1000
 #/* The plr_flag_id enum. */

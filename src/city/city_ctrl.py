@@ -30,7 +30,7 @@ from city.city_state import CityState
 from city.city_actions import CityWorkTile, CityChangeSpecialist,\
     CityBuyProduction, CityUnworkTile, CitySellImprovement,\
     CityChangeUnitProduction, CityChangeImprovementProduction
-from mapping.map import CityTileMap
+from mapping.map_ctrl import CityTileMap
 
 #/* The city_options enum. */
 CITYO_DISBAND      = 0
@@ -73,6 +73,7 @@ class CityCtrl(CivEvtHandler):
             pcity = self.cities[city_id]
             if pcity["owner"] == pplayer["playerno"]:
                 player_cities[city_id] = self.city_state.get_full_state(pcity)
+                player_cities[city_id].update(self.get_city_traderoutes(pcity))
 
         player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
         return player_cities
@@ -138,13 +139,15 @@ class CityCtrl(CivEvtHandler):
         del self.cities[pcity_id]
 
     def get_city_traderoutes(self, pcity):
-        """Shows traderoutes of active city"""
+        """Get traderoutes of city pcity"""
 
         trade_data = defaultdict(list)
-
+        if self.city_trade_routes == {} or pcity["id"] not in self.city_trade_routes:
+            return {}
+            
         routes = self.city_trade_routes[pcity['id']]
 
-        if self.active_city['traderoute_count'] != 0 and routes is None:
+        if pcity['traderoute_count'] != 0 and routes is None:
             #/* This city is supposed to have trade routes. It doesn't.  */
             print("Can't find the trade routes " + pcity['name'] + " is said to have")
             return

@@ -4,7 +4,6 @@ Created on 05.03.2018
 @author: christian
 '''
 from bot.base_bot import ACTION_WANTED, ACTION_UNWANTED, BaseBot
-from map.map_ctrl import DIR8_STAY
 from random import random
 from civclient import CivClient
 from connectivity.clinet import CivConnection

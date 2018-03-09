@@ -69,43 +69,48 @@ class SimpleBot(BaseBot):
     def calculate_unit_actions(self, turn_no, full_state, a_options):
         action_wants = {}
 ```
-
 The overwritten function needs to return a dictionary with the "action_want" for each action of each unit (or more general an actor - see utils.base_action.ActionList as reference). Hence, one needs to iterate over all units punit and all action_optoins a_option.
 
 ```
-        for punit in a_options: 
-            action_wants[punit] = {}
-            for a_option in a_options[punit]:
+        for unit_id in a_options.get_actors(): 
+            action_wants[unit_id] = {}
+            actions =  a_options.get_actions(unit_id)
+            for action_key in actions:
 ```
 
 First one needs to ensure that the action is actually valid.
 
 ```
-        if a_options[punit][a_option] is None:
+        if actions[action_key] is None:
             continue
 ```
 Than likelihood/wantedness of moves needs to be set.
 
 Example 1: Enable Auto-explore - 
 
-a_option[0] refers to the type of action the unit should conduct
-a_option[1] refers to the direction the unit should move/act 
+action_key refers to the type of action the unit can do. Example: if explore is available - exploring is "WANTED"
 
 ```
-				if a_option[1] == DIR8_STAY and a_option[0] in ["explore"]:
-					action_wants[punit][a_option] = ACTION_WANTED
+                if action_key == "explore":
+                    action_wants[unit_id][action_key] = ACTION_WANTED
 ```
                 
 Example 2: Move randomly in all directions, i.e., set random likelihood for moves that are not DIR8_STAY
 
 ```
-                elif a_option[1] != DIR8_STAY and a_option[0] == "goto":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.25
+				elif "goto" in action_key:
+                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.25
 ```
 
 Example 3: Build city with high likelihood
 
 ```
-                elif a_option[1] == DIR8_STAY and a_option[0] == "build":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.75
+                elif action_key == "build":
+                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.75
+```
+Example 4: Set all other actions to ACTION_UNWANTED
+
+```
+				else:
+                    action_wants[unit_id][action_key] = ACTION_UNWANTED
 ```

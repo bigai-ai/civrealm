@@ -13,8 +13,9 @@ class GameState(PlainState):
 
     def _update_state(self, pplayer):
         if pplayer != None:
-            self._state.update(self.calendar_info)
-            self._state.update(self.scenario_info)
+            return
+            #self._state.update(self.calendar_info)
+            #self._state.update(self.scenario_info)
 
 class ServerState(PlainState):
     def __init__(self, server_settings):
@@ -24,7 +25,7 @@ class ServerState(PlainState):
     def _update_state(self, pplayer):
         if pplayer != None:
             return
-            self._state.update(self.server_settings)
+            #self._state.update(self.server_settings)
 
 class RuleState(PlainState):
     def __init__(self, game_info):
@@ -34,4 +35,4 @@ class RuleState(PlainState):
     def _update_state(self, pplayer):
         if pplayer != None:
             return
-            self._state.update(self.game_info)
+            #self._state.update(self.game_info)

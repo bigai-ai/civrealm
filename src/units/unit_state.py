@@ -4,6 +4,7 @@ Created on 09.03.2018
 @author: christian
 '''
 from utils.base_state import ListState
+from utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
 class UnitState(ListState):
     def __init__(self, unit_ctrl, rule_ctrl, city_ctrl):
@@ -22,6 +23,7 @@ class UnitState(ListState):
                 self._state[unit_id] = self._get_unit_infos(punit)
 
     def _get_unit_infos(self, aunit):
+        """Returns a dictionary of all infos relevant for unit_state"""
         unit_state = {}
 
         ptype = self.rule_ctrl.unit_type(aunit)
@@ -32,4 +34,9 @@ class UnitState(ListState):
         unit_state["moves_left"] = self.unit_ctrl.get_unit_moves_left(aunit)
         unit_state["health"] = aunit['hp']
         unit_state["veteran"] = aunit['veteran']
+
+        unit_state["upkeep_food"] = aunit['upkeep'][O_FOOD] if "upkeep" in aunit else None
+        unit_state["upkeep_shield"] = aunit['upkeep'][O_SHIELD] if "upkeep" in aunit else None
+        unit_state["upkeep_gold"] = aunit['upkeep'][O_GOLD] if "upkeep" in aunit else None
+
         return unit_state

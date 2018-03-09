@@ -23,6 +23,7 @@ import sys
 from utils.freecivlog import freelog
 from game.info_states import RuleState
 from research.req_info import REQ_RANGE_PLAYER
+from utils.base_action import NoActions
 
 EXTRA_RIVER = None
 EXTRA_ROAD = None
@@ -126,6 +127,7 @@ class RulesetCtrl(CivPropController):
         self.extras = {}
         
         self.prop_state = RuleState(self.game_info)
+        self.prop_actions = NoActions(ws_client)
 
     def handle_ruleset_terrain(self, packet):
         #/* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */
@@ -153,8 +155,6 @@ class RulesetCtrl(CivPropController):
         self.ruleset_summary = None
         self.ruleset_description = None
 
-        #TODO: implement rest
-
     def handle_ruleset_summary(self, packet):
         """
         Ruleset summary.
@@ -173,7 +173,7 @@ class RulesetCtrl(CivPropController):
 
     def handle_endgame_report(self, packet):
         pass
-        #TODO: implement rest*/
+
     def handle_ruleset_unit(self, packet):
         if packet['name'] != None:
             if '?unit:' in packet['name']:

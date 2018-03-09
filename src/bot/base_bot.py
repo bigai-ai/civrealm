@@ -23,10 +23,10 @@ class BaseBot:
         turn_state = {}
         turn_opts = {}
         for ctrl_type in info_controls:
+            print("....: " + ctrl_type)
             ctrl = info_controls[ctrl_type]
             turn_state[ctrl_type] = ctrl.get_current_state(pplayer)
             turn_opts[ctrl_type] = ctrl.get_current_options(pplayer)
-            print("....: " + ctrl_type)
         
         return turn_state, turn_opts
     

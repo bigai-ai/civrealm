@@ -82,8 +82,6 @@ class PlayerState(PlainState):
             self.update_opponent_state_embassy(opponent, op_id)
         else:
             self.update_opponent_state_hearsay(opponent, op_id)
-        
-        self._state[op_id]
     
     def update_opponent_state_hearsay(self, pplayer, op_id):
         """ Return opponent intelligence intelligence when there's no embassy."""
@@ -108,11 +106,8 @@ class PlayerState(PlainState):
         self._state[op_id + "gov"] = pplayer["government"]
         self._state[op_id + "gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
         self._state[op_id + "capital"] = None
-        #TODO:To be implemented
         
         research = self.player_ctrl.research_get(pplayer)
-        
-        #TODO: future techs
         
         if research != None:
             self._state[op_id + "research"] = research['researching']

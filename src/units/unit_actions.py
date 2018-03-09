@@ -6,8 +6,9 @@ Created on 13.02.2018
 
 import urllib
 
-from mapping.tile import TileState
 from research.tech_ctrl import TechCtrl
+from research.tech_helpers import is_tech_known, is_tech_prereq_known
+
 from city.city_state import CityState
 from city.city_ctrl import INCITE_IMPOSSIBLE_COST
 from game import ruleset
@@ -33,9 +34,9 @@ from utils.base_action import Action, ActionList
 
 from units.action_dialog import action_prob_possible, encode_building_id
 
-from mapping.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
-    DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH
-from research.tech_helpers import is_tech_known, is_tech_prereq_known
+from map.tile import TileState
+from map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
+    DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
 
 class FocusUnit():
     """Stores all relevant information for deciding on valid actions for the
@@ -151,12 +152,12 @@ class UnitActions(ActionList):
                           #ActTileInfo, ActActSel, ActSEntry, ActWait, , ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
-        
+
         for dir8 in [DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST, DIR8_SOUTH,
-                     DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHEAST]:
+                     DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
-        
-    def _unit_can_still_act(self, unit_id):
+
+    def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
                not punit['ai']  and punit['activity'] == ACTIVITY_IDLE
@@ -300,8 +301,8 @@ class ActMine(EngineerAction):
 class ActOnExtra(EngineerAction):
     """Base class for units that act on extras"""
     action_key = None
-    def __init__(self, cur_focus, ws_client):
-        EngineerAction.__init__(self, cur_focus, ws_client)
+    def __init__(self, cur_focus):
+        EngineerAction.__init__(self, cur_focus)
         self.extra_type = None
 
     def is_eng_action_valid(self):
@@ -338,9 +339,9 @@ class ActAirbase(EngineerAction):
 class ActIrrigation(ActOnExtra):
     """Action to create an irrigation"""
     action_key = "irrigation"
-    def __init__(self, cur_focus, ws_client):
+    def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_IRRIGATION
-        ActOnExtra.__init__(self, cur_focus, ws_client)
+        ActOnExtra.__init__(self, cur_focus)
     
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
@@ -348,9 +349,9 @@ class ActIrrigation(ActOnExtra):
 class ActFallout(ActOnExtra):
     """Action to clean fallout"""
     action_key = "fallout"
-    def __init__(self, cur_focus, ws_client):
+    def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_FALLOUT
-        ActOnExtra.__init__(self, cur_focus, ws_client)
+        ActOnExtra.__init__(self, cur_focus)
     
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_FALLOUT, EXTRA_NONE)
@@ -358,9 +359,9 @@ class ActFallout(ActOnExtra):
 class ActPollution(ActOnExtra):
     """Action to remove pollution"""
     action_key = "pollution"
-    def __init__(self, cur_focus, ws_client):
+    def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_POLLUTION
-        ActOnExtra.__init__(self, cur_focus, ws_client)
+        ActOnExtra.__init__(self, cur_focus)
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_POLLUTION, EXTRA_NONE)
@@ -399,8 +400,8 @@ class ActParadrop(UnitAction):
 class ActBuild(UnitAction):
     """Request that a city is built."""
     action_key = "build"
-    def __init__(self, cur_focus, ws_client):
-        UnitAction.__init__(self, cur_focus, ws_client)
+    def __init__(self, cur_focus):
+        UnitAction.__init__(self, cur_focus)
         self.next_city_name = None
 
     def is_action_valid(self):
@@ -562,8 +563,8 @@ class ActSpySteal(DiplomaticAction):
         * go for the untargeted version after concluding that no listed tech is
         * worth the extra risk. """
     action_id = ACTION_SPY_STEAL_TECH
-    def __init__(self, cur_focus, ws_client):
-        DiplomaticAction.__init__(self, cur_focus, ws_client)
+    def __init__(self, cur_focus):
+        DiplomaticAction.__init__(self, cur_focus)
         self.tech_id = None
 
     def is_dipl_action_valid(self):
@@ -587,8 +588,8 @@ class ActSpyStealESC(ActSpySteal):
 class ActSpyStealTargeted(ActSpySteal):
     """Action to steal specific technology"""
     action_id = ACTION_SPY_TARGETED_STEAL_TECH
-    def __init__(self, cur_focus, ws_client):
-        ActSpySteal.__init__(self, cur_focus, ws_client)
+    def __init__(self, cur_focus):
+        ActSpySteal.__init__(self, cur_focus)
         self._prep_tech_tree()
 
     def _prep_tech_tree(self):
@@ -762,7 +763,7 @@ class ActGoto(StdAction):
         if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
             return False
         target_idx = self.focus.map_ctrl.index_to_tile(self.focus.punit["tile"])
-        self.move_dir = self.focus.map_ctrl.get_direction_for_step(target_idx, self.focus.ptile)
+        self.move_dir = self.focus.map_ctrl.get_direction_for_step(target_idx, self.newtile)
 
         return not (self.move_dir is None or self.move_dir == -1)
 

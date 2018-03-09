@@ -11,18 +11,21 @@ from utils.fc_types import packet_city_make_specialist,\
     packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
     packet_city_sell, packet_city_change, VUT_UTYPE,\
     VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
+from map.map_ctrl import CityTileMap
 
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20
 
-from mapping.map_ctrl import CityTileMap
 class CityActions(ActionList):
     def __init__(self, ws_client, rulectrl, city_list, map_ctrl):
         ActionList.__init__(self, ws_client)
         self.rulectrl = rulectrl
         self.cities = city_list
         self.city_map = CityTileMap(1, map_ctrl)
-        
+    
+    def _can_actor_act(self, actor_id):
+        return True
+
     def update(self, pplayer):
         for city_id in self.cities:
             pcity = self.cities[city_id]
@@ -122,6 +125,9 @@ class CityBuyProduction(Action):
         self.pplayer = pplayer
 
     def is_action_valid(self):
+        if "buy_gold_cost" not in self.pcity:
+            return False
+
         return self.pplayer['gold'] >= self.pcity['buy_gold_cost']
     
     def _action_packet(self):

@@ -17,13 +17,14 @@
 '''
 from math import floor, sqrt
 import numpy as np
+from BitVector import BitVector
 
 from connectivity.Basehandler import CivPropController
 from utils.utility import FC_WRAP, byte_to_bit_array, sign
-from BitVector import BitVector
-from mapping.tile import TileState, TILE_UNKNOWN
-from utils.base_state import PlainState
-from mapping.map_state import MapState
+from utils.base_action import NoActions
+from map.tile import TileState, TILE_UNKNOWN
+from map.map_state import MapState
+
 
 DIR8_STAY = -1
 DIR8_NORTHWEST = 0
@@ -86,6 +87,8 @@ class MapCtrl(CivPropController):
          
         self.rule_ctrl = rule_ctrl
         self.prop_state = MapState(self.player_map)
+        self.prop_actions = NoActions(ws_client)
+
         self.register_handler(15, "handle_tile_info")
         self.register_handler(17, "handle_map_info")
         self.register_handler(253, "handle_set_topology")
@@ -101,8 +104,8 @@ class MapCtrl(CivPropController):
 
     def map_allocate(self):
         """
-            Allocate space for mapping, and initialise the tiles.
-            Uses current mapping.xsize and mapping.ysize.
+            Allocate space for map, and initialise the tiles.
+            Uses current map.xsize and map.ysize.
         """
 
         self.tiles = []
@@ -149,7 +152,7 @@ class MapCtrl(CivPropController):
         tile['nuke'] = 0
         return tile
 
-    def map_init_topology(self, set_sizes):
+    def map_init_topology(self):
         self.map["valid_dirs"] = {}
         self.map["cardinal_dirs"] = {}
 
@@ -193,7 +196,7 @@ class MapCtrl(CivPropController):
             return False
 
     def map_pos_to_tile(self, x, y):
-        """ Return the tile for the given cartesian (mapping) position."""
+        """ Return the tile for the given cartesian (map) position."""
         if x >= self.map['xsize']:
             y -= 1
         elif (x < 0):
@@ -229,7 +232,7 @@ class MapCtrl(CivPropController):
         return {'nat_y' : pnat_y, 'nat_x' : pnat_x}
 
     def map_vector_to_sq_distance(self, dx, dy):
-        """Return the squared distance for a mapping vector"""
+        """Return the squared distance for a map vector"""
         if self.topo_has_flag(TF_HEX):
             d = self.map_vector_to_distance(dx, dy)
             return d*d
@@ -237,7 +240,7 @@ class MapCtrl(CivPropController):
             return dx*dx + dy*dy
 
     def map_vector_to_distance(self, dx, dy):
-        """Return the squared distance for a mapping vector"""
+        """Return the squared distance for a map vector"""
         if self.topo_has_flag(TF_HEX):
             if (self.topo_has_flag(TF_ISO) and (dx*dy < 0)) or \
             (not self.topo_has_flag(TF_ISO) and (dx*dy > 0)):
@@ -275,7 +278,7 @@ class MapCtrl(CivPropController):
     def mapstep(self, ptile, dir8):
         """
           Step from the given tile in the given direction.  The new tile is returned,
-          or None if the direction is invalid or leads off the mapping.
+          or None if the direction is invalid or leads off the map.
         """
         if not self.is_valid_dir(dir8):
             return None
@@ -284,7 +287,7 @@ class MapCtrl(CivPropController):
 
     def get_direction_for_step(self, start_tile, end_tile):
         """
-            Return the direction which is needed for a step on the mapping from
+            Return the direction which is needed for a step on the map from
             start_tile to end_tile.
         """
         for dir8 in range(DIR8_LAST):
@@ -301,7 +304,7 @@ class MapCtrl(CivPropController):
         """Return the debugging name of the direction."""
         try:
             return DIR8_NAMES[dir8]
-        except:
+        except KeyError:
             return "[undef]"
 
     @staticmethod
@@ -309,7 +312,7 @@ class MapCtrl(CivPropController):
         """Returns the next direction clock-wise."""
         try:
             return DIR8_CW[dir8]
-        except:
+        except KeyError:
             return -1
 
     @staticmethod
@@ -317,7 +320,7 @@ class MapCtrl(CivPropController):
         """Returns the next direction counter clock-wise."""
         try:
             return DIR8_CCW[dir8]
-        except:
+        except KeyError:
             return -1
 
     def clear_goto_tiles(self):
@@ -352,7 +355,7 @@ class MapCtrl(CivPropController):
 
     def handle_map_info(self, packet):
         self.map = packet
-        self.map_init_topology(False)
+        self.map_init_topology()
         self.map_allocate()
 
         #/* TODO: init_client_goto()*/
@@ -374,11 +377,10 @@ class MapCtrl(CivPropController):
                     tterrain_near[dir8] = terrain1
                     continue
             """
-            /* At the edges of the (known) mapping, pretend the same terrain continued
-             * past the edge of the mapping. */
+            /* At the edges of the (known) map, pretend the same terrain continued
+             * past the edge of the map. */
             """
             tterrain_near[dir8] = self.rule_ctrl.tile_terrain(ptile)
-            #FIXME: BV_CLR_ALL(tspecial_near[dir])
         return tterrain_near
     
 def get_dist(a, b): 
@@ -387,7 +389,7 @@ def get_dist(a, b):
         return sign(d)
     d = a[0] - b[0]
     if (d != 0):
-        return sign(d);
+        return sign(d)
     return sign(a[1] - b[1])
 
 def dxy_to_center_index(dx, dy, r):
@@ -397,7 +399,7 @@ def dxy_to_center_index(dx, dy, r):
         for r=1 it'd be (-1,-1), (-1,0), (-1,1), (0,-1), (0,0), etc.
         There's no check for coherence.
     """
-    return (dx + r) * (2 * r + 1) + dy + r;
+    return (dx + r) * (2 * r + 1) + dy + r
 
 class CityTileMap():
     """Builds city_tile_map info for a given squared city radius."""
@@ -418,7 +420,7 @@ class CityTileMap():
                     d_sq = self.map_ctrl.map_vector_to_sq_distance(dx, dy)
 
                     if d_sq <= new_radius:
-                        vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)]);
+                        vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)])
             vectors.sort(cmp=get_dist) 
             base_map = [None for _ in range((2*r+1)*(2*r+1))]
             
@@ -442,7 +444,7 @@ class CityTileMap():
         if d_min > -r:
             i = r + d_min
         elif d_max < r:
-            i = 2*r - d_max;
+            i = 2*r - d_max
         return [d_min, d_max, i]
 
     def build_city_tile_map_with_limits(self, dx_min, dx_max, dy_min, dy_max):
@@ -463,12 +465,12 @@ class CityTileMap():
         return clipped_map[:max_ind+1]
     
     def get_city_tile_map_for_pos(self, x, y):
-        """Returns the mapping of position from city center to index in city_info."""
+        """Returns the map of position from city center to index in city_info."""
         topo_has_flag = self.map_ctrl.topo_has_flag
         if topo_has_flag(TF_WRAPX) and topo_has_flag(TF_WRAPY):
             return self.maps[0]
         
-        r = self.radius;
+        r = self.radius
         limit_args = {"dx_min": -r, "dx_max": r, "dy_min": -r, "dy_max": r}
         target_map = None
         

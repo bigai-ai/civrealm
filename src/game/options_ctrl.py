@@ -18,6 +18,7 @@
 """
 from connectivity.Basehandler import CivPropController
 from game.info_states import ServerState
+from utils.base_action import NoActions
 
 """
 /* The server will send information about its settings. It is stored here.
@@ -37,7 +38,8 @@ class OptionCtrl(CivPropController):
         CivPropController.__init__(self, ws_client)
         self.server_settings = {}
         self.prop_state = ServerState(self.server_settings)
-
+        self.prop_actions = NoActions(ws_client)
+        
         #/** Defaults for options normally on command line **/
 
         self.default_user_name = ""

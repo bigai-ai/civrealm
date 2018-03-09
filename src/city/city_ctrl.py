@@ -227,7 +227,7 @@ class CityCtrl(CivPropController):
         """returns true if the given player has the given wonder (improvement)"""
         for city_id in self.cities:
             pcity = self.cities[city_id]
-            if (self.player_ctrl.city_owner(pcity).playerno == playerno and
+            if (self.player_ctrl.city_owner(pcity)["playerno"] == playerno and
                 self.rulectrl.city_has_building(pcity, improvement_id)):
                 return True
         return False

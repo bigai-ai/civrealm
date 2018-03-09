@@ -32,7 +32,7 @@ from game.ruleset import RulesetCtrl
 from game.options_ctrl import OptionCtrl
 
 from units.unit_ctrl import UnitCtrl
-from mapping.map_ctrl import MapCtrl
+from map.map_ctrl import MapCtrl
 from city.city_ctrl import CityCtrl
 from research.tech_ctrl import TechCtrl
 from utils.fc_events import E_UNDEFINED
@@ -99,7 +99,7 @@ class CivClient(CivPropController):
 
         self.controller_list = {"game": self.game_ctrl,
                                 "rules": self.rule_ctrl,
-                                "mapping": self.map_ctrl,
+                                "map": self.map_ctrl,
                                 "player": self.player_ctrl,
                                 "city": self.city_ctrl,
                                 "tech": self.tech_ctrl,
@@ -287,7 +287,7 @@ class CivClient(CivPropController):
             99% done.
         """
 
-        pconn = self.clstate.find_conn_by_id(packet['id']);
+        pconn = self.clstate.find_conn_by_id(packet['id'])
 
         if not packet['used']:
             # Forget the connection

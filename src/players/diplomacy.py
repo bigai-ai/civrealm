@@ -17,6 +17,7 @@
 """
 from utils.base_state import PlainState
 from connectivity.Basehandler import CivPropController
+from utils.base_action import NoActions
 
 CLAUSE_ADVANCE = 0
 CLAUSE_GOLD = 1
@@ -62,6 +63,7 @@ class DiplomacyCtrl(CivPropController):
         self.ruleset = ruleset
         self.clstate = clstate
         self.prop_state = DiplomacyState(self.diplstates)
+        self.prop_actions = NoActions(ws_client)
         self.dipl_evaluator = dipl_evaluator
 
         self.register_handler(59, "handle_player_diplstate")
@@ -165,9 +167,9 @@ class DiplomacyCtrl(CivPropController):
 
     def refresh_diplomacy_request_queue(self):
         if self.diplomacy_request_queue != []:
-            next = self.diplomacy_request_queue[0]
-            if next != None and next != self.active_diplomacy_meeting_id:
-                self.active_diplomacy_meeting_id = next
+            next_meeting = self.diplomacy_request_queue[0]
+            if next_meeting != None and next_meeting != self.active_diplomacy_meeting_id:
+                self.active_diplomacy_meeting_id = next_meeting
 
     def handle_diplomacy_create_clause(self, packet):
         if(self.diplomacy_clause_map[packet['counterpart']] == None):
@@ -199,14 +201,19 @@ class DiplomacyCtrl(CivPropController):
         self.refresh_diplomacy_request_queue()
         #setTimeout(refresh_diplomacy_request_queue, 1000)
 
-    def check_not_dipl_states(self, player_id, check_list=[DS_WAR, DS_NO_CONTACT]):
+    def check_not_dipl_states(self, player_id, check_list=None):
+        if check_list is None:
+            check_list = [DS_WAR, DS_NO_CONTACT]
         if player_id in self.diplstates:
-            if not (self.diplstates[player_id] in check_list):
+            if self.diplstates[player_id] not in check_list:
                 return True
         else:
             return False
 
-    def check_in_dipl_states(self, player_id, check_list=[DS_ALLIANCE, DS_TEAM]):
+    def check_in_dipl_states(self, player_id, check_list=None):
+        if check_list is None:
+            check_list = [DS_ALLIANCE, DS_TEAM]
+
         if player_id in self.diplstates:
             if self.diplstates[player_id] in check_list:
                 return True

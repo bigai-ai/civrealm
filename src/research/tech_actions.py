@@ -11,7 +11,10 @@ class TechActions(ActionList):
     def __init__(self, ws_client, rule_ctrl):
         ActionList.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
-
+    
+    def _can_actor_act(self, actor_id):
+        return True
+    
     def update(self, pplayer):
         actor_id = "cur_player"
         if self.actor_exists(actor_id): 
@@ -19,13 +22,13 @@ class TechActions(ActionList):
         
         self.add_actor(actor_id)
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(actor_id, ActChooseResearchTech(self.ws_client, pplayer, tech_id))
-            self.add_action(actor_id, ActChooseResearchGoal(self.ws_client, pplayer, tech_id))
+            self.add_action(actor_id, ActChooseResearchTech(pplayer, tech_id))
+            self.add_action(actor_id, ActChooseResearchGoal(pplayer, tech_id))
 
 class ActChooseResearchTech(Action):
     action_key = "research_tech"
-    def __init__(self, ws_client, pplayer, new_tech_id):
-        Action.__init__(self, ws_client)
+    def __init__(self, pplayer, new_tech_id):
+        Action.__init__(self)
         self.pplayer = pplayer
         self.new_tech_id = new_tech_id
         self.action_key += "_%i" % new_tech_id

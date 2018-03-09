@@ -22,6 +22,7 @@
 from connectivity.Basehandler import CivPropController
 from utils.freecivlog import freelog
 from game.info_states import GameState
+from utils.base_action import NoActions
 
 #see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -62,6 +63,7 @@ class GameCtrl(CivPropController):
         self.page_msg = {}
 
         self.prop_state = GameState(self.scenario_info, self.calendar_info)
+        self.prop_actions = NoActions(ws_client)
 
     def handle_scenario_info(self, packet):
         """
@@ -118,19 +120,15 @@ class GameCtrl(CivPropController):
             self.page_msg = {}
 
     def handle_play_music(self, packet):
-        #TODO: Implement */
         pass
 
     def handle_achievement_info(self, packet):
-        #TODO: Implement */
         pass
 
     def handle_team_name_info(self, packet):
-        #TODO: Implement */
         pass
 
     def handle_vote_new(self, packet):
-        #/* TODO: implement */
         pass
 
     def handle_vote_update(self, packet):

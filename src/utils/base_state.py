@@ -5,8 +5,9 @@ Created on 07.03.2018
 '''
 
 def sets_equal(set_a, set_b):
-    if len(set_a) != len(set_b) or \
-       len(set_a.intersection(set_b)) != 0:
+    """Returns true if sets are equal and raises Exception showing keys added/removed in case they
+       are not equal"""
+    if set_a != set_b:
         shared_keys = set_a & set_b
         keys_added = set_a - set_b
         keys_removed = set_b - set_a
@@ -22,7 +23,7 @@ class PropState():
         self._locked_set = None
     
     def _update_state(self, pplayer):
-        raise Exception("To be overwritten")
+        raise Exception("To be overwritten; cur_player: %s" % pplayer)
     
     def _lock_properties(self):
         raise Exception("To be overwritten")
@@ -57,6 +58,8 @@ class PlainState(PropState):
 
 class ListState(PlainState):
     def _lock_properties(self):
+        if self._state == {}:
+            return
         first_element = self._state[self._state.keys()[0]]
         self._locked_props = first_element.keys()
 
@@ -66,3 +69,7 @@ class ListState(PlainState):
             if not sets_equal(cur_set, self._locked_set):
                 return False
         return True
+
+class EmptyState(PlainState):
+    def _update_state(self, pplayer):
+        return

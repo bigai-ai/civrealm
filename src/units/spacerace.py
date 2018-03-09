@@ -58,7 +58,7 @@ class SpaceCtrl(CivPropController):
         return spaceship
 
     def get_current_options(self, pplayer):
-        return LaunchSpaceship(self.ws_client, self.spaceship_info[pplayer['playerno']])
+        return LaunchSpaceship(self.spaceship_info[pplayer['playerno']])
 
     def handle_spaceship_info(self, packet):
         """Stores spaceship info received from server"""
@@ -78,8 +78,8 @@ class SpaceCtrl(CivPropController):
 
 class LaunchSpaceship(Action):
     """ Launch Spaceship """
-    def __init__(self, ws_client, spaceship_playerinfo):
-        Action.__init__(self, ws_client)
+    def __init__(self, spaceship_playerinfo):
+        Action.__init__(self)
         self.spaceship_playerinfo = spaceship_playerinfo
 
     def is_action_valid(self):

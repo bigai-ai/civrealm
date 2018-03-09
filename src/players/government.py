@@ -51,13 +51,16 @@ class GovActions(ActionList):
         ActionList.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
+    
+    def _can_actor_act(self, actor_id):
+        return True
 
     def update(self, pplayer):
         player_id = pplayer["playerno"]
         if not self.actor_exists(player_id):
             self.add_actor(player_id)
             for govt_id in self.rule_ctrl.governments:
-                act = ChangeGovernment(self.ws_client, govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
+                act = ChangeGovernment(govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
                 self.add_action(player_id, act)
 
 class GovernmentCtrl(CivPropController):
@@ -97,8 +100,8 @@ class GovernmentCtrl(CivPropController):
 
 class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
-    def __init__(self, ws_client, govt_id, city_ctrl, rule_ctrl, pplayer):
-        base_action.Action.__init__(self, ws_client)
+    def __init__(self, govt_id, city_ctrl, rule_ctrl, pplayer):
+        base_action.Action.__init__(self)
         self.govt_id = govt_id
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl

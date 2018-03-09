@@ -23,6 +23,9 @@ class PlayerOptions(ActionList):
         self.players = players
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
+    
+    def _can_actor_act(self, actor_id):
+        return True
 
     def update(self, pplayer):
         for counter_id in self.players:
@@ -32,44 +35,43 @@ class PlayerOptions(ActionList):
             
             counterpart = self.players[counter_id]
             if counterpart == pplayer:
-                self.get_player_options(counter_id, pplayer)
+                self.update_player_options(counter_id, pplayer)
             else:
-                self.get_counterpart_options(counter_id, counterpart)
+                self.update_counterpart_options(counter_id, pplayer, counterpart)
 
-    def get_player_options(self, counter_id, pplayer):
+    def update_player_options(self, counter_id, pplayer):
         maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
 
-        cur_state = {"ws_client": self.ws_client, "tax": pplayer['tax'],
-                 "sci": pplayer["science"], "lux": pplayer["luxury"],"max_rate": maxrate}
+        cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"], 
+                     "lux": pplayer["luxury"],"max_rate": maxrate}
         
+        print(cur_state)
         self.add_action(counter_id, IncreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseSci(**cur_state))
         self.add_action(counter_id, IncreaseSci(**cur_state))
 
-    def get_counterpart_options(self, counter_id, counterpart):
-        cur_player = self.clstate.cur_player()
-        dipl_actions = [StartNegotiate(self.ws_client, counterpart),
-                        StopNegotiate(self.ws_client, counterpart),
-                        AcceptTreaty(self.ws_client, counterpart)]
+    def update_counterpart_options(self, counter_id, cur_player, counterpart):
+        self.add_action(counter_id, StartNegotiate(counterpart))
+        self.add_action(counter_id, StopNegotiate(counterpart))
+        self.add_action(counter_id, AcceptTreaty(counterpart))
+        self.update_clause_options(counter_id, cur_player, counterpart)
+        self.update_clause_options(counter_id, counterpart, cur_player)
 
-        dipl_actions.extend(self.get_clause_options(counter_id, cur_player, counterpart))
-        dipl_actions.extend(self.get_clause_options(counter_id, counterpart, cur_player))
-        return dict([(act.action_key, act) for act in dipl_actions])
-
-    def get_clause_options(self, counter_id, giver, taker):
+    def update_clause_options(self, counter_id, giver, taker):
         cur_p = self.clstate.cur_player()
         base_clauses = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
                         CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
 
         for ctype in base_clauses:
-            self.add_action(counter_id, AddClause(self.ws_client, ctype, 1, giver, taker, cur_p))
+            self.add_action(counter_id, AddClause(ctype, 1, giver, taker, cur_p))
+            self.add_action(counter_id, RemoveClause(ctype, 1, giver, taker, cur_p))
 
         for ctype in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
-            self.add_action(counter_id, CancelClause(self.ws_client, ctype, 1, giver, taker, cur_p))
+            self.add_action(counter_id, CancelClause(ctype, 1, giver, taker, cur_p))
 
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(counter_id, AddTradeTechClause(self.ws_client, CLAUSE_ADVANCE, tech_id,
+            self.add_action(counter_id, AddTradeTechClause(CLAUSE_ADVANCE, tech_id,
                                                            giver, taker, cur_p, self.rule_ctrl))
         """
         if self.ruleset.game["trading_city"]:
@@ -87,8 +89,8 @@ class PlayerOptions(ActionList):
 
 class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
-    def __init__(self, ws_client, tax, sci, lux, max_rate):
-        base_action.Action.__init__(self, ws_client)
+    def __init__(self, tax, sci, lux, max_rate):
+        base_action.Action.__init__(self)
         self.tax = self.get_corrected_num(tax)
         self.sci = self.get_corrected_num(sci)
         self.lux = self.get_corrected_num(lux)
@@ -97,6 +99,8 @@ class IncreaseSci(base_action.Action):
     def get_corrected_num(self, num):
         if num % 10 != 0:
             return num - (num % 10)
+        else:
+            return num
 
     def is_action_valid(self):
         return 0 <= self.sci+10 <= 100
@@ -137,8 +141,8 @@ class DecreaseLux(IncreaseSci):
 
 class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
-    def __init__(self, ws_client, counterpart):
-        base_action.Action.__init__(self, ws_client)
+    def __init__(self, counterpart):
+        base_action.Action.__init__(self)
         self.counterpart = counterpart
 
     def is_action_valid(self):
@@ -165,15 +169,19 @@ class StopNegotiate(StartNegotiate):
 
 class RemoveClause(base_action.Action):
     action_key = "remove_clause"
-    def __init__(self, ws_client, clause_type, value, giver, taker, cur_player):
-        base_action.Action.__init__(self, ws_client)
+    def __init__(self, clause_type, value, giver, taker, cur_player):
+        base_action.Action.__init__(self)
         self.clause_type = clause_type
         self.value = value
         self.giver = giver
         self.taker = taker
         self.cur_player = cur_player
-        self.action_key += "_%i" % clause_type
-
+        self.action_key += "_%i_%i" % (clause_type, self.giver["playerno"])
+    
+    def is_action_valid(self):
+        return True
+        #TODO: To be investigated
+        
     def _action_packet(self):
         packet = {"pid" : packet_diplomacy_remove_clause_req,
                   "counterpart" : self.taker["playerno"],
@@ -219,8 +227,8 @@ class CancelClause(AddClause):
 
 class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
-    def __init__(self, ws_client, clause_type, value, giver, taker, cur_player, rule_ctrl):
-        AddClause.__init__(self, ws_client, clause_type, value, giver, taker, cur_player)
+    def __init__(self, clause_type, value, giver, taker, cur_player, rule_ctrl):
+        AddClause.__init__(self, clause_type, value, giver, taker, cur_player)
         self.rule_ctrl = rule_ctrl
         self.action_key += "_%i" % value
 

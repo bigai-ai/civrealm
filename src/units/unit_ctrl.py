@@ -155,25 +155,6 @@ class UnitCtrl(CivPropController):
 
         return punit['goto_tile'] != -1
 
-    def get_unit_city_info(self, punit):
-        """Returns a text about the unit to be shown in the city dialog, containing
-         unit type name, home city, upkeep."""
-
-        ptype = self.rule_ctrl.unit_type(punit)
-
-        ptype['name']
-
-        if punit['upkeep'] != None:
-            punit['upkeep'][O_FOOD]
-            punit['upkeep'][O_SHIELD]
-            punit['upkeep'][O_GOLD]
-
-        self.get_unit_moves_left(punit)
-
-        home_city = self.city_ctrl.get_unit_homecity_name(punit)
-        if home_city != None:
-            pass
-
     def find_unit_by_number(self, uid):
         """
           Find unit out of all units in game: now uses fast idex method,

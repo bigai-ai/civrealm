@@ -98,10 +98,6 @@ class PlayerCtrl(CivPropController):
         return self.players[CityState.city_owner_player_id(pcity)]
 
     def valid_player_by_number(self, playerno):
-        #TODO:
-        #pslot = self.player_slot_by_number(player_id)
-        #if (not self.player_slot_is_used(pslot)):
-        #    return None
         if playerno in self.players:
             return self.players[playerno]
         else:
@@ -115,8 +111,7 @@ class PlayerCtrl(CivPropController):
             pplayer = self.players[player_id]
             if pname == pplayer['name']:
                 return pplayer
-        else:
-            return None
+        return None
 
     def player_by_full_username(self, pname):
         ainame = ""
@@ -228,11 +223,11 @@ class PlayerCtrl(CivPropController):
                 if player["is_ready"]:
                     player_item["status"] = "player_ready"
                 else:
-                    try:
-                        player['name'].index("AI")
+                    if "AI" in player["name"]:
                         player["status"] = "AI ready"
-                    except:
+                    else:
                         player["status"] = "player_not_ready"
+
                 player_list.append(player_item)
 
             play_options = ["pick_nation", "observe", "take",

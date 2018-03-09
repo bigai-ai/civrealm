@@ -4,9 +4,9 @@ Created on 07.03.2018
 @author: christian
 '''
 import unittest
-from utils.base_action import Action, ActionList
+from utils.base_action import Action
 
-class MockClient():
+class MockClient(object):
     def send_request(self, packet):
         print("Sending packet")
         print(packet)

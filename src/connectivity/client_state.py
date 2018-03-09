@@ -22,6 +22,8 @@ from connectivity.Basehandler import CivPropController
 from utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
     packet_conn_pong
 from utils.freecivlog import freelog
+from utils.base_action import NoActions
+from utils.base_state import EmptyState
 
 C_S_INITIAL = 0    #/* Client boot, only used once on program start. */
 C_S_PREPARING = 1  #/* Main menu (disconnected) and connected in pregame. */
@@ -35,8 +37,9 @@ class ClientState(CivPropController):
         self.civclient_state = C_S_INITIAL
         self.connect_error = False
         self.oldstate = -1
-
-
+        self.prop_actions = NoActions(ws_client)
+        self.prop_state = EmptyState()
+        
         self.client = {}
         self.client["conn"] = {}
         self.client_frozen = False

@@ -4,7 +4,7 @@ Created on 05.03.2018
 @author: christian
 '''
 from bot.base_bot import ACTION_WANTED, ACTION_UNWANTED, BaseBot
-from mapping.map_ctrl import DIR8_STAY
+from map.map_ctrl import DIR8_STAY
 from random import random
 from civclient import CivClient
 from connectivity.clinet import CivConnection
@@ -12,19 +12,36 @@ from connectivity.clinet import CivConnection
 class SimpleBot(BaseBot):
     def calculate_unit_actions(self, turn_no, full_state, a_options):
         action_wants = {}
-        for punit in a_options: 
-            action_wants[punit] = {}
-            for a_option in a_options[punit]:
-                if a_options[punit][a_option] is None:
+        for unit_id in a_options.get_actors(): 
+            action_wants[unit_id] = {}
+            actions =  a_options.get_actions(unit_id)
+            for action_key in actions:
+                if actions[action_key] is None:
                     continue
-                if a_option[1] == DIR8_STAY and a_option[0] in ["explore"]:
-                    action_wants[punit][a_option] = ACTION_WANTED
-                elif a_option[1] != DIR8_STAY and a_option[0] == "goto":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.25
-                elif a_option[1] == DIR8_STAY and a_option[0] == "build":
-                    action_wants[punit][a_option] = ACTION_WANTED*random()*0.75
+                if action_key == "explore":
+                    action_wants[unit_id][action_key] = ACTION_WANTED
+                elif "goto" in action_key:
+                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.25
+                elif action_key == "build":
+                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.75
                 else:
-                    action_wants[punit][a_option] = ACTION_UNWANTED
+                    action_wants[unit_id][action_key] = ACTION_UNWANTED
+        return action_wants
+    
+    def calculate_city_actions(self, turn_no, full_state, a_options):
+        action_wants = {}
+        for city_id in a_options.get_actors(): 
+            action_wants[city_id] = {}
+            actions =  a_options.get_actions(city_id)
+            for action_key in actions:
+                if actions[action_key] is None:
+                    continue
+                if "change_improve_prod" in action_key:
+                    action_wants[city_id][action_key] = ACTION_WANTED*random()*0.75
+                if "change_unit_prod" in action_key:
+                    action_wants[city_id][action_key] = ACTION_WANTED*random()*0.25
+                else:
+                    action_wants[city_id][action_key] = ACTION_UNWANTED
         return action_wants
 
 my_bot = SimpleBot()

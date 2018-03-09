@@ -20,7 +20,6 @@
 """
 
 import json
-import urllib
 from tornado import ioloop
 from connectivity.webclient import WebSocketClient
 from utils.fc_types import packet_chat_msg_req
@@ -91,7 +90,6 @@ class CivConnection():
             civclient_request_url = base_url + "/civclientlauncher"
             civclient_request_url = "&civserverport=" + str(civserverport)
             req = session.request(method="POST", url=civclient_request_url)
-            #TODO: check connection success here
         """
 
         self.websocket_init()
@@ -109,19 +107,3 @@ class CivConnection():
             ioloop.IOLoop.instance().start()
         except KeyboardInterrupt:
             client.close()
-
-def encode_message_text(message):
-    """
-    ****************************************************************************
-     Common replacements and encoding for messages.
-     They are going to be injected as html. " and ' are changed to appease
-     the server message_escape.patch until it is removed.
-    ****************************************************************************/
-    """
-    message = message.replace('/^\s+|\s+$/g',"")
-    message = message.replace('/&/g', "&amp")
-    #message = message.replace('/'/g', "&apos")
-    message = message.replace('/"/g', "&quot")
-    #message = message.replace('/</g'', "&lt")
-    #message = message.replace('/>/g'', "&gt")
-    return urllib.quote(message, safe='~()*!.\'')

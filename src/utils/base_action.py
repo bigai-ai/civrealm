@@ -54,12 +54,11 @@ class ActionList(object):
                 for action_key in self._action_dict[actor_id]:
                     action = self._action_dict[actor_id][action_key] 
                     if action.is_action_valid():
-                        act_dict[action_key] = action 
-                return self._action_dict[actor_id]
+                        act_dict[action_key] = action
             return act_dict
 
     def _can_actor_act(self, actor_id):
-        raise Exception("To be overwritten with function returning True/False")
+        raise Exception("To be overwritten with function returning True/False %i" % actor_id)
     
     def trigger_wanted_actions(self, controller_wants):
         for a_actor in self._action_dict:
@@ -67,7 +66,8 @@ class ActionList(object):
                 raise("Wants for actor %s should have been defined." % a_actor)
             actor_wants = controller_wants[a_actor]
             if actor_wants == {}:
-                raise("Wants for actor %s are empty." % a_actor)
+                print("No actions wanted for actor %s" % a_actor)
+                continue
             if type(actor_wants) is list:
                 raise("Wants for actor %s should be a dictionary not a list" % a_actor)
             
@@ -78,4 +78,11 @@ class ActionList(object):
                 self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)
     
     def update(self, pplayer):
-        raise Exception("To be implemented by class %s" % self)
+        raise Exception("To be implemented by class %s for player %s" % (self, pplayer))
+
+class NoActions(ActionList):
+    def update(self, pplayer):
+        pass
+    
+    def _can_actor_act(self, actor_id):
+        return False

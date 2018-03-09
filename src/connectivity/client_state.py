@@ -18,19 +18,19 @@
 
 import time
 from math import ceil, floor
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
     packet_conn_pong
 from utils.freecivlog import freelog
 
 C_S_INITIAL = 0    #/* Client boot, only used once on program start. */
 C_S_PREPARING = 1  #/* Main menu (disconnected) and connected in pregame. */
-C_S_RUNNING = 2    #/* Connected with game_info in progress. */
-C_S_OVER = 3       #/* Connected with game_info over. */
+C_S_RUNNING = 2    #/* Connected with game in progress. */
+C_S_OVER = 3       #/* Connected with game over. */
 
-class ClientState(CivEvtHandler):
+class ClientState(CivPropController):
     def __init__(self, ws_client, rule_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.civclient_state = C_S_INITIAL
         self.connect_error = False
@@ -236,7 +236,7 @@ class ClientState(CivEvtHandler):
             #setInterval(update_metamessage_game_running_status, 200000)
 
     def update_metamessage_game_running_status(self):
-        """Updates message on the metaserver during a game_info."""
+        """Updates message on the metaserver during a game."""
         if "playing" in self.client["conn"] and not self.metamessage_changed:
             pplayer = self.client["conn"]["playing"]
             metasuggest  = self.rule_ctrl.nations[pplayer['nation']]['adjective'] + " | "

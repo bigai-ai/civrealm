@@ -19,16 +19,17 @@
 ***********************************************************************/
 '''
 
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.freecivlog import freelog
+from game.info_states import GameState
 
 #see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
 IDENTITY_NUMBER_ZERO = 0
 
-class GameCtrl(CivEvtHandler):
+class GameCtrl(CivPropController):
     def __init__(self, ws_client):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
 
         self.register_handler(13, "handle_scenario_description")
         self.register_handler(180, "handle_scenario_info")
@@ -56,33 +57,26 @@ class GameCtrl(CivEvtHandler):
         self.register_handler(245, "handle_play_music")
         self.register_handler(260, "handle_info_text_message")
 
-        self.game_info = None
-        self.calendar_info = None
+        self.calendar_info = {}
         self.scenario_info = {}
         self.page_msg = {}
 
-    def get_current_state(self, pplayer):
-        state = {}
-        if pplayer != None:
-            state.update(self.calendar_info)
-            state.update(self.scenario_info)
-
-        return state
+        self.prop_state = GameState(self.scenario_info, self.calendar_info)
 
     def handle_scenario_info(self, packet):
         """
-        Receive scenario information about the current game_info.
+        Receive scenario information about the current game.
 
-        The current game_info is a scenario game_info if scenario_info's 'is_scenario'
+        The current game is a scenario game if scenario_info's 'is_scenario'
         field is set to true.
         """
-        self.scenario_info = packet
+        self.scenario_info.update(packet)
 
     def handle_scenario_description(self, packet):
         """Receive scenario description of the current scenario."""
         self.scenario_info['description'] = packet['description']
 
-        #/* Show the updated game_info information. */
+        #/* Show the updated game information. */
         #update_game_info_pregame()
 
     def handle_game_load(self, packet):
@@ -91,7 +85,7 @@ class GameCtrl(CivEvtHandler):
 
     def handle_calendar_info(self, packet):
         """Handle the calendar info packet."""
-        self.calendar_info = packet
+        self.calendar_info.update(packet)
 
     def handle_page_msg(self, packet):
         """Page_msg header handler."""

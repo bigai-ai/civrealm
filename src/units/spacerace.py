@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.fc_types import packet_spaceship_launch
 from utils.base_action import Action
 
@@ -31,10 +31,10 @@ SSHIP_PLACE_HABITATION = 3
 SSHIP_PLACE_LIFE_SUPPORT = 4
 SSHIP_PLACE_SOLAR_PANELS = 5
 
-class SpaceCtrl(CivEvtHandler):
+class SpaceCtrl(CivPropController):
     """ Controls spaceship information collection from server and state/actions towards spaceship"""
     def __init__(self, ws_client, rule_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.spaceship_info = {}
         self.register_handler(137, "handle_spaceship_info")

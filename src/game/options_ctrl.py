@@ -16,7 +16,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
+from game.info_states import ServerState
 
 """
 /* The server will send information about its settings. It is stored here.
@@ -25,7 +26,7 @@ from connectivity.Basehandler import CivEvtHandler
 
 from utils.fc_types import TRUE, FALSE
 
-class OptionCtrl(CivEvtHandler):
+class OptionCtrl(CivPropController):
     """
         The "options" file handles actual "options", and also view options,
         message options, dialog/report settings, cma settings, server settings,
@@ -33,9 +34,9 @@ class OptionCtrl(CivEvtHandler):
     """
 
     def __init__(self, ws_client):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.server_settings = {}
-
+        self.prop_state = ServerState(self.server_settings)
 
         #/** Defaults for options normally on command line **/
 
@@ -185,9 +186,3 @@ class OptionCtrl(CivEvtHandler):
     def handle_server_setting_control(self, packet):
         #/* TODO: implement */
         pass
-
-    def get_current_state(self, pplayer):
-        return self.server_settings
-
-    def get_current_options(self, pplayer):
-        return None

@@ -20,29 +20,26 @@
 '''
 
 import random
-from time import sleep, time
-
-from connectivity import clinet
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
-from players.player import PlayerCtrl, PLRF_AI
+from players.player_ctrl import PlayerCtrl, PLRF_AI
 from players.diplomacy import DiplomacyCtrl
 from players.government import GovernmentCtrl
 
-from game_info.game import GameCtrl
-from game_info.ruleset import RulesetCtrl
-from game_info.options import OptionCtrl
+from game.game_ctrl import GameCtrl
+from game.ruleset import RulesetCtrl
+from game.options_ctrl import OptionCtrl
 
-from units.unit import UnitCtrl
+from units.unit_ctrl import UnitCtrl
 from mapping.map_ctrl import MapCtrl
 from city.city_ctrl import CityCtrl
-from research.tech import TechCtrl
+from research.tech_ctrl import TechCtrl
 from utils.fc_events import E_UNDEFINED
 from utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from utils.freecivlog import freelog
 
-class CivClient(CivEvtHandler):
+class CivClient(CivPropController):
     def __init__(self, a_bot, user_name, client_port=6001):
         self.ai_skill_level = 3
         self.nation_select_id = -1
@@ -69,7 +66,7 @@ class CivClient(CivEvtHandler):
         self.controller_list = {}
 
     def init_controller(self):
-        CivEvtHandler.__init__(self, self.ws_client)
+        CivPropController.__init__(self, self.ws_client)
 
         self.register_handler(25, "handle_chat_msg")
         self.register_handler(28, "handle_early_chat_msg")
@@ -100,7 +97,7 @@ class CivClient(CivEvtHandler):
 
         self.gov_ctrl = GovernmentCtrl(self.ws_client, self.city_ctrl, self.rule_ctrl)
 
-        self.controller_list = {"game_info": self.game_ctrl,
+        self.controller_list = {"game": self.game_ctrl,
                                 "rules": self.rule_ctrl,
                                 "mapping": self.map_ctrl,
                                 "player": self.player_ctrl,
@@ -163,7 +160,7 @@ class CivClient(CivEvtHandler):
             self.pregame_choose_nation(player_id)
 
         self.clstate.pregame_start_game()
-        #/* set state of Start game_info button depending on if user is ready. */
+        #/* set state of Start game button depending on if user is ready. */
 
         #self.clstate.update_metamessage_on_gamestart()
         #if self.player_ctrl.is_player_ready():
@@ -220,7 +217,7 @@ class CivClient(CivEvtHandler):
       only setting itself up - other chat messages might be just something
       sent to all clients, and we might want to still consider ourselves
       "not connected" (not receivers of those messages) until we are fully
-      in the game_info.
+      in the game.
         """
         #/* Handle as a regular chat message for now. */
         self.handle_chat_msg(packet)
@@ -243,9 +240,9 @@ class CivClient(CivEvtHandler):
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
         else:
             if "/metamessage" in message:
-                return  #//don't spam message dialog on game_info start.
+                return  #//don't spam message dialog on game start.
             if "Metaserver message string" in message:
-                return  #//don't spam message dialog on game_info start.
+                return  #//don't spam message dialog on game start.
 
         packet['message'] = message
         print(packet)
@@ -285,7 +282,7 @@ class CivClient(CivEvtHandler):
         """
             Remove, add, or update dummy connection struct representing some
             connection to the server, with info from packet_conn_info.
-            Updates player and game_info connection lists.
+            Updates player and game connection lists.
             Calls update_players_dialog() in case info for that has changed.
             99% done.
         """

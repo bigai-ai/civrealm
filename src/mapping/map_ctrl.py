@@ -18,10 +18,12 @@
 from math import floor, sqrt
 import numpy as np
 
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.utility import FC_WRAP, byte_to_bit_array, sign
 from BitVector import BitVector
 from mapping.tile import TileState, TILE_UNKNOWN
+from utils.base_state import PlainState
+from mapping.map_state import MapState
 
 DIR8_STAY = -1
 DIR8_NORTHWEST = 0
@@ -72,9 +74,9 @@ T_FIRST = 0#/* The first terrain value. */
 DIR_DX = [ -1, 0, 1, -1, 1, -1, 0, 1 ]
 DIR_DY = [ -1, -1, -1, 0, 0, 1, 1, 1 ]
 
-class MapCtrl(CivEvtHandler):
+class MapCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.map = {}
         self.tiles = []
         self.player_map = {}
@@ -83,6 +85,7 @@ class MapCtrl(CivEvtHandler):
         self.player_map["extras"] = None
          
         self.rule_ctrl = rule_ctrl
+        self.prop_state = MapState(self.player_map)
         self.register_handler(15, "handle_tile_info")
         self.register_handler(17, "handle_map_info")
         self.register_handler(253, "handle_set_topology")
@@ -95,9 +98,6 @@ class MapCtrl(CivEvtHandler):
             return None
 
         return self.index_to_tile(pcity['tile'])
-
-    def get_current_state(self, pplayer):
-        return self.player_map
 
     def map_allocate(self):
         """

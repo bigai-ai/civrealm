@@ -17,34 +17,39 @@
 """
 from BitVector.BitVector import BitVector
 
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
     ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_NOTHING,\
     ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\
-    USSDT_UNQUEUE
+    USSDT_UNQUEUE, USSDT_QUEUE, ACTION_FOUND_CITY
 
 from units.spacerace import SpaceCtrl
 from units.action_dialog import action_prob_possible
-from units.unit_action import UnitActionCtrl, FocusUnit
 
-from game_info.game import IDENTITY_NUMBER_ZERO
+from game.game_ctrl import IDENTITY_NUMBER_ZERO
 from players.diplomacy import DS_ALLIANCE, DS_TEAM
-from mapping.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
-    DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_STAY
+from units.unit_actions import UnitActions, UnitAction, FocusUnit
+from units.unit_state import UnitState
 
-class UnitCtrl(CivEvtHandler):
+class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.units = {}
         self.rule_ctrl = rule_ctrl
         self.map_ctrl = map_ctrl
         self.player_ctrl = player_ctrl
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
-        self.unit_action_ctrl = UnitActionCtrl(ws_client, map_ctrl, city_ctrl, rule_ctrl,
-                                               self)
+        
+        self.base_action = UnitAction(None)
+        
+        self.prop_state = UnitState(self, rule_ctrl, city_ctrl)
+        self.prop_actions = UnitActions(ws_client, self, rule_ctrl, player_ctrl, map_ctrl, city_ctrl)
+        
         self.space_ctrl = SpaceCtrl(ws_client, player_ctrl)
 
+        self.register_handler(44, "handle_city_name_suggestion_info")
+        
         self.register_handler(62, "handle_unit_remove")
         self.register_handler(63, "handle_unit_info")
         self.register_handler(64, "handle_unit_short_info")
@@ -58,80 +63,8 @@ class UnitCtrl(CivEvtHandler):
         self.register_handler(241, "handle_worker_task")
         self.register_handler(258, "handle_goto_path")
 
-        self.unit_action_ctrl.register_with_parent(self)
+        #self.unit_action_ctrl.register_with_parent(self)
         self.space_ctrl.register_with_parent(self)
-
-    def get_current_state(self, pplayer):
-        """
-            Function returns the current state of all units of player pplayer
-        """
-        player_units = {}
-        for unit_id in self.units.keys():
-            punit = self.units[unit_id]
-
-            if self.unit_owner(punit) == pplayer:
-                player_units[unit_id] = self._get_unit_infos(punit)
-        return player_units
-
-    def get_current_options(self, pplayer):
-        """
-            Returns the action options for all units of player pplayer
-        """
-        player_unit_options = {}
-
-        if self.player_ctrl.clstate.client_is_observer():
-            return player_unit_options
-
-        for unit_id in self.units.keys():
-            punit = self.units[unit_id]
-            if self.unit_owner(punit) == pplayer:
-                ptile = self.map_ctrl.index_to_tile(punit['tile'])
-                if ptile is None:
-                    continue
-                move_dirs = [DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,
-                             DIR8_SOUTH, DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHEAST]
-
-                player_unit_options[unit_id] = self.get_unit_order_commands(punit, ptile, DIR8_STAY)
-                for dir8 in move_dirs:
-                    player_unit_options[unit_id].update(self.get_unit_order_commands(punit, ptile, dir8))
-
-
-        return player_unit_options
-
-    def get_unit_order_commands(self, punit, ptile, dir8=DIR8_STAY):
-        """Enables and disables the correct units commands for the unit in focus."""
-        ptype = self.rule_ctrl.unit_type(punit)
-        pplayer = self.player_ctrl.clstate.cur_player()
-
-        newtile = self.map_ctrl.mapstep(ptile, dir8) if dir8 != DIR8_STAY else ptile
-
-        pcity = self.city_ctrl.tile_city(newtile)
-
-        self.unit_action_ctrl.set_current_focus(punit, ptype, newtile, pcity, pplayer)
-        unit_actions = self.unit_action_ctrl.get_action_options(dir8)
-
-        return unit_actions
-
-    def trigger_action(self, unit_id, a_action, target_tile=None):
-        """
-            Triggers action for unit punit and action a_action
-        """
-        punit = self._idex_lookup_unit(unit_id)
-        self.unit_action_ctrl.trigger_action(punit, a_action, target_tile)
-
-    def _get_unit_infos(self, aunit):
-        unit_state = {}
-
-        ptype = self.rule_ctrl.unit_type(aunit)
-        unit_state["type"] = {}
-        #name, helptext, attack_strength, defense_strength, firepower
-        unit_state["type"].update(ptype)
-        unit_state["can_transport"] = ptype['transport_capacity'] > 0
-        unit_state["home_city"] = self.city_ctrl.get_unit_homecity_name(aunit)
-        unit_state["moves_left"] = self.get_unit_moves_left(aunit)
-        unit_state["health"] = aunit['hp']
-        unit_state["veteran"] = aunit['veteran']
-        return unit_state
 
     def unit_owner(self, punit):
         """return player object for player owning punit"""
@@ -243,7 +176,7 @@ class UnitCtrl(CivEvtHandler):
 
     def find_unit_by_number(self, uid):
         """
-          Find unit out of all units in game_info: now uses fast idex method,
+          Find unit out of all units in game: now uses fast idex method,
           instead of looking through all units of all players.
         """
         if uid in self.units.keys():
@@ -580,3 +513,43 @@ class UnitCtrl(CivEvtHandler):
         """/* It is better to show the "Keep moving" option one time to much than
             * one time to little. */"""
         return True
+
+    def request_unit_act(self, pval):
+        funits = self._get_units_in_focus()
+        for punit in funits:
+            packet = {"pid": packet_unit_sscs_set, "unit_id" : punit['id'],
+                      "type": USSDT_QUEUE,
+                      "value"   : punit['tile'] if pval=="unit" else pval}
+
+            #Have the server record that an action decision is wanted for this
+            #unit.
+            self.ws_client.send_request(packet)
+
+    def request_unit_act_sel_vs(self, ptile):
+        """An action selection dialog for the selected units against the specified
+          tile is wanted."""
+        self.request_unit_act(ptile['index'])
+
+    def request_unit_act_sel_vs_own_tile(self):
+        """An action selection dialog for the selected units against the specified
+          unit"""
+        self.request_unit_act("unit")
+
+    def handle_city_name_suggestion_info(self, packet):
+        """
+      /* A suggested city name can contain an apostrophe ("'"). That character
+       * is also used for single quotes. It shouldn't be added unescaped to a
+       * string that later is interpreted as HTML. */
+      /* TODO: Forbid city names containing an apostrophe or make sure that all
+       * JavaScript using city names handles it correctly. Look for places
+       * where a city name string is added to a string that later is
+       * interpreted as HTML. Avoid the situation by directly using JavaScript
+       * like below or by escaping the string. */
+       """
+        #/* Decode the city name. */
+        #suggested_name = urllib.unquote(packet['name'])
+        unit_id = packet['unit_id']
+        actor_unit = self.find_unit_by_number(unit_id)
+        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
+                                                 ACTION_FOUND_CITY, name=packet['name'])
+        self.ws_client.send_request(packet)

@@ -15,6 +15,8 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from utils.base_state import PlainState
+from connectivity.Basehandler import CivPropController
 
 CLAUSE_ADVANCE = 0
 CLAUSE_GOLD = 1
@@ -36,20 +38,30 @@ DS_NO_CONTACT = 5
 DS_TEAM = 6
 DS_LAST = 7
 
-from connectivity.Basehandler import CivEvtHandler
-from players.player_actions import AddClause, AddTradeTechClause, StartNegotiate,\
-    StopNegotiate, AcceptTreaty, CancelClause
+class DiplomacyState(PlainState):
+    def __init__(self, diplstates):
+        PlainState.__init__(self)
+        self.diplstates = diplstates
+    
+    def _lock_properties(self):
+        #Ignoring locking of properties ensures that state of states can be generated
+        #See Playerstate for more infos
+        pass
 
-
-class DiplomacyCtrl(CivEvtHandler):
+    def _update_state(self, pplayer):
+        player_id = pplayer["playerno"]
+        return {"diplstates%i" % player_id: self.diplstates[player_id]}
+        
+class DiplomacyCtrl(CivPropController):
     def __init__(self, ws_client, clstate, ruleset, dipl_evaluator):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}
         self.active_diplomacy_meeting_id = None
         self.ruleset = ruleset
         self.clstate = clstate
+        self.prop_state = DiplomacyState(self.diplstates)
         self.dipl_evaluator = dipl_evaluator
 
         self.register_handler(59, "handle_player_diplstate")
@@ -93,47 +105,6 @@ class DiplomacyCtrl(CivEvtHandler):
                 state["shared_vision"] += 1 # "To you"
             if cur_player['gives_shared_vision'].isSet(player_id):
                 state["shared_vision"] += 2 # "To Them
-        """
-
-    def get_counterpart_options(self, counterpart):
-        cur_player = self.clstate.cur_player()
-        dipl_actions = [StartNegotiate(self.ws_client, counterpart),
-                        StopNegotiate(self.ws_client, counterpart),
-                        AcceptTreaty(self.ws_client, counterpart)]
-
-        dipl_actions.extend(self.get_clause_options(cur_player, counterpart))
-        dipl_actions.extend(self.get_clause_options(counterpart, cur_player))
-        return dict([(act.action_key, act) for act in dipl_actions])
-
-    def get_clause_options(self, giver, taker):
-        cur_p = self.clstate.cur_player()
-        base_clauses = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
-                        CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
-
-        dipl_actions  = [AddClause(self.ws_client, ctype, 1, giver, taker, cur_p)
-                         for ctype in base_clauses]
-
-        dipl_actions.extend([CancelClause(self.ws_client, ctype, 1, giver, taker, cur_p)
-                             for ctype in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]])
-
-        dipl_actions.extend([AddTradeTechClause(self.ws_client, CLAUSE_ADVANCE, tech_id,
-                                                giver, taker, cur_p, self.ruleset)
-                                                for tech_id in self.ruleset.techs])
-
-        return dipl_actions
-
-        """
-        if self.ruleset.game_info["trading_city"]:
-            for city_id in cities:
-                pcity = cities[city_id]
-                if city_owner(pcity) == giver and not does_city_have_improvement(pcity, "Palace"):
-                    all_clauses.append({"type": CLAUSE_CITY, "value": city_id})
-
-        if self.ruleset.game_info["trading_gold"]:
-            if giver == self.player_ctrl.clstate.cur_player()['playerno']:
-                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#self_gold").val(value)})
-            else:
-                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#counterpart_gold").val(value)})
         """
 
     def handle_player_diplstate(self, packet):

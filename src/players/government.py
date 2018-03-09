@@ -16,11 +16,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.fc_types import packet_player_change_government, packet_report_req,\
     RPT_CERTAIN
 from utils import base_action
-from research.tech import ReqCtrl
+from utils.base_action import ActionList
+from utils.base_state import PlainState
+from research.req_info import ReqCtrl
 
 REPORT_WONDERS_OF_THE_WORLD = 0
 REPORT_TOP_5_CITIES = 1
@@ -34,31 +36,41 @@ GOV_COMMUNISM = 3
 GOV_REPUBLIC = 4
 GOV_DEMOCRACY = 5
 
-class GovernmentCtrl(CivEvtHandler):
-    def __init__(self, ws_client, city_ctrl, rule_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+class GovState(PlainState):
+    def __init__(self, rule_ctrl):
+        PlainState.__init__(self)
+        self.rule_ctrl = rule_ctrl
+        
+    def _update_state(self, pplayer):
+        self._state["name"] = self.rule_ctrl.governments[pplayer['government']]['name']
+        self._state["id"] = self.rule_ctrl.governments[pplayer['government']]['id']
+        self._state["helptext"] = self.rule_ctrl.governments[pplayer['government']]['helptext']
 
+class GovActions(ActionList):
+    def __init__(self, ws_client, rule_ctrl, city_ctrl):
+        ActionList.__init__(self, ws_client)
+        self.rule_ctrl = rule_ctrl
+        self.city_ctrl = city_ctrl
+
+    def update(self, pplayer):
+        player_id = pplayer["playerno"]
+        if not self.actor_exists(player_id):
+            self.add_actor(player_id)
+            for govt_id in self.rule_ctrl.governments:
+                act = ChangeGovernment(self.ws_client, govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
+                self.add_action(player_id, act)
+
+class GovernmentCtrl(CivPropController):
+    def __init__(self, ws_client, city_ctrl, rule_ctrl):
+        CivPropController.__init__(self, ws_client)
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl
+        self.prop_state = GovState(rule_ctrl)
+        self.prop_actions = GovActions(ws_client, rule_ctrl, city_ctrl)
 
     def queue_preinfos(self):
         for rtype in [REPORT_ACHIEVEMENTS, REPORT_DEMOGRAPHIC, REPORT_TOP_5_CITIES, REPORT_WONDERS_OF_THE_WORLD]:
             self.request_report(rtype)
-
-    def get_current_state(self,pplayer):
-        state = {}
-        state["name"] = self.rule_ctrl.governments[pplayer['government']]['name']
-        state["id"] = self.rule_ctrl.governments[pplayer['government']]['id']
-        state["helptext"] = self.rule_ctrl.governments[pplayer['government']]['helptext']
-        return state
-
-    def get_current_options(self, pplayer):
-        actions  = [ChangeGovernment(self.ws_client, govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
-                    for govt_id in self.rule_ctrl.governments]
-        
-        opt_dict = dict([(act.action_key, act) for act in actions])
-        #Typical structure for options is {actor: {action_key: action_object}} -> here translated to cur_user : options}
-        return {0: opt_dict}
 
     @staticmethod
     def government_max_rate(govt_id):
@@ -100,8 +112,8 @@ class ChangeGovernment(base_action.Action):
 
         pplayer = self.pplayer
         return self.city_ctrl.player_has_wonder(pplayer["playerno"], 63) or \
-               ReqCtrl.are_reqs_active(pplayer, None, None, None, None, None, None,
-                                       self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN)
+               ReqCtrl.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
+                                       RPT_CERTAIN)
     def _action_packet(self):
         packet = {"pid" : packet_player_change_government,
                   "government" : self.govt_id}

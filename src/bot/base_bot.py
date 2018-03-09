@@ -33,20 +33,7 @@ class BaseBot:
     def _conduct_moves(self, info_controls, turn_opts, turn_wants):
         print("Carry out controller moves")
         for ctrl_type in info_controls:
-            ctrl = info_controls[ctrl_type]
-            for a_actor in turn_wants[ctrl_type]:
-                wants = turn_wants[ctrl_type][a_actor]
-                if wants == {}:
-                    print(a_actor, ctrl_type)
-                    continue
-                try:
-                    act_most_wanted = max(wants.iterkeys(), key=(lambda key: wants[key]))
-                except:
-                    print(a_actor, ctrl_type, turn_wants[ctrl_type])
-                    raise
-                if wants[act_most_wanted] != ACTION_UNWANTED:
-                    print(act_most_wanted)
-                    turn_opts[ctrl_type][a_actor][act_most_wanted].trigger_action()
+            turn_opts[ctrl_type].trigger_wanted_actions(turn_wants[ctrl_type])
 
     def _save_history(self, turn_no, turn_state, turn_opts, turn_wants):
         bot_turns = len(self.turn_history)
@@ -65,7 +52,7 @@ class BaseBot:
 
     def conduct_turn(self, pplayer, info_controls):
         '''
-        Main starting point for Freeciv-web Bot - to be called when game_info is ready
+        Main starting point for Freeciv-web Bot - to be called when game is ready
         '''
         print("Starting Turn")
         self.turn += 1
@@ -107,10 +94,10 @@ class BaseBot:
     def calculate_non_supported_actions(self, a_options):
         """Ensures that non supported actions are "UNWANTED", i.e., will not be triggered"""
         action_wants = {}
-        if a_options != None and a_options != []:
-            for a_actor in a_options:
+        if a_options != None:
+            for a_actor in a_options.get_actors():
                 action_wants[a_actor] = {}
-                for a_action in a_options[a_actor]:
+                for a_action in a_options.get_actions(a_actor):
                     action_wants[a_actor][a_action] = ACTION_UNWANTED
         return action_wants
     

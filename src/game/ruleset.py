@@ -17,10 +17,12 @@
 """
 
 from utils.fc_types import VUT_ADVANCE
-from research.tech import A_NONE, REQ_RANGE_PLAYER
+from research.tech_ctrl import A_NONE
 import sys
 
 from utils.freecivlog import freelog
+from game.info_states import RuleState
+from research.req_info import REQ_RANGE_PLAYER
 
 EXTRA_RIVER = None
 EXTRA_ROAD = None
@@ -36,14 +38,14 @@ EXTRA_AIRBASE = None
 Freeciv Web Client.
 This file contains the handling-code for packets from the civserver.
 """
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 
 U_NOT_OBSOLETED = None
 
-class RulesetCtrl(CivEvtHandler):
+class RulesetCtrl(CivPropController):
 
     def __init__(self, ws_client):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
 
         self.register_handler(9, "handle_ruleset_tech_class")
         self.register_handler(12, "handle_endgame_report")
@@ -122,6 +124,8 @@ class RulesetCtrl(CivEvtHandler):
         self.nations = {}
         self.effects = {}
         self.extras = {}
+        
+        self.prop_state = RuleState(self.game_info)
 
     def handle_ruleset_terrain(self, packet):
         #/* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */
@@ -448,23 +452,58 @@ class RulesetCtrl(CivEvtHandler):
                 if req['kind'] == 1 and req['present']:
                     result.append(req['value'])
         return result
+    
+    def is_tech_req_for_goal(self, check_tech_id, goal_tech_id):
+        """
+         Determines if the technology 'check_tech_id' is a requirement
+         for reaching the technology 'goal_tech_id'.
+        """
+        if check_tech_id == goal_tech_id:
+            return True
+        if goal_tech_id == 0 or check_tech_id == 0:
+            return False
 
+        if goal_tech_id not in self.techs:
+            return False
+
+        goal_tech = self.techs[goal_tech_id]
+
+        for rid in goal_tech['req']:
+            if rid == check_tech_id:
+                return True
+            elif self.is_tech_req_for_goal(check_tech_id, rid):
+                return True
+        return False
+
+    def is_tech_req_for_tech(self, check_tech_id, next_tech_id):
+        """
+         Determines if the technology 'check_tech_id' is a direct requirement
+         for reaching the technology 'next_tech_id'.
+        """
+        if check_tech_id == next_tech_id:
+            return False
+        if next_tech_id == 0 or check_tech_id == 0:
+            return False
+
+        next_tech = self.techs[next_tech_id]
+        if next_tech is None:
+            return False
+
+        for rid in next_tech['req']:
+            if check_tech_id == rid:
+                return True
+        return False
+    
     @staticmethod
     def universal_build_shield_cost(target):
         """Return the number of shields it takes to build this universal."""
         return target['build_cost']
 
     def handle_game_info(self, packet):
-        self.game_info = packet
+        self.game_info.update(packet)
 
     def handle_new_year(self, packet):
         self.game_info['year'] = packet['year']
         #/* TODO: Support calender fragments. */
         self.game_info['fragments'] = packet['fragments']
         self.game_info['turn'] = packet['turn']
-
-    def get_current_options(self, pplayer):
-        return CivEvtHandler.get_current_options(self, pplayer)
-
-    def get_current_state(self, pplayer):
-        return CivEvtHandler.get_current_state(self, pplayer)

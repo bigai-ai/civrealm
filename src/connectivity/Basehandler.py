@@ -3,11 +3,19 @@ Created on 29.12.2017
 
 @author: christian
 '''
+from utils.base_action import ActionList
+from utils.base_state import PropState
 
-class CivEvtHandler():
+class CivPropController():
+    """ Controller for certain properties of the Civilization "Board
+        The controller processes messages from the freeciv server (e.g., stores data)
+        and can send information back to  
+    """ 
     def __init__(self, ws_client):
         self.hdict = {}
         self.ws_client = ws_client
+        self.prop_state = PropState()
+        self.prop_actions = ActionList(ws_client)
 
     def register_with_parent(self, parent):
         for key in self.hdict.keys():
@@ -24,9 +32,12 @@ class CivEvtHandler():
             handle_func(data)
         else:
             print("Handler function for pid %i not yet implemented" % pid)
-
+    
     def get_current_state(self, pplayer):
-        return None
+        self.prop_state.update(pplayer)
+        return self.prop_state.get_state()
 
     def get_current_options(self, pplayer):
-        return None
+        self.prop_actions.update(pplayer)
+        return self.prop_actions
+    

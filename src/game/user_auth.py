@@ -247,7 +247,7 @@ function create_new_freeciv_user_account_request(action_type)
        simpleStorage.set("username", username)
        simpleStorage.set("password", password)
        if (action_type == "pbem") {
-         challenge_pbem_player_dialog("New account created. Your username is: " + username + ". You can now start a new PBEM game_info or wait for an invitation for another player.")
+         challenge_pbem_player_dialog("New account created. Your username is: " + username + ". You can now start a new PBEM game or wait for an invitation for another player.")
        } else {
          $("#dialog").dialog('close')
          network_init()
@@ -278,7 +278,7 @@ function show_customize_nation_dialog(player_id) {
   var message = "<br>New nation name: <input id='new_nation_adjective' type='text' size='30' value='" + pnation['adjective'] + "'><br><br>"
        + "Upload new flag: <input type='file' id='newFlagFileInput'><br><br>"
        + "For best results scale the image to 29 x 20 pixels before uploading. <br><br>"
-       + "(Note: the customized nation and flag will only be active during the current game_info session and will not be visible to other players.)"
+       + "(Note: the customized nation and flag will only be active during the current game session and will not be visible to other players.)"
 
   $("#dialog").html(message)
   $("#dialog").attr("title", "Customize nation: " + pnation['adjective'])

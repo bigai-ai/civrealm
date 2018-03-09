@@ -4,12 +4,86 @@ Created on 24.02.2018
 @author: christian
 '''
 from utils import base_action
+from utils.base_action import ActionList
 from utils.fc_types import packet_player_rates,\
     packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req,\
     packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
-from players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE
-from research.tech import TECH_KNOWN, TECH_UNKNOWN, TECH_PREREQS_KNOWN, TechCtrl
+from players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
+    CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE
+ 
+from players.government import GovernmentCtrl
+from research.tech_helpers import is_tech_known, player_invention_state,\
+    TECH_UNKNOWN, TECH_PREREQS_KNOWN
+
+
+class PlayerOptions(ActionList):
+    def __init__(self, ws_client, rule_ctrl, players, clstate):
+        ActionList.__init__(self, ws_client)
+        self.players = players
+        self.clstate = clstate
+        self.rule_ctrl = rule_ctrl
+
+    def update(self, pplayer):
+        for counter_id in self.players:
+            if self.actor_exists(counter_id):
+                continue
+            self.add_actor(counter_id)
+            
+            counterpart = self.players[counter_id]
+            if counterpart == pplayer:
+                self.get_player_options(counter_id, pplayer)
+            else:
+                self.get_counterpart_options(counter_id, counterpart)
+
+    def get_player_options(self, counter_id, pplayer):
+        maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
+
+        cur_state = {"ws_client": self.ws_client, "tax": pplayer['tax'],
+                 "sci": pplayer["science"], "lux": pplayer["luxury"],"max_rate": maxrate}
+        
+        self.add_action(counter_id, IncreaseLux(**cur_state))
+        self.add_action(counter_id, DecreaseLux(**cur_state))
+        self.add_action(counter_id, DecreaseSci(**cur_state))
+        self.add_action(counter_id, IncreaseSci(**cur_state))
+
+    def get_counterpart_options(self, counter_id, counterpart):
+        cur_player = self.clstate.cur_player()
+        dipl_actions = [StartNegotiate(self.ws_client, counterpart),
+                        StopNegotiate(self.ws_client, counterpart),
+                        AcceptTreaty(self.ws_client, counterpart)]
+
+        dipl_actions.extend(self.get_clause_options(counter_id, cur_player, counterpart))
+        dipl_actions.extend(self.get_clause_options(counter_id, counterpart, cur_player))
+        return dict([(act.action_key, act) for act in dipl_actions])
+
+    def get_clause_options(self, counter_id, giver, taker):
+        cur_p = self.clstate.cur_player()
+        base_clauses = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
+                        CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
+
+        for ctype in base_clauses:
+            self.add_action(counter_id, AddClause(self.ws_client, ctype, 1, giver, taker, cur_p))
+
+        for ctype in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
+            self.add_action(counter_id, CancelClause(self.ws_client, ctype, 1, giver, taker, cur_p))
+
+        for tech_id in self.rule_ctrl.techs:
+            self.add_action(counter_id, AddTradeTechClause(self.ws_client, CLAUSE_ADVANCE, tech_id,
+                                                           giver, taker, cur_p, self.rule_ctrl))
+        """
+        if self.ruleset.game["trading_city"]:
+            for city_id in cities:
+                pcity = cities[city_id]
+                if city_owner(pcity) == giver and not does_city_have_improvement(pcity, "Palace"):
+                    all_clauses.append({"type": CLAUSE_CITY, "value": city_id})
+
+        if self.ruleset.game["trading_gold"]:
+            if giver == self.player_ctrl.clstate.cur_player()['playerno']:
+                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#self_gold").val(value)})
+            else:
+                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#counterpart_gold").val(value)})
+        """
 
 class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
@@ -115,12 +189,12 @@ class AddClause(RemoveClause):
             return self.giver == self.cur_player
         return True
 
-    def trigger_action(self):
+    def trigger_action(self, ws_client):
         if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
             #// eg. creating peace treaty requires removing ceasefire first.
             rem_packet = RemoveClause._action_packet(self)
-            self.ws_client.send_request(rem_packet)
-        RemoveClause.trigger_action(self)
+            ws_client.send_request(rem_packet)
+        RemoveClause.trigger_action(self, ws_client)
 
     def _action_packet(self):
         packet = {"pid" : packet_diplomacy_create_clause_req,
@@ -153,6 +227,6 @@ class AddTradeTechClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
-        return TechCtrl.player_invention_state(self.giver, self.value) == TECH_KNOWN and \
-               TechCtrl.player_invention_state(self.taker, self.value) in [TECH_UNKNOWN,
-                                                                           TECH_PREREQS_KNOWN]
+        return is_tech_known(self.giver, self.value) and \
+               player_invention_state(self.taker, self.value) in [TECH_UNKNOWN,
+                                                                  TECH_PREREQS_KNOWN]

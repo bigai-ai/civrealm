@@ -19,25 +19,18 @@ from BitVector import BitVector
 from utils.utility import byte_to_bit_array
 
 from connectivity.client_state import C_S_PREPARING
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 
 from players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
-from players.government import GovernmentCtrl
-from players.player_actions import IncreaseLux, DecreaseLux, IncreaseSci, DecreaseSci
+from players.player_state import PlayerState, PLRF_AI
+from players.player_actions import PlayerOptions
 
-from research.tech import TECH_KNOWN
 from city.city_state import CityState
-from time import time
-MAX_NUM_PLAYERS = 30
-MAX_AI_LOVE = 1000
-#/* The plr_flag_id enum. */
-PLRF_AI = 0
-PLRF_SCENARIO_RESERVED = 1
-PLRF_COUNT = 2
+from research.tech_helpers import TECH_KNOWN
 
-class PlayerCtrl(CivEvtHandler):
+class PlayerCtrl(CivPropController):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
         self.register_handler(58, "handle_player_attribute_chunk")
@@ -46,142 +39,12 @@ class PlayerCtrl(CivEvtHandler):
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
         self.dipl_ctrl = dipl_ctrl
-
-        self.ai_skills = ["Away", "Handicapped", "Novice", "Easy", "Normal",
-                          "Hard", "Cheating", "Experimental"]
-
         self.players = {}
         self.research_data = {}
         self.endgame_player_info = []
 
-    def get_current_state(self, pplayer):
-        player_id = pplayer["playerno"]
-        player_fields = ["culture", "current_research_cost", "gold", "government", "is_alive", 
-                 "luxury", "mood", "nation", "net_income", "revolution_finishes", 
-                 "science", "science_cost", "score", "target_government", "tax", 
-                 "tech_goal", "tech_upkeep", "techs_researched", "total_bulbs_prod",
-                 "turns_alive"]
-        state = {}
-         
-        state.update(dict([(key,value) for key,value in pplayer.items() if key in player_fields]))
-        no_humans = 0
-        no_ais = 0
-        
-        for pnum, opp_id in enumerate(self.players):
-            opponent = self.players[opp_id]
-            if opponent == pplayer:
-                continue
-            state["opponent_%i" % pnum] = self.get_opponent_state(pplayer, opponent)
-            if opponent["is_alive"]:
-                if opponent['flags'][PLRF_AI] != 0:
-                    no_ais += 1
-                elif pplayer['nturns_idle'] <= 4:
-                    no_humans += 1
-        
-        state["no_humans"] = no_humans
-        state["no_ais"] = no_ais
-        
-        #cbo = get_current_bulbs_output()
-        #bulbs = cbo.self_bulbs - cbo.self_upkeep
-        researched = pplayer['bulbs_researched']
-        research_cost = pplayer['current_research_cost']
-        state["research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
-
-        state["team_no"] = pplayer['team']
-        state["embassy_txt"] = self.get_embassy_text(player_id)
-    
-    def get_opponent_state(self, pplayer, opponent):
-        """
-            Get opponent intelligence with data depending on the establishment of an embassy.
-        """
-        
-        player_info = dict([(a_field, None) for a_field in ["gov", "gov_name", "gold", "tax", "science",
-                                                            "luxury", "capital", "bulbs_researched"
-                                                            "researching_cost", "research_progress"
-                                                            "research", "research_name"]])
-        player_info.update(dict([("invention_%i" % tech_id, None) for tech_id in self.rule_ctrl.techs]))
-        
-        player_info["col_love"] = self.col_love(opponent)
-        player_info["plr_score"] = self.get_score_text(opponent)
-        if opponent['flags'][PLRF_AI] != 0:
-            player_info["plr_type"] = self.get_ai_level_text(opponent) + " AI"
-        else:
-            player_info["plr_type"] = "Human"
-        
-        if self.clstate.client_is_observer() or pplayer["real_embassy"][opponent["playerno"]]:
-            self.update_opponent_state_embassy(opponent, player_info)
-        else:
-            self.update_opponent_state_hearsay(opponent, player_info)
-        return player_info
-    
-    def update_opponent_state_hearsay(self, pplayer, player_info):
-        """ Return opponent intelligence intelligence when there's no embassy."""
-    
-        if pplayer['government'] > 0:
-            player_info["gov"] = pplayer['government']
-            player_info["gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
-    
-        if pplayer['gold'] > 0:
-            player_info["gold"] = pplayer['gold']
-    
-        if "researching" in pplayer and pplayer['researching'] > 0 and pplayer['researching'] in self.rule_ctrl.techs:
-            player_info["research"] = pplayer['researching']
-            player_info["research_name"] = self.rule_ctrl.techs[pplayer['researching']]['name']
-    
-    def update_opponent_state_embassy(self, pplayer, player_info):
-        """ Return opponent intelligence intelligence when there's an embassy."""
-        
-        for a_field in ["gold", "tax", "science", "luxury"]:
-            player_info[a_field] = pplayer[a_field]
-        
-        player_info["gov"] = pplayer["government"]
-        player_info["gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
-        player_info["capital"] = None
-        #TODO:To be implemented
-        
-        research = self.research_get(pplayer)
-        
-        #TODO: future techs
-        
-        if research != None:
-            player_info["research"] = research['researching']
-            if research['researching'] in self.rule_ctrl.techs:
-                player_info["research_name"] = self.rule_ctrl.techs[research['researching']]['name']
-                player_info["bulbs_researched"] = research['bulbs_researched']
-                player_info["researching_cost"] = research['researching_cost']
-                researched = research['bulbs_researched']
-                research_cost = research['current_research_cost']
-                player_info["research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
-        
-        for tech_id in self.rule_ctrl.techs:
-            player_info["invention_%i" % tech_id] = research['inventions'][tech_id] == TECH_KNOWN
-
-    def get_current_options(self, pplayer):
-        player_options = {}
-        for counter_id in self.players:
-            counterpart = self.players[counter_id]
-            if counterpart == pplayer:
-                player_options[counterpart["playerno"]] = self.get_player_options(pplayer)
-            else:
-                player_options[counterpart["playerno"]] = self.dipl_ctrl.get_counterpart_options(counterpart)
-        return player_options
-
-    def get_player_options(self, pplayer):
-        if self.clstate.client_is_observer():
-            return
-
-        maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
-
-        cur_state = {"ws_client": self.ws_client,
-                 "tax": pplayer['tax'],
-                 "sci": pplayer["science"],
-                 "lux": pplayer["luxury"],
-                 "max_rate": maxrate}
-
-        changers = [IncreaseLux(**cur_state), DecreaseLux(**cur_state),
-                    IncreaseSci(**cur_state), DecreaseSci(**cur_state)]
-
-        return changers
+        self.prop_state = PlayerState(rule_ctrl, self, clstate, dipl_ctrl.diplstates, self.players)
+        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, self.players, clstate)
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -234,13 +97,6 @@ class PlayerCtrl(CivEvtHandler):
     def city_owner(self, pcity):
         return self.players[CityState.city_owner_player_id(pcity)]
 
-    def get_score_text(self, player):
-        if (player['score'] > 0 or self.clstate.client_is_observer()
-            or (self.clstate.is_playing() and player['playerno'] == self.clstate.cur_player()['playerno'])):
-            return player['score']
-        else:
-            return "?"
-
     def valid_player_by_number(self, playerno):
         #TODO:
         #pslot = self.player_slot_by_number(player_id)
@@ -292,36 +148,12 @@ class PlayerCtrl(CivEvtHandler):
         """Return the player index/number/id."""
         return player['playerno']
 
-    def get_embassy_text(self, player_id):
-        if self.clstate.client_is_observer() and not self.clstate.is_playing():
-            return "-"
-
-        pplayer = self.players[player_id]
-
-        cur_player = self.clstate.cur_player()
-        if player_id == cur_player['playerno']:
-            return "-"
-        elif cur_player["real_embassy"][player_id]:
-            return "We have embassy"
-        elif pplayer.real_embassy[cur_player['playerno']]:
-            return "They have embassy"
-        else:
-            return "No embassy"
-
-    def get_ai_level_text(self, player):
-        ai_level = player['ai_skill_level']
-        if 7 >= ai_level >= 0:
-            return self.ai_skills[ai_level]
-        else:
-            return "Unknown"
-
     def research_get(self, pplayer):
         """Returns the research object related to the given player."""
         if pplayer is None:
             return None
 
         return self.research_data[pplayer['playerno']]
-
 
     def get_nation_options(self, selected_player):
         player_id = selected_player
@@ -378,31 +210,7 @@ class PlayerCtrl(CivEvtHandler):
                           })
     """
 
-    def col_love(self, pplayer):
-        if (self.clstate.client_is_observer() or self.player_is_myself(pplayer['playerno'])
-            or not pplayer['flags'][PLRF_AI]> 0):
-            return "-"
-        else:
-            return self.love_text(pplayer['love'][self.clstate.cur_player()['playerno']])
-
-    @staticmethod
-    def love_text(love):
-        """
-           Return a text describing an AI's love for you.  (Oooh, kinky!!)
-          These words should be adjectives which can fit in the sentence
-          "The x are y towards us"
-          "The Babylonians are respectful towards us"
-        """
-
-        love_sizes = [-90, -70, -50, -25, -10, 10, 25, 50, 70, 90]
-        love_tags = ["Genocidal", "Belligerent", "Hostile", "Uncooperative",
-                     "Uneasy", "Neutral", "Respectful", "Helpful",
-                     "Enthusiastic", "Admiring"]
-        for lsize, ltag in zip(love_sizes, love_tags):
-            if love <= MAX_AI_LOVE* lsize / 100:
-                return ltag
-        return "Worshipful"
-
+    
     def pregame_getplayer_options(self):
         """Shows the pick nation dialog. This can be called multiple times, but will
           only call update_player_info_pregame_real once in a short timespan."""

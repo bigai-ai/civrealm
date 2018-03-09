@@ -5,8 +5,9 @@ Created on 04.03.2018
 '''
 from utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
-from game_info.ruleset import RulesetCtrl
+from game.ruleset import RulesetCtrl
 from math import floor
+from utils.base_state import ListState
 
 FEELING_BASE = 0        #/* before any of the modifiers below */
 FEELING_LUXURY = 1        #/* after luxury */
@@ -17,11 +18,22 @@ FEELING_FINAL = 5        #/* after wonders (final result) */
 
 citizen_types = ["angry", "unhappy", "content", "happy"]
 
-class CityState():
-    def __init__(self, ruleset):
+class CityState(ListState):
+    def __init__(self, ruleset, city_list):
+        ListState.__init__(self)
         self.rulectrl = ruleset
+        self.city_list = city_list
 
-    def get_full_state(self, pcity):
+    def _update_state(self, pplayer):
+        for city_id in self.city_list:
+            pcity = self.city_list[city_id]
+            if pcity["owner"] == pplayer["playerno"]:
+                self._state[city_id] = self._get_city_state(pcity)
+                #player_cities[city_id].update(self.get_city_traderoutes(pcity))
+
+        #player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
+
+    def _get_city_state(self, pcity):
         cur_state = {}
 
         for cp in ["id", "size", "food_stock", "granary_size",
@@ -46,9 +58,9 @@ class CityState():
         cur_state["city_corruption"] = pcity['waste'][O_TRADE]
         cur_state["city_pollution"] = pcity['pollution']
         cur_state["state"] = CityState.get_city_state(pcity)
-        try:
+        if "granary_turns" in pcity:
             cur_state["growth_in"] = CityState.city_turns_to_growth_text(pcity)
-        except:
+        else:
             cur_state["growth_in"] = None
         cur_state["turns_to_prod_complete"] = self.get_city_production_time(pcity)
         cur_state["prod_process"] = self.get_production_progress(pcity)

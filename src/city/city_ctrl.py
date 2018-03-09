@@ -15,22 +15,17 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
-
-from math import floor, sqrt
 from _collections import defaultdict
 import urllib
 from BitVector import BitVector
 
-from connectivity.Basehandler import CivEvtHandler
+from connectivity.Basehandler import CivPropController
 from utils.fc_types import MAX_NUM_ITEMS
 from utils.utility import byte_to_bit_array
-from utils.base_action import ActionList
 
 from city.city_state import CityState
-from city.city_actions import CityWorkTile, CityChangeSpecialist,\
-    CityBuyProduction, CityUnworkTile, CitySellImprovement,\
-    CityChangeUnitProduction, CityChangeImprovementProduction
-from mapping.map_ctrl import CityTileMap
+from city.city_actions import CityActions
+
 
 #/* The city_options enum. */
 CITYO_DISBAND      = 0
@@ -38,15 +33,13 @@ CITYO_NEW_EINSTEIN = 1
 CITYO_NEW_TAXMAN   = 2
 CITYO_LAST         = 3
 
-MAX_SPECIALISTS = 20
-
 B_LAST = MAX_NUM_ITEMS
 INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
 
-class CityCtrl(CivEvtHandler):
+class CityCtrl(CivPropController):
     def __init__(self, ws_client=None,ruleset=None, player_ctrl=None, clstate=None, game_ctrl=None,
                  map_ctrl=None):
-        CivEvtHandler.__init__(self, ws_client)
+        CivPropController.__init__(self, ws_client)
 
         #self.register_handler(13, "handle_scenario_description")
         self.cities = {}
@@ -56,58 +49,16 @@ class CityCtrl(CivEvtHandler):
         self.rulectrl = ruleset
         self.map_ctrl = map_ctrl
         self.clstate = clstate
-        self.city_state = CityState(ruleset)
-        self.city_map = CityTileMap(1, map_ctrl)
-        self.city_options = ActionList()
 
+        self.prop_state = CityState(ruleset, self.cities)
+        self.prop_actions = CityActions(ws_client, ruleset, self.cities, map_ctrl)
+        
         self.register_handler(30, "handle_city_remove")
         self.register_handler(31, "handle_city_info")
         self.register_handler(32, "handle_city_short_info")
         self.register_handler(256, "handle_web_city_info_addition")
         self.register_handler(249, "handle_traderoute_info")
-
-    def get_current_state(self, pplayer):
-        player_cities = {}
-
-        for city_id in self.cities:
-            pcity = self.cities[city_id]
-            if pcity["owner"] == pplayer["playerno"]:
-                player_cities[city_id] = self.city_state.get_full_state(pcity)
-                player_cities[city_id].update(self.get_city_traderoutes(pcity))
-
-        player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
-        return player_cities
-
-    def get_current_options(self, pplayer):
-        for city_id in self.cities:
-            pcity = self.cities[city_id]
-            if pcity["owner"] != pplayer["playerno"] or self.city_options.actor_exists(city_id):
-                continue
-            r_city = int(floor(sqrt(pcity["city_radius_sq"])))
-            self.city_options.add_actor(city_id)
-            for dx in range(-r_city, r_city+1):
-                for dy in range(-r_city, r_city+1):
-                    self.city_options.add_action(city_id, CityWorkTile(self.ws_client, pcity,
-                                                                       dx, dy, self.city_map))
-                    self.city_options.add_action(city_id, CityUnworkTile(self.ws_client, pcity,
-                                                                       dx, dy, self.city_map)) 
-
-            for specialist_num in range(MAX_SPECIALISTS):
-                self.city_options.add_action(city_id, CityChangeSpecialist(self.ws_client, pcity,
-                                                                           specialist_num))
-            
-            self.city_options.add_action(city_id, CityBuyProduction(self.ws_client, pcity, pplayer))
-            
-            for unit_type_id in self.rulectrl.unit_types:
-                punit_type = self.rulectrl.unit_types[unit_type_id]
-                self.city_options.add_action(city_id, CityChangeUnitProduction(self.ws_client, pcity, punit_type))
-            
-            for improvement_id in self.rulectrl.improvements:
-                pimprovement = self.rulectrl.improvements[improvement_id]
-                self.city_options.add_action(city_id, CityChangeImprovementProduction(self.ws_client, pcity, pimprovement))
-                self.city_options.add_action(city_id, CitySellImprovement(self.ws_client, pcity, improvement_id))
-        return self.city_options.get_actions()
-
+    
     def tile_city(self, ptile):
         """Return the city on this tile (or NULL), checking for city center."""
         if ptile is None:
@@ -129,7 +80,7 @@ class CityCtrl(CivEvtHandler):
             return None
 
     def remove_city(self, pcity_id):
-        """Removes a city from the game_info"""
+        """Removes a city from the game"""
         if pcity_id is None or self.player_ctrl.cur_player is None:
             return
         

@@ -56,7 +56,9 @@ class CivWSClient(WebSocketClient):
         """
         self.send_queue.append(packet_payload)
         if self.read_packs == []:
-            self.clear_send_queue()
+            return self.clear_send_queue()
+        else:
+            return -1
 
     def send_message(self, message):
         packet = {"pid" : packet_chat_msg_req,
@@ -73,6 +75,7 @@ class CivWSClient(WebSocketClient):
             for pack in self.send_queue:
                 self.send(pack)
         self.send_queue = []
+        return msges
 
 class CivConnection():
     def __init__(self, civclient, base_url='http://localhost'):

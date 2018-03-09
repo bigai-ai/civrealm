@@ -4,20 +4,55 @@ Created on 03.03.2018
 @author: christian
 '''
 
+from math import floor, sqrt
 import urllib
-from utils.base_action import Action
+from utils.base_action import Action, ActionList
 from utils.fc_types import packet_city_make_specialist,\
     packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
-    packet_city_sell, packet_city_change, packet_city_worklist, VUT_UTYPE,\
-    VUT_IMPROVEMENT, packet_city_rename
+    packet_city_sell, packet_city_change, VUT_UTYPE,\
+    VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
 
 MAX_LEN_WORKLIST = 64
+MAX_SPECIALISTS = 20
 
+from mapping.map_ctrl import CityTileMap
+class CityActions(ActionList):
+    def __init__(self, ws_client, rulectrl, city_list, map_ctrl):
+        ActionList.__init__(self, ws_client)
+        self.rulectrl = rulectrl
+        self.cities = city_list
+        self.city_map = CityTileMap(1, map_ctrl)
+        
+    def update(self, pplayer):
+        for city_id in self.cities:
+            pcity = self.cities[city_id]
+            if pcity["owner"] != pplayer["playerno"] or self.actor_exists(city_id):
+                continue
+            r_city = int(floor(sqrt(pcity["city_radius_sq"])))
+            self.add_actor(city_id)
+            for dx in range(-r_city, r_city+1):
+                for dy in range(-r_city, r_city+1):
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map)) 
+
+            for specialist_num in range(MAX_SPECIALISTS):
+                self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
+            
+            self.add_action(city_id, CityBuyProduction(pcity, pplayer))
+            
+            for unit_type_id in self.rulectrl.unit_types:
+                punit_type = self.rulectrl.unit_types[unit_type_id]
+                self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
+            
+            for improvement_id in self.rulectrl.improvements:
+                pimprovement = self.rulectrl.improvements[improvement_id]
+                self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
+                self.add_action(city_id, CitySellImprovement(pcity, improvement_id))
 
 class CityWorkTile(Action):
     action_key =  "city_work"
-    def __init__(self, ws_client, pcity, dx, dy, city_map):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, dx, dy, city_map):
+        Action.__init__(self)
         self.pcity = pcity
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
@@ -62,8 +97,8 @@ class CityUnworkTile(CityWorkTile):
 
 class CityChangeSpecialist(Action):
     action_key =  "city_change_specialist"
-    def __init__(self, ws_client, pcity, specialist_num):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, specialist_num):
+        Action.__init__(self)
         self.specialist_num = specialist_num
         self.pcity = pcity
         self.action_key += "_%i" % specialist_num
@@ -81,8 +116,8 @@ class CityChangeSpecialist(Action):
 
 class CityBuyProduction(Action):
     action_key = "city_buy_production"
-    def __init__(self, ws_client, pcity, pplayer):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, pplayer):
+        Action.__init__(self)
         self.pcity = pcity
         self.pplayer = pplayer
 
@@ -97,8 +132,8 @@ class CityBuyProduction(Action):
 class CitySellImprovement(Action):
     """Sell city improvement"""
     action_key = "city_sell_improvement"
-    def __init__(self, ws_client, pcity, improvement_id):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, improvement_id):
+        Action.__init__(self)
         self.pcity = pcity
         self.improvement_id = improvement_id
         self.action_key += "_%i" % improvement_id
@@ -114,8 +149,8 @@ class CitySellImprovement(Action):
 class CityChangeProduction(Action):
     """Change city production."""
     action_key = "change_production"
-    def __init__(self, ws_client, pcity, prod_kind, prod_value):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, prod_kind, prod_value):
+        Action.__init__(self)
         self.pcity = pcity
         self.prod_kind = prod_kind
         self.prod_value = prod_value
@@ -152,8 +187,8 @@ class CityChangeProduction(Action):
 
 class CityChangeUnitProduction(CityChangeProduction):
     action_key = "change_unit_prod"
-    def __init__(self, ws_client, pcity, punit_type):
-        CityChangeProduction.__init__(self, ws_client, pcity, VUT_UTYPE, punit_type["id"])
+    def __init__(self, pcity, punit_type):
+        CityChangeProduction.__init__(self, pcity, VUT_UTYPE, punit_type["id"])
         self.punit_type = punit_type
         
     def is_action_valid(self):
@@ -180,8 +215,8 @@ class CityChangeUnitProduction(CityChangeProduction):
 
 class CityChangeImprovementProduction(CityChangeProduction):
     action_key = "change_improve_prod"
-    def __init__(self, ws_client, pcity, pimprovement):
-        CityChangeProduction.__init__(self, ws_client, pcity, VUT_IMPROVEMENT, pimprovement["id"])
+    def __init__(self, pcity, pimprovement):
+        CityChangeProduction.__init__(self, pcity, VUT_IMPROVEMENT, pimprovement["id"])
         self.pimprovement = pimprovement
         
     def is_action_valid(self):
@@ -207,8 +242,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
 
 class CityRename(Action):
     """Rename a city - ignored for bot"""
-    def __init__(self, ws_client, pcity, suggested_name):
-        Action.__init__(self, ws_client)
+    def __init__(self, pcity, suggested_name):
+        Action.__init__(self)
         self.pcity = pcity
         self.suggested_name = suggested_name
 
@@ -223,29 +258,28 @@ class CityRename(Action):
 
 class CityDoWorklist(Action):
     """Set worklist for city - Irrelevant for bot - can automatically assess production each turn"""
-    def send_city_worklist(self, city_id):
-        """Notifies the server about a change in the city worklist."""
-        """
-        worklist = self.cities[city_id]['worklist']
-        overflow = worklist.length - MAX_LEN_WORKLIST
+    def __init__(self, pcity):
+        Action.__init__(self)
+        self.pcity = pcity
+        
+    def _action_packet(self):
+        worklist = self.pcity['worklist']
+        overflow = len(worklist) - MAX_LEN_WORKLIST
         if overflow > 0:
             worklist = worklist[:MAX_LEN_WORKLIST-1]
 
         packet = {"pid"     : packet_city_worklist,
-                 "city_id" : city_id,
+                 "city_id" : self.pcity["id"],
                  "worklist": worklist}
-        self.ws_client.send_request(packet)
-        """
+        return packet
         
-    def send_city_worklist_add(self, city_id, kind, value):
-        """
-        pcity = self.cities[city_id]
-        if len(pcity['worklist']) >= MAX_LEN_WORKLIST:
+    def send_city_worklist_add(self, kind, value):
+        if len(self.pcity['worklist']) >= MAX_LEN_WORKLIST:
             return
 
-        pcity['worklist'].append({"kind" : kind, "value" : value})
-        self.send_city_worklist(city_id)
-        """
+        self.pcity['worklist'].append({"kind" : kind, "value" : value})
+        self._action_packet()
+
     @staticmethod
     def find_universal_in_worklist(universal, worklist):
         for i, work_item in enumerate(worklist):

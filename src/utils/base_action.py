@@ -13,6 +13,7 @@ class Action(object):
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
+        print(packet)
         return ws_client.send_request(packet)
 
     def is_action_valid(self):
@@ -56,9 +57,26 @@ class ActionList(object):
                     if action.is_action_valid():
                         act_dict[action_key] = action
             return act_dict
+    
+    def get_valid_actions(self, actor_id, act_keys):
+        if self.actor_exists(actor_id):
+            act_list = [False for key in self._action_dict[actor_id]]
+            if self._can_actor_act(actor_id):
+                act_list = [self._action_dict[actor_id][action_key].is_action_valid() for 
+                            action_key in act_keys]
+            return act_list
 
     def _can_actor_act(self, actor_id):
         raise Exception("To be overwritten with function returning True/False %i" % actor_id)
+    
+    def trigger_single_action(self, actor_id, action_id):
+        act = self._action_dict[actor_id][action_id]
+        if not self._can_actor_act(actor_id):
+            return None 
+        if act.is_action_valid():
+            act.trigger_action(self.ws_client)
+            return True
+        return False
     
     def trigger_wanted_actions(self, controller_wants):
         for a_actor in self._action_dict:
@@ -79,6 +97,14 @@ class ActionList(object):
     
     def update(self, pplayer):
         raise Exception("To be implemented by class %s for player %s" % (self, pplayer))
+
+    def get_num_actions(self):
+        a_actor = self._action_dict[self._action_dict.keys()[0]]
+        return len(a_actor.keys())
+    
+    def get_action_list(self):
+        a_actor = self._action_dict[self._action_dict.keys()[0]]
+        return a_actor.keys()
 
 class NoActions(ActionList):
     def update(self, pplayer):

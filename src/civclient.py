@@ -141,6 +141,7 @@ class CivClient(CivPropController):
                 if packet is None:
                     continue
                 self.handle_pack(packet['pid'], packet)
+            self.bot.calculate_next_move()
         except Exception:
             raise
 
@@ -270,8 +271,7 @@ class CivClient(CivPropController):
 
         pplayer = self.clstate.cur_player()
 
-        self.bot.conduct_turn(pplayer, self.controller_list)
-        self.send_end_turn()
+        self.bot.conduct_turn(pplayer, self.controller_list, self.send_end_turn)
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""

@@ -27,16 +27,18 @@ class UnitState(ListState):
         unit_state = {}
 
         ptype = self.rule_ctrl.unit_type(aunit)
-        for type_desc in ["name", "helptext", "attack_strength", "defense_strength", "firepower"]:
+        for type_desc in ["attack_strength", "defense_strength", "firepower"]:
             unit_state["type_"+type_desc] = ptype[type_desc]
         unit_state["can_transport"] = ptype['transport_capacity'] > 0
         unit_state["home_city"] = self.city_ctrl.get_unit_homecity_name(aunit)
+        if unit_state["home_city"] == None:
+            unit_state["home_city"] = -1
         unit_state["moves_left"] = self.unit_ctrl.get_unit_moves_left(aunit)
         unit_state["health"] = aunit['hp']
         unit_state["veteran"] = aunit['veteran']
 
-        unit_state["upkeep_food"] = aunit['upkeep'][O_FOOD] if "upkeep" in aunit else None
-        unit_state["upkeep_shield"] = aunit['upkeep'][O_SHIELD] if "upkeep" in aunit else None
-        unit_state["upkeep_gold"] = aunit['upkeep'][O_GOLD] if "upkeep" in aunit else None
+        unit_state["upkeep_food"] = aunit['upkeep'][O_FOOD] if "upkeep" in aunit else -1
+        unit_state["upkeep_shield"] = aunit['upkeep'][O_SHIELD] if "upkeep" in aunit else -1
+        unit_state["upkeep_gold"] = aunit['upkeep'][O_GOLD] if "upkeep" in aunit else -1
 
         return unit_state

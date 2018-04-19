@@ -39,11 +39,11 @@ class CityState(ListState):
         for cp in ["id", "size", "food_stock", "granary_size",
                    "granary_turn", "production_kind", "production_value"]:
             if cp in pcity:
-                cur_state[cp] = pcity[cp]
+                cur_state[cp] = pcity[cp] if pcity[cp] != None else -1
             else:
-                cur_state[cp] = None
+                cur_state[cp] = -1
 
-        cur_state["name"] = pcity['name']
+        #cur_state["name"] = pcity['name']
 
         cur_state["luxury"] = pcity['prod'][O_LUXURY]
         cur_state["science"] = pcity['prod'][O_SCIENCE]
@@ -61,7 +61,7 @@ class CityState(ListState):
         if "granary_turns" in pcity:
             cur_state["growth_in"] = CityState.city_turns_to_growth_text(pcity)
         else:
-            cur_state["growth_in"] = None
+            cur_state["growth_in"] = -1
         cur_state["turns_to_prod_complete"] = self.get_city_production_time(pcity)
         cur_state["prod_process"] = self.get_production_progress(pcity)
 
@@ -70,19 +70,20 @@ class CityState(ListState):
             cur_state[cur_citizen] = 0
             if pcity[cur_citizen] != None:
                 cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL] 
-        
-        cur_state["impr_int"] = {}
-        cur_state["impr_name"] = {}
 
         for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
-            imp_name = self.rulectrl.improvements[z]['name']
-            cur_state["impr_int"][z] = False
-            cur_state["impr_name"][imp_name] = False
+            cur_state["impr_int_%i" % z] = False
 
             if 'improvements' in pcity and pcity['improvements'][z]==1:
-                cur_state["impr_int"][z] = True
-                cur_state["impr_name"][imp_name] = True
+                cur_state["impr_int_%i" % z] = True
         
+        for tile_num, (food_output, shield_output, trade_output) in enumerate(zip(pcity['food_output'],
+                                                                                  pcity['shield_output'],
+                                                                                  pcity['trade_output'])):
+            cur_state["pos_food_output_%i" % tile_num] = food_output
+            cur_state["pos_shield_output_%i" % tile_num] = shield_output
+            cur_state["pos_trade_output_%i" % tile_num] = trade_output
+            
         return cur_state
         
     @staticmethod
@@ -171,13 +172,13 @@ class CityState(ListState):
     def get_city_state(pcity):
         """Returns the city state: Celebrating, Disorder or Peace."""
         if pcity is None:
-            return
+            return -1
         if pcity['was_happy'] and pcity['size'] >= 3:
-            return "Celebrating"
+            return 3#"Celebrating"
         elif pcity['unhappy']:
-            return "Disorder"
+            return 1#"Disorder"
         else:
-            return "Peace"
+            return 2#"Peace"
 
     @staticmethod
     def is_wonder(improvement):

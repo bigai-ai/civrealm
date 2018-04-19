@@ -37,6 +37,10 @@ class CivPropController():
         self.prop_state.update(pplayer)
         return self.prop_state.get_state()
 
+    def get_current_state_vec(self, pplayer, item=None):
+        self.prop_state.update(pplayer)
+        return self.prop_state.get_state_vec(item)
+
     def get_current_options(self, pplayer):
         self.prop_actions.update(pplayer)
         return self.prop_actions

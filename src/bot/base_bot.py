@@ -13,29 +13,36 @@ class BaseBot:
     def __init__(self):
         self.turn = 0
         self.turn_history = []
+        
+        self._turn_active = False
+        self._turn_player = None
+        self._turn_ctrls = None
+        self._turn_state = None
+        self._turn_opts = None
+        self._end_turn_hook = None
+        
         self.cur_state = {}
         self.action_options = {}
         self.action_wants = None
         self.game_turn = None
     
-    def _acquire_state(self, pplayer, info_controls):
-        print("Acquiring state and action options for: ")
-        turn_state = {}
-        turn_opts = {}
-        for ctrl_type in info_controls:
-            print("....: " + ctrl_type)
-            ctrl = info_controls[ctrl_type]
-            turn_state[ctrl_type] = ctrl.get_current_state(pplayer)
-            turn_opts[ctrl_type] = ctrl.get_current_options(pplayer)
+    def _acquire_ctrl_state(self, ctrl_type):
+        ctrl = self._turn_ctrls[ctrl_type]
+        self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
+        self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
         
-        return turn_state, turn_opts
+    def _acquire_state(self):
+        print("Acquiring state and action options for: ")
+        for ctrl_type in self._turn_ctrls:
+            print("....: " + ctrl_type)
+            self._acquire_ctrl_state(ctrl_type)
     
-    def _conduct_moves(self, info_controls, turn_opts, turn_wants):
+    def _conduct_moves(self, turn_wants):
         print("Carry out controller moves")
-        for ctrl_type in info_controls:
-            turn_opts[ctrl_type].trigger_wanted_actions(turn_wants[ctrl_type])
+        for ctrl_type in self._turn_ctrls:
+            self._turn_opts[ctrl_type].trigger_wanted_actions(turn_wants[ctrl_type])
 
-    def _save_history(self, turn_no, turn_state, turn_opts, turn_wants):
+    def _save_history(self, turn_no, turn_wants):
         bot_turns = len(self.turn_history)
         self.game_turn = turn_no
 
@@ -47,48 +54,65 @@ class BaseBot:
             raise Exception("Bot has not calculated some of the previous moves. \
                              Game turns: %i, Bot turns %i" % (self.game_turn+1, bot_turns))
         
-        for key in turn_state.keys():
-            self.turn_history[self.game_turn-1][key] = (turn_state[key], turn_opts[key], turn_wants[key])
-
-    def conduct_turn(self, pplayer, info_controls):
+        for key in self._turn_state.keys():
+            self.turn_history[self.game_turn-1][key] = (self._turn_state[key], 
+                                                        self._turn_opts[key], turn_wants[key])
+    
+    def calculate_next_move(self):
+        if self._turn_active:
+            self._acquire_state()
+            turn_wants = self._calculate_want_of_move(self.turn)
+            self._conduct_moves(turn_wants)
+            self._save_history(self.turn, turn_wants)
+            self.end_turn()
+            sleep(4)
+    
+    def conduct_turn(self, pplayer, info_controls, end_turn_hook):
         '''
         Main starting point for Freeciv-web Bot - to be called when game is ready
         '''
         print("Starting Turn")
         self.turn += 1
-        turn_state, turn_opts = self._acquire_state(pplayer, info_controls)
-        turn_wants = self._calculate_want_of_move(self.turn, turn_state, turn_opts)
-        self._conduct_moves(info_controls, turn_opts, turn_wants)
-        self._save_history(self.turn, turn_state, turn_opts, turn_wants)
-        
-        print("Finish turn - sleep for 4 seconds")
-        sleep(4)
+        self._turn_active = True
+        self._turn_ctrls = info_controls
+        self._turn_player = pplayer
+        self._turn_state = {}
+        self._turn_opts = {}
+        self._end_turn_hook = end_turn_hook
 
-    def _calculate_want_of_move(self, turn_no, turn_state, action_options):
+    def end_turn(self):
+        print("Finish turn - sleep for 4 seconds")
+        self._turn_active = False
+        self._turn_ctrls = None
+        self._turn_player = None
+        self._turn_state = None
+        self._turn_opts = None
+        self._end_turn_hook()
+
+    def _calculate_want_of_move_of_ctrl(self, ctrl_type):
+        if ctrl_type == "turn":
+            return {}
+        elif ctrl_type == "city":
+            return self.calculate_city_actions()
+        elif ctrl_type == "unit":
+            return self.calculate_unit_actions()
+        elif ctrl_type == "player":
+            return self.calculate_player_actions()
+        elif ctrl_type == "dipl":
+            return self.calculate_dipl_actions()
+        elif ctrl_type == "tech":
+            return self.calculate_tech_actions()
+        elif ctrl_type == "gov":
+            return self.calculate_gov_actions()
+        else:
+            return self.calculate_non_supported_actions(self._turn_opts[ctrl_type])
+
+    def _calculate_want_of_move(self, turn_no):
         print("Bot calculates want for controller moves")
-        self.cur_state = turn_state
-        self.action_options = action_options
         self.action_wants = {}
         
-        for key in self.cur_state.keys():
-            if key == "turn":
-                continue
-            elif key == "city":
-                want = self.calculate_city_actions(turn_no, turn_state, action_options[key])
-            elif key == "unit":
-                want = self.calculate_unit_actions(turn_no, turn_state, action_options[key])
-            elif key == "player":
-                want = self.calculate_player_actions(turn_no, turn_state, action_options[key])
-            elif key == "dipl":
-                want = self.calculate_dipl_actions(turn_no, turn_state, action_options[key])
-            elif key == "tech":
-                want = self.calculate_tech_actions(turn_no, turn_state, action_options[key])
-            elif key == "gov":
-                want = self.calculate_gov_actions(turn_no, turn_state, action_options[key])
-            else:
-                want = self.calculate_non_supported_actions(action_options[key])
-            
-            self.action_wants[key] = want
+        for key in self._turn_ctrls.keys():
+            self.action_wants[key] = self._calculate_want_of_move_of_ctrl(key)
         return self.action_wants
     
     def calculate_non_supported_actions(self, a_options):
@@ -101,20 +125,95 @@ class BaseBot:
                     action_wants[a_actor][a_action] = ACTION_UNWANTED
         return action_wants
     
-    def calculate_city_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_city_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["city"])
     
-    def calculate_unit_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_unit_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["unit"])
     
-    def calculate_player_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_player_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["player"])
     
-    def calculate_dipl_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_dipl_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["dipl"])
     
-    def calculate_tech_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_tech_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["tech"])
     
-    def calculate_gov_actions(self, turn_no, full_state, action_options):
-        return self.calculate_non_supported_actions(action_options)
+    def calculate_gov_actions(self):
+        return self.calculate_non_supported_actions(self._turn_opts["gov"])
+
+class StateBot(BaseBot):
+    def __init__(self):
+        BaseBot.__init__(self)
+        self.cur_state = {"ctrl": None,
+                          "actor": None}
+        self.ctrl_types = None
+        
+    def _acquire_ctrl_state(self, ctrl_type):
+        ctrl = self._turn_ctrls[ctrl_type]
+        self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
+        self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
+        
+    def _acquire_state(self):
+        print("Acquiring state and action options for: ")
+        for ctrl_type in self._turn_ctrls:
+            print("....: " + ctrl_type)
+            self._acquire_ctrl_state(ctrl_type)    
+    
+    def calculate_next_move(self):
+        if self._turn_active:
+            self.update_state()
+            new_state = self._calculate_want_of_move_of_ctrl(self.ctrl_types[self.cur_state["ctrl"]])
+            if self.change_state(new_state):
+                self.end_turn()
+                sleep(2)
+            else:
+                print(len(self._turn_ctrls["game"].ws_client.send_queue))
+                            
+                if len(self._turn_ctrls["game"].ws_client.send_queue)== 0:
+                    self.calculate_next_move()
+    
+    def conduct_turn(self, pplayer, info_controls, end_turn_hook):
+        BaseBot.conduct_turn(self, pplayer, info_controls, end_turn_hook)
+        self.ctrl_types = info_controls.keys()
+        self.change_state({"ctrl": 0,"actor": None})
+
+    def change_state(self, new_state):
+        print(new_state, self.cur_state)
+        end_turn = False
+        if new_state["ctrl"] != self.cur_state["ctrl"]:
+            if new_state["ctrl"] >= len(self.ctrl_types):
+                end_turn = True
+            else:
+                self._acquire_ctrl_state(self.ctrl_types[new_state["ctrl"]])
+                self.cur_state = new_state
+        elif new_state["actor"] != self.cur_state["actor"]:
+            self.cur_state = new_state
+        return end_turn
+
+    def update_state(self):
+        self._acquire_ctrl_state(self.ctrl_types[self.cur_state["ctrl"]])
+    
+    def _go_to_next_ctrl(self):
+        return {"ctrl": self.cur_state["ctrl"] + 1, "actor": None}
+
+    def _calculate_want_of_move_of_ctrl(self, ctrl_type):
+        print(ctrl_type)
+        if ctrl_type in ["turn", "map", "rules", "options", "game", "client"]:
+            return self._go_to_next_ctrl()
+        else:
+            return BaseBot._calculate_want_of_move_of_ctrl(self, ctrl_type)
+    
+    def calculate_dipl_actions(self):
+        return self._go_to_next_ctrl()
+    
+    def calculate_gov_actions(self):
+        return self._go_to_next_ctrl()
+    
+    def calculate_player_actions(self):
+        return self._go_to_next_ctrl()
+    
+    def calculate_tech_actions(self):
+        return self._go_to_next_ctrl()
+    

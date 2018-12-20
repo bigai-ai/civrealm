@@ -6,7 +6,15 @@ class CustomInstallCommand(install):
     """Customized setuptools install command - prints a friendly greeting."""
     def run(self):
         #subprocess.call(["python", "src/freecivbot/build_server.py"])
-        os.system("python src/freecivbot/build_server.py")
+        #os.system("python src/freecivbot/build_server.py")
+        proc = subprocess.Popen(["python","-u", "src/freecivbot/build_server.py"], stdout=subprocess.PIPE)
+
+        while True:
+            line = proc.stdout.readline()
+            if line != '':
+                print line
+            else:
+                break
         install.run(self)
 
 setup(name='freecivbot',

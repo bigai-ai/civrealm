@@ -18,5 +18,5 @@ setup(name='freecivbot',
       license='GLP3.0',
       packages=['freecivbot'],
       install_requires=['docker'],
-      cmdclass={'build_freeciv-web': BuildContainerCmd}
+      cmdclass={'build_freeciv-web': BuildContainerCmd},
       zip_safe=False)

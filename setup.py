@@ -2,11 +2,11 @@ from setuptools import setup
 import setuptools.command.build_py
 
 
-class BuildContainerCommand(setuptools.command.build_py.build_py):
+class BuildContainerCmd(setuptools.command.build_py.build_py):
   """Custom build command."""
 
   def run(self):
-    self.run_command('./build_server.sh')
+    self.run_command('./src/build_server.sh')
     setuptools.command.build_py.build_py.run(self)
 
 setup(name='freecivbot',

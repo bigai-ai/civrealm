@@ -1,13 +1,4 @@
 from setuptools import setup
-import setuptools.command.build_py
-
-
-class BuildContainerCmd(setuptools.command.build_py.build_py):
-  """Custom build command."""
-
-  def run(self):
-    self.run_command('./src/build_server.sh')
-    setuptools.command.build_py.build_py.run(self)
 
 setup(name='freecivbot',
       version='0.1',
@@ -18,6 +9,6 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
+      scripts=['./src/build_server.sh'],
       install_requires=['docker'],
-      cmdclass={'build_freeciv-web': BuildContainerCmd},
       zip_safe=False)

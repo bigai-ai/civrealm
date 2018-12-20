@@ -9,6 +9,6 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
-      scripts=['./src/build_server.sh'],
+      scripts=['src/build_server.sh'],
       install_requires=['docker'],
       zip_safe=False)

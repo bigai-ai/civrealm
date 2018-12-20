@@ -1,11 +1,12 @@
 from setuptools import setup
 from setuptools.command.install import install
 import subprocess
-
+import os
 class CustomInstallCommand(install):
     """Customized setuptools install command - prints a friendly greeting."""
     def run(self):
-        subprocess.call(["python", "src/freecivbot/build_server.py"])
+        #subprocess.call(["python", "src/freecivbot/build_server.py"])
+        os.system("python src/freecivbot/build_server.py")
         install.run(self)
 
 setup(name='freecivbot',

@@ -1,4 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env python
 #Build freeciv-web from latest repo
 
-docker build https://github.com/chris1869/freeciv-web.git -t freeciv-web
+import docker
+
+client = docker.from_env()
+client.images.build(path="https://github.com/chris1869/freeciv-web.git#develop", tag="freeciv-web")

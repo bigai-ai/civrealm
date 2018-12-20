@@ -1,8 +1,10 @@
+
 from setuptools import setup
-from setuptools.command.install import install
+from distutils.command.build import build
+#from setuptools.command.build import build
 import subprocess
 import os
-class CustomInstallCommand(install):
+class CustomInstallCommand(build):
     """Customized setuptools install command - prints a friendly greeting."""
     def run(self):
         #subprocess.call(["python", "src/freecivbot/build_server.py"])
@@ -15,7 +17,7 @@ class CustomInstallCommand(install):
                 print line
             else:
                 break
-        install.run(self)
+        build.run(self)
 
 setup(name='freecivbot',
       version='0.1',
@@ -27,7 +29,7 @@ setup(name='freecivbot',
       package_dir={'':'src'},
       packages=['freecivbot'],
       cmdclass={
-                 'install': CustomInstallCommand,
+                 'build': CustomInstallCommand,
                 },
       install_requires=['docker'],
       zip_safe=False)

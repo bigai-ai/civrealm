@@ -1,4 +1,12 @@
 from setuptools import setup
+from setuptools.command.install import install
+import subprocess
+
+class CustomInstallCommand(install):
+    """Customized setuptools install command - prints a friendly greeting."""
+    def run(self):
+        subprocess.call(["python", "src/freecivbot/build_server.py"])
+        install.run(self)
 
 setup(name='freecivbot',
       version='0.1',
@@ -9,13 +17,8 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
-      extras_require={"DOCK_IMG" : []},
-      entry_points = {
-          'console_scripts': ['create_img=freecivbot.build_server:build_docker_img [DOCK_IMG]'],
-      },
+      cmdclass={
+                 'install': CustomInstallCommand,
+                },
       install_requires=['docker'],
       zip_safe=False)
-
-#from freecivbot import build_server
-
-#build_server.build_docker_img()

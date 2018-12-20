@@ -10,7 +10,7 @@ setup(name='freecivbot',
       package_dir={'':'src'},
       packages=['freecivbot'],
       entry_points = {
-        'console_scripts': ['freecivbot.build_server'],
+        'console_scripts': ['create_img=freecivbot.build_server:build_docker_img'],
       },
       install_requires=['docker'],
       zip_safe=False)

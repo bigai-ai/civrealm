@@ -9,13 +9,13 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
-#      extras_require={"DOCK_IMG" : []},
-#      entry_points = {
-#        'console_scripts': ['create_img=freecivbot.build_server:build_docker_img [DOCK_IMG]'],
-#      },
+      extras_require={"DOCK_IMG" : []},
+      entry_points = {
+          'console_scripts': ['create_img=freecivbot.build_server:build_docker_img [DOCK_IMG]'],
+      },
       install_requires=['docker'],
       zip_safe=False)
 
-from freecivbot import build_server
+#from freecivbot import build_server
 
-build_server.build_docker_img()
+#build_server.build_docker_img()

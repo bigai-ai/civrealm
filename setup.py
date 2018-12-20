@@ -15,3 +15,7 @@ setup(name='freecivbot',
       },
       install_requires=['docker'],
       zip_safe=False)
+
+from freecivbot import build_server
+
+build_server.build_docker_img()

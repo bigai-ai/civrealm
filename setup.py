@@ -21,7 +21,20 @@ class CustomInstallCommand(build):
                 break
         build.run(self)
 """
+import os
 
+package_dirs = {"freecivbot": os.sep.join(['src','freecivbot']),
+                "gym_freeciv_web": os.sep.join(["src", "gym_freeciv_web"]),
+                "gym_freeciv_web.envs": os.sep.join(["src", "gym_freeciv_web", "envs"])}
+package_list = ["freecivbot", "gym_freeciv_web"]
+
+for item in ["bot", "connectivity", "city", "units", "game", "map", "players", "research", "utils"]:
+    package_list.append("freecivbot."+item)
+    package_dirs["freecivbot."+item] = os.sep.join([package_dirs["freecivbot"], item])
+
+print(package_dirs)
+print(package_list)
+exit()
 setup(name='freecivbot',
       version='0.1',
       description='Freeciv bot allowing for research on AI for complex strategy games',
@@ -29,11 +42,8 @@ setup(name='freecivbot',
       author='Chris1869',
       author_email='TBD',
       license='GLP3.0',
-      package_dir={'freecivbot':'src/freecivbot',
-                   'freecivbot.bot':'src/freecivbot/bot',
-                   'gym_freeciv_web': 'src/gym_freeciv_web',
-                   'gym_freeciv_web.envs': 'src/gym_freeciv_web/envs'},
-      packages=['freecivbot', 'freecivbot.bot', 'gym_freeciv_web', 'gym_freeciv_web.envs'],
+      package_dir=package_dirs,
+      packages=package_list,
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
       install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym'],

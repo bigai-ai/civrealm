@@ -1,0 +1,1 @@
+from gym_freeciv.envs.freeciv_env import FreecivEnv

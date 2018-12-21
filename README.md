@@ -22,6 +22,15 @@ On top of these challenges real-time strategy games due their continuous time an
 
 In order to focus on a) b) and c) only, round-based games like Freeciv are a potential intermediate step for developing AI before jumping to real-time strategy games. 
 
+Installation
+------------
+
+```
+pip install https://github.com/chris1869/freeciv-bot
+
+build_server
+
+```
 
 API
 --------

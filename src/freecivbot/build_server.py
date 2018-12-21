@@ -9,4 +9,4 @@ def build_docker_img():
         if not "Downloading" in line:
             print line
 
-build_docker_img()
+#build_docker_img()

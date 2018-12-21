@@ -4,6 +4,9 @@ from distutils.command.build import build
 #from setuptools.command.build import build
 import subprocess
 import os
+
+"""
+#! To be reworked - currently no output via pip - shifting to manual install
 class CustomInstallCommand(build):
     """Customized setuptools install command - prints a friendly greeting."""
     def run(self):
@@ -18,7 +21,7 @@ class CustomInstallCommand(build):
             else:
                 break
         build.run(self)
-
+"""
 setup(name='freecivbot',
       version='0.1',
       description='Freeciv bot allowing for research on AI for complex strategy games',
@@ -28,8 +31,6 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
-      cmdclass={
-                 'build': CustomInstallCommand,
-                },
+      entry_points = {'console_scripts': ["build_freeciv_server=freeciv.build_server:build_docker_img"]}
       install_requires=['docker'],
       zip_safe=False)

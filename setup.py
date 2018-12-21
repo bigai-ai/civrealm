@@ -32,10 +32,8 @@ setup(name='freecivbot',
       package_dir={'freecivbot':'src/freecivbot',
                    'freecivbot.bot':'src/freecivbot/bot',
                    'gym_freeciv_web': 'src/gym_freeciv_web',
-                   'gym_freeciv_web.envs': 'src/gym_freeciv_web/envs'}
-        packages=['freecivbot', 'freecivbot.bot', 'gym_freeciv_web', 'gym_freeciv_web.envs']
-    )
-      packages=["freecivbot", "freecivbot.bot", "freecvi"],
+                   'gym_freeciv_web.envs': 'src/gym_freeciv_web/envs'},
+      packages=['freecivbot', 'freecivbot.bot', 'gym_freeciv_web', 'gym_freeciv_web.envs'],
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
       install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym'],

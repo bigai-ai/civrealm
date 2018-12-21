@@ -1,1 +1,1 @@
-from gym_freeciv.envs.freeciv_env import FreecivEnv
+from gym_freeciv_web.envs.freeciv_env import FreecivEnv

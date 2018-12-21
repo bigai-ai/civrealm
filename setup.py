@@ -32,9 +32,6 @@ for item in ["bot", "connectivity", "city", "units", "game", "map", "players", "
     package_list.append("freecivbot."+item)
     package_dirs["freecivbot."+item] = os.sep.join([package_dirs["freecivbot"], item])
 
-print(package_dirs)
-print(package_list)
-exit()
 setup(name='freecivbot',
       version='0.1',
       description='Freeciv bot allowing for research on AI for complex strategy games',

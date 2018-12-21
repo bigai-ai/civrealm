@@ -26,7 +26,7 @@ import os
 package_dirs = {"freecivbot": os.sep.join(['src','freecivbot']),
                 "gym_freeciv_web": os.sep.join(["src", "gym_freeciv_web"]),
                 "gym_freeciv_web.envs": os.sep.join(["src", "gym_freeciv_web", "envs"])}
-package_list = ["freecivbot", "gym_freeciv_web"]
+package_list = package_dirs.keys()
 
 for item in ["bot", "connectivity", "city", "units", "game", "map", "players", "research", "utils"]:
     package_list.append("freecivbot."+item)

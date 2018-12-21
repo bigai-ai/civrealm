@@ -21,6 +21,7 @@ class CustomInstallCommand(build):
                 break
         build.run(self)
 """
+
 setup(name='freecivbot',
       version='0.1',
       description='Freeciv bot allowing for research on AI for complex strategy games',
@@ -28,8 +29,13 @@ setup(name='freecivbot',
       author='Chris1869',
       author_email='TBD',
       license='GLP3.0',
-      package_dir={'':'src'},
-      packages=find_packages(),
+      package_dir={'freecivbot':'src/freecivbot',
+                   'freecivbot.bot':'src/freecivbot/bot',
+                   'gym_freeciv_web': 'src/gym_freeciv_web',
+                   'gym_freeciv_web.envs': 'src/gym_freeciv_web/envs'}
+        packages=['freecivbot', 'freecivbot.bot', 'gym_freeciv_web', 'gym_freeciv_web.envs']
+    )
+      packages=["freecivbot", "freecivbot.bot", "freecvi"],
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
       install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym'],

@@ -31,5 +31,6 @@ setup(name='freecivbot',
       package_dir={'':'src'},
       packages=['freecivbot', 'gym_freeciv_web' ],
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img"]},
+      entry_points = {'console_scripts': ["test_freeciv_web_gym=gym_freeciv_web.build_server:build_docker_img"]},
       install_requires=['docker','urllib', 'BitVector', 'numpy', 'tornado', 'gym'],
       zip_safe=False)

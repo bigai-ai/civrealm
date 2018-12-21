@@ -1,5 +1,5 @@
 
-from setuptools import setup
+from setuptools import setup, find_packages
 from distutils.command.build import build
 #from setuptools.command.build import build
 import subprocess
@@ -29,7 +29,7 @@ setup(name='freecivbot',
       author_email='TBD',
       license='GLP3.0',
       package_dir={'':'src'},
-      packages=['freecivbot', 'gym_freeciv_web' ],
+      packages=find_packages(),
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
       install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym'],

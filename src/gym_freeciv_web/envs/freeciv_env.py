@@ -6,6 +6,7 @@ Created on 19.12.2018
 
 import os, subprocess, time, signal
 import gym
+from time import sleep
 from gym import error, spaces
 from gym import utils
 from gym.utils import seeding
@@ -14,15 +15,17 @@ try:
     from freecivbot.civclient import CivClient
     from freecivbot.connectivity.clinet import CivConnection
     from freecivbot.bot.base_bot import BaseBot
-    
+    from freecivbot import init_server
+
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
-    
+
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
+init_server.init_freeciv_docker()
 
 class GymBot(BaseBot):
     def __init__(self, gym_env):

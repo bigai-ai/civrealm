@@ -33,9 +33,8 @@ class RandomAgent(object):
     def perform_episode(self, env):
         env.gym_agent = self
         return env.reset()    
-        
-    
-if __name__ == '__main__':
+
+def main():
     # You can set the level to logger.DEBUG or logger.WARN if you
     # want to change the amount of output.
     logger.set_level(logger.INFO)
@@ -59,3 +58,6 @@ if __name__ == '__main__':
         reward, done  = agent.perform_episode(env)
     # Close the env and write monitor result info to disk
     env.close()
+
+if __name__ == '__main__':
+    main()

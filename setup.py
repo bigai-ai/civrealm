@@ -30,6 +30,6 @@ setup(name='freecivbot',
       license='GLP3.0',
       package_dir={'':'src'},
       packages=['freecivbot'],
-      entry_points = {'console_scripts': ["build_freeciv_server=freeciv.build_server:build_docker_img"]},
+      entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img"]},
       install_requires=['docker'],
       zip_safe=False)

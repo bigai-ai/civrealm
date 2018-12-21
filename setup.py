@@ -8,7 +8,6 @@ import os
 """
 #! To be reworked - currently no output via pip - shifting to manual install
 class CustomInstallCommand(build):
-    """Customized setuptools install command - prints a friendly greeting."""
     def run(self):
         #subprocess.call(["python", "src/freecivbot/build_server.py"])
         #os.system("python src/freecivbot/build_server.py")

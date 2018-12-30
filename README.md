@@ -26,7 +26,7 @@ Installation
 ------------
 
 ```
-pip install https://github.com/chris1869/freeciv-bot
+sudo pip install https://github.com/chris1869/freeciv-bot
 
 build_server
 

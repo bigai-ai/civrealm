@@ -175,7 +175,7 @@ class CityState(ListState):
             return -1
         if pcity['was_happy'] and pcity['size'] >= 3:
             return 3#"Celebrating"
-        elif pcity['unhappy']:
+        elif "unhappy" in pcity and pcity['unhappy']:
             return 1#"Disorder"
         else:
             return 2#"Peace"

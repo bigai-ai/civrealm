@@ -38,6 +38,95 @@ from freecivbot.research.tech_ctrl import TechCtrl
 from freecivbot.utils.fc_events import E_UNDEFINED
 from freecivbot.utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from freecivbot.utils.freecivlog import freelog
+from selenium import webdriver
+from time import sleep
+
+import threading
+
+class CivMonitor():
+    def __init__(self, user_name, poll_interval=2):
+        self._driver = None
+        self._poll_interval = poll_interval
+        self._initiated = False
+        self._user_name = user_name
+    
+    def _observe_game(self, user_name):
+        if not self._initiated:
+            self._driver = webdriver.Firefox()
+            self._driver.get("http://localhost/")
+            sleep(2)
+            self._initiated = True
+    
+        state = "review_games"
+        bt_single_games = None
+        bt_observe_game = None
+        bt_start_observe = None
+        
+        if self._initiated:
+            while True:
+                #Find single player button
+                if state == "review_games":
+                    try:
+                        bt_single_games = self._driver.find_element_by_xpath("/html/body/div/nav/div/div[2]/ul/li[2]/a")
+                        bt_single_games.click()
+                        state = "find_current_game"
+                    except Exception as err:
+                        print("Single Games Element not found! %s" % err)
+                    sleep(self._poll_interval)
+                
+                if state == "find_current_game":
+                    try:
+                        bt_observe_game = self._driver.find_element_by_xpath("/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
+                        bt_observe_game.click()
+                        state = "logon_game"
+                    except Exception as err:
+                        print("Observe Game Element not found! %s" % err)
+                        bt_single_games = self._driver.find_element_by_xpath("/html/body/nav/div/div[2]/ul/li[2]/a") 
+                        bt_single_games.click()
+                    sleep(self._poll_interval)
+                
+                if state == "logon_game":
+                    try:
+                        inp_username = self._driver.find_element_by_xpath("//*[@id='username_req']")
+                        bt_start_observe = self._driver.find_element_by_xpath("/html/body/div[6]/div[3]/div/button[1]")
+                        
+                        inp_username.clear()
+                        inp_username.send_keys("civmonitor")
+                        bt_start_observe.click()
+                        state = "view_bot"
+                    except:
+                        print("Username Element not found! %s" % err)
+                    sleep(self._poll_interval)
+                
+                if state == "view_bot":
+                    try:
+                        players_tab = self._driver.find_element_by_xpath("//*[@id='players_tab']")
+                        players_tab.click()
+                        
+                        players_table = self._driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
+                        
+                        for row in players_table.find_elements_by_xpath(".//tr"):
+                            for td in row.find_elements_by_xpath(".//td"):
+                                if td.text.lower() == user_name.lower():
+                                    td.click()
+                                    break
+                            else:
+                                continue
+                            break
+                        
+                        bt_view_player = self._driver.find_element_by_xpath("//*[@id='view_player_button']")
+                        bt_view_player.click()
+                        state = "keep_silent"
+                    except Exception as err:
+                        print(err)
+                    sleep(self._poll_interval)
+                
+                if state == "keep_silent":
+                    sleep(self._poll_interval*10)
+                        
+    def start_monitor(self):
+        t = threading.Thread(target=self._observe_game, args=[self._user_name])
+        t.start()
 
 class CivClient(CivPropController):
     def __init__(self, a_bot, user_name, client_port=6001):
@@ -64,7 +153,8 @@ class CivClient(CivPropController):
         self.gov_ctrl = None
 
         self.controller_list = {}
-
+        self.monitor = CivMonitor(user_name)
+        
     def init_controller(self):
         CivPropController.__init__(self, self.ws_client)
 
@@ -119,7 +209,8 @@ class CivClient(CivPropController):
         self.ws_client = ws_client
 
         self.init_controller()
-
+        self.monitor.start_monitor()
+        
         freeciv_version = "+Freeciv.Web.Devel-3.1"
         sha_password = None
         google_user_subject = None
@@ -137,11 +228,17 @@ class CivClient(CivPropController):
         if p_list is None:
             return
         try:
+            print(self.ws_client.wait_for_packs) 
             for packet in p_list:
                 if packet is None:
                     continue
+                self.ws_client.stop_waiting(packet['pid'])
                 self.handle_pack(packet['pid'], packet)
-            self.bot.calculate_next_move()
+                if 31 in self.ws_client.wait_for_packs:
+                    print(packet)
+                
+            if not self.ws_client.is_waiting_for_responses():
+                self.bot.calculate_next_move()
         except Exception:
             raise
 
@@ -265,6 +362,7 @@ class CivClient(CivPropController):
         """Handle signal from server to start turn"""
         
         self.turn += 1
+
         if self.clstate.client_is_observer() or not self.clstate.is_playing():
             self.send_end_turn()
             return
@@ -272,6 +370,7 @@ class CivClient(CivPropController):
         pplayer = self.clstate.cur_player()
 
         self.bot.conduct_turn(pplayer, self.controller_list, self.send_end_turn)
+        
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""

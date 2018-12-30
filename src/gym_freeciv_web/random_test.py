@@ -19,9 +19,11 @@ class RandomAgent(object):
         action_opts = observation[1]
         print(observation[0]["unit"])
         for actor_id in action_opts["unit"].get_actors():
-            print("Trying Moving unit: %s" % actor_id)
+            print("Trying Moving units or build city: %s" % actor_id)
             if action_opts["unit"]._can_actor_act(actor_id):
                 pos_acts = action_opts["unit"].get_actions(actor_id, valid_only=True)
+                if "build" in pos_acts.keys() and random.random() > 0.8:
+                    return action_opts["unit"], pos_acts["build"]
                 move_action = random.choice([key for key in pos_acts.keys() if "goto" in key])
                 print("in direction %s" % move_action)
                 return action_opts["unit"], pos_acts[move_action]
@@ -29,7 +31,7 @@ class RandomAgent(object):
             return None
         return None
         #return self.action_space.sample()
-    
+
     def perform_episode(self, env):
         env.gym_agent = self
         return env.reset()    

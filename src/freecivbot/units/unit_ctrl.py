@@ -30,6 +30,7 @@ from freecivbot.game.game_ctrl import IDENTITY_NUMBER_ZERO
 from freecivbot.players.diplomacy import DS_ALLIANCE, DS_TEAM
 from freecivbot.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from freecivbot.units.unit_state import UnitState
+import urllib
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
@@ -199,7 +200,8 @@ class UnitCtrl(CivPropController):
     def _client_remove_unit(self, punit):
         #if self.unit_action_ctrl.unit_is_in_focus(punit):
         #    self.unit_action_ctrl.clear_focus()
-
+        self.prop_state.remove_list_item(punit["id"])
+        self.prop_actions.remove_actor(punit["id"])
         del self.units[punit['id']]
 
     def _clear_tile_unit(self, punit):
@@ -530,7 +532,13 @@ class UnitCtrl(CivPropController):
         #/* Decode the city name. */
         #suggested_name = urllib.unquote(packet['name'])
         unit_id = packet['unit_id']
+
         actor_unit = self.find_unit_by_number(unit_id)
+        
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
-                                                 ACTION_FOUND_CITY, name=packet['name'])
-        self.ws_client.send_request(packet)
+                                                 ACTION_FOUND_CITY, name=
+                                                 urllib.quote(packet['name'], safe='~()*!.\''))
+        self.ws_client.send_request(packet, wait_for_pid=31)
+        
+        
+        

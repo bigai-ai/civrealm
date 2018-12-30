@@ -11,4 +11,5 @@ def init_freeciv_docker():
                           ports=port_map,
                           user="docker",
                           tty=True,
-                          detach=True)
+                          detach=True,
+                          auto_remove=True)

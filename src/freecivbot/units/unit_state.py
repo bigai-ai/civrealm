@@ -14,9 +14,9 @@ class UnitState(ListState):
         self.city_ctrl = city_ctrl
         
     def _update_state(self, pplayer):
-        """
+        """ 
             Function returns the current state of all units of player pplayer
-        """
+        """ 
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
             if punit["owner"] == pplayer["playerno"]:

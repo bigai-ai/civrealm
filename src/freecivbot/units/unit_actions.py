@@ -178,6 +178,7 @@ class UnitAction(Action):
 
         packet = {"pid"         : packet_unit_do_action,
                   "actor_id"    : actor_id,
+                  "extra_id"    : EXTRA_NONE,
                   "target_id"   : target_id,
                   "value"       : value,
                   "name"        : name,
@@ -413,10 +414,12 @@ class ActBuild(UnitAction):
         target_city = self.focus.pcity
         unit_id = self.focus.punit["id"]
         #Do Join City if located inside a city.
+        self.wait_for_pid = None
         if target_city is None:
             if self.next_city_name is None:
                 packet = {"pid": packet_city_name_suggestion_req,
                           "unit_id": unit_id }
+                self.wait_for_pid = 44
                 return packet
             else:
                 return self.found_new_city(unit_id)
@@ -771,6 +774,7 @@ class ActGoto(StdAction):
         actor_unit = self.focus.punit
         dir8 = self.move_dir
         target_tile = self.newtile
+        self.wait_for_pid = 63
         packet = {"pid"       : packet_unit_orders,
                   "unit_id"   : actor_unit['id'],
                   "src_tile"  : actor_unit['tile'],

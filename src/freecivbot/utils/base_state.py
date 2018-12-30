@@ -115,7 +115,13 @@ class ListState(PlainState):
         if err:
             raise Exception("Change state to be compatible")
         return vec
-
+    
+    def remove_list_item(self, item_id):
+        if item_id in self._state.keys():
+            del self._state[item_id]
+        else:
+            print "Strange - Trying to delete unit that is not there: %s" % item_id
+    
 class EmptyState(PlainState):
     def _update_state(self, pplayer):
         return

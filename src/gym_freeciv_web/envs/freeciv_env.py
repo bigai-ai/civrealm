@@ -19,40 +19,23 @@ try:
 
     from selenium import webdriver
     from selenium.webdriver.common.keys import Keys
+    
+    from docker import errors as dock_errors
 
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
-init_server.init_freeciv_docker()
 
 class GymBot(BaseBot):
     def __init__(self, gym_env):
         BaseBot.__init__(self)
         self._env = gym_env
         self._last_action = None
-        self._driver = None
 
     def conduct_turn(self, pplayer, info_controls, end_turn_hook):
         BaseBot.conduct_turn(self, pplayer, info_controls, end_turn_hook)
-        if self.turn == 1:
-            """
-            self._driver = webdriver.Firefox()
-            self._driver.get("http://localhost/game/list?v=singleplayer")
-            elem = self._driver.find_element_by_class_name("label-success")
-            print(elem.get_attribute("href"))
-            print(elem.get_attribute("title"))
-            """
-            """
-            elem = driver.find_element_by_name("q")
-            elem.clear()
-            elem.send_keys("pycon")
-            elem.send_keys(Keys.RETURN)
-            assert "No results found." not in driver.page_source
-            driver.close()
-            """
-            #self.getState(True)
     
     def calculate_next_move(self):
         if self._turn_active:

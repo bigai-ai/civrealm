@@ -23,6 +23,8 @@ class CustomInstallCommand(build):
 """
 import os
 
+os.system("./prep_fire_selenium.sh")
+
 package_dirs = {"freecivbot": os.sep.join(['src','freecivbot']),
                 "gym_freeciv_web": os.sep.join(["src", "gym_freeciv_web"]),
                 "gym_freeciv_web.envs": os.sep.join(["src", "gym_freeciv_web", "envs"])}
@@ -43,5 +45,5 @@ setup(name='freecivbot',
       packages=package_list,
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
-      install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym'],
+      install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym', 'selenium', 'websocket'],
       zip_safe=False)

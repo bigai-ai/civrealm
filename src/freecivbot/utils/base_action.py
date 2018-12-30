@@ -9,12 +9,13 @@ class Action(object):
     """ Baseclass for all actions that can be send to the server -
         validity of actions needs to be ensured prior to triggering action"""
     action_key = None
+    wait_for_pid = None
 
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
         print(packet)
-        return ws_client.send_request(packet)
+        return ws_client.send_request(packet, self.wait_for_pid)
 
     def is_action_valid(self):
         """Check if action is valid - abstract function should be overwritten"""
@@ -33,6 +34,12 @@ class ActionList(object):
     def add_actor(self, actor_id):
         if actor_id not in self._action_dict:
             self._action_dict[actor_id] = {}
+    
+    def remove_actor(self, actor_id):
+        if actor_id in self._action_dict:
+            del self._action_dict[actor_id]
+        else:
+            print("strange - trying to remove non-existent actor: %s" % actor_id)
     
     def add_action(self, actor_id, a_action):
         if actor_id not in self._action_dict:

@@ -28,7 +28,9 @@ Installation
 ```
 sudo pip install https://github.com/chris1869/freeciv-bot
 
-build_server
+sudo civ_prep_selenium.sh
+
+sudo build_freeciv_server
 
 test_freeciv_web_gym
 

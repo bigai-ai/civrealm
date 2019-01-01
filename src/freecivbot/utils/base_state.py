@@ -120,7 +120,7 @@ class ListState(PlainState):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:
-            print "Strange - Trying to delete unit that is not there: %s" % item_id
+            print("Strange - Trying to delete unit that is not there: %s" % item_id)
     
 class EmptyState(PlainState):
     def _update_state(self, pplayer):

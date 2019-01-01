@@ -1,1 +1,1 @@
-include *.sh
+include src/freecivbot/*.sh

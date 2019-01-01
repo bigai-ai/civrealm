@@ -5,26 +5,6 @@ from distutils.command.build import build
 import subprocess
 import os
 
-"""
-#! To be reworked - currently no output via pip - shifting to manual install
-class CustomInstallCommand(build):
-    def run(self):
-        #subprocess.call(["python", "src/freecivbot/build_server.py"])
-        #os.system("python src/freecivbot/build_server.py")
-        proc = subprocess.Popen(["python","-u", "src/freecivbot/build_server.py"], stdout=subprocess.PIPE)
-
-        while True:
-            line = proc.stdout.readline()
-            if line != '':
-                print line
-            else:
-                break
-        build.run(self)
-"""
-import os
-
-os.system("./prep_fire_selenium.sh")
-
 package_dirs = {"freecivbot": os.sep.join(['src','freecivbot']),
                 "gym_freeciv_web": os.sep.join(["src", "gym_freeciv_web"]),
                 "gym_freeciv_web.envs": os.sep.join(["src", "gym_freeciv_web", "envs"])}

@@ -88,7 +88,7 @@ class CivMonitor():
                 if state == "logon_game":
                     try:
                         inp_username = self._driver.find_element_by_xpath("//*[@id='username_req']")
-                        bt_start_observe = self._driver.find_element_by_xpath("/html/body/div[6]/div[3]/div/button[1]")
+                        bt_start_observe = self._driver.find_element_by_xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
                         
                         inp_username.send_keys("")
                         inp_username.clear()

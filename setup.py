@@ -26,5 +26,5 @@ setup(name='freecivbot',
       data_files = [('/usr/local/bin', ['civ_prep_selenium.sh'])],
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
-      install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado', 'gym', 'selenium', 'websocket-client'],
+      install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado==4.5.3', 'gym', 'selenium', 'websocket-client'],
       zip_safe=False)

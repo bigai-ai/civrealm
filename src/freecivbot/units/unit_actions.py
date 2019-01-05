@@ -407,8 +407,21 @@ class ActBuild(UnitAction):
 
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
-            raise Exception("Unit has no moves left to build city")
-        return self.focus.ptype["name"] in ["Settlers", "Engineers"]
+            return False#raise Exception("Unit has no moves left to build city")
+                
+        if self.focus.ptype["name"] not in ["Settlers", "Engineers"]:
+            return False
+        else:
+            _map = self.focus.map_ctrl
+            unit_tile = _map.index_to_tile(self.focus.punit["tile"])
+            for city_id in self.focus.unit_ctrl.city_ctrl.cities.keys():
+                pcity = self.focus.unit_ctrl.city_ctrl.cities[city_id]
+                city_tile = _map.index_to_tile(pcity["tile"])
+                dx, dy = _map.map_distance_vector(unit_tile, city_tile)
+                dist = _map.map_vector_to_sq_distance(dx, dy)
+                if dist < pcity["city_radius_sq"]:
+                    return False
+            return True
 
     def _action_packet(self):
         target_city = self.focus.pcity

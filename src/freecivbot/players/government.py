@@ -36,6 +36,10 @@ GOV_COMMUNISM = 3
 GOV_REPUBLIC = 4
 GOV_DEMOCRACY = 5
 
+GOV_TXT = {GOV_ANARCHY: "Anarchy", GOV_DESPOTISM: "Despotism",
+           GOV_MONARCHY: "Monarchy", GOV_COMMUNISM: "Communism",
+           GOV_REPUBLIC: "Republic", GOV_DEMOCRACY: "Democracy"}
+
 class GovState(PlainState):
     def __init__(self, rule_ctrl):
         PlainState.__init__(self)
@@ -92,7 +96,7 @@ class GovernmentCtrl(CivPropController):
             return 80
         else:
             return 100 #// this should not happen
-
+    
     def request_report(self, rtype):
         packet = {"pid"  : packet_report_req,
                   "type" : rtype}
@@ -106,7 +110,7 @@ class ChangeGovernment(base_action.Action):
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl
         self.pplayer = pplayer
-        self.action_key += "_%i" % govt_id
+        self.action_key += "_%s" % GOV_TXT[govt_id]
 
     def is_action_valid(self):
         #//hack for statue of liberty

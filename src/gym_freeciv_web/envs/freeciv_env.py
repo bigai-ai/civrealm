@@ -4,24 +4,17 @@ Created on 19.12.2018
 @author: christian
 '''
 
-import os, subprocess, time, signal
+import os, time, signal
 import gym
-from time import sleep
-from gym import error, spaces
+from gym import error
 from gym import utils
-from gym.utils import seeding
+import json
 
 try:
     from freecivbot.civclient import CivClient
     from freecivbot.connectivity.clinet import CivConnection
     from freecivbot.bot.base_bot import BaseBot
-    from freecivbot import init_server
-
-    from selenium import webdriver
-    from selenium.webdriver.common.keys import Keys
     
-    from docker import errors as dock_errors
-
 except ImportError as e:
     raise error.DependencyNotInstalled("{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
@@ -64,6 +57,7 @@ class GymBot(BaseBot):
         return self._turn_state["player"]["my_score"]
 
 class FreecivEnv(gym.Env, utils.EzPickle):
+    """ Basic Freeciv Web gym environment """
     metadata = {'render.modes': ['human']}
 
     def __init__(self, max_turns=1000):
@@ -82,13 +76,17 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
 
-    def _configure_environment(self):
+    def _reset_client(self, client_port=6004, username="civbot", max_turns=1000,
+                      visualize=True):
         """
         Provides a chance for subclasses to override this method and supply
         a different server configuration. By default, we initialize one
         offense agent against no defenders.
         """
-        pass
+        self.max_turns = max_turns
+        self.my_civ_client = CivClient(self.my_bot, username, client_port=client_port,
+                                       visual_monitor=visualize)
+        self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost')
 
     def _start_viewer(self):
         """
@@ -103,6 +101,15 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     
     def _step(self, action):
         ob = self.my_bot.getState(update=True)
+        """
+        if self.my_bot.turn == 15:
+            f = open("/home/christian/example_observation_turn15_state.json", "w")
+            json.dump(ob[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)
+            f.close()
+            f = open("/home/christian/example_observation_turn15_actions.json", "w")
+            json.dump(ob[1], f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
+            f.close()
+        """
         reward = self._get_reward()
         episode_over = self.is_episode_over()
         return ob, reward, episode_over, {}
@@ -116,8 +123,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.reward = 0
         self.done = False
         self.my_bot = GymBot(self)
-        self.my_civ_client = CivClient(self.my_bot, "chrisrocks", client_port=6004)
-        self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost')
+        self._reset_client(client_port=6004, visualize=True)
 
     def _render(self, mode='human', close=False):
         """ Viewer only supports human mode currently. """

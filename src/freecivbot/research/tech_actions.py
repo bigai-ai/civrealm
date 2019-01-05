@@ -22,16 +22,17 @@ class TechActions(ActionList):
         
         self.add_actor(actor_id)
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(actor_id, ActChooseResearchTech(pplayer, tech_id))
-            self.add_action(actor_id, ActChooseResearchGoal(pplayer, tech_id))
+            tech_name = self.rule_ctrl.techs[tech_id]["name"]
+            self.add_action(actor_id, ActChooseResearchTech(pplayer, tech_id, tech_name))
+            self.add_action(actor_id, ActChooseResearchGoal(pplayer, tech_id, tech_name))
 
 class ActChooseResearchTech(Action):
     action_key = "research_tech"
-    def __init__(self, pplayer, new_tech_id):
+    def __init__(self, pplayer, new_tech_id, new_tech_name):
         Action.__init__(self)
         self.pplayer = pplayer
         self.new_tech_id = new_tech_id
-        self.action_key += "_%i" % new_tech_id
+        self.action_key += "_%s_%i" % (new_tech_name, new_tech_id)
 
     def is_action_valid(self):
         return is_tech_prereq_known(self.pplayer, self.new_tech_id)

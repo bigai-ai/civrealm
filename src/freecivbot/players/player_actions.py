@@ -10,7 +10,8 @@ from freecivbot.utils.fc_types import packet_player_rates,\
     packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
 from freecivbot.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
-    CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE
+    CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE,\
+    CLAUSE_TXT
  
 from freecivbot.players.government import GovernmentCtrl
 from freecivbot.research.tech_helpers import is_tech_known, player_invention_state,\
@@ -176,7 +177,8 @@ class RemoveClause(base_action.Action):
         self.giver = giver
         self.taker = taker
         self.cur_player = cur_player
-        self.action_key += "_%i_%i" % (clause_type, self.giver["playerno"])
+        self.action_key += "_cl%s_player%i" % (CLAUSE_TXT[clause_type],
+                                               self.giver["playerno"])
     
     def is_action_valid(self):
         return True
@@ -230,7 +232,7 @@ class AddTradeTechClause(AddClause):
     def __init__(self, clause_type, value, giver, taker, cur_player, rule_ctrl):
         AddClause.__init__(self, clause_type, value, giver, taker, cur_player)
         self.rule_ctrl = rule_ctrl
-        self.action_key += "_%i" % value
+        self.action_key += "_%i_%s" % (value, rule_ctrl.techs[value]["name"])
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:

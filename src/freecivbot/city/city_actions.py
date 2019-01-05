@@ -35,7 +35,10 @@ class CityActions(ActionList):
             self.add_actor(city_id)
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map))
+                    work_act = CityWorkTile(pcity, dx, dy, self.city_map)
+                    if work_act.output_idx == None:
+                        continue
+                    self.add_action(city_id, work_act)
                     self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map)) 
 
             for specialist_num in range(MAX_SPECIALISTS):
@@ -50,7 +53,7 @@ class CityActions(ActionList):
             for improvement_id in self.rulectrl.improvements:
                 pimprovement = self.rulectrl.improvements[improvement_id]
                 self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
-                self.add_action(city_id, CitySellImprovement(pcity, improvement_id))
+                self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
 class CityWorkTile(Action):
     action_key =  "city_work"
@@ -64,11 +67,14 @@ class CityWorkTile(Action):
         self.ptile = city_map.map_ctrl.map_pos_to_tile(self.ctile["x"] + dx, self.ctile["y"] + dy)
         
         self.output_idx = self.city_map.get_city_dxy_to_index(dx, dy, self.ctile)
-        self.action_key += "_%i_%i" % (dx, dy)
+        if self.output_idx == None:
+            self.action_key += "_None_%i_%i" % (dx, dy)
+        else:
+            self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
     
     def is_action_valid(self):
         return "worked" in self.ptile and "food_output" in self.pcity and \
-            self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != -1 
+            self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != None 
     
     def get_output_at_tile(self):
         if "food_output" in self.pcity:
@@ -138,14 +144,14 @@ class CityBuyProduction(Action):
 class CitySellImprovement(Action):
     """Sell city improvement"""
     action_key = "city_sell_improvement"
-    def __init__(self, pcity, improvement_id):
+    def __init__(self, pcity, improvement_id, improvement_name):
         Action.__init__(self)
         self.pcity = pcity
         self.improvement_id = improvement_id
-        self.action_key += "_%i" % improvement_id
+        self.action_key += "_%s" % improvement_name
     
     def is_action_valid(self):
-        return 
+        return self.pcity['improvements'][self.improvement_id] == 1  
     
     def _action_packet(self):
         packet = {"pid" : packet_city_sell, "city_id" : self.pcity['id'],
@@ -155,12 +161,13 @@ class CitySellImprovement(Action):
 class CityChangeProduction(Action):
     """Change city production."""
     action_key = "change_production"
-    def __init__(self, pcity, prod_kind, prod_value):
+    def __init__(self, pcity, prod_kind, prod_value, prod_name):
         Action.__init__(self)
         self.pcity = pcity
         self.prod_kind = prod_kind
         self.prod_value = prod_value
-        self.action_key += "_%s_%i" % (prod_kind, prod_value)
+        self.prod_name = prod_name
+        self.action_key += "_%s_%i" % (prod_name, prod_value)
 
     def is_action_valid(self):
         if not self.worklist_not_empty(self.pcity):
@@ -194,7 +201,7 @@ class CityChangeProduction(Action):
 class CityChangeUnitProduction(CityChangeProduction):
     action_key = "change_unit_prod"
     def __init__(self, pcity, punit_type):
-        CityChangeProduction.__init__(self, pcity, VUT_UTYPE, punit_type["id"])
+        CityChangeProduction.__init__(self, pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
         self.punit_type = punit_type
         
     def is_action_valid(self):
@@ -222,7 +229,7 @@ class CityChangeUnitProduction(CityChangeProduction):
 class CityChangeImprovementProduction(CityChangeProduction):
     action_key = "change_improve_prod"
     def __init__(self, pcity, pimprovement):
-        CityChangeProduction.__init__(self, pcity, VUT_IMPROVEMENT, pimprovement["id"])
+        CityChangeProduction.__init__(self, pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])
         self.pimprovement = pimprovement
         
     def is_action_valid(self):

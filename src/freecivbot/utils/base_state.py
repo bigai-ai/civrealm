@@ -5,6 +5,7 @@ Created on 07.03.2018
 '''
 
 import numpy as np
+import json
 
 def sets_equal(set_a, set_b):
     """Returns true if sets are equal and raises Exception showing keys added/removed in case they
@@ -23,6 +24,9 @@ class PropState():
         self._locked_set = None
         self._num_vars = -1
     
+    def __repr__(self):
+        return json.dumps(self._state, sort_keys=True)
+
     def _update_state(self, pplayer):
         raise Exception("To be overwritten; cur_player: %s" % pplayer)
     
@@ -77,6 +81,7 @@ class PlainState(PropState):
         return vec
 
 class ListState(PlainState):
+
     def _lock_properties(self):
         if self._state == {}:
             return

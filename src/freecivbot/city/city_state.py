@@ -72,10 +72,11 @@ class CityState(ListState):
                 cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL] 
 
         for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
-            cur_state["impr_int_%i" % z] = False
+            tech_tag = "impr_int_%s_%i" % (self.rulectrl.improvements[z]["name"], z)
+            cur_state[tech_tag] = False
 
             if 'improvements' in pcity and pcity['improvements'][z]==1:
-                cur_state["impr_int_%i" % z] = True
+                cur_state[tech_tag] = True
         
         for tile_num, (food_output, shield_output, trade_output) in enumerate(zip(pcity['food_output'],
                                                                                   pcity['shield_output'],

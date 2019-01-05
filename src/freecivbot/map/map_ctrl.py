@@ -24,6 +24,7 @@ from freecivbot.utils.utility import FC_WRAP, byte_to_bit_array, sign
 from freecivbot.utils.base_action import NoActions
 from freecivbot.map.tile import TileState, TILE_UNKNOWN
 from freecivbot.map.map_state import MapState
+import json
 
 
 DIR8_STAY = -1
@@ -92,6 +93,9 @@ class MapCtrl(CivPropController):
         self.register_handler(15, "handle_tile_info")
         self.register_handler(17, "handle_map_info")
         self.register_handler(253, "handle_set_topology")
+
+    def __repr__(self):
+        return json.dumps(self.tiles, sort_keys=True)
 
     def topo_has_flag(self, flag):
         return ((self.map['topology_id'] & (flag)) != 0)
@@ -252,17 +256,17 @@ class MapCtrl(CivPropController):
 
     def map_distance_vector(self, tile0, tile1):
         """Return a vector of minimum distance between tiles."""
-        dx = tile1.x - tile0.x
+        dx = tile1["x"] - tile0["x"]
         if self.topo_has_flag(TF_WRAPX):
             half_world = floor(self.map["xsize"] / 2)
             dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
 
-        dy = tile1.y - tile0.y
+        dy = tile1["y"] - tile0["y"]
         if self.topo_has_flag(TF_WRAPY):
             half_world = floor(self.map["ysize"] / 2)
             dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world
 
-        return [dx, dy]
+        return dx, dy
     
     def map_distances(self, dx, dy):
         if self.topo_has_flag(TF_WRAPX):

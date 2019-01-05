@@ -130,7 +130,7 @@ class CivMonitor():
         t.start()
 
 class CivClient(CivPropController):
-    def __init__(self, a_bot, user_name, client_port=6001):
+    def __init__(self, a_bot, user_name, client_port=6001, visual_monitor=True):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.bot = a_bot
@@ -154,7 +154,12 @@ class CivClient(CivPropController):
         self.gov_ctrl = None
 
         self.controller_list = {}
-        self.monitor = CivMonitor(user_name)
+        self.visual_monitor = visual_monitor
+        
+        if self.visual_monitor:
+            self.monitor = CivMonitor(user_name)
+        else:
+            self.monitor = None
         
     def init_controller(self):
         CivPropController.__init__(self, self.ws_client)
@@ -210,7 +215,8 @@ class CivClient(CivPropController):
         self.ws_client = ws_client
 
         self.init_controller()
-        self.monitor.start_monitor()
+        if self.visual_monitor:
+            self.monitor.start_monitor()
         
         freeciv_version = "+Freeciv.Web.Devel-3.1"
         sha_password = None

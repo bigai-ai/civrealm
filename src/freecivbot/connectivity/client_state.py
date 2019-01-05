@@ -257,7 +257,7 @@ class ClientState(CivPropController):
             self.ws_client.send_message("/surrender ")
 
     def pregame_start_game(self):
-        if self.client['conn']['player_num'] == None:
+        if "player_num" not in self.client['conn']:
             return
 
         test_packet = {"pid" : packet_player_ready, "is_ready" : True,

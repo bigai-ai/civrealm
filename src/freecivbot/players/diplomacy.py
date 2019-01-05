@@ -30,6 +30,9 @@ CLAUSE_ALLIANCE = 7
 CLAUSE_VISION = 8
 CLAUSE_EMBASSY = 9
 
+CLAUSE_TXT = ["Advance", "TradeGold", "ShareMap", "ShareSeaMap", "TradeCity",
+              "Ceasefire", "Peace", "Alliance", "Vision", "Embassy"]
+
 DS_ARMISTICE = 0
 DS_WAR = 1
 DS_CEASEFIRE = 2
@@ -38,6 +41,8 @@ DS_ALLIANCE = 4
 DS_NO_CONTACT = 5
 DS_TEAM = 6
 DS_LAST = 7
+
+DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "Team", "Last"]
 
 class DiplomacyState(PlainState):
     def __init__(self, diplstates):

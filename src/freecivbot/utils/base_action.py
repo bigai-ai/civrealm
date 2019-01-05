@@ -4,6 +4,7 @@ Created on 16.02.2018
 @author: christian
 '''
 from freecivbot.bot.base_bot import ACTION_UNWANTED
+import json
 
 class Action(object):
     """ Baseclass for all actions that can be send to the server -
@@ -11,6 +12,9 @@ class Action(object):
     action_key = None
     wait_for_pid = None
 
+    def __repr__(self):
+        return self.action_key
+    
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
@@ -30,6 +34,10 @@ class ActionList(object):
     def __init__(self, ws_client):
         self._action_dict = {}
         self.ws_client = ws_client
+
+    def json_struct(self):
+        return dict([(actor_id, dict([(action_key, self._action_dict[actor_id][action_key].is_action_valid()) for action_key in self._action_dict[actor_id]]))
+                     for actor_id in self._action_dict])
 
     def add_actor(self, actor_id):
         if actor_id not in self._action_dict:

@@ -30,7 +30,7 @@ def player_invention_state(pplayer, tech_id):
         else:
             #/* Research can be None in client when looking for tech_leakage
             # * from player not yet received. */
-            return pplayer['inventions'][tech_id]
+            return int(pplayer['inventions'][tech_id])
 
         #/* FIXME: add support for global advances
         #if (tech != A_FUTURE and game.info.global_advances[tech_id]) {

@@ -49,6 +49,7 @@ class CivMonitor():
         self._poll_interval = poll_interval
         self._initiated = False
         self._user_name = user_name
+        self.monitor_thread = None
     
     def _observe_game(self, user_name):
         if not self._initiated:
@@ -61,9 +62,10 @@ class CivMonitor():
         bt_single_games = None
         bt_observe_game = None
         bt_start_observe = None
-        
+            
         if self._initiated:
-            while True:
+            t = threading.currentThread()
+            while getattr(t, "do_run", True):
                 #Find single player button
                 if state == "review_games":
                     try:
@@ -123,11 +125,18 @@ class CivMonitor():
                     sleep(self._poll_interval)
                 
                 if state == "keep_silent":
-                    sleep(self._poll_interval*10)
-                        
+                    sleep(self._poll_interval)
+        
+        if self._initiated:
+            self._driver.close()
+        
     def start_monitor(self):
-        t = threading.Thread(target=self._observe_game, args=[self._user_name])
-        t.start()
+        self.monitor_thread = threading.Thread(target=self._observe_game, args=[self._user_name])
+        self.monitor_thread.start()
+    
+    def stop_monitor(self):
+        self.monitor_thread.do_run = False
+        self.monitor_thread.join()
 
 class CivClient(CivPropController):
     def __init__(self, a_bot, user_name, client_port=6001, visual_monitor=True):
@@ -230,6 +239,11 @@ class CivClient(CivPropController):
 
         self.ws_client.send(login_message)
 
+    def close(self):
+        if self.visual_monitor:
+            self.monitor.stop_monitor()
+        self.ws_client.close()
+            
     def assign_packets(self, p_list):
         """Distributes packets to the handlers of the controllers"""
         if p_list is None:
@@ -246,6 +260,8 @@ class CivClient(CivPropController):
                 
             if not self.ws_client.is_waiting_for_responses():
                 self.bot.calculate_next_move()
+                if self.bot.wants_to_end():
+                    self.close()
         except Exception:
             raise
 

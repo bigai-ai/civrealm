@@ -25,7 +25,14 @@ class BaseBot:
         self.action_options = {}
         self.action_wants = None
         self.game_turn = None
+        self._end_game = False
     
+    def close_game(self):
+        self._end_game = True
+        
+    def wants_to_end(self):
+        return self._end_game
+        
     def _acquire_ctrl_state(self, ctrl_type):
         ctrl = self._turn_ctrls[ctrl_type]
         self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
@@ -65,7 +72,6 @@ class BaseBot:
             self._conduct_moves(turn_wants)
             self._save_history(self.turn, turn_wants)
             self.end_turn()
-            sleep(4)
     
     def conduct_turn(self, pplayer, info_controls, end_turn_hook):
         '''
@@ -167,7 +173,6 @@ class StateBot(BaseBot):
             new_state = self._calculate_want_of_move_of_ctrl(self.ctrl_types[self.cur_state["ctrl"]])
             if self.change_state(new_state):
                 self.end_turn()
-                sleep(2)
             else:
                 print(len(self._turn_ctrls["game"].ws_client.send_queue))
                             

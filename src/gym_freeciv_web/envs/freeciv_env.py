@@ -27,20 +27,22 @@ class GymBot(BaseBot):
         self._env = gym_env
         self._last_action = None
 
-    def conduct_turn(self, pplayer, info_controls, end_turn_hook):
-        BaseBot.conduct_turn(self, pplayer, info_controls, end_turn_hook)
-    
     def calculate_next_move(self):
         if self._turn_active:
             obs, self._env.reward, self._env.done, _ = self._env.step(self._last_action)
+            if self._env.done:
+                pass
             action = self._env.gym_agent.act(obs, self._env.reward, self._env.done)
             if action == None:
-                time.sleep(3)
+                time.sleep(2)
                 self.end_turn()
                 return
             else:
                 self.take_action(action)
-            
+
+    def reset(self):
+        self._env.gym_agent.reset()
+        
     def take_action(self, action):
         action_list = action[0]
         action_list.trigger_validated_action(action[1])
@@ -53,18 +55,19 @@ class GymBot(BaseBot):
         return self._turn_state, self._turn_opts
 
     def get_reward(self):
-        print(self._turn_state["player"])
         return self._turn_state["player"]["my_score"]
 
 class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, max_turns=1000):
+    def __init__(self, max_turns=10):
         self.viewer = None
         self.status = None
         self.gym_agent = None
         self.max_turns = max_turns
+        self.game_ports = [6000, 6004]
+        self.current_port_id = 0
 
     def __del__(self):
         pass
@@ -76,14 +79,15 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
 
-    def _reset_client(self, client_port=6004, username="civbot", max_turns=1000,
-                      visualize=True):
+    def _reset_client(self, username="civbot", max_turns=10, visualize=True):
         """
         Provides a chance for subclasses to override this method and supply
         a different server configuration. By default, we initialize one
         offense agent against no defenders.
         """
         self.max_turns = max_turns
+        client_port = self.game_ports[self.current_port_id]
+        self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
         self.my_civ_client = CivClient(self.my_bot, username, client_port=client_port,
                                        visual_monitor=visualize)
         self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost')
@@ -96,22 +100,23 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         """
         pass
 
-    def is_episode_over(self):#
+    def is_episode_over(self):
         return False or self.my_bot.turn > self.max_turns
     
+    def _take_snapshot(self, ob, base_dir):
+        f = open(base_dir + "example_observation_turn15_state.json", "w")
+        json.dump(ob[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)
+        f.close()
+        f = open(base_dir + "example_observation_turn15_actions.json", "w")
+        json.dump(ob[1], f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
+        f.close()
+
     def _step(self, action):
         ob = self.my_bot.getState(update=True)
-        """
-        if self.my_bot.turn == 15:
-            f = open("/home/christian/example_observation_turn15_state.json", "w")
-            json.dump(ob[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)
-            f.close()
-            f = open("/home/christian/example_observation_turn15_actions.json", "w")
-            json.dump(ob[1], f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
-            f.close()
-        """
         reward = self._get_reward()
         episode_over = self.is_episode_over()
+        if episode_over:
+            self.my_bot.close_game()
         return ob, reward, episode_over, {}
 
     def _get_reward(self):
@@ -124,6 +129,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.done = False
         self.my_bot = GymBot(self)
         self._reset_client(client_port=6004, visualize=True)
+        return self.reward, self.done
 
     def _render(self, mode='human', close=False):
         """ Viewer only supports human mode currently. """

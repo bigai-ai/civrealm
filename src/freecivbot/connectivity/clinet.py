@@ -43,6 +43,7 @@ class CivWSClient(WebSocketClient):
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
+        
 
     def _on_connection_success(self):
         print('Connected!')
@@ -84,6 +85,13 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         return msges
     
+    def close(self):
+        self.send_queue = []
+        self.wait_for_packs = []
+        self.read_packs = []
+        WebSocketClient.close(self)
+        ioloop.IOLoop.instance().stop()
+        
     def is_waiting_for_responses(self):
         return len(self.wait_for_packs) > 0
     

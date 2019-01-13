@@ -121,8 +121,8 @@ class MapCtrl(CivPropController):
         
         shape_map = (self.map['xsize'], self.map['ysize'])
         
-        self.player_map["status"] = np.zeros(shape_map)
-        self.player_map["terrain"] = np.zeros(shape_map)
+        self.player_map["status"] = np.zeros(shape_map, dtype="B")
+        self.player_map["terrain"] = np.zeros(shape_map, dtype="H")
         
         for y in range(self.map['ysize']):
             for x in range(self.map['xsize']):
@@ -339,7 +339,7 @@ class MapCtrl(CivPropController):
             packet['extras'] = BitVector(bitlist=byte_to_bit_array(packet["extras"]))
             if self.player_map["extras"] is None:
                 extras_map = (self.map['xsize'], self.map['ysize'], len(packet['extras']))
-                self.player_map["extras"] = np.zeros(extras_map)
+                self.player_map["extras"] = np.zeros(extras_map, dtype="?")
                 
             ptile = packet['tile']
             if self.tiles[ptile] == None:

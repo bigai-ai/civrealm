@@ -1,3 +1,4 @@
 freecivbot.egg-info/
 geckodriver
 geckodriver.log
+*.pyc

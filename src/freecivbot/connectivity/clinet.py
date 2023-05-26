@@ -127,7 +127,7 @@ class CivConnection():
     def _detect_server_up(self):
         try:
             ws = websocket.WebSocket()
-            ws.connect('ws://localhost/civsocket/%i' % self.proxyport)#, http_proxy_host="proxy_host_name", http_proxy_port=3128)
+            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)#, http_proxy_host="proxy_host_name", http_proxy_port=3128)
             return True
         except Exception as err:
             print("Connect not successful:", err, " retrying in %s seconds." % self._retry_interval)
@@ -154,7 +154,7 @@ class CivConnection():
           Initialized the WebSocket connection.
         '''
         client = CivWSClient(self.client)
-        client.connect('ws://localhost/civsocket/%i' % self.proxyport)
+        client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
 
         try:
             ioloop.IOLoop.instance().start()

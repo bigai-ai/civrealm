@@ -79,7 +79,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
 
-    def _reset_client(self, username="civbot", max_turns=10, visualize=True):
+    def _reset_client(self, username="Civmonitor", max_turns=10, visualize=True):
         """
         Provides a chance for subclasses to override this method and supply
         a different server configuration. By default, we initialize one
@@ -90,7 +90,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
         self.my_civ_client = CivClient(self.my_bot, username, client_port=client_port,
                                        visual_monitor=visualize)
-        self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost')
+        self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost:8080')
 
     def _start_viewer(self):
         """
@@ -128,7 +128,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.reward = 0
         self.done = False
         self.my_bot = GymBot(self)
-        self._reset_client(client_port=6004, visualize=True)
+        self._reset_client(visualize=True)
         return self.reward, self.done
 
     def _render(self, mode='human', close=False):

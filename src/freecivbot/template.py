@@ -44,5 +44,5 @@ class SimpleBot(BaseBot):
         return action_wants
 
 my_bot = SimpleBot()
-my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
+my_civ_client = CivClient(my_bot, "civmonitor", client_port=6000)
 CivConnection(my_civ_client, 'http://localhost')

@@ -95,7 +95,8 @@ class MapCtrl(CivPropController):
         self.register_handler(253, "handle_set_topology")
 
     def __repr__(self):
-        return json.dumps(self.tiles, sort_keys=True)
+        # return json.dumps(self.tiles, sort_keys=True)
+        return "MapCtrl __repr__() unimplemented."
 
     def topo_has_flag(self, flag):
         return ((self.map['topology_id'] & (flag)) != 0)

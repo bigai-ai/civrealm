@@ -92,9 +92,8 @@ class CivMonitor():
                         inp_username = self._driver.find_element("xpath", "//*[@id='username_req']")
                         bt_start_observe = self._driver.find_element("xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
                         
-                        inp_username.send_keys("")
                         inp_username.clear()
-                        inp_username.send_keys("civmonitor")
+                        inp_username.send_keys(user_name)
                         bt_start_observe.click()
                         state = "view_bot"
                     except Exception as err:
@@ -183,6 +182,7 @@ class CivClient(CivPropController):
         self.register_handler(128, "handle_begin_turn")
         self.register_handler(129, "handle_end_turn")
 
+            # print(pid, self.hdict[pid])
         self.game_ctrl = GameCtrl(self.ws_client)
         self.opt_ctrl = OptionCtrl(self.ws_client)
         self.rule_ctrl = RulesetCtrl(self.ws_client)
@@ -227,7 +227,7 @@ class CivClient(CivPropController):
         if self.visual_monitor:
             self.monitor.start_monitor()
         
-        freeciv_version = "+Freeciv.Web.Devel-3.1"
+        freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
 

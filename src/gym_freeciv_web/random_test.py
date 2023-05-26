@@ -63,9 +63,9 @@ class RandomAgent(object):
     def perform_episode(self, env):
         self._num_actions = 0
         env.env.gym_agent = self
+        observation, done = env.reset()
         self.reset_after_episode()
-        print("Starting new episode")
-        return env.reset()
+        return
     
     def reset_after_episode(self):
         #Reset model parameters after episode has finished
@@ -77,7 +77,6 @@ def main():
     logger.set_level(logger.INFO)
 
     env = gym.make("Freeciv-v0")
-    
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
@@ -90,10 +89,11 @@ def main():
     
     agent = RandomAgent(env.action_space)
 
-    episode_count = 5
+    episode_count = 1
     try:
-        for _ in range(episode_count):
-            reward, done  = agent.perform_episode(env)
+        for episode_i in range(episode_count):
+            print("Starting episode %i" % episode_i)
+            agent.perform_episode(env)
         # Close the env and write monitor result info to disk
     finally:
         env.close()

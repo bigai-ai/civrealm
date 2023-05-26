@@ -28,7 +28,7 @@ Installation
 For **Ubuntu older than 22.04**:
 
 ```bash
-python setup.py install
+pip install -e .
 sudo ./civ_prep_selenium.sh
 test_freeciv_web_gym
 ```
@@ -36,7 +36,7 @@ test_freeciv_web_gym
 For **Ubuntu 22.04**:
 
 ```bash
-python setup.py install
+pip install -e .
 sudo snap install firefox && ln -s /snap/bin/firefox.geckodriver geckodriver
 test_freeciv_web_gym
 ```

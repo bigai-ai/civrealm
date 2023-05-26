@@ -64,6 +64,7 @@ class RandomAgent(object):
         self._num_actions = 0
         env.env.gym_agent = self
         self.reset_after_episode()
+        print("Starting new episode")
         return env.reset()
     
     def reset_after_episode(self):

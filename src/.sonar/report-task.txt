@@ -1,6 +1,0 @@
-projectKey=freeciv_bot
-serverUrl=http://echelon:9000
-serverVersion=7.0.0.36138
-dashboardUrl=http://echelon:9000/dashboard/index/freeciv_bot
-ceTaskId=AWIL-vkEsyff1tcKxIEA
-ceTaskUrl=http://echelon:9000/api/ce/task?id=AWIL-vkEsyff1tcKxIEA

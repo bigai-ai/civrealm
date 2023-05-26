@@ -204,6 +204,13 @@ Example 4: Set all other actions to ACTION_UNWANTED
 
 ## Trouble shooting
 
+* If firefox keeps loading the page, please try to add the following line to `/etc/hosts`:
+
+    ```bash
+    127.0.0.1 maxcdn.bootstrapcdn.com
+    127.0.0.1 cdn.webglstats.com
+    ```
+
 * If you encounter the following error when running `sudo civ_prep_selenium.sh`, please try [this solution](https://unix.stackexchange.com/questions/724518/the-following-packages-have-unmet-dependencies-containerd-io).
 
     ```bash

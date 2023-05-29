@@ -54,7 +54,7 @@ class CivMonitor():
     def _observe_game(self, user_name):
         if not self._initiated:
             self._driver = webdriver.Firefox()
-            self._driver.get("http://localhost:8080")
+            self._driver.get("http://localhost:8080/")
             sleep(2)
             self._initiated = True
     

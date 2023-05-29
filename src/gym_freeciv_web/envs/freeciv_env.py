@@ -128,7 +128,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.reward = 0
         self.done = False
         self.my_bot = GymBot(self)
-        self._reset_client(client_port=6004, visualize=True)
+        self._reset_client(visualize=True)
         return self.reward, self.done
 
     def _render(self, mode='human', close=False):

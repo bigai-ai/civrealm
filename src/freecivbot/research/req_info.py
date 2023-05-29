@@ -46,6 +46,7 @@ REQ_RANGE_COUNT = 10  # /* keep this last */
 class ReqCtrl():
     def __init__(self):
         pass
+
     @staticmethod
     def is_req_active(target_player, req, prob_type):
         """
@@ -70,7 +71,7 @@ class ReqCtrl():
         if req['kind'] == VUT_NONE:
             result = TRI_YES
         elif req['kind'] == VUT_ADVANCE:
-            #/* The requirement is filled if the player owns the tech. */
+            # /* The requirement is filled if the player owns the tech. */
             result = ReqCtrl.is_tech_in_range(target_player, req['range'], req['value'])
         elif req['kind'] in [VUT_GOVERNMENT, VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION,
                              VUT_UTYPE, VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE,
@@ -83,7 +84,7 @@ class ReqCtrl():
                              VUT_ACTION, VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG,
                              VUT_SERVERSETTING]:
 
-            #//FIXME: implement
+            # //FIXME: implement
             freelog("Unimplemented requirement type " + req['kind'])
 
         elif req['kind'] == VUT_COUNT:
@@ -101,7 +102,6 @@ class ReqCtrl():
 
     @staticmethod
     def are_reqs_active(target_player, reqs, prob_type):
-
         """
           Checks the requirement(s) to see if they are active on the given target.
 
@@ -130,8 +130,8 @@ class ReqCtrl():
             return target_player != None and target
 
         elif trange in [REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE, REQ_RANGE_WORLD]:
-            #/* FIXME: Add support for the above ranges. Freeciv's implementation
-            #* currently (25th Jan 2017) lives in common/requirements.c */
+            # /* FIXME: Add support for the above ranges. Freeciv's implementation
+            # * currently (25th Jan 2017) lives in common/requirements.c */
             freelog("Unimplemented tech requirement range " + range)
             return TRI_MAYBE
         elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT,

@@ -13,23 +13,27 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-#def DIVIDE(n, d):
-    #* DIVIDE() divides and rounds down, rather than just divides and
-    #*rounds toward 0.  It is assumed that the divisor is positive."""
-    #return parseInt( (n) / (d) - (( (n) < 0 && (n) % (d) < 0 ) ? 1 : 0) )
+# def DIVIDE(n, d):
+# * DIVIDE() divides and rounds down, rather than just divides and
+# *rounds toward 0.  It is assumed that the divisor is positive."""
+# return parseInt( (n) / (d) - (( (n) < 0 && (n) % (d) < 0 ) ? 1 : 0) )
+
 
 def FC_WRAP(value, arange):
     return (value % (arange) + (arange) if (value) % (arange) != 0 else 0) \
-           if value < 0 else (value % arange if value >= arange else value)
+        if value < 0 else (value % arange if value >= arange else value)
 
-def XOR(a,b):
-    return ( a or b ) and not ( a and b )
+
+def XOR(a, b):
+    return (a or b) and not (a and b)
+
 
 def byte_to_bit_array(abyte_array):
     bit_array = []
     for abyte in abyte_array:
         bit_array.extend([int(x) for x in "{0:0>8}".format(bin(abyte)[2:])])
     return bit_array[::-1]
+
 
 def sign(x):
     return (x > 0) - (x < 0)

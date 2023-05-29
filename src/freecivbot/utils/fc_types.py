@@ -41,22 +41,22 @@ ACTIVITY_EXPLORE = 11
 ACTIVITY_TRANSFORM = 12
 ACTIVITY_FORTIFYING = 15
 ACTIVITY_FALLOUT = 16
-ACTIVITY_BASE = 18			#/* building base */
+ACTIVITY_BASE = 18  # /* building base */
 ACTIVITY_GEN_ROAD = 19
 ACTIVITY_CONVERT = 20
-ACTIVITY_LAST = 21   #/* leave this one last */
+ACTIVITY_LAST = 21  # /* leave this one last */
 
 IDENTITY_NUMBER_ZERO = 0
 
-#/* Corresponds to the enum action_target_kind */
-ATK_CITY  = 0
-ATK_UNIT  = 1
+# /* Corresponds to the enum action_target_kind */
+ATK_CITY = 0
+ATK_UNIT = 1
 ATK_UNITS = 2
-ATK_TILE  = 3
-ATK_SELF  = 4
+ATK_TILE = 3
+ATK_SELF = 4
 ATK_COUNT = 5
 
-#/* Actions */
+# /* Actions */
 ACTION_ESTABLISH_EMBASSY = 0
 ACTION_ESTABLISH_EMBASSY_STAY = 1
 ACTION_SPY_INVESTIGATE_CITY = 2
@@ -103,16 +103,16 @@ ACTION_CONQUER_CITY = 42
 ACTION_HEAL_UNIT = 43
 ACTION_COUNT = 44
 
-#/* The action_decision enum */
-#/* Doesn't need the player to decide what action to take. */
+# /* The action_decision enum */
+# /* Doesn't need the player to decide what action to take. */
 ACT_DEC_NOTHING = 0
-#/* Wants a decision because of something done to the actor. */
+# /* Wants a decision because of something done to the actor. */
 ACT_DEC_PASSIVE = 1
-#/* Wants a decision because of something the actor did. */
+# /* Wants a decision because of something the actor did. */
 ACT_DEC_ACTIVE = 2
 
-#/* The kind of universals_u (value_union_type was req_source_type).
-#* Used in the network protocol. */
+# /* The kind of universals_u (value_union_type was req_source_type).
+# * Used in the network protocol. */
 VUT_NONE = 0
 VUT_ADVANCE = 1
 VUT_GOVERNMENT = 2
@@ -125,12 +125,12 @@ VUT_UCLASS = 8
 VUT_UCFLAG = 9
 VUT_OTYPE = 10
 VUT_SPECIALIST = 11
-VUT_MINSIZE = 12		#/* Minimum size: at city range means city size */
-VUT_AI_LEVEL = 13		#/* AI level of the player */
-VUT_TERRAINCLASS = 14	#/* More generic terrain type, currently "Land" or "Ocean" */
+VUT_MINSIZE = 12  # /* Minimum size: at city range means city size */
+VUT_AI_LEVEL = 13  # /* AI level of the player */
+VUT_TERRAINCLASS = 14  # /* More generic terrain type, currently "Land" or "Ocean" */
 VUT_MINYEAR = 15
-VUT_TERRAINALTER = 16      #/* Terrain alterations that are possible */
-VUT_CITYTILE = 17          #/* Target tile is used by city. */
+VUT_TERRAINALTER = 16  # /* Terrain alterations that are possible */
+VUT_CITYTILE = 17  # /* Target tile is used by city. */
 VUT_GOOD = 18
 VUT_TERRFLAG = 19
 VUT_NATIONALITY = 20
@@ -156,28 +156,28 @@ VUT_MINTECHS = 39
 VUT_EXTRAFLAG = 40
 VUT_MINCALFRAG = 41
 VUT_SERVERSETTING = 42
-VUT_COUNT = 43             #/* Keep this last. */
+VUT_COUNT = 43  # /* Keep this last. */
 
-#/* Freeciv's gui_type enum */
-#/* Used for options which do not belong to any gui. */
-GUI_STUB    = 0
-GUI_GTK2    = 1
-GUI_GTK3    = 2
+# /* Freeciv's gui_type enum */
+# /* Used for options which do not belong to any gui. */
+GUI_STUB = 0
+GUI_GTK2 = 1
+GUI_GTK3 = 2
 GUI_GTK3_22 = 3
-#/* GUI_SDL remains for now for keeping client options alive until
-#* user has migrated them to sdl2-client */
-GUI_SDL     = 4
-GUI_QT      = 5
-GUI_SDL2    = 6
-GUI_WEB     = 7
-GUI_GTK3x   = 8
+# /* GUI_SDL remains for now for keeping client options alive until
+# * user has migrated them to sdl2-client */
+GUI_SDL = 4
+GUI_QT = 5
+GUI_SDL2 = 6
+GUI_WEB = 7
+GUI_GTK3x = 8
 
-#/* Sometimes we don't know (or don't care) if some requirements for effect
-#* are currently fulfilled or not. This enum tells lower level functions
-#* how to handle uncertain requirements.
-#*/
-RPT_POSSIBLE = 0 #/* We want to know if it is possible that effect is active */
-RPT_CERTAIN = 1  #/* We want to know if it is certain that effect is active  */
+# /* Sometimes we don't know (or don't care) if some requirements for effect
+# * are currently fulfilled or not. This enum tells lower level functions
+# * how to handle uncertain requirements.
+# */
+RPT_POSSIBLE = 0  # /* We want to know if it is possible that effect is active */
+RPT_CERTAIN = 1  # /* We want to know if it is certain that effect is active  */
 
 O_FOOD = 0
 O_SHIELD = 1
@@ -186,13 +186,13 @@ O_GOLD = 3
 O_LUXURY = 4
 O_SCIENCE = 5
 
-#/* vision_layer enum */
+# /* vision_layer enum */
 V_MAIN = 0
 V_INVIS = 1
 V_SUBSURFACE = 2
 V_COUNT = 3
 
-#/* The unit_orders enum from unit.h */
+# /* The unit_orders enum from unit.h */
 ORDER_MOVE = 0
 ORDER_ACTIVITY = 1
 ORDER_FULL_MP = 2
@@ -200,7 +200,7 @@ ORDER_ACTION_MOVE = 3
 ORDER_PERFORM_ACTION = 4
 ORDER_LAST = 5
 
-#/* The unit_ss_data_type enum from unit.h */
+# /* The unit_ss_data_type enum from unit.h */
 USSDT_QUEUE = 0
 USSDT_UNQUEUE = 1
 USSDT_BATTLE_GROUP = 2

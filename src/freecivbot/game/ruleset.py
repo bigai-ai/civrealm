@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+from freecivbot.connectivity.Basehandler import CivPropController
 from freecivbot.utils.fc_types import VUT_ADVANCE
 from freecivbot.research.tech_ctrl import A_NONE
 import sys
@@ -39,9 +40,9 @@ EXTRA_AIRBASE = None
 Freeciv Web Client.
 This file contains the handling-code for packets from the civserver.
 """
-from freecivbot.connectivity.Basehandler import CivPropController
 
 U_NOT_OBSOLETED = None
+
 
 class RulesetCtrl(CivPropController):
 
@@ -74,7 +75,6 @@ class RulesetCtrl(CivPropController):
         self.register_handler(175, "handle_ruleset_effect")
         self.register_handler(177, "handle_ruleset_resource")
 
-
         self.register_handler(220, "handle_ruleset_road")
         self.register_handler(224, "handle_ruleset_disaster")
         self.register_handler(225, "handle_rulesets_ready")
@@ -94,7 +94,7 @@ class RulesetCtrl(CivPropController):
 
         self.register_handler(239, "handle_ruleset_style")
         self.register_handler(240, "handle_ruleset_music")
-        #self.register_handler(243, "handle_ruleset_multiplier")
+        # self.register_handler(243, "handle_ruleset_multiplier")
         self.register_handler(246, "handle_ruleset_action")
         self.register_handler(247, "handle_ruleset_description_part")
         self.register_handler(248, "handle_ruleset_goods")
@@ -125,12 +125,12 @@ class RulesetCtrl(CivPropController):
         self.nations = {}
         self.effects = {}
         self.extras = {}
-        
+
         self.prop_state = RuleState(self.game_info)
         self.prop_actions = NoActions(ws_client)
 
     def handle_ruleset_terrain(self, packet):
-        #/* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */
+        # /* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */
         if packet['name'] == "Lake":
             packet['graphic_str'] = packet['graphic_alt']
         if packet['name'] == "Glacier":
@@ -148,10 +148,10 @@ class RulesetCtrl(CivPropController):
         """
         self.ruleset_control = packet
 
-        #Clear out any effects belonging to the previous ruleset
+        # Clear out any effects belonging to the previous ruleset
         self.effects = {}
 
-        #Clear out the description of the previous ruleset
+        # Clear out the description of the previous ruleset
         self.ruleset_summary = None
         self.ruleset_description = None
 
@@ -189,9 +189,9 @@ class RulesetCtrl(CivPropController):
 
     def handle_ruleset_government_ruler_title(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
-    def handle_ruleset_tech(self,packet):
+    def handle_ruleset_tech(self, packet):
         packet['name'] = packet['name'].replace("?tech:", "")
         self.techs[packet['id']] = packet
         self.recreate_old_tech_req(packet)
@@ -202,26 +202,26 @@ class RulesetCtrl(CivPropController):
         This makes it possible to delay research_reqs support.
         """
 
-        #/* Recreate the field it self. */
+        # /* Recreate the field it self. */
         packet['req'] = []
 
-        #/* Add all techs in research_reqs. */
+        # /* Add all techs in research_reqs. */
         for requirement in packet['research_reqs']:
             if requirement["kind"] == VUT_ADVANCE and requirement["range"] == REQ_RANGE_PLAYER and \
-                requirement["present"]:
+                    requirement["present"]:
                 packet['req'].append(requirement["value"])
 
-        #/* Fill in A_NONE just in case Freeciv-web assumes its size is 2. */
+        # /* Fill in A_NONE just in case Freeciv-web assumes its size is 2. */
         while len(packet['req']) < 2:
             packet['req'].append(A_NONE)
 
     def handle_ruleset_tech_class(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_tech_flag(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_government(self, packet):
         self.governments[packet['id']] = packet
@@ -231,7 +231,7 @@ class RulesetCtrl(CivPropController):
 
         # /* Separate since it is easier understand what SINGLE_MOVE means than to
         # * understand what terrain_control['move_fragments'] means. */
-        #SINGLE_MOVE = self.terrain_control['move_fragments']
+        # SINGLE_MOVE = self.terrain_control['move_fragments']
 
     def handle_ruleset_nation_groups(self, packet):
         self.nation_groups = packet['groups']
@@ -239,7 +239,7 @@ class RulesetCtrl(CivPropController):
     def handle_ruleset_nation(self, packet):
         self.nations[packet['id']] = packet
 
-    def handle_ruleset_city(self,packet):
+    def handle_ruleset_city(self, packet):
         self.city_rules[packet['style_id']] = packet
 
     def handle_ruleset_building(self, packet):
@@ -247,58 +247,56 @@ class RulesetCtrl(CivPropController):
 
     def handle_ruleset_unit_class(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_disaster(self, packet):
         pass
-        #/* TODO: implement*/
-
+        # /* TODO: implement*/
 
     def handle_ruleset_trade(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_rulesets_ready(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_single_want_hack_reply(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_choices(self, packet):
         pass
-        #/* TODO: implement*/
-
+        # /* TODO: implement*/
 
     def handle_ruleset_effect(self, packet):
 
         eff_type = packet["effect_type"]
         if not eff_type in self.effects.keys():
-            #This is the first effect of this type
+            # This is the first effect of this type
             self.effects[eff_type] = []
 
         self.effects[eff_type].append(packet)
 
     def handle_ruleset_unit_flag(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_unit_class_flag(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_unit_bonus(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_terrain_flag(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_achievement(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_action(self, packet):
         """
@@ -311,7 +309,7 @@ class RulesetCtrl(CivPropController):
         Handle an action auto performer rule.
         """
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_goods(self, packet):
         self.goods[packet['id']] = packet
@@ -337,35 +335,35 @@ class RulesetCtrl(CivPropController):
 
     def handle_ruleset_extra_flag(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_base(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_road(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_action_enabler(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_nation_sets(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_style(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_nation_availability(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def handle_ruleset_music(self, packet):
         pass
-        #/* TODO: implement*/
+        # /* TODO: implement*/
 
     def unittype_ids_alphabetic(self):
         """Returns a list containing the unittype ids sorted by unittype name."""
@@ -390,7 +388,7 @@ class RulesetCtrl(CivPropController):
 
     def get_nation_options(self):
         """Shows the pick nation dialog."""
-        #/* prepare a list of flags and nations. */
+        # /* prepare a list of flags and nations. */
         nation_name_list = []
         for nation_id in self.nations:
             pnation = self.nations[nation_id]
@@ -401,7 +399,7 @@ class RulesetCtrl(CivPropController):
     @staticmethod
     def ruledir_from_ruleset_name(ruleset_name, fall_back_dir):
         """Returns the ruleset directory of the ruleset based on its name."""
-        #HACK: find current ruleset dir based on its name.
+        # HACK: find current ruleset dir based on its name.
         rname = ruleset_name.lower()
         if "ruleset" in ruleset_name:
             rname = ruleset_name.split(" ")[0]
@@ -420,7 +418,7 @@ class RulesetCtrl(CivPropController):
     def city_has_building(self, pcity, improvement_id):
         for z in range(self.ruleset_control["num_impr_types"]):
             if 'improvements' in pcity and pcity['improvements'][z] == 1 \
-                and z == improvement_id:
+                    and z == improvement_id:
                 return True
         return False
 
@@ -452,7 +450,7 @@ class RulesetCtrl(CivPropController):
                 if req['kind'] == 1 and req['present']:
                     result.append(req['value'])
         return result
-    
+
     def is_tech_req_for_goal(self, check_tech_id, goal_tech_id):
         """
          Determines if the technology 'check_tech_id' is a requirement
@@ -493,7 +491,7 @@ class RulesetCtrl(CivPropController):
             if check_tech_id == rid:
                 return True
         return False
-    
+
     @staticmethod
     def universal_build_shield_cost(target):
         """Return the number of shields it takes to build this universal."""
@@ -504,6 +502,6 @@ class RulesetCtrl(CivPropController):
 
     def handle_new_year(self, packet):
         self.game_info['year'] = packet['year']
-        #/* TODO: Support calender fragments. */
+        # /* TODO: Support calender fragments. */
         self.game_info['fragments'] = packet['fragments']
         self.game_info['turn'] = packet['turn']

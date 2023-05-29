@@ -31,8 +31,10 @@ SSHIP_PLACE_HABITATION = 3
 SSHIP_PLACE_LIFE_SUPPORT = 4
 SSHIP_PLACE_SOLAR_PANELS = 5
 
+
 class SpaceCtrl(CivPropController):
     """ Controls spaceship information collection from server and state/actions towards spaceship"""
+
     def __init__(self, ws_client, rule_ctrl):
         CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
@@ -76,8 +78,10 @@ class SpaceCtrl(CivPropController):
         if state_id == SSHIP_ARRIVED:
             return "Arrived"
 
+
 class LaunchSpaceship(Action):
     """ Launch Spaceship """
+
     def __init__(self, spaceship_playerinfo):
         Action.__init__(self)
         self.spaceship_playerinfo = spaceship_playerinfo
@@ -88,5 +92,5 @@ class LaunchSpaceship(Action):
                     self.spaceship_playerinfo['success_rate'] == 0)
 
     def _action_packet(self):
-        packet = {"pid" : packet_spaceship_launch}
+        packet = {"pid": packet_spaceship_launch}
         return packet

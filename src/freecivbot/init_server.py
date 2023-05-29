@@ -1,5 +1,6 @@
 import docker
 
+
 def init_freeciv_docker():
     client = docker.from_env()
     port_map = {"8443/tcp": 8080, "80/tcp": 80, "7000/tcp": 7000,

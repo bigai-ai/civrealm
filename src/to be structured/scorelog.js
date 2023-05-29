@@ -28,23 +28,23 @@ function view_game_scores() {
 
 
   var dialog_html = "<center><div id='scores_wait'>Please wait while generating score graphs...</div></center>"
-    +"</div><div id='scores_tabs'><ul id='scores_ul'></ul></div>";
+    + "</div><div id='scores_tabs'><ul id='scores_ul'></ul></div>";
 
   $("#scores_dialog").html(dialog_html);
   $("#scores_dialog").attr("title", "Game Scores");
   $("#scores_dialog").dialog({
-			bgiframe: true,
-			modal: true,
-			width: is_small_screen() ? "95%" : "80%",
-                        height: is_small_screen() ? 560 : 710,
-			buttons: {
-				Ok: function() {
-					$("#scores_dialog").dialog('close');
-                                        $("#scores_tabs").remove();
-  					$("#scores_dialog").remove();
-				}
-			}
-		});
+    bgiframe: true,
+    modal: true,
+    width: is_small_screen() ? "95%" : "80%",
+    height: is_small_screen() ? 560 : 710,
+    buttons: {
+      Ok: function () {
+        $("#scores_dialog").dialog('close');
+        $("#scores_tabs").remove();
+        $("#scores_dialog").remove();
+      }
+    }
+  });
 
   $("#scores_dialog").dialog('open');
 
@@ -54,11 +54,11 @@ function view_game_scores() {
     dataType: "html",
     cache: false,
     async: true
-  }).fail(function() {
+  }).fail(function () {
     $("#scores_wait").html("Score graphs not shown, because server 'scorelog' variable is disabled,"
       + " or because of problem loading the score file.");
-    $("#game_scores_button").button( "option", "disabled", true);
-  }).done(function( data ) {
+    $("#game_scores_button").button("option", "disabled", true);
+  }).done(function (data) {
     handle_scorelog(data);
   });
 
@@ -91,13 +91,13 @@ function handle_scorelog(scorelog) {
         playernames.push(pname);
         var pplayer = player_by_name(pname);
         if (pplayer == null) {
-          scorecolors.push("#ff0000"); 
+          scorecolors.push("#ff0000");
         } else {
-          scorecolors.push(nations[pplayer['nation']]['color']); 
+          scorecolors.push(nations[pplayer['nation']]['color']);
         }
 
       } else if (scoredata[0] == "turn") {
-        if (start_turn==0) start_turn = scoredata[1];
+        if (start_turn == 0) start_turn = scoredata[1];
 
       } else if (scoredata[0] == "tag") {
         scoretags[scoredata[1]] = scoredata[2];
@@ -124,17 +124,17 @@ function handle_scorelog(scorelog) {
       }
     }
   }
-  if (is_small_screen()) scoretags = {"0" : "score"};
+  if (is_small_screen()) scoretags = { "0": "score" };
 
   for (var key in scoretags) {
     var tagname = scoretags[key];
     $("#scores_ul").append("<li><a href='#scores-tabs-" + key + "' class='scores_tabber'>" + get_scorelog_name(tagname) + "</a></li>");
-    $("#scores_tabs").append("<div id='scores-tabs-" + key + "'><div id='scoreschart-" + key +  "' class='scorechart'></div>"
+    $("#scores_tabs").append("<div id='scores-tabs-" + key + "'><div id='scoreschart-" + key + "' class='scorechart'></div>"
       + "<center><b>" + get_scorelog_name(tagname) + "</b></center></div>");
   }
 
   var ps = 4;
-  if (scoreitems.length >1000) ps = 0;
+  if (scoreitems.length > 1000) ps = 0;
 
   for (var key in scoretags) {
     try {
@@ -145,10 +145,10 @@ function handle_scorelog(scorelog) {
         ykeys: playerslist,
         labels: playernames,
         parseTime: false,
-        lineColors : scorecolors,
+        lineColors: scorecolors,
         pointSize: ps
       });
-    } catch(err) {
+    } catch (err) {
       console.log("Problem showing score log graph: " + err);
     }
   }
@@ -166,21 +166,21 @@ function handle_scorelog(scorelog) {
 ****************************************************************************/
 function get_scorelog_name(tag) {
   var names = {
-  "score" : "Score",
-  "pop" : "Population",
-  "bnp" : "Economics",
-  "mfg" : "Production",
-  "cities" : "Cities",
-  "techs" : "Techs",
-  "munits" : "Military units", 
-  "wonders" : "Wonders",
-  "techout" : "Tech output", 
-  "landarea" : "Land area",
-  "settledarea" : "Settled area",
-  "gold" : "Gold",
-  "unitsbuilt" : "Units built",
-  "unitskilled" : "Units killed",
-  "unitslost" : "Units lost" 
+    "score": "Score",
+    "pop": "Population",
+    "bnp": "Economics",
+    "mfg": "Production",
+    "cities": "Cities",
+    "techs": "Techs",
+    "munits": "Military units",
+    "wonders": "Wonders",
+    "techout": "Tech output",
+    "landarea": "Land area",
+    "settledarea": "Settled area",
+    "gold": "Gold",
+    "unitsbuilt": "Units built",
+    "unitskilled": "Units killed",
+    "unitslost": "Units lost"
   };
   return names[tag];
 }

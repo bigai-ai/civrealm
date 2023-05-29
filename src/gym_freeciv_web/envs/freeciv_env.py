@@ -4,7 +4,9 @@ Created on 19.12.2018
 @author: christian
 '''
 
-import os, time, signal
+import os
+import time
+import signal
 import gym
 from gym import error
 from gym import utils
@@ -14,12 +16,14 @@ try:
     from freecivbot.civclient import CivClient
     from freecivbot.connectivity.clinet import CivConnection
     from freecivbot.bot.base_bot import BaseBot
-    
+
 except ImportError as e:
-    raise error.DependencyNotInstalled("{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
+    raise error.DependencyNotInstalled(
+        "{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
 import logging
 logger = logging.getLogger(__name__)
+
 
 class GymBot(BaseBot):
     def __init__(self, gym_env):
@@ -42,7 +46,7 @@ class GymBot(BaseBot):
 
     def reset(self):
         self._env.gym_agent.reset()
-        
+
     def take_action(self, action):
         action_list = action[0]
         action_list.trigger_validated_action(action[1])
@@ -56,6 +60,7 @@ class GymBot(BaseBot):
 
     def get_reward(self):
         return self._turn_state["player"]["my_score"]
+
 
 class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
@@ -102,7 +107,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
 
     def is_episode_over(self):
         return False or self.my_bot.turn > self.max_turns
-    
+
     def _take_snapshot(self, ob, base_dir):
         f = open(base_dir + "example_observation_turn15_state.json", "w")
         json.dump(ob[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)
@@ -122,7 +127,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     def _get_reward(self):
         """ Reward is given for scoring a goal. """
         return self.my_bot.get_reward()
-        
+
     def _reset(self):
         """ Repeats NO-OP action until a new episode begins. """
         self.reward = 0

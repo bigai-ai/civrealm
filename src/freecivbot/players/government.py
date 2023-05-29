@@ -40,22 +40,24 @@ GOV_TXT = {GOV_ANARCHY: "Anarchy", GOV_DESPOTISM: "Despotism",
            GOV_MONARCHY: "Monarchy", GOV_COMMUNISM: "Communism",
            GOV_REPUBLIC: "Republic", GOV_DEMOCRACY: "Democracy"}
 
+
 class GovState(PlainState):
     def __init__(self, rule_ctrl):
         PlainState.__init__(self)
         self.rule_ctrl = rule_ctrl
-        
+
     def _update_state(self, pplayer):
         self._state["name"] = self.rule_ctrl.governments[pplayer['government']]['name']
         self._state["id"] = self.rule_ctrl.governments[pplayer['government']]['id']
         self._state["helptext"] = self.rule_ctrl.governments[pplayer['government']]['helptext']
+
 
 class GovActions(ActionList):
     def __init__(self, ws_client, rule_ctrl, city_ctrl):
         ActionList.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
-    
+
     def _can_actor_act(self, actor_id):
         return True
 
@@ -66,6 +68,7 @@ class GovActions(ActionList):
             for govt_id in self.rule_ctrl.governments:
                 act = ChangeGovernment(govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
                 self.add_action(player_id, act)
+
 
 class GovernmentCtrl(CivPropController):
     def __init__(self, ws_client, city_ctrl, rule_ctrl):
@@ -95,15 +98,17 @@ class GovernmentCtrl(CivPropController):
         elif govt_id in [GOV_COMMUNISM, GOV_REPUBLIC]:
             return 80
         else:
-            return 100 #// this should not happen
-    
+            return 100  # // this should not happen
+
     def request_report(self, rtype):
-        packet = {"pid"  : packet_report_req,
-                  "type" : rtype}
+        packet = {"pid": packet_report_req,
+                  "type": rtype}
         self.ws_client.send_request(packet)
+
 
 class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
+
     def __init__(self, govt_id, city_ctrl, rule_ctrl, pplayer):
         base_action.Action.__init__(self)
         self.govt_id = govt_id
@@ -113,15 +118,16 @@ class ChangeGovernment(base_action.Action):
         self.action_key += "_%s" % GOV_TXT[govt_id]
 
     def is_action_valid(self):
-        #//hack for statue of liberty
+        # //hack for statue of liberty
         if self.govt_id == self.rule_ctrl.governments[self.pplayer['government']]['id']:
             return False
 
         pplayer = self.pplayer
         return self.city_ctrl.player_has_wonder(pplayer["playerno"], 63) or \
-               ReqCtrl.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
-                                       RPT_CERTAIN)
+            ReqCtrl.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
+                                    RPT_CERTAIN)
+
     def _action_packet(self):
-        packet = {"pid" : packet_player_change_government,
-                  "government" : self.govt_id}
+        packet = {"pid": packet_player_change_government,
+                  "government": self.govt_id}
         return packet

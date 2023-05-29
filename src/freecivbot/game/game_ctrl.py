@@ -24,9 +24,10 @@ from freecivbot.utils.freecivlog import freelog
 from freecivbot.game.info_states import GameState
 from freecivbot.utils.base_action import NoActions
 
-#see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
+# see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
 IDENTITY_NUMBER_ZERO = 0
+
 
 class GameCtrl(CivPropController):
     def __init__(self, ws_client):
@@ -47,7 +48,6 @@ class GameCtrl(CivPropController):
         self.register_handler(186, "handle_vote_update")
         self.register_handler(187, "handle_vote_remove")
         self.register_handler(188, "handle_vote_resolve")
-
 
         self.register_handler(204, "handle_edit_startpos")
         self.register_handler(205, "handle_edit_startpos_full")
@@ -78,11 +78,11 @@ class GameCtrl(CivPropController):
         """Receive scenario description of the current scenario."""
         self.scenario_info['description'] = packet['description']
 
-        #/* Show the updated game information. */
-        #update_game_info_pregame()
+        # /* Show the updated game information. */
+        # update_game_info_pregame()
 
     def handle_game_load(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
 
     def handle_calendar_info(self, packet):
@@ -96,27 +96,27 @@ class GameCtrl(CivPropController):
         self.page_msg['caption'] = packet['caption']
         self.page_msg['event'] = packet['event']
 
-        #/* How many fragments to expect. */
+        # /* How many fragments to expect. */
         self.page_msg['missing_parts'] = packet['parts']
 
-        #/* Will come in follow up packets. */
+        # /* Will come in follow up packets. */
         self.page_msg['message'] = ""
 
     def handle_page_msg_part(self, packet):
         """Page_msg part handler."""
-        #/* Add the new parts of the message content. */
+        # /* Add the new parts of the message content. */
         self.page_msg['message'] = self.page_msg['message'] + packet['lines']
 
-        #/* Register that it was received. */
+        # /* Register that it was received. */
         self.page_msg['missing_parts'] -= 1
         if self.page_msg['missing_parts'] == 0:
-            #/* This was the last part. */
+            # /* This was the last part. */
             regxp = "/\n/gi"
 
             self.page_msg['message'] = self.page_msg['message'].replace(regxp, "<br>\n")
             freelog(self.page_msg['headline'] + self.page_msg['message'])
 
-            #/* Clear the message. */
+            # /* Clear the message. */
             self.page_msg = {}
 
     def handle_play_music(self, packet):
@@ -132,22 +132,21 @@ class GameCtrl(CivPropController):
         pass
 
     def handle_vote_update(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
 
     def handle_vote_remove(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
 
     def handle_vote_resolve(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
 
     def handle_edit_object_created(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
 
     def handle_info_text_message(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass
-

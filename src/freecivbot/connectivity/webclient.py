@@ -17,6 +17,7 @@ DEFAULT_REQUEST_TIMEOUT = 60
 class WebSocketClient(object):
     """Base for web socket clients.
     """
+
     def __init__(self, connect_timeout=DEFAULT_CONNECT_TIMEOUT,
                  request_timeout=DEFAULT_REQUEST_TIMEOUT):
 
@@ -36,7 +37,7 @@ class WebSocketClient(object):
                                          request_timeout=self.request_timeout,
                                          headers=headers)
         self.ws_conn = websocket.WebSocketClientConnection(ioloop.IOLoop.current(),
-                                                      request)
+                                                           request)
         self.ws_conn.connect_future.add_done_callback(self._connect_callback)
 
     def send(self, data):

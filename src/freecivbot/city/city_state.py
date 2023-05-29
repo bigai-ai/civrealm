@@ -9,14 +9,15 @@ from freecivbot.game.ruleset import RulesetCtrl
 from math import floor
 from freecivbot.utils.base_state import ListState
 
-FEELING_BASE = 0        #/* before any of the modifiers below */
-FEELING_LUXURY = 1        #/* after luxury */
-FEELING_EFFECT = 2        #/* after building effects */
-FEELING_NATIONALITY = 3      #/* after citizen nationality effects */
-FEELING_MARTIAL = 4    #/* after units enforce martial order */
-FEELING_FINAL = 5        #/* after wonders (final result) */
+FEELING_BASE = 0  # /* before any of the modifiers below */
+FEELING_LUXURY = 1  # /* after luxury */
+FEELING_EFFECT = 2  # /* after building effects */
+FEELING_NATIONALITY = 3  # /* after citizen nationality effects */
+FEELING_MARTIAL = 4  # /* after units enforce martial order */
+FEELING_FINAL = 5  # /* after wonders (final result) */
 
 citizen_types = ["angry", "unhappy", "content", "happy"]
+
 
 class CityState(ListState):
     def __init__(self, ruleset, city_list):
@@ -29,9 +30,9 @@ class CityState(ListState):
             pcity = self.city_list[city_id]
             if pcity["owner"] == pplayer["playerno"]:
                 self._state[city_id] = self._get_city_state(pcity)
-                #player_cities[city_id].update(self.get_city_traderoutes(pcity))
+                # player_cities[city_id].update(self.get_city_traderoutes(pcity))
 
-        #player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
+        # player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
 
     def _get_city_state(self, pcity):
         cur_state = {}
@@ -43,7 +44,7 @@ class CityState(ListState):
             else:
                 cur_state[cp] = -1
 
-        #cur_state["name"] = pcity['name']
+        # cur_state["name"] = pcity['name']
 
         cur_state["luxury"] = pcity['prod'][O_LUXURY]
         cur_state["science"] = pcity['prod'][O_SCIENCE]
@@ -66,27 +67,27 @@ class CityState(ListState):
         cur_state["prod_process"] = self.get_production_progress(pcity)
 
         for citizen in citizen_types:
-            cur_citizen = 'ppl_' + citizen 
+            cur_citizen = 'ppl_' + citizen
             cur_state[cur_citizen] = 0
             if pcity[cur_citizen] != None:
-                cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL] 
+                cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
 
         for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
             tech_tag = "impr_int_%s_%i" % (self.rulectrl.improvements[z]["name"], z)
             cur_state[tech_tag] = False
 
-            if 'improvements' in pcity and pcity['improvements'][z]==1:
+            if 'improvements' in pcity and pcity['improvements'][z] == 1:
                 cur_state[tech_tag] = True
-        
+
         for tile_num, (food_output, shield_output, trade_output) in enumerate(zip(pcity['food_output'],
                                                                                   pcity['shield_output'],
                                                                                   pcity['trade_output'])):
             cur_state["pos_food_output_%i" % tile_num] = food_output
             cur_state["pos_shield_output_%i" % tile_num] = shield_output
             cur_state["pos_trade_output_%i" % tile_num] = trade_output
-            
+
         return cur_state
-        
+
     @staticmethod
     def is_city_center(city, tile):
         return (city['tile'] == tile['index'])
@@ -120,13 +121,13 @@ class CityState(ListState):
          improvement in the city.  GUI Independent.
         """
 
-        city_shield_surplus =  pcity['surplus'][O_SHIELD]
+        city_shield_surplus = pcity['surplus'][O_SHIELD]
         city_shield_stock = pcity['shield_stock'] if include_shield_stock else 0
         cost = RulesetCtrl.universal_build_shield_cost(target)
 
         if include_shield_stock and (pcity['shield_stock'] >= cost):
             return 1
-        elif ( pcity['surplus'][O_SHIELD] > 0):
+        elif (pcity['surplus'][O_SHIELD] > 0):
             return floor((cost - city_shield_stock - 1) / city_shield_surplus + 1)
         else:
             return FC_INFINITY
@@ -166,7 +167,7 @@ class CityState(ListState):
     @staticmethod
     def city_population(pcity):
         """Returns how many thousand citizen live in this city."""
-        #/*  Sum_{i=1}^{n} i  ==  n*(n+1)/2  */
+        # /*  Sum_{i=1}^{n} i  ==  n*(n+1)/2  */
         return pcity['size'] * (pcity['size'] + 1) * 5
 
     @staticmethod
@@ -175,11 +176,11 @@ class CityState(ListState):
         if pcity is None:
             return -1
         if pcity['was_happy'] and pcity['size'] >= 3:
-            return 3#"Celebrating"
+            return 3  # "Celebrating"
         elif "unhappy" in pcity and pcity['unhappy']:
-            return 1#"Disorder"
+            return 1  # "Disorder"
         else:
-            return 2#"Peace"
+            return 2  # "Peace"
 
     @staticmethod
     def is_wonder(improvement):
@@ -193,12 +194,12 @@ class CityState(ListState):
 
         if pcity['production_kind'] == VUT_UTYPE:
             punit_type = self.rulectrl.unit_types[pcity['production_value']]
-            return  pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(punit_type)
+            return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(punit_type)
 
         if pcity['production_kind'] == VUT_IMPROVEMENT:
             improvement = self.rulectrl.improvements[pcity['production_value']]
             if improvement['name'] == "Coinage":
                 return FC_INFINITY
-            return  pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)
+            return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)
 
         return FC_INFINITY

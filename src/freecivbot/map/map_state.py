@@ -6,6 +6,7 @@ Created on 07.03.2018
 from freecivbot.utils.base_state import PlainState
 import json
 
+
 class MapState(PlainState):
     def __init__(self, player_map):
         PlainState.__init__(self)

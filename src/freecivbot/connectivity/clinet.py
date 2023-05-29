@@ -30,8 +30,9 @@ import docker
 from math import ceil
 from time import sleep
 
+
 class CivWSClient(WebSocketClient):
-    def __init__(self,civ_client,**kwargs):
+    def __init__(self, civ_client, **kwargs):
         WebSocketClient.__init__(self, **kwargs)
         self.civ_client = civ_client
         self.read_packs = []
@@ -44,7 +45,6 @@ class CivWSClient(WebSocketClient):
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
-        
 
     def _on_connection_success(self):
         print('Connected!')
@@ -71,8 +71,8 @@ class CivWSClient(WebSocketClient):
             return -1
 
     def send_message(self, message):
-        packet = {"pid" : packet_chat_msg_req,
-                  "message" : message}
+        packet = {"pid": packet_chat_msg_req,
+                  "message": message}
         self.send_request(packet)
 
     def clear_send_queue(self):
@@ -86,23 +86,26 @@ class CivWSClient(WebSocketClient):
                 self.send(pack)
         self.send_queue = []
         return msges
-    
+
     def close(self):
         self.send_queue = []
         self.wait_for_packs = []
         self.read_packs = []
         WebSocketClient.close(self)
         ioloop.IOLoop.instance().stop()
-        
+
     def is_waiting_for_responses(self):
         return len(self.wait_for_packs) > 0
-    
+
     def stop_waiting(self, pid):
         if pid in self.wait_for_packs:
             del self.wait_for_packs[self.wait_for_packs.index(pid)]
 
+
 class CivConnection():
-    def __init__(self, civclient, base_url='http://localhost', restart_server_if_down=True, wait_for_server=120, retry_interval=5):
+    def __init__(
+            self, civclient, base_url='http://localhost', restart_server_if_down=True, wait_for_server=120,
+            retry_interval=5):
         """
             restart_server_if_down - True if server should be restarted if down
             wait_for_server - Overall time waiting for server being up
@@ -110,26 +113,27 @@ class CivConnection():
         """
         self.civserverport = civclient.client_port
         self.client = civclient
-        self.proxyport= 1000 + self.civserverport
+        self.proxyport = 1000 + self.civserverport
         self.base_url = base_url
         self._restart_server_if_down = restart_server_if_down
         self._retry_interval = retry_interval
         self._num_retries = int(ceil(wait_for_server/retry_interval))
-        
+
         self._restarting_server = False
         self._cur_retry = 0
-        
+
         self.network_init()
 
     def _retry(self):
         self._cur_retry += 1
         sleep(self._retry_interval)
         return self._detect_server_up()
-        
+
     def _detect_server_up(self):
         try:
             ws = websocket.WebSocket()
-            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)#, http_proxy_host="proxy_host_name", http_proxy_port=3128)
+            # , http_proxy_host="proxy_host_name", http_proxy_port=3128)
+            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
             return True
         except Exception as err:
             print("Connect not successful:", err, " retrying in %s seconds." % self._retry_interval)
@@ -139,9 +143,9 @@ class CivConnection():
 
             if self._cur_retry < self._num_retries:
                 return self._retry()
-            
+
             return False
-        
+
     def network_init(self):
         self._cur_retry = 0
         self._restarting_server = False

@@ -35,12 +35,12 @@ AR_ROOT = 2
 AR_SIZE = 3
 
 
-TF_BONUS_TECH = 0 #/* player gets extra tech if rearched first */
-TF_BRIDGE = 1    #/* "Settler" unit types can build bridges over rivers */
-TF_RAILROAD = 2  #/* "Settler" unit types can build rail roads */
-TF_POPULATION_POLLUTION_INC = 3  #/* Increase the pollution factor created by population by one */
-TF_FARMLAND = 4  #/* "Settler" unit types can build farmland */
-TF_BUILD_AIRBORNE = 5 #/* Player can build air units */
+TF_BONUS_TECH = 0  # /* player gets extra tech if rearched first */
+TF_BRIDGE = 1  # /* "Settler" unit types can build bridges over rivers */
+TF_RAILROAD = 2  # /* "Settler" unit types can build rail roads */
+TF_POPULATION_POLLUTION_INC = 3  # /* Increase the pollution factor created by population by one */
+TF_FARMLAND = 4  # /* "Settler" unit types can build farmland */
+TF_BUILD_AIRBORNE = 5  # /* Player can build air units */
 TF_LAST = 6
 
 """
@@ -61,12 +61,13 @@ A_NONE = 0
 A_FIRST = 1
 A_LAST = MAX_NUM_ITEMS
 A_UNSET = A_LAST + 1
-A_FUTURE  = A_LAST + 2
+A_FUTURE = A_LAST + 2
 A_UNKNOWN = A_LAST + 3
 A_LAST_REAL = A_UNKNOWN
 
 A_NEVER = None
 U_NOT_OBSOLETED = None
+
 
 class TechCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, player_ctrl):
@@ -74,7 +75,7 @@ class TechCtrl(CivPropController):
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
         self.reqtree = None
-        
+
         self.prop_state = TechState(rule_ctrl, self)
         self.prop_actions = TechActions(ws_client, rule_ctrl)
         self.is_tech_tree_init = False
@@ -114,6 +115,6 @@ class TechCtrl(CivPropController):
         if not is_tech_known(pplayer, punittype['tech_requirement']):
             return False
 
-        #FIXME: add support for global advances, check for building reqs etc.*/
+        # FIXME: add support for global advances, check for building reqs etc.*/
 
         return True

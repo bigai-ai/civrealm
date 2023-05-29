@@ -20,6 +20,7 @@ TILE_UNKNOWN = 0
 TILE_KNOWN_UNSEEN = 1
 TILE_KNOWN_SEEN = 2
 
+
 class TileState:
 
     @staticmethod

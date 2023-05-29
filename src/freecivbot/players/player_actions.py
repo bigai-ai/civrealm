@@ -12,7 +12,7 @@ from freecivbot.utils.fc_types import packet_player_rates,\
 from freecivbot.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
     CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE,\
     CLAUSE_TXT
- 
+
 from freecivbot.players.government import GovernmentCtrl
 from freecivbot.research.tech_helpers import is_tech_known, player_invention_state,\
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
@@ -24,7 +24,7 @@ class PlayerOptions(ActionList):
         self.players = players
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
-    
+
     def _can_actor_act(self, actor_id):
         return True
 
@@ -33,7 +33,7 @@ class PlayerOptions(ActionList):
             if self.actor_exists(counter_id):
                 continue
             self.add_actor(counter_id)
-            
+
             counterpart = self.players[counter_id]
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
@@ -43,9 +43,9 @@ class PlayerOptions(ActionList):
     def update_player_options(self, counter_id, pplayer):
         maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
 
-        cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"], 
-                     "lux": pplayer["luxury"],"max_rate": maxrate}
-        
+        cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"],
+                     "lux": pplayer["luxury"], "max_rate": maxrate}
+
         print(cur_state)
         self.add_action(counter_id, IncreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseLux(**cur_state))
@@ -88,8 +88,10 @@ class PlayerOptions(ActionList):
                 all_clauses.append({"type": CLAUSE_GOLD, "value": ("#counterpart_gold").val(value)})
         """
 
+
 class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
+
     def __init__(self, tax, sci, lux, max_rate):
         base_action.Action.__init__(self)
         self.tax = self.get_corrected_num(tax)
@@ -111,37 +113,45 @@ class IncreaseSci(base_action.Action):
 
     def _action_packet(self):
         self.tax = self.max_rate - self.sci - self.lux
-        packet = {"pid" : packet_player_rates,
-                  "tax" : self.tax, "luxury" : self.lux, "science" : self.sci }
+        packet = {"pid": packet_player_rates,
+                  "tax": self.tax, "luxury": self.lux, "science": self.sci}
 
         return packet
 
+
 class DecreaseSci(IncreaseSci):
     action_key = "decrease_sci"
+
     def is_action_valid(self):
         return 0 <= self.sci - 10 <= 100
 
     def _change_rate(self):
         self.sci -= 10
 
+
 class IncreaseLux(IncreaseSci):
     action_key = "increase_lux"
+
     def is_action_valid(self):
         return 0 <= self.lux + 10 <= 100
 
     def _change_rate(self):
         self.lux += 10
 
+
 class DecreaseLux(IncreaseSci):
     action_key = "decrease_lux"
+
     def is_action_valid(self):
         return 0 <= self.lux - 10 <= 100
 
     def _change_rate(self):
         self.lux -= 10
 
+
 class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
+
     def __init__(self, counterpart):
         base_action.Action.__init__(self)
         self.counterpart = counterpart
@@ -150,26 +160,32 @@ class StartNegotiate(base_action.Action):
         return True
 
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_init_meeting_req,
-                  "counterpart" : self.counterpart["playerno"]}
+        packet = {"pid": packet_diplomacy_init_meeting_req,
+                  "counterpart": self.counterpart["playerno"]}
         return packet
+
 
 class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
+
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_accept_treaty_req,
-                  "counterpart" : self.counterpart["playerno"]}
+        packet = {"pid": packet_diplomacy_accept_treaty_req,
+                  "counterpart": self.counterpart["playerno"]}
         return packet
+
 
 class StopNegotiate(StartNegotiate):
     action_key = "stop_negotiation"
+
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_cancel_meeting_req,
-                  "counterpart" : self.counterpart["playerno"]}
+        packet = {"pid": packet_diplomacy_cancel_meeting_req,
+                  "counterpart": self.counterpart["playerno"]}
         return packet
+
 
 class RemoveClause(base_action.Action):
     action_key = "remove_clause"
+
     def __init__(self, clause_type, value, giver, taker, cur_player):
         base_action.Action.__init__(self)
         self.clause_type = clause_type
@@ -179,21 +195,23 @@ class RemoveClause(base_action.Action):
         self.cur_player = cur_player
         self.action_key += "_cl%s_player%i" % (CLAUSE_TXT[clause_type],
                                                self.giver["playerno"])
-    
+
     def is_action_valid(self):
         return True
-        #TODO: To be investigated
-        
+        # TODO: To be investigated
+
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_remove_clause_req,
-                  "counterpart" : self.taker["playerno"],
+        packet = {"pid": packet_diplomacy_remove_clause_req,
+                  "counterpart": self.taker["playerno"],
                   "giver": self.giver["playerno"],
-                  "type" : self.clause_type,
+                  "type": self.clause_type,
                   "value": self.value}
         return packet
 
+
 class AddClause(RemoveClause):
     action_key = "add_clause"
+
     def is_action_valid(self):
         if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
             return self.giver == self.cur_player
@@ -201,34 +219,38 @@ class AddClause(RemoveClause):
 
     def trigger_action(self, ws_client):
         if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
-            #// eg. creating peace treaty requires removing ceasefire first.
+            # // eg. creating peace treaty requires removing ceasefire first.
             rem_packet = RemoveClause._action_packet(self)
             ws_client.send_request(rem_packet)
         RemoveClause.trigger_action(self, ws_client)
 
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_create_clause_req,
-                  "counterpart" : self.taker["playerno"],
+        packet = {"pid": packet_diplomacy_create_clause_req,
+                  "counterpart": self.taker["playerno"],
                   "giver": self.giver["playerno"],
-                  "type" : self.clause_type,
+                  "type": self.clause_type,
                   "value": self.value}
         return packet
 
+
 class CancelClause(AddClause):
     action_key = "cancel_clause"
+
     def is_action_valid(self):
         if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
             return self.giver == self.cur_player
         return False
 
     def _action_packet(self):
-        packet = {"pid" : packet_diplomacy_cancel_pact,
-                  "other_player_id" : self.taker["playerno"],
-                  "clause" : self.clause_type}
+        packet = {"pid": packet_diplomacy_cancel_pact,
+                  "other_player_id": self.taker["playerno"],
+                  "clause": self.clause_type}
         return packet
+
 
 class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
+
     def __init__(self, clause_type, value, giver, taker, cur_player, rule_ctrl):
         AddClause.__init__(self, clause_type, value, giver, taker, cur_player)
         self.rule_ctrl = rule_ctrl
@@ -238,5 +260,5 @@ class AddTradeTechClause(AddClause):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
         return is_tech_known(self.giver, self.value) and \
-               player_invention_state(self.taker, self.value) in [TECH_UNKNOWN,
-                                                                  TECH_PREREQS_KNOWN]
+            player_invention_state(self.taker, self.value) in [TECH_UNKNOWN,
+                                                               TECH_PREREQS_KNOWN]

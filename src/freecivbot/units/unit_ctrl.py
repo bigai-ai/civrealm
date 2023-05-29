@@ -32,6 +32,7 @@ from freecivbot.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from freecivbot.units.unit_state import UnitState
 import urllib
 
+
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
         CivPropController.__init__(self, ws_client)
@@ -41,16 +42,16 @@ class UnitCtrl(CivPropController):
         self.player_ctrl = player_ctrl
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
-        
+
         self.base_action = UnitAction(None)
-        
+
         self.prop_state = UnitState(self, rule_ctrl, city_ctrl)
         self.prop_actions = UnitActions(ws_client, self, rule_ctrl, player_ctrl, map_ctrl, city_ctrl)
-        
+
         self.space_ctrl = SpaceCtrl(ws_client, player_ctrl)
 
         self.register_handler(44, "handle_city_name_suggestion_info")
-        
+
         self.register_handler(62, "handle_unit_remove")
         self.register_handler(63, "handle_unit_info")
         self.register_handler(64, "handle_unit_short_info")
@@ -62,9 +63,9 @@ class UnitCtrl(CivPropController):
 
         self.register_handler(18, "handle_nuke_tile_info")
         self.register_handler(241, "handle_worker_task")
-        #self.register_handler(258, "handle_goto_path")
+        # self.register_handler(258, "handle_goto_path")
 
-        #self.unit_action_ctrl.register_with_parent(self)
+        # self.unit_action_ctrl.register_with_parent(self)
         self.space_ctrl.register_with_parent(self)
 
     def unit_owner(self, punit):
@@ -182,7 +183,7 @@ class UnitCtrl(CivPropController):
         else:
             return -1
 
-    #-------------------Functions for removing a unit----------------------------
+    # -------------------Functions for removing a unit----------------------------
     def handle_unit_remove(self, packet):
         """
           Handle a remove-unit packet, sent by the server to tell us any time a
@@ -192,13 +193,13 @@ class UnitCtrl(CivPropController):
         if punit is None:
             return
 
-        #/* TODO: Close diplomat dialog if the diplomat is lost */
-        #/* TODO: Notify agents. */
+        # /* TODO: Close diplomat dialog if the diplomat is lost */
+        # /* TODO: Notify agents. */
         self._clear_tile_unit(punit)
         self._client_remove_unit(punit)
 
     def _client_remove_unit(self, punit):
-        #if self.unit_action_ctrl.unit_is_in_focus(punit):
+        # if self.unit_action_ctrl.unit_is_in_focus(punit):
         #    self.unit_action_ctrl.clear_focus()
         self.prop_state.remove_list_item(punit["id"])
         self.prop_actions.remove_actor(punit["id"])
@@ -226,7 +227,7 @@ class UnitCtrl(CivPropController):
         """
         popup_sabotage_dialog(self.find_unit_by_number(packet['diplomat_id']),
                               self.city_ctrl.find_city_by_number(packet['city_id']),
-                              BitVector(bitlist = packet['improvements']),
+                              BitVector(bitlist=packet['improvements']),
                               packet['action_id'])
 
     def handle_unit_info(self, packet):
@@ -235,7 +236,6 @@ class UnitCtrl(CivPropController):
     def handle_unit_short_info(self, packet):
         """/* 99% complete FIXME: does this loose information? */"""
         self.handle_unit_packet_common(packet)
-
 
     def handle_unit_packet_common(self, packet_unit):
         """
@@ -270,20 +270,19 @@ class UnitCtrl(CivPropController):
             # by simply deleting the old one and creating a new one. */
             self.handle_unit_remove(packet_unit['id'])
 
-
         old_tile = None
         if punit != None:
             old_tile = self.map_ctrl.index_to_tile(punit['tile'])
 
         if not packet_unit['id'] in self.units:
-            #This is a new unit. */
+            # This is a new unit. */
             self.unit_actor_wants_input(packet_unit)
             packet_unit['anim_list'] = []
             self.units[packet_unit['id']] = packet_unit
             self.units[packet_unit['id']]['facing'] = 6
         elif not ('action_decision_want' in self.units[packet_unit['id']]) or \
-             self.units[packet_unit['id']]['action_decision_want'] != packet_unit['action_decision_want']:
-            #The unit's action_decision_want has changed. */
+                self.units[packet_unit['id']]['action_decision_want'] != packet_unit['action_decision_want']:
+            # The unit's action_decision_want has changed. */
             self.unit_actor_wants_input(packet_unit)
 
         self.units[packet_unit['id']].update(packet_unit)
@@ -297,7 +296,7 @@ class UnitCtrl(CivPropController):
         if current_focus[0]['done_moving'] != packet_unit['done_moving']:
             update_unit_focus()
         """
-        #TODO: update various dialogs and mapview. */
+        # TODO: update various dialogs and mapview. */
 
     def unit_actor_wants_input(self, pdiplomat):
         """Handle server request for user input about diplomat action to do."""
@@ -307,16 +306,16 @@ class UnitCtrl(CivPropController):
 
         if not 'action_decision_want' in pdiplomat or \
            pdiplomat['owner'] != self.player_ctrl.clstate.cur_player()['playerno']:
-            #/* No authority to decide for this unit. */
+            # /* No authority to decide for this unit. */
             return
 
         if pdiplomat['action_decision_want'] == ACT_DEC_NOTHING:
-            #/* The unit doesn't want a decision. */
+            # /* The unit doesn't want a decision. */
             return
 
         if pdiplomat['action_decision_want'] == ACT_DEC_PASSIVE:
-            #/* The player isn't interested in getting a pop up for a mere
-            #* arrival. */
+            # /* The player isn't interested in getting a pop up for a mere
+            # * arrival. */
             return
 
         self.process_diplomat_arrival(pdiplomat, pdiplomat['action_decision_tile'])
@@ -343,12 +342,12 @@ class UnitCtrl(CivPropController):
              * reply will pop up an action selection dialog for it.
             """
         packet = {
-          "pid" : packet_unit_get_actions,
-          "actor_unit_id" : pdiplomat['id'],
-          "target_unit_id" : IDENTITY_NUMBER_ZERO,
-          "target_tile_id": target_tile_id,
-          "disturb_player": True
-          }
+            "pid": packet_unit_get_actions,
+            "actor_unit_id": pdiplomat['id'],
+            "target_unit_id": IDENTITY_NUMBER_ZERO,
+            "target_tile_id": target_tile_id,
+            "disturb_player": True
+        }
         self.ws_client.send_request(packet)
 
     def handle_unit_combat_info(self, packet):
@@ -370,7 +369,7 @@ class UnitCtrl(CivPropController):
 
         if actor_unit is None:
             print("Bad actor unit (" + diplomat_id
-                        + ") in unit action answer.")
+                  + ") in unit action answer.")
             return
 
         if action_type == ACTION_SPY_BRIBE_UNIT:
@@ -382,7 +381,7 @@ class UnitCtrl(CivPropController):
                 popup_bribe_dialog(actor_unit, target_unit, cost, action_type)
                 return
         elif (action_type == ACTION_SPY_INCITE_CITY
-             or action_type == ACTION_SPY_INCITE_CITY_ESC):
+              or action_type == ACTION_SPY_INCITE_CITY_ESC):
             if target_city is None:
                 print("Bad target city (" + target_id + ") in unit action answer.")
                 return
@@ -419,7 +418,7 @@ class UnitCtrl(CivPropController):
 
         hasActions = False
 
-        #/* The dead can't act. */
+        # /* The dead can't act. */
         if pdiplomat != None and ptile != None:
             for prob in action_probabilities:
                 if action_prob_possible(prob):
@@ -434,26 +433,25 @@ class UnitCtrl(CivPropController):
              * one. This lack of a queue allows it to be cleared here. */
             """
             unqueue = {
-                      "pid"     : packet_unit_sscs_set,
-                      "unit_id" : actor_unit_id,
-                      "type"    : USSDT_UNQUEUE,
-                      "value"   : IDENTITY_NUMBER_ZERO
-                      }
+                "pid": packet_unit_sscs_set,
+                "unit_id": actor_unit_id,
+                "type": USSDT_UNQUEUE,
+                "value": IDENTITY_NUMBER_ZERO
+            }
             self.ws_client.send_request(unqueue)
 
         if hasActions and disturb_player:
 
             action_options = self.unit_action_ctrl.get_disturbed_action_options(
-                                                         pdiplomat, action_probabilities,
-                                                         ptile, target_unit, target_city)
+                pdiplomat, action_probabilities,
+                ptile, target_unit, target_city)
         elif hasActions:
-            #/* This was a background request. */
-            #/* No background requests are currently made. */
+            # /* This was a background request. */
+            # /* No background requests are currently made. */
             print("Received the reply to a background request I didn't do.")
 
-
     def handle_worker_task(self, packet):
-        #TODO: Implement */
+        # TODO: Implement */
         pass
 
     def handle_nuke_tile_info(self, packet):
@@ -464,31 +462,31 @@ class UnitCtrl(CivPropController):
         impossible is recognized."""
         idx = self.map_ctrl.index_to_tile
         if idx(actor_unit['tile']) == target_tile:
-            #/* The unit is already on this tile. */
+            # /* The unit is already on this tile. */
             return False
 
         if (-1 == self.map_ctrl.get_direction_for_step(idx(actor_unit['tile']),
                                                        target_tile)):
-            #/* The target tile is too far away. */
+            # /* The target tile is too far away. */
             return False
 
         for tile_unit in target_tile['units']:
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']
 
             if (tgt_owner_id != self.unit_owner(actor_unit)['playerno'] and
-                self.dipl_ctrl.check_not_dipl_states(tgt_owner_id, [DS_ALLIANCE, DS_TEAM])):
-                #/* Can't move to a non allied foreign unit's tile. */
+                    self.dipl_ctrl.check_not_dipl_states(tgt_owner_id, [DS_ALLIANCE, DS_TEAM])):
+                # /* Can't move to a non allied foreign unit's tile. */
                 return False
 
         if self.city_ctrl.tile_city(target_tile) != None:
             tgt_owner_id = self.player_ctrl.city_owner(self.city_ctrl.tile_city(target_tile))['playerno']
 
             if tgt_owner_id == self.unit_owner(actor_unit)['playerno']:
-                #This city isn't foreign. */
+                # This city isn't foreign. */
                 return True
 
             if self.dipl_ctrl.check_in_dipl_states(tgt_owner_id, [DS_ALLIANCE, DS_TEAM]):
-                #/* This city belongs to an ally. */
+                # /* This city belongs to an ally. */
                 return True
 
             return False
@@ -500,12 +498,12 @@ class UnitCtrl(CivPropController):
     def request_unit_act(self, pval):
         funits = self._get_units_in_focus()
         for punit in funits:
-            packet = {"pid": packet_unit_sscs_set, "unit_id" : punit['id'],
+            packet = {"pid": packet_unit_sscs_set, "unit_id": punit['id'],
                       "type": USSDT_QUEUE,
-                      "value"   : punit['tile'] if pval=="unit" else pval}
+                      "value": punit['tile'] if pval == "unit" else pval}
 
-            #Have the server record that an action decision is wanted for this
-            #unit.
+            # Have the server record that an action decision is wanted for this
+            # unit.
             self.ws_client.send_request(packet)
 
     def request_unit_act_sel_vs(self, ptile):
@@ -529,16 +527,12 @@ class UnitCtrl(CivPropController):
        * interpreted as HTML. Avoid the situation by directly using JavaScript
        * like below or by escaping the string. */
        """
-        #/* Decode the city name. */
-        #suggested_name = urllib.unquote(packet['name'])
+        # /* Decode the city name. */
+        # suggested_name = urllib.unquote(packet['name'])
         unit_id = packet['unit_id']
 
         actor_unit = self.find_unit_by_number(unit_id)
-        
+
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
-                                                 ACTION_FOUND_CITY, name=
-                                                 urllib.quote(packet['name'], safe='~()*!.\''))
+                                                 ACTION_FOUND_CITY, name=urllib.quote(packet['name'], safe='~()*!.\''))
         self.ws_client.send_request(packet, wait_for_pid=31)
-        
-        
-        

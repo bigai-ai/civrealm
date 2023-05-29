@@ -8,12 +8,13 @@ from random import random
 from freecivbot.civclient import CivClient
 from freecivbot.connectivity.clinet import CivConnection
 
+
 class SimpleBot(BaseBot):
     def calculate_unit_actions(self, turn_no, full_state, a_options):
         action_wants = {}
-        for unit_id in a_options.get_actors(): 
+        for unit_id in a_options.get_actors():
             action_wants[unit_id] = {}
-            actions =  a_options.get_actions(unit_id)
+            actions = a_options.get_actions(unit_id)
             for action_key in actions:
                 if actions[action_key] is None:
                     continue
@@ -26,12 +27,12 @@ class SimpleBot(BaseBot):
                 else:
                     action_wants[unit_id][action_key] = ACTION_UNWANTED
         return action_wants
-    
+
     def calculate_city_actions(self, turn_no, full_state, a_options):
         action_wants = {}
-        for city_id in a_options.get_actors(): 
+        for city_id in a_options.get_actors():
             action_wants[city_id] = {}
-            actions =  a_options.get_actions(city_id)
+            actions = a_options.get_actions(city_id)
             for action_key in actions:
                 if actions[action_key] is None:
                     continue
@@ -43,6 +44,7 @@ class SimpleBot(BaseBot):
                     action_wants[city_id][action_key] = ACTION_UNWANTED
         return action_wants
 
+
 my_bot = SimpleBot()
-my_civ_client = CivClient(my_bot, "mybot", visual_monitor=True) 
+my_civ_client = CivClient(my_bot, "mybot", visual_monitor=True)
 CivConnection(my_civ_client, 'http://localhost')

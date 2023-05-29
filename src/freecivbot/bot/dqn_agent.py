@@ -3,6 +3,7 @@ Created on 23.03.2018
 
 @author: christian
 '''
+from bot.dqn_bot import Agent_Bot, REWARD_INVALID_ACTION
 import random
 import numpy as np
 
@@ -14,6 +15,7 @@ from keras import backend as K
 
 from civclient import CivClient
 from connectivity.clinet import CivConnection
+
 
 class DQNAgent:
     def __init__(self, state_size, action_size, action_ids, numH):
@@ -57,14 +59,14 @@ class DQNAgent:
     def act(self, state, reward, actor_id, action_list):
         valid_acts = action_list.get_valid_actions(actor_id, self.action_ids)
         if np.random.rand() <= self.epsilon or reward == REWARD_INVALID_ACTION:
-            act_values = np.multiply(np.array(valid_acts),np.random.uniform(size=self.action_size))
+            act_values = np.multiply(np.array(valid_acts), np.random.uniform(size=self.action_size))
         else:
-            act_values = np.multiply(np.array(valid_acts),self.model.predict(state)[0])
-        
+            act_values = np.multiply(np.array(valid_acts), self.model.predict(state)[0])
+
         ix = np.argmax(act_values)
         imax = act_values[ix]
         id_max = self.action_ids[ix]
-        
+
         return id_max, ix, imax  # returns action
 
     def replay(self, batch_size):
@@ -87,7 +89,6 @@ class DQNAgent:
     def save(self, name):
         self.model.save_weights(name)
 
-from bot.dqn_bot import Agent_Bot, REWARD_INVALID_ACTION
 
 my_bot = Agent_Bot(DQNAgent)
 my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)

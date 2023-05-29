@@ -16,6 +16,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
+from freecivbot.utils.fc_types import TRUE, FALSE
 from freecivbot.connectivity.Basehandler import CivPropController
 from freecivbot.game.info_states import ServerState
 from freecivbot.utils.base_action import NoActions
@@ -25,7 +26,6 @@ from freecivbot.utils.base_action import NoActions
  * You can look up a setting by its name or by its id number. */
 """
 
-from freecivbot.utils.fc_types import TRUE, FALSE
 
 class OptionCtrl(CivPropController):
     """
@@ -39,13 +39,13 @@ class OptionCtrl(CivPropController):
         self.server_settings = {}
         self.prop_state = ServerState(self.server_settings)
         self.prop_actions = NoActions(ws_client)
-        
-        #/** Defaults for options normally on command line **/
+
+        # /** Defaults for options normally on command line **/
 
         self.default_user_name = ""
         self.default_server_host = "localhost"
-        #//var  default_server_port = DEFAULT_SOCK_PORT
-        #//var default_metaserver = META_URL
+        # //var  default_server_port = DEFAULT_SOCK_PORT
+        # //var default_metaserver = META_URL
         self.default_theme_name = "human"
         self.default_tileset_name = ""
         self.default_sound_set_name = "stdsounds"
@@ -56,7 +56,7 @@ class OptionCtrl(CivPropController):
         self.save_options_on_exit = TRUE
         self.fullscreen_mode = FALSE
 
-        #/** Local Options: **/
+        # /** Local Options: **/
 
         self.solid_color_behind_units = FALSE
         self.sound_bell_at_new_turn = FALSE
@@ -82,7 +82,7 @@ class OptionCtrl(CivPropController):
         self.unit_selection_clears_orders = TRUE
         self.highlight_our_names = "yellow"
 
-        #/* This option is currently set by the client - not by the user. */
+        # /* This option is currently set by the client - not by the user. */
         self.update_city_text_in_refresh_tile = TRUE
 
         self.draw_city_outlines = TRUE
@@ -113,7 +113,7 @@ class OptionCtrl(CivPropController):
         self.reqtree_show_icons = TRUE
         self.reqtree_curved_lines = FALSE
 
-        #/* gui-gtk-2.0 client specific options. */
+        # /* gui-gtk-2.0 client specific options. */
         self.gui_gtk2_map_scrollbars = FALSE
         self.gui_gtk2_dialogs_on_top = TRUE
         self.gui_gtk2_show_task_icons = TRUE
@@ -145,7 +145,7 @@ class OptionCtrl(CivPropController):
         # its id. */
         self.server_settings[packet['id']] = packet
 
-        #/* Make it possible to look up a setting by its name. */
+        # /* Make it possible to look up a setting by its name. */
         self.server_settings[packet['name']] = packet
 
     def handle_server_setting_int(self, packet):
@@ -169,14 +169,12 @@ class OptionCtrl(CivPropController):
         """
         self.server_settings[packet['id']].update(packet)
 
-
     def handle_server_setting_bool(self, packet):
         """
         Receive general information about a server setting.
         This is a follow up packet with data type specific information.
         """
         self.server_settings[packet['id']].update(packet)
-
 
     def handle_server_setting_str(self, packet):
         """
@@ -186,5 +184,5 @@ class OptionCtrl(CivPropController):
         self.server_settings[packet['id']].update(packet)
 
     def handle_server_setting_control(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass

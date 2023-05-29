@@ -28,6 +28,7 @@ from freecivbot.players.player_actions import PlayerOptions
 from freecivbot.city.city_state import CityState
 from freecivbot.research.tech_helpers import TECH_KNOWN
 
+
 class PlayerCtrl(CivPropController):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
         CivPropController.__init__(self, ws_client)
@@ -85,7 +86,7 @@ class PlayerCtrl(CivPropController):
             return pplayer['team'] != cur_player['team']
         else:
             return False
-        #self_upkeep = self.player_ctrl.cur_player.tech_upkeep
+        # self_upkeep = self.player_ctrl.cur_player.tech_upkeep
 
     def is_player_ready(self):
         player_num = self.clstate.player_num()
@@ -180,11 +181,11 @@ class PlayerCtrl(CivPropController):
                     player_options.append("cancel_treaty")
 
             if both_alive_and_different and self.players_not_same_team(pplayer) and \
-                self.clstate.cur_player()['gives_shared_vision'].isSet(player_id):
+                    self.clstate.cur_player()['gives_shared_vision'].isSet(player_id):
                 player_options.append("withdraw_vision")
 
         if self.clstate.client_is_observer() or (both_alive_and_different and
-                                                  self.dipl_ctrl.check_not_dipl_states(player_id, [DS_NO_CONTACT])):
+                                                 self.dipl_ctrl.check_not_dipl_states(player_id, [DS_NO_CONTACT])):
             player_options.append("intl_report")
 
         player_options.append("toggle_ai")
@@ -205,7 +206,6 @@ class PlayerCtrl(CivPropController):
                           })
     """
 
-    
     def pregame_getplayer_options(self):
         """Shows the pick nation dialog. This can be called multiple times, but will
           only call update_player_info_pregame_real once in a short timespan."""
@@ -249,16 +249,16 @@ class PlayerCtrl(CivPropController):
         del pplayer['id']
 
         if (not self.clstate.client_is_observer() and old_inventions != None and
-            self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
+                self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
             for i, invention in enumerate(packet['inventions']):
                 if invention != old_inventions[i] and invention == TECH_KNOWN:
-                    #queue_tech_gained_dialog(i)
+                    # queue_tech_gained_dialog(i)
                     break
 
     def handle_player_info(self, packet):
         """ Interpret player flags."""
-        packet['flags'] = BitVector(bitlist = byte_to_bit_array(packet['flags']))
-        packet['gives_shared_vision'] = BitVector(bitlist = byte_to_bit_array(packet['gives_shared_vision']))
+        packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
+        packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
         playerno = packet["playerno"]
         if not playerno in self.players.keys() or self.players[playerno] is None:
             self.players[playerno] = packet
@@ -268,14 +268,14 @@ class PlayerCtrl(CivPropController):
         if self.clstate.is_playing():
             if packet['playerno'] == self.clstate.cur_player()['playerno']:
                 self.clstate.change_player(self.players[packet['playerno']])
-                #update_game_status_panel()
-                #update_net_income()
-        #update_player_info_pregame()
-        #update_tech_screen()
+                # update_game_status_panel()
+                # update_net_income()
+        # update_player_info_pregame()
+        # update_tech_screen()
 
     def handle_player_remove(self, packet):
         del self.players[packet['playerno']]
-        #update_player_info_pregame()
+        # update_player_info_pregame()
 
     def handle_player_attribute_chunk(self, packet):
         """

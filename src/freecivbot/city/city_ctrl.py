@@ -27,21 +27,22 @@ from freecivbot.city.city_state import CityState
 from freecivbot.city.city_actions import CityActions
 
 
-#/* The city_options enum. */
-CITYO_DISBAND      = 0
+# /* The city_options enum. */
+CITYO_DISBAND = 0
 CITYO_NEW_EINSTEIN = 1
-CITYO_NEW_TAXMAN   = 2
-CITYO_LAST         = 3
+CITYO_NEW_TAXMAN = 2
+CITYO_LAST = 3
 
 B_LAST = MAX_NUM_ITEMS
 INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
 
+
 class CityCtrl(CivPropController):
-    def __init__(self, ws_client=None,ruleset=None, player_ctrl=None, clstate=None, game_ctrl=None,
+    def __init__(self, ws_client=None, ruleset=None, player_ctrl=None, clstate=None, game_ctrl=None,
                  map_ctrl=None):
         CivPropController.__init__(self, ws_client)
 
-        #self.register_handler(13, "handle_scenario_description")
+        # self.register_handler(13, "handle_scenario_description")
         self.cities = {}
         self.city_trade_routes = {}
         self.player_ctrl = player_ctrl
@@ -52,13 +53,13 @@ class CityCtrl(CivPropController):
 
         self.prop_state = CityState(ruleset, self.cities)
         self.prop_actions = CityActions(ws_client, ruleset, self.cities, map_ctrl)
-        
+
         self.register_handler(30, "handle_city_remove")
         self.register_handler(31, "handle_city_info")
         self.register_handler(32, "handle_city_short_info")
         self.register_handler(256, "handle_web_city_info_addition")
         self.register_handler(249, "handle_traderoute_info")
-    
+
     def tile_city(self, ptile):
         """Return the city on this tile (or NULL), checking for city center."""
         if ptile is None:
@@ -83,10 +84,10 @@ class CityCtrl(CivPropController):
         """Removes a city from the game"""
         if pcity_id is None or self.player_ctrl.cur_player is None:
             return
-        
+
         if pcity_id not in self.cities:
-            return 
-        
+            return
+
         del self.cities[pcity_id]
 
     def get_city_traderoutes(self, pcity):
@@ -95,11 +96,11 @@ class CityCtrl(CivPropController):
         trade_data = defaultdict(list)
         if self.city_trade_routes == {} or pcity["id"] not in self.city_trade_routes:
             return {}
-            
+
         routes = self.city_trade_routes[pcity['id']]
 
         if pcity['traderoute_count'] != 0 and routes is None:
-            #/* This city is supposed to have trade routes. It doesn't.  */
+            # /* This city is supposed to have trade routes. It doesn't.  */
             print("Can't find the trade routes " + pcity['name'] + " is said to have")
             return
 
@@ -130,7 +131,7 @@ class CityCtrl(CivPropController):
     def handle_traderoute_info(self, packet):
         """  A traderoute-info packet contains information about one end of a traderoute"""
         if self.city_trade_routes[packet['city']] is None:
-            #This is the first trade route received for this city.
+            # This is the first trade route received for this city.
             self.city_trade_routes[packet['city']] = {}
 
         self.city_trade_routes[packet['city']][packet['index']] = packet
@@ -144,12 +145,12 @@ class CityCtrl(CivPropController):
           information only needed by Freeciv-web. Its processing will therefore
           stop while it waits for the corresponding web_city_info_addition packet.
         """
-        #/* Decode the city name. */
+        # /* Decode the city name. */
         packet['name'] = urllib.unquote(packet['name'])
 
-        #/* Decode bit vectors. */
-        packet['improvements'] = BitVector(bitlist = byte_to_bit_array(packet['improvements']))
-        packet['city_options'] = BitVector(bitlist = byte_to_bit_array(packet['city_options']))
+        # /* Decode bit vectors. */
+        packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
+        packet['city_options'] = BitVector(bitlist=byte_to_bit_array(packet['city_options']))
 
         if packet['id'] not in self.cities:
             self.cities[packet['id']] = packet
@@ -162,12 +163,11 @@ class CityCtrl(CivPropController):
         else:
             self.cities[packet['id']].update(packet)
 
-
         self.map_ctrl.set_tile_worked(packet)
-        #/* manually update tile relation.*/
+        # /* manually update tile relation.*/
 
-    #Stop the processing here. Wait for the web_city_info_addition packet.
-    #The processing of this packet will continue once it arrives. */
+    # Stop the processing here. Wait for the web_city_info_addition packet.
+    # The processing of this packet will continue once it arrives. */
 
     def handle_web_city_info_addition(self, packet):
         """
@@ -178,7 +178,7 @@ class CityCtrl(CivPropController):
         """
 
         if packet["id"] not in self.cities[packet['id']]:
-            #/* The city should have been sent before the additional info. */
+            # /* The city should have been sent before the additional info. */
             print("packet_web_city_info_addition for unknown city ", packet['id'])
             return
         else:
@@ -198,11 +198,11 @@ class CityCtrl(CivPropController):
         /* 99% complete
        TODO: does this loose information? */
         """
-        #/* Decode the city name. */
+        # /* Decode the city name. */
         packet['name'] = urllib.unquote(packet['name'])
 
-        #/* Decode bit vectors. */
-        packet['improvements'] = BitVector(bitlist = byte_to_bit_array(packet['improvements']))
+        # /* Decode bit vectors. */
+        packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
 
         if not (packet['id'] in self.cities):
             self.cities[packet['id']] = packet
@@ -228,6 +228,6 @@ class CityCtrl(CivPropController):
         for city_id in self.cities:
             pcity = self.cities[city_id]
             if (self.player_ctrl.city_owner(pcity)["playerno"] == playerno and
-                self.rulectrl.city_has_building(pcity, improvement_id)):
+                    self.rulectrl.city_has_building(pcity, improvement_id)):
                 return True
         return False

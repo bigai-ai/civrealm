@@ -21,37 +21,36 @@
 /**************************************************************************
 ...
 **************************************************************************/
-function show_map_from_image_dialog()
-{
+function show_map_from_image_dialog() {
   // reset dialog page.
   $("#upload_dialog").remove();
   $("<div id='upload_dialog'></div>").appendTo("div#game_page");
   var html = "Select a savegame file: <input type='file' id='mapFileInput'><br><br>"
-              +"Select tile colors:<br>"
-              +"<table><tr><td>Grassland:</td><td><input type='text' id='mapimg_grassland' /></td></tr>"
-              +"<tr><td>Desert:</td><td><input type='text' id='mapimg_desert' /></td></tr>"
-              +"<tr><td>Mountains:</td><td><input type='text' id='mapimg_mountains' /></td></tr>"
-              +"<tr><td>Hills:</td><td><input type='text' id='mapimg_hills' /></td></tr>"
-              +"<tr><td>Ocean:</td><td><input type='text' id='mapimg_ocean' /></td></tr>"
-              +"<tr><td>Coast:</td><td><input type='text' id='mapimg_coast' /></td></tr></table>";
+    + "Select tile colors:<br>"
+    + "<table><tr><td>Grassland:</td><td><input type='text' id='mapimg_grassland' /></td></tr>"
+    + "<tr><td>Desert:</td><td><input type='text' id='mapimg_desert' /></td></tr>"
+    + "<tr><td>Mountains:</td><td><input type='text' id='mapimg_mountains' /></td></tr>"
+    + "<tr><td>Hills:</td><td><input type='text' id='mapimg_hills' /></td></tr>"
+    + "<tr><td>Ocean:</td><td><input type='text' id='mapimg_ocean' /></td></tr>"
+    + "<tr><td>Coast:</td><td><input type='text' id='mapimg_coast' /></td></tr></table>";
 
   $("#upload_dialog").html(html);
   $("#upload_dialog").attr("title", "Create game map from uploaded image");
   $("#upload_dialog").dialog({
-			bgiframe: true,
-			modal: true,
-			width: is_small_screen() ? "55%" : "40%",
-			buttons: {
-                                "Cancel" : function() {
-                                  $("#upload_dialog").dialog('close');
-                                },
-	  			"Upload": function() {
-                                  $.blockUI();
-                                  handle_map_image_upload();
-                                  $("#upload_dialog").dialog('close');
-   				}
-			}
-		});
+    bgiframe: true,
+    modal: true,
+    width: is_small_screen() ? "55%" : "40%",
+    buttons: {
+      "Cancel": function () {
+        $("#upload_dialog").dialog('close');
+      },
+      "Upload": function () {
+        $.blockUI();
+        handle_map_image_upload();
+        $("#upload_dialog").dialog('close');
+      }
+    }
+  });
   $("#upload_dialog").dialog('open');
   $("#mapimg_grassland").spectrum({
     color: "#407c26"
@@ -78,8 +77,7 @@ function show_map_from_image_dialog()
 /**************************************************************************
 ...
 **************************************************************************/
-function handle_map_image_upload()
-{
+function handle_map_image_upload() {
   var fileInput = document.getElementById('mapFileInput');
   var file = fileInput.files[0];
 
@@ -100,7 +98,7 @@ function handle_map_image_upload()
 
   if (extension == '.png' || extension == '.bmp' || extension == '.jpg' || extension == '.jpeg' || extension == '.JPG') {
     var reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       doImage(reader.result);
     }
     reader.readAsDataURL(file);
@@ -125,37 +123,36 @@ function doImage(image_data) {
   var context = mycanvas.getContext("2d");
 
   var img = new Image();
-  img.onload = function() {
-      context.drawImage(img, 0, 0, this.width, this.height, 0, 0, 120, 80);
-      handle_image_ctx(context);
+  img.onload = function () {
+    context.drawImage(img, 0, 0, this.width, this.height, 0, 0, 120, 80);
+    handle_image_ctx(context);
   };
   img.src = image_data;
- 
+
 }
 
 /**************************************************************************
 ...
 **************************************************************************/
-function handle_image_ctx(ctx)
-{
- var savetxt = process_image(ctx);
+function handle_image_ctx(ctx) {
+  var savetxt = process_image(ctx);
 
- /* Post map to server.*/
- $.ajax({
+  /* Post map to server.*/
+  $.ajax({
     type: "POST",
     url: "/freeciv-earth-mapgen",
     data: (savetxt + ";" + 120 + ";" + 80)
-  }).done(function(savegame) {
+  }).done(function (savegame) {
     send_message_delayed("/load " + savegame, 1200);
     setTimeout(load_game_toggle, 1300);
     swal("Game map created from the image you uploaded. Game ready to start.");
     $.unblockUI();
   })
-  .fail(function() {
-    swal("Something failed. Please try again later!");
-    $.unblockUI();
+    .fail(function () {
+      swal("Something failed. Please try again later!");
+      $.unblockUI();
 
-  })
+    })
 
 
 }
@@ -163,12 +160,11 @@ function handle_image_ctx(ctx)
 /**************************************************************************
 ...
 **************************************************************************/
-function process_image(ctx)
-{
- var mapline = "";
- var height = 80;
- var width = 120;
- /* process image pixels which are drawn on the canvas.*/
+function process_image(ctx) {
+  var mapline = "";
+  var height = 80;
+  var width = 120;
+  /* process image pixels which are drawn on the canvas.*/
   for (var y = 0; y < height; y++) {
     mapline += "t" + zeroFill(y, 4) + '="';
     for (var x = 0; x < width; x++) {
@@ -185,26 +181,23 @@ function process_image(ctx)
 /**************************************************************************
 ...
 **************************************************************************/
-function zeroFill( number, width )
-{
+function zeroFill(number, width) {
   width -= number.toString().length;
-  if ( width > 0 )
-  {
-    return new Array( width + (/\./.test( number ) ? 2 : 1) ).join( '0' ) + number;
+  if (width > 0) {
+    return new Array(width + (/\./.test(number) ? 2 : 1)).join('0') + number;
   }
-  return number + ""; 
+  return number + "";
 }
 
 /**************************************************************************
 ...
 **************************************************************************/
-function get_map_terrain_type(x, y, pixel) 
-{
+function get_map_terrain_type(x, y, pixel) {
   var rnd = Math.random();
-  if (pixel_color(255,255,255, pixel, 20)) return "a";  //arctic
+  if (pixel_color(255, 255, 255, pixel, 20)) return "a";  //arctic
   if (pixel_color($("#mapimg_grassland").spectrum("get")['_r'], $("#mapimg_grassland").spectrum("get")['_g'], $("#mapimg_grassland").spectrum("get")['_b'], pixel, 40)) return "g"; //grassland
-  if (pixel_color(84, 73, 38, pixel, 20) ) return "t";   //tundra
-  if (pixel_color($("#mapimg_desert").spectrum("get")['_r'], $("#mapimg_desert").spectrum("get")['_g'], $("#mapimg_desert").spectrum("get")['_b'], pixel, 100) ) return "d"; //desert
+  if (pixel_color(84, 73, 38, pixel, 20)) return "t";   //tundra
+  if (pixel_color($("#mapimg_desert").spectrum("get")['_r'], $("#mapimg_desert").spectrum("get")['_g'], $("#mapimg_desert").spectrum("get")['_b'], pixel, 100)) return "d"; //desert
   if (pixel_color(44, 52, 28, pixel, 10)) return "f"; //forest
   if (pixel_color(37, 64, 27, pixel, 10)) return "g"; //jungle
   if (pixel_color(60, 89, 38, pixel, 30)) return "g"; //jungle
@@ -225,12 +218,11 @@ function get_map_terrain_type(x, y, pixel)
 /**************************************************************************
 ...
 **************************************************************************/
-function pixel_color(colorRed,colorGreen,colorBlue,pixel, threshold)
-{
-    var diffR,diffG,diffB;
-    diffR=(colorRed - pixel[0]);
-    diffG=(colorGreen - pixel[1]);
-    diffB=(colorBlue - pixel[2]);
-    return (Math.sqrt(diffR*diffR + diffG*diffG + diffB*diffB) < threshold);
+function pixel_color(colorRed, colorGreen, colorBlue, pixel, threshold) {
+  var diffR, diffG, diffB;
+  diffR = (colorRed - pixel[0]);
+  diffG = (colorGreen - pixel[1]);
+  diffB = (colorBlue - pixel[2]);
+  return (Math.sqrt(diffR * diffR + diffG * diffG + diffB * diffB) < threshold);
 }
 

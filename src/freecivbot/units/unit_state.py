@@ -6,17 +6,18 @@ Created on 09.03.2018
 from freecivbot.utils.base_state import ListState
 from freecivbot.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
+
 class UnitState(ListState):
     def __init__(self, unit_ctrl, rule_ctrl, city_ctrl):
         ListState.__init__(self)
         self.unit_ctrl = unit_ctrl
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
-        
+
     def _update_state(self, pplayer):
         """ 
             Function returns the current state of all units of player pplayer
-        """ 
+        """
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
             if punit["owner"] == pplayer["playerno"]:

@@ -23,8 +23,7 @@ var replay_gif;
 /**************************************************************************
 ...
 **************************************************************************/
-function init_replay()
-{
+function init_replay() {
   if (is_small_screen()) replay_enabled = false;
   if (!replay_enabled) return;
 
@@ -41,12 +40,11 @@ function init_replay()
 /**************************************************************************
 ...
 **************************************************************************/
-function add_replay_frame()
-{
+function add_replay_frame() {
   if (!replay_enabled) return;
 
   if ($("#overview_map").length > 0 && $("#overview_map").width() > 0 && $("#overview_map").height() > 0) {
-    replay_gif.addFrame(document.getElementById("overview_map"), {delay: 1000, copy: true});
+    replay_gif.addFrame(document.getElementById("overview_map"), { delay: 1000, copy: true });
   }
 
 }
@@ -55,13 +53,12 @@ function add_replay_frame()
 /**************************************************************************
 ...
 **************************************************************************/
-function show_replay()
-{
+function show_replay() {
   if (!replay_enabled) return;
 
   var replay_gif_clone = jQuery.extend(true, {}, replay_gif);
-  replay_gif_clone.on('finished', function(blob) {
-      show_replay_dialog(blob);
+  replay_gif_clone.on('finished', function (blob) {
+    show_replay_dialog(blob);
   });
   replay_gif_clone.render();
 
@@ -90,17 +87,17 @@ function show_replay_dialog(blob) {
 
   $("#replay_dialog").attr("title", title);
   $("#replay_dialog").dialog({
-			bgiframe: true,
-			modal: false,
-			height: 600,
-			width: is_small_screen() ? "90%" : "50%",
-			buttons: {
-				Ok: function() {
-					$("#replay_dialog").dialog('close');
-					$("#game_text_input").blur();
-				}
-			}
-		});
+    bgiframe: true,
+    modal: false,
+    height: 600,
+    width: is_small_screen() ? "90%" : "50%",
+    buttons: {
+      Ok: function () {
+        $("#replay_dialog").dialog('close');
+        $("#game_text_input").blur();
+      }
+    }
+  });
 
   $("#replay_dialog").dialog('open');
   $("#game_text_input").blur();

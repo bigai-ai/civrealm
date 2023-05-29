@@ -25,10 +25,11 @@ from freecivbot.utils.freecivlog import freelog
 from freecivbot.utils.base_action import NoActions
 from freecivbot.utils.base_state import EmptyState
 
-C_S_INITIAL = 0    #/* Client boot, only used once on program start. */
-C_S_PREPARING = 1  #/* Main menu (disconnected) and connected in pregame. */
-C_S_RUNNING = 2    #/* Connected with game in progress. */
-C_S_OVER = 3       #/* Connected with game over. */
+C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
+C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */
+C_S_RUNNING = 2  # /* Connected with game in progress. */
+C_S_OVER = 3  # /* Connected with game over. */
+
 
 class ClientState(CivPropController):
     def __init__(self, ws_client, rule_ctrl):
@@ -39,7 +40,7 @@ class ClientState(CivPropController):
         self.oldstate = -1
         self.prop_actions = NoActions(ws_client)
         self.prop_state = EmptyState()
-        
+
         self.client = {}
         self.client["conn"] = {}
         self.client_frozen = False
@@ -107,10 +108,10 @@ class ClientState(CivPropController):
 
     def handle_authentication_req(self, packet):
         raise Exception("Not implemented yet")
-        #show_auth_dialog(packet)
+        # show_auth_dialog(packet)
 
     def handle_server_shutdown(self, packet):
-        #/* TODO: implement*/
+        # /* TODO: implement*/
         pass
 
     def handle_conn_ping_info(self, packet):
@@ -132,11 +133,11 @@ class ClientState(CivPropController):
 
     def send_client_info(self):
         client_info = {
-              "pid"          : packet_client_info,
-              "gui"          : GUI_WEB,
-              "emerg_version": 0,
-              "distribution" : ""
-            }
+            "pid": packet_client_info,
+            "gui": GUI_WEB,
+            "emerg_version": 0,
+            "distribution": ""
+        }
 
         self.ws_client.send_request(client_info)
 
@@ -175,11 +176,11 @@ class ClientState(CivPropController):
         if self.civclient_state == C_S_RUNNING:
             pass
             # clear_chatbox()
-            #self.show_new_game_message()
-            #self.update_metamessage_on_gamestart()
+            # self.show_new_game_message()
+            # self.update_metamessage_on_gamestart()
         elif self.civclient_state == C_S_OVER:
             pass
-            #show_endgame_dialog()
+            # show_endgame_dialog()
         elif self.civclient_state == C_S_PREPARING:
             pass
         else:
@@ -214,7 +215,7 @@ class ClientState(CivPropController):
 
     def show_new_game_message(self):
         """Intro message"""
-        #clear_chatbox()
+        # clear_chatbox()
 
         if self.observing:
             return
@@ -225,28 +226,30 @@ class ClientState(CivPropController):
             player_nation_text += self.rule_ctrl.nations[pplayer['nation']]['adjective']
             player_nation_text += " empire."
             freelog(player_nation_text)
-            #message = player_nation_text
-            #message_log.update({ "event": E_CONNECTION, "message": message })
-
+            # message = player_nation_text
+            # message_log.update({ "event": E_CONNECTION, "message": message })
 
     def update_metamessage_on_gamestart(self):
         """Updates message on the metaserver on gamestart."""
 
         if (not self.observing and not self.metamessage_changed and
-            "playing" in self.client["conn"]):
+                "playing" in self.client["conn"]):
             pplayer = self.client["conn"]["playing"]
-            metasuggest = self.client["conn"]["username"] + " ruler of the " + self.rule_ctrl.nations[pplayer['nation']]['adjective'] + "."
+            metasuggest = self.client["conn"]["username"] + " ruler of the " + \
+                self.rule_ctrl.nations[pplayer['nation']]['adjective'] + "."
             self.ws_client.send_message("/metamessage " + metasuggest)
-            #setInterval(update_metamessage_game_running_status, 200000)
+            # setInterval(update_metamessage_game_running_status, 200000)
 
     def update_metamessage_game_running_status(self):
         """Updates message on the metaserver during a game."""
         if "playing" in self.client["conn"] and not self.metamessage_changed:
             pplayer = self.client["conn"]["playing"]
-            metasuggest  = self.rule_ctrl.nations[pplayer['nation']]['adjective'] + " | "
-            metasuggest += self.rule_ctrl.governments[pplayer['government']]['name'] if self.rule_ctrl.governments[pplayer['government']] != None else "-"
+            metasuggest = self.rule_ctrl.nations[pplayer['nation']]['adjective'] + " | "
+            metasuggest += self.rule_ctrl.governments[pplayer['government']
+                                                      ]['name'] if self.rule_ctrl.governments[pplayer['government']] != None else "-"
             metasuggest += " | Score:" + pplayer['score']
-            metasuggest += " | Research:" + self.rule_ctrl.techs[pplayer['researching']]['name'] if self.rule_ctrl.techs[pplayer['researching']] != None else "-"
+            metasuggest += " | Research:" + self.rule_ctrl.techs[pplayer['researching']
+                                                                 ]['name'] if self.rule_ctrl.techs[pplayer['researching']] != None else "-"
 
         self.ws_client.send_message("/metamessage " + metasuggest)
 
@@ -261,7 +264,7 @@ class ClientState(CivPropController):
         if "player_num" not in self.client['conn']:
             return
 
-        test_packet = {"pid" : packet_player_ready, "is_ready" : True,
+        test_packet = {"pid": packet_player_ready, "is_ready": True,
                        "player_no": self.client['conn']['player_num']}
         self.ws_client.send_request(test_packet)
 
@@ -283,5 +286,5 @@ class ClientState(CivPropController):
 
     def handle_conn_ping(self, packet):
         self.ping_last = time.time()
-        pong_packet = {"pid" : packet_conn_pong}
+        pong_packet = {"pid": packet_conn_pong}
         self.ws_client.send_request(pong_packet)

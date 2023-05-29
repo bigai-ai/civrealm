@@ -44,20 +44,22 @@ DS_LAST = 7
 
 DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "Team", "Last"]
 
+
 class DiplomacyState(PlainState):
     def __init__(self, diplstates):
         PlainState.__init__(self)
         self.diplstates = diplstates
-    
+
     def _lock_properties(self):
-        #Ignoring locking of properties ensures that state of states can be generated
-        #See Playerstate for more infos
+        # Ignoring locking of properties ensures that state of states can be generated
+        # See Playerstate for more infos
         pass
 
     def _update_state(self, pplayer):
         player_id = pplayer["playerno"]
         return {"diplstates%i" % player_id: self.diplstates[player_id]}
-        
+
+
 class DiplomacyCtrl(CivPropController):
     def __init__(self, ws_client, clstate, ruleset, dipl_evaluator):
         CivPropController.__init__(self, ws_client)
@@ -168,7 +170,7 @@ class DiplomacyCtrl(CivPropController):
 
         if counterpart in self.diplomacy_request_queue:
             del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
-        #setTimeout(refresh_diplomacy_request_queue, 1000)
+        # setTimeout(refresh_diplomacy_request_queue, 1000)
 
     def refresh_diplomacy_request_queue(self):
         if self.diplomacy_request_queue != []:
@@ -177,7 +179,7 @@ class DiplomacyCtrl(CivPropController):
                 self.active_diplomacy_meeting_id = next_meeting
 
     def handle_diplomacy_create_clause(self, packet):
-        if(self.diplomacy_clause_map[packet['counterpart']] == None):
+        if (self.diplomacy_clause_map[packet['counterpart']] == None):
             self.diplomacy_clause_map[packet['counterpart']] = []
         self.diplomacy_clause_map[packet['counterpart']].append(packet)
 
@@ -186,7 +188,7 @@ class DiplomacyCtrl(CivPropController):
         for i, check_clause in enumerate(clause_list):
             if (packet['counterpart'] == check_clause['counterpart'] and
                 packet['giver'] == check_clause['giver'] and
-                packet['type'] == check_clause['type']):
+                    packet['type'] == check_clause['type']):
 
                 del clause_list[i]
                 break
@@ -204,7 +206,7 @@ class DiplomacyCtrl(CivPropController):
                                                      myself_accepted, other_accepted)
 
         self.refresh_diplomacy_request_queue()
-        #setTimeout(refresh_diplomacy_request_queue, 1000)
+        # setTimeout(refresh_diplomacy_request_queue, 1000)
 
     def check_not_dipl_states(self, player_id, check_list=None):
         if check_list is None:

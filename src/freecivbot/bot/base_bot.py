@@ -66,6 +66,7 @@ class BaseBot:
                                                         self._turn_opts[key], turn_wants[key])
     
     def calculate_next_move(self):
+        print('Bot calculates next move, turn_active: ', self._turn_active)
         if self._turn_active:
             self._acquire_state()
             turn_wants = self._calculate_want_of_move(self.turn)

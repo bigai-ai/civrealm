@@ -79,7 +79,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
 
-    def _reset_client(self, username="Civmonitor", max_turns=10, visualize=True):
+    def _reset_client(self, username="civbot", max_turns=10, visualize=True):
         """
         Provides a chance for subclasses to override this method and supply
         a different server configuration. By default, we initialize one

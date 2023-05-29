@@ -28,6 +28,7 @@ class CivPropController():
 
     def handle_pack(self, pid, data):
         if pid in self.hdict:
+            print('Receiving packet: {}'.format(data))
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:

@@ -78,7 +78,7 @@ class CivMonitor():
                 
                 if state == "find_current_game":
                     try:
-                        bt_observe_game = self._driver.find_element("xpath", "/html/body/div/div/div/div[1]/a")
+                        bt_observe_game = self._driver.find_element("xpath", "/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
                         bt_observe_game.click()
                         state = "logon_game"
                     except Exception as err:
@@ -93,7 +93,7 @@ class CivMonitor():
                         bt_start_observe = self._driver.find_element("xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
                         
                         inp_username.clear()
-                        inp_username.send_keys(user_name)
+                        inp_username.send_keys('civmonitor')
                         bt_start_observe.click()
                         state = "view_bot"
                     except Exception as err:
@@ -138,7 +138,7 @@ class CivMonitor():
         self.monitor_thread.join()
 
 class CivClient(CivPropController):
-    def __init__(self, a_bot, user_name, client_port=6001, visual_monitor=True):
+    def __init__(self, a_bot, user_name, client_port=6000, visual_monitor=True):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.bot = a_bot
@@ -441,6 +441,7 @@ class CivClient(CivPropController):
         if self.rule_ctrl.game_info == {}:
             return
 
+        print('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid" : packet_player_phase_done, "turn" : self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         #update_turn_change_timer()

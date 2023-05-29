@@ -39,7 +39,7 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
 
     def _on_message(self, msg):
-        print("Received message: %s" % msg)
+        # TODO: Add logging for server messages
         self.read_packs = json.loads(msg)
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []

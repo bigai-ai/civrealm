@@ -9,7 +9,8 @@ from freecivbot.civclient import CivClient
 from freecivbot.connectivity.clinet import CivConnection
 
 class SimpleBot(BaseBot):
-    def calculate_unit_actions(self, turn_no, full_state, a_options):
+    def calculate_unit_actions(self):
+        a_options = self._turn_opts["unit"]
         action_wants = {}
         for unit_id in a_options.get_actors(): 
             action_wants[unit_id] = {}
@@ -27,7 +28,8 @@ class SimpleBot(BaseBot):
                     action_wants[unit_id][action_key] = ACTION_UNWANTED
         return action_wants
     
-    def calculate_city_actions(self, turn_no, full_state, a_options):
+    def calculate_city_actions(self):
+        a_options = self._turn_opts["city"]
         action_wants = {}
         for city_id in a_options.get_actors(): 
             action_wants[city_id] = {}
@@ -44,5 +46,5 @@ class SimpleBot(BaseBot):
         return action_wants
 
 my_bot = SimpleBot()
-my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
+my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000, visual_monitor=False)
 CivConnection(my_civ_client, 'http://localhost')

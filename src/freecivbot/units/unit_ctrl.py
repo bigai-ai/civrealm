@@ -537,7 +537,7 @@ class UnitCtrl(CivPropController):
         
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
                                                  ACTION_FOUND_CITY, name=
-                                                 urllib.quote(packet['name'], safe='~()*!.\''))
+                                                 urllib.parse.quote(packet['name'], safe='~()*!.\''))
         self.ws_client.send_request(packet, wait_for_pid=31)
         
         

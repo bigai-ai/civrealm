@@ -29,7 +29,7 @@ from freecivbot.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action
     packet_unit_action_query, packet_unit_get_actions, ACTION_SPY_INCITE_CITY,\
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
     ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
-    ACTION_ATTACK, ACTIVITY_IDLE
+    ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE
 from freecivbot.utils.base_action import Action, ActionList
 
 from freecivbot.units.action_dialog import action_prob_possible, encode_building_id
@@ -160,7 +160,7 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-               not punit['ai']  and punit['activity'] == ACTIVITY_IDLE
+               punit['ssa_controller'] == SSA_NONE  and punit['activity'] == ACTIVITY_IDLE
 
 class UnitAction(Action):
     def __init__(self, focus):
@@ -180,11 +180,13 @@ class UnitAction(Action):
                   "actor_id"    : actor_id,
                   "extra_id"    : EXTRA_NONE,
                   "target_id"   : target_id,
+                  "sub_tgt_id"  : 0,
                   "value"       : value,
                   "name"        : name,
                   "action_type" : action_type
                 }
         return packet
+
 
     def _request_new_unit_activity(self, activity, target):
         packet = {"pid" : packet_unit_change_activity, "unit_id" : self.focus.punit['id'],

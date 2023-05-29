@@ -22,22 +22,36 @@ On top of these challenges real-time strategy games due their continuous time an
 
 In order to focus on a) b) and c) only, round-based games like Freeciv are a potential intermediate step for developing AI before jumping to real-time strategy games. 
 
-Installation
-------------
-Feel free to build your own freeeciv-web server by using the docker image from the [official repository](https://github.com/freeciv/freeciv-web). You can ignore the `build_freeciv_server` step if you start the docker image separately.
+Installation for bot developers and gym users
+---------------------------------------------
+
+```
+pip -m venv ./venv
+
+source ./venv/bin/activate
+
+pip install git+https://github.com:chris1869/freeciv-bot.git
+
+civ_prep_selenium.sh
+```
+
+Installation for freeciv-bot developers
+---------------------------------------
 
 ```
 git clone https://github.com/chris1869/freeciv-bot && cd freeciv-bot
 
 pip install -e .
 
-sudo civ_prep_selenium.sh
-
-sudo build_freeciv_server
-
-test_freeciv_web_gym
-
+civ_prep_selenium.sh
 ```
+
+Using a different freeciv version
+---------------------------------
+
+As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py
+
+
 
 Example Gym
 ------------

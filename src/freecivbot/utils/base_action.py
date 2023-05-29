@@ -110,7 +110,7 @@ class ActionList(object):
             if type(actor_wants) is list:
                 raise("Wants for actor %s should be a dictionary not a list" % a_actor)
             
-            action_most_wanted = max(actor_wants.iterkeys(), key=(lambda x: actor_wants[x]))
+            action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
             
             if actor_wants[action_most_wanted] != ACTION_UNWANTED:
                 print(action_most_wanted)

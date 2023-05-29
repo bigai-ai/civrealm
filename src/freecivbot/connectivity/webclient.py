@@ -7,6 +7,7 @@ from tornado import httpclient
 from tornado import httputil
 from tornado import ioloop
 from tornado import websocket
+import functools
 
 APPLICATION_JSON = 'application/json'
 
@@ -35,8 +36,7 @@ class WebSocketClient(object):
                                          connect_timeout=self.connect_timeout,
                                          request_timeout=self.request_timeout,
                                          headers=headers)
-        self.ws_conn = websocket.WebSocketClientConnection(ioloop.IOLoop.current(),
-                                                      request)
+        self.ws_conn = websocket.WebSocketClientConnection(request)
         self.ws_conn.connect_future.add_done_callback(self._connect_callback)
 
     def send(self, data):
@@ -45,8 +45,8 @@ class WebSocketClient(object):
         """
         if not self._ws_connection:
             raise RuntimeError('Web socket connection is closed.')
-
-        self._ws_connection.write_message(json.dumps(data))
+        msg = json.dumps(data).replace(" ", "")
+        ret_future = self._ws_connection.write_message(msg)
 
     def close(self):
         """Close connection.

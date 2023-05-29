@@ -26,15 +26,18 @@ Installation
 ------------
 
 ```
-sudo pip install https://github.com/chris1869/freeciv-bot
+pip -m venv ./venv
 
-sudo civ_prep_selenium.sh
+source ./venv/bin/activate
 
-sudo build_freeciv_server
+pip install git+https://github.com:chris1869/freeciv-bot.git
 
-test_freeciv_web_gym
-
+civ_prep_selenium.sh
 ```
+
+As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py
+
+
 
 Example Gym
 ------------

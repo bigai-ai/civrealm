@@ -15,16 +15,16 @@ for item in ["bot", "connectivity", "city", "units", "game", "map", "players", "
     package_dirs["freecivbot."+item] = os.sep.join([package_dirs["freecivbot"], item])
 
 setup(name='freecivbot',
-      version='0.1',
+      version='0.1.14',
       description='Freeciv bot allowing for research on AI for complex strategy games',
       url='http://github.com/chris1869/freeciv-bot',
-      author='Chris1869',
-      author_email='TBD',
+      author='chris1869',
+      author_email='rockstroh.christian@gmail.com',
       license='GLP3.0',
       package_dir=package_dirs,
       packages=package_list,
-      data_files = [('/usr/local/bin', ['civ_prep_selenium.sh'])],
+      scripts= ['civ_prep_selenium.sh'],
       entry_points = {'console_scripts': ["build_freeciv_server=freecivbot.build_server:build_docker_img",
                                           "test_freeciv_web_gym=gym_freeciv_web.random_test:main"]},
-      install_requires=['docker','urllib3', 'BitVector', 'numpy', 'tornado==4.5.3', 'gym', 'selenium', 'websocket-client'],
+      install_requires=['wheel','docker','urllib3', 'BitVector', 'numpy', 'tornado==6.3.2', 'gym', 'selenium', 'websocket-client'],
       zip_safe=False)

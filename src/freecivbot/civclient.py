@@ -50,11 +50,11 @@ class CivMonitor():
         self._initiated = False
         self._user_name = user_name
         self.monitor_thread = None
-    
+
     def _observe_game(self, user_name):
         if not self._initiated:
             self._driver = webdriver.Firefox()
-            self._driver.get("http://localhost/")
+            self._driver.get("http://localhost:8080")
             sleep(2)
             self._initiated = True
     
@@ -227,7 +227,7 @@ class CivClient(CivPropController):
         if self.visual_monitor:
             self.monitor.start_monitor()
         
-        freeciv_version = "+Freeciv.Web.Devel-3.1"
+        freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
 
@@ -249,7 +249,7 @@ class CivClient(CivPropController):
         if p_list is None:
             return
         try:
-            print(self.ws_client.wait_for_packs) 
+            print("Waiting for: ", self.ws_client.wait_for_packs) 
             for packet in p_list:
                 if packet is None:
                     continue
@@ -428,7 +428,7 @@ class CivClient(CivPropController):
                 self.clstate.init_state(packet)
 
             self.clstate.conn_list_append(packet)
-
+        
         if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
             self.clstate.set_client_state(C_S_PREPARING)
 

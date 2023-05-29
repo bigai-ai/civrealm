@@ -205,6 +205,11 @@ USSDT_QUEUE = 0
 USSDT_UNQUEUE = 1
 USSDT_BATTLE_GROUP = 2
 
+SSA_NONE = 0
+SSA_AUTOSETTLER = 1
+SSA_AUTOEXPLORE = 2
+SSA_COUNT = 3
+
 packet_server_join_req = 4
 packet_authentication_reply = 7
 packet_nation_select_req = 10

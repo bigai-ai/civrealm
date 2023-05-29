@@ -134,7 +134,8 @@ class ClientState(CivPropController):
         client_info = {
               "pid"          : packet_client_info,
               "gui"          : GUI_WEB,
-              "distribution" : ""
+              "distribution" : "",
+              "emerg_version": 0
             }
 
         self.ws_client.send_request(client_info)

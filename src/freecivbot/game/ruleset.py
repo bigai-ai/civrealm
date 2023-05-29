@@ -428,8 +428,9 @@ class RulesetCtrl(CivPropController):
         result = []
         for unit_type_id in self.unit_types:
             punit_type = self.unit_types[unit_type_id]
-            if punit_type['tech_requirement'] == tech_id:
-                result.append(punit_type)
+            for req in punit_type["build_reqs"]:
+                if (req['kind'] == 1) & (req["value"] == tech_id):
+                    result.append(punit_type)
         return result
 
     def get_improvements_from_tech(self, tech_id):

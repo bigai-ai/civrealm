@@ -134,6 +134,7 @@ class ClientState(CivPropController):
         client_info = {
               "pid"          : packet_client_info,
               "gui"          : GUI_WEB,
+              "emerg_version": 0,
               "distribution" : ""
             }
 

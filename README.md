@@ -24,9 +24,12 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 Installation
 ------------
+Feel free to build your own freeeciv-web server by using the docker image from the [official repository](https://github.com/freeciv/freeciv-web). You can ignore the `build_freeciv_server` step if you start the docker image separately.
 
 ```
-sudo pip install https://github.com/chris1869/freeciv-bot
+git clone https://github.com/chris1869/freeciv-bot && cd freeciv-bot
+
+pip install -e .
 
 sudo civ_prep_selenium.sh
 

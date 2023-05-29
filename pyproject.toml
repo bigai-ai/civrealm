@@ -1,0 +1,27 @@
+[project]
+name = "freecivbot"
+version = "0.1"
+description = "Freeciv bot allowing for research on AI for complex strategy games"
+authors = [
+    {name = "Chris1869", email = "TBD@email.com"},
+]
+readme = "README.md"
+license = {text = "GLP3.0"}
+dependencies = [
+    "docker", 
+    "urllib3", 
+    "BitVector", 
+    "numpy", 
+    "tornado==4.5.3", 
+    "gym==0.10.9", 
+    "selenium", 
+    "websocket-client",
+]
+
+
+[project.scripts]
+build_freeciv_server = "freecivbot.build_server:build_docker_img"
+test_freeciv_web_gym = "gym_freeciv_web.random_test:main"
+
+[tool.property]
+authors = ["Chris1869 <chris1869@github.com>",]

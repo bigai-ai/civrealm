@@ -147,3 +147,6 @@ class GameCtrl(CivPropController):
         #/* TODO: implement */
         pass
 
+    def handle_info_text_message(self, packet):
+        #/* TODO: implement */
+        pass

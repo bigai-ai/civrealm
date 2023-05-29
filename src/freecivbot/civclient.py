@@ -54,7 +54,7 @@ class CivMonitor():
     def _observe_game(self, user_name):
         if not self._initiated:
             self._driver = webdriver.Firefox()
-            self._driver.get("http://localhost/")
+            self._driver.get("http://localhost:8080/")
             sleep(2)
             self._initiated = True
     
@@ -227,7 +227,7 @@ class CivClient(CivPropController):
         if self.visual_monitor:
             self.monitor.start_monitor()
         
-        freeciv_version = "+Freeciv.Web.Devel-3.1"
+        freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
 

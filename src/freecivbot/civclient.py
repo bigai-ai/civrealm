@@ -69,7 +69,7 @@ class CivMonitor():
                 #Find single player button
                 if state == "review_games":
                     try:
-                        bt_single_games = self._driver.find_element_by_xpath("/html/body/div/nav/div/div[2]/ul/li[2]/a")
+                        bt_single_games = self._driver.find_element("xpath", "/html/body/div/nav/div/div[2]/ul/li[2]/a")
                         bt_single_games.click()
                         state = "find_current_game"
                     except Exception as err:
@@ -78,19 +78,19 @@ class CivMonitor():
                 
                 if state == "find_current_game":
                     try:
-                        bt_observe_game = self._driver.find_element_by_xpath("/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
+                        bt_observe_game = self._driver.find_element("xpath", "/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
                         bt_observe_game.click()
                         state = "logon_game"
                     except Exception as err:
                         print("Observe Game Element not found! %s" % err)
-                        bt_single_games = self._driver.find_element_by_xpath("/html/body/nav/div/div[2]/ul/li[2]/a") 
+                        bt_single_games = self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a") 
                         bt_single_games.click()
                     sleep(self._poll_interval)
                 
                 if state == "logon_game":
                     try:
-                        inp_username = self._driver.find_element_by_xpath("//*[@id='username_req']")
-                        bt_start_observe = self._driver.find_element_by_xpath("/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
+                        inp_username = self._driver.find_element("xpath", "//*[@id='username_req']")
+                        bt_start_observe = self._driver.find_element("xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
                         
                         inp_username.send_keys("")
                         inp_username.clear()
@@ -103,13 +103,13 @@ class CivMonitor():
                 
                 if state == "view_bot":
                     try:
-                        players_tab = self._driver.find_element_by_xpath("//*[@id='players_tab']")
+                        players_tab = self._driver.find_element("xpath", "//*[@id='players_tab']")
                         players_tab.click()
                         
-                        players_table = self._driver.find_element_by_xpath("/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
+                        players_table = self._driver.find_element("xpath", "/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
                         
-                        for row in players_table.find_elements_by_xpath(".//tr"):
-                            for td in row.find_elements_by_xpath(".//td"):
+                        for row in players_table.find_elements("xpath", ".//tr"):
+                            for td in row.find_elements("xpath", ".//td"):
                                 if td.text.lower() == user_name.lower():
                                     td.click()
                                     break
@@ -117,7 +117,7 @@ class CivMonitor():
                                 continue
                             break
                         
-                        bt_view_player = self._driver.find_element_by_xpath("//*[@id='view_player_button']")
+                        bt_view_player = self._driver.find_element("xpath", "//*[@id='view_player_button']")
                         bt_view_player.click()
                         state = "keep_silent"
                     except Exception as err:

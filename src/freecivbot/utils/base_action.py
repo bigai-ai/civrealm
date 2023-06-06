@@ -18,7 +18,7 @@ class Action(object):
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
-        print(packet)
+        print("trigger_action. ", packet)
         return ws_client.send_request(packet, self.wait_for_pid)
 
     def is_action_valid(self):

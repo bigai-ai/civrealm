@@ -11,8 +11,8 @@ import functools
 
 APPLICATION_JSON = 'application/json'
 
-DEFAULT_CONNECT_TIMEOUT = 60
-DEFAULT_REQUEST_TIMEOUT = 60
+DEFAULT_CONNECT_TIMEOUT = 300
+DEFAULT_REQUEST_TIMEOUT = 300
 
 
 class WebSocketClient(object):
@@ -70,6 +70,7 @@ class WebSocketClient(object):
         while True:
             msg = yield self._ws_connection.read_message()
             if msg is None:
+                print("_read_messages. msg: ", msg)
                 self._on_connection_close()
                 break
 

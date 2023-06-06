@@ -40,9 +40,11 @@ class CivWSClient(WebSocketClient):
 
     def _on_message(self, msg):
         self.read_packs = json.loads(msg)
+        # print(self.read_packs)
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
+        print("_on_message. clear_send_queue. wait_for_packs", self.wait_for_packs)
         
 
     def _on_connection_success(self):
@@ -61,6 +63,7 @@ class CivWSClient(WebSocketClient):
         Sends a request to the server, with a JSON packet.
         """
         self.send_queue.append(packet_payload)
+        # print("Before send_request", self.read_packs)
         if wait_for_pid is not None:
             self.wait_for_packs.append(wait_for_pid)
         if self.read_packs == []:

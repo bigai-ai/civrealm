@@ -18,7 +18,7 @@ E_S_UNIT = 9
 E_S_VOTE = 10
 E_S_WONDER = 11
 E_S_XYZZY = 12
-E_S_CHAT = 13
+# E_S_CHAT = 13
 
 fc_e_section_names = [
   'e_s_advance',
@@ -33,8 +33,8 @@ fc_e_section_names = [
   'e_s_unit',
   'e_s_vote',
   'e_s_wonder',
-  'e_s_xyzzy',
-  'e_s_chat'
+  'e_s_xyzzy'
+  # 'e_s_chat'
 ]
 
 fc_e_section_descriptions = [
@@ -50,8 +50,8 @@ fc_e_section_descriptions = [
   "Unit",
   "Vote",
   "Wonder",
-  "Misc",
-  "Chat"
+  "Misc"
+  # "Chat"
 ]
 
 E_CITY_CANTBUILD = 0
@@ -135,7 +135,7 @@ E_UNIT_WIN_ATT = 77
 E_UNIT_BUY = 78
 E_UNIT_BUILT = 79
 E_UNIT_LOST_DEF = 80
-E_UNIT_WIN = 81
+E_UNIT_WIN_DEF = 81
 E_UNIT_BECAME_VET = 82
 E_UNIT_UPGRADED = 83
 E_UNIT_RELOCATED = 84
@@ -182,10 +182,23 @@ E_UNIT_ACTION_FAILED = 124
 E_UNIT_ESCAPED = 125
 E_DEPRECATION_WARNING = 126
 E_BEGINNER_HELP = 127
-E_CHAT_PRIVATE = 128
-E_CHAT_ALLIES = 129
-E_CHAT_OBSERVER = 130
-E_UNDEFINED = 131
+# update for freeciv-3.3
+E_MY_UNIT_DID_HEAL = 128
+E_MY_UNIT_WAS_HEALED = 129
+E_MULTIPLIER = 130
+E_UNIT_ACTION_ACTOR_SUCCESS = 131
+E_UNIT_ACTION_ACTOR_FAILURE = 132
+E_UNIT_ACTION_TARGET_OTHER = 133
+E_UNIT_ACTION_TARGET_HOSTILE = 134
+E_INFRAPOINTS = 135
+E_HUT_MAP = 136
+E_TREATY_SHARED_TILES = 137
+E_UNDEFINED = 138
+# below is deprecated version
+# E_CHAT_PRIVATE = 128
+# E_CHAT_ALLIES = 129
+# E_CHAT_OBSERVER = 130
+
 
 fc_e_events = [
   ["e_city_cantbuild", E_S_CITY, "Building Unavailable Item"],
@@ -269,7 +282,7 @@ fc_e_events = [
   ["e_unit_buy", E_S_UNIT, "Bought"],
   ["e_unit_built", E_S_UNIT, "Built"],
   ["e_unit_lost_def", E_S_UNIT, "Defender Destroyed"],
-  ["e_unit_win", E_S_UNIT, "Defender Survived"],
+  ["e_unit_win_def", E_S_UNIT, "Defender Survived"],
   ["e_unit_became_vet", E_S_UNIT, "Promoted to Veteran"],
   ["e_unit_upgraded", E_S_UNIT, "Production Upgraded"],
   ["e_unit_relocated", E_S_UNIT, "Relocated"],
@@ -283,9 +296,9 @@ fc_e_events = [
   ["e_treaty_embassy", E_S_TREATY, "Embassy"],
   ["e_bad_command", E_S_XYZZY, "Error message from bad command"],
   ["e_setting", E_S_XYZZY, "Server settings changed"],
-  ["e_chat_msg", E_S_CHAT, "Chat messages"],
+  ["e_chat_msg", E_S_XYZZY, "Chat messages"],
   ["e_message_wall", E_S_XYZZY, "Message from server operator"],
-  ["e_chat_error", E_S_CHAT, "Chat error messages"],
+  ["e_chat_error", E_S_XYZZY, "Chat error messages"],
   ["e_connection", E_S_XYZZY, "Connect/disconnect messages"],
   ["e_ai_debug", E_S_XYZZY, "AI Debug messages"],
   ["e_log_error", E_S_XYZZY, "Server Problems"],
@@ -316,9 +329,19 @@ fc_e_events = [
   ["e_unit_escaped", E_S_UNIT, "Unit escaped"],
   ["e_deprecation_warning", E_S_XYZZY, "Deprecated Modpack syntax warnings"],
   ["e_beginner_help", E_S_XYZZY, "Help for beginners"],
-  ["e_chat_private", E_S_CHAT, "Private messages"],
-  ["e_chat_allies", E_S_CHAT, "Allies messages"],
-  ["e_chat_observer", E_S_CHAT, "Observers messages"],
+  # ["e_chat_private", E_S_CHAT, "Private messages"],
+  # ["e_chat_allies", E_S_CHAT, "Allies messages"],
+  # ["e_chat_observer", E_S_CHAT, "Observers messages"],
+  ["E_MY_UNIT_DID_HEAL", E_S_UNIT, "Unit did heal"],
+  ["E_MY_UNIT_WAS_HEALED", E_S_UNIT, "Unit was healed"],
+  ["E_MULTIPLIER", E_S_NATION, "Multiplier changed"],
+  ["E_UNIT_ACTION_ACTOR_SUCCESS", E_S_UNIT, "Your unit did"],
+  ["E_UNIT_ACTION_ACTOR_FAILURE", E_S_UNIT, "Your unit failed"],
+  ["E_UNIT_ACTION_TARGET_OTHER", E_S_UNIT, "Unit did"],
+  ["E_UNIT_ACTION_TARGET_HOSTILE", E_S_UNIT, "Unit did to you"],
+  ["E_INFRAPOINTS", E_S_NATION, "Infrapoints"],
+  ["E_HUT_MAP", E_S_HUT, "Map found from a hut"],
+  ["E_TREATY_SHARED_TILES", E_S_TREATY, "Tiles shared"],
   ["e_undefined", E_S_XYZZY, "Unknown event"]
 ]
 

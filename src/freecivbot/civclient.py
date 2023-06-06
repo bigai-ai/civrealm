@@ -256,7 +256,8 @@ class CivClient(CivPropController):
                 self.ws_client.stop_waiting(packet['pid'])
                 self.handle_pack(packet['pid'], packet)
                 if 31 in self.ws_client.wait_for_packs:
-                    print(packet)
+                    pass
+                    # print(packet)
                 
             if not self.ws_client.is_waiting_for_responses():
                 self.bot.calculate_next_move()

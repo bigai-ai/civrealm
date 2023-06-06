@@ -538,6 +538,7 @@ class UnitCtrl(CivPropController):
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
                                                  ACTION_FOUND_CITY, name=
                                                  urllib.parse.quote(packet['name'], safe='~()*!.\''))
+        print("handle_city_name_suggestion_info. ", packet)
         self.ws_client.send_request(packet, wait_for_pid=31)
         
         

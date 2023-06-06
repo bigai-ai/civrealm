@@ -145,8 +145,7 @@ class CityCtrl(CivPropController):
           stop while it waits for the corresponding web_city_info_addition packet.
         """
         #/* Decode the city name. */
-        packet['name'] = urllib.unquote(packet['name'])
-
+        packet['name'] = urllib.parse.unquote(packet['name'])
         #/* Decode bit vectors. */
         packet['improvements'] = BitVector(bitlist = byte_to_bit_array(packet['improvements']))
         packet['city_options'] = BitVector(bitlist = byte_to_bit_array(packet['city_options']))

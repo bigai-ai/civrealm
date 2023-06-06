@@ -89,7 +89,7 @@ def main():
     
     agent = RandomAgent(env.action_space)
 
-    episode_count = 5
+    episode_count = 1
     try:
         for _ in range(episode_count):
             reward, done  = agent.perform_episode(env)

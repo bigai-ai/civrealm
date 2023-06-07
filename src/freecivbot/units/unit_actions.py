@@ -449,7 +449,7 @@ class ActBuild(UnitAction):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
-                                   name=urllib.quote(self.next_city_name, safe='~()*!.\''))
+                                   name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 class ActFortify(UnitAction):
     action_key = "fortify"

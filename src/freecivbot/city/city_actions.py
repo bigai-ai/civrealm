@@ -265,7 +265,7 @@ class CityRename(Action):
 
     def _action_packet(self):
         packet = {"pid" : packet_city_rename,
-                  "name" : urllib.quote(unicode(self.suggested_name).encode('utf-8')),
+                  "name" : urllib.parse.quote(unicode(self.suggested_name).encode('utf-8')),
                   "city_id" : self.pcity['id'] }
         return packet
 

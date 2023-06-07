@@ -101,7 +101,8 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         pass
 
     def is_episode_over(self):
-        return False or self.my_bot.turn > self.max_turns
+        # return False or self.my_bot.turn > self.max_turns
+        return False
     
     def _take_snapshot(self, ob, base_dir):
         f = open(base_dir + "example_observation_turn15_state.json", "w")

@@ -203,7 +203,7 @@ class CityCtrl(CivPropController):
        TODO: does this loose information? */
         """
         #/* Decode the city name. */
-        packet['name'] = urllib.unquote(packet['name'])
+        packet['name'] = urllib.parse.unquote(packet['name'])
 
         #/* Decode bit vectors. */
         packet['improvements'] = BitVector(bitlist = byte_to_bit_array(packet['improvements']))

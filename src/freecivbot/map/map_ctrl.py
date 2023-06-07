@@ -511,13 +511,6 @@ class CityTileMap():
             self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
         return self.maps[target_map]
 
-        # if topo_has_flag(TF_WRAPX):#Cylinder with N-S axis
-        #     dy = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
-        #     if self.maps[dy[2]] == None:
-        #         m = self.build_city_tile_map_with_limits(-r, r, dy[0], dy[1])
-        #         self.maps[dy[2]] = m;                        
-        #     return self.maps[dy[2]]    
-
      
        
        
@@ -533,6 +526,9 @@ class CityTileMap():
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
         a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
+        print(len(a_map))
+        print(a_map)
+        print(city_tile_map_index)
         return a_map[city_tile_map_index]
 
 if __name__ == "__main__":

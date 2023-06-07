@@ -77,13 +77,14 @@ class CityState(ListState):
 
             if 'improvements' in pcity and pcity['improvements'][z]==1:
                 cur_state[tech_tag] = True
-        
-        for tile_num, (food_output, shield_output, trade_output) in enumerate(zip(pcity['food_output'],
-                                                                                  pcity['shield_output'],
-                                                                                  pcity['trade_output'])):
-            cur_state["pos_food_output_%i" % tile_num] = food_output
-            cur_state["pos_shield_output_%i" % tile_num] = shield_output
-            cur_state["pos_trade_output_%i" % tile_num] = trade_output
+        # print("_get_city_state. pcity.keys(): ", pcity.keys())
+        # print("_get_city_state. pcity: ", pcity)
+        for tile_num, (output_food, output_shield, output_trade) in enumerate(zip(pcity['output_food'],
+                                                                                  pcity['output_shield'],
+                                                                                  pcity['output_trade'])):
+            cur_state["pos_output_food_%i" % tile_num] = output_food
+            cur_state["pos_output_shield_%i" % tile_num] = output_shield
+            cur_state["pos_output_trade_%i" % tile_num] = output_trade
             
         return cur_state
         
@@ -159,9 +160,9 @@ class CityState(ListState):
         elif turns > 1000000:
             return "never"
         elif turns < 0:
-            return "Starving in " + abs(turns) + " turns"
+            return "Starving in " + str(turns) + " turns"
         else:
-            return turns + " turns"
+            return str(turns) + " turns"
 
     @staticmethod
     def city_population(pcity):

@@ -532,13 +532,15 @@ class UnitCtrl(CivPropController):
         #/* Decode the city name. */
         #suggested_name = urllib.unquote(packet['name'])
         unit_id = packet['unit_id']
-
+        # print("city_name_suggestion_info: ", packet)
         actor_unit = self.find_unit_by_number(unit_id)
-        
+        # TODO: make sure city_name is ASCII
+        city_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%","")
+
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
                                                  ACTION_FOUND_CITY, name=
-                                                 urllib.parse.quote(packet['name'], safe='~()*!.\''))
-        print("handle_city_name_suggestion_info. ", packet)
+                                                 city_name)
+        # print("handle_city_name_suggestion_info. ", packet)
         self.ws_client.send_request(packet, wait_for_pid=31)
         
         

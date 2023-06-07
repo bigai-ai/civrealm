@@ -73,16 +73,16 @@ class CityWorkTile(Action):
             self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
     
     def is_action_valid(self):
-        return "worked" in self.ptile and "food_output" in self.pcity and \
+        return "worked" in self.ptile and "output_food" in self.pcity and \
             self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != None 
     
     def get_output_at_tile(self):
-        if "food_output" in self.pcity:
+        if "output_food" in self.pcity:
             idx = self.output_idx
-            food_output = self.pcity['food_output'][idx]
-            shield_output = self.pcity['shield_output'][idx]
-            trade_output = self.pcity['trade_output'][idx]
-            return food_output, shield_output, trade_output
+            output_food = self.pcity['output_food'][idx]
+            output_shield = self.pcity['output_shield'][idx]
+            output_trade = self.pcity['output_trade'][idx]
+            return output_food, output_shield, output_trade
     
     def _action_packet(self):
         packet = {"pid" : packet_city_make_worker,
@@ -94,7 +94,7 @@ class CityWorkTile(Action):
 class CityUnworkTile(CityWorkTile):
     action_key =  "city_unwork"
     def is_action_valid(self):
-        return "worked" in self.ptile and "food_output" in self.pcity and \
+        return "worked" in self.ptile and "output_food" in self.pcity and \
                self.ptile["worked"] == self.pcity["id"] and self.output_idx != -1
     
     def _action_packet(self):

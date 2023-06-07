@@ -367,7 +367,7 @@ class CivClient(CivPropController):
                 return  #//don't spam message dialog on game start.
 
         packet['message'] = message
-        print(packet)
+        print("chat_msg: ", packet)
         print("\r\n")
 
         if "You are logged in as" in message:
@@ -392,7 +392,7 @@ class CivClient(CivPropController):
             return
 
         pplayer = self.clstate.cur_player()
-
+        # print("handle_begin_turn, pplayer,", pplayer)
         self.bot.conduct_turn(pplayer, self.controller_list, self.send_end_turn)
         
 

@@ -40,7 +40,12 @@ class CivWSClient(WebSocketClient):
 
     def _on_message(self, msg):
         self.read_packs = json.loads(msg)
-        # print(self.read_packs)
+        packet_id_list = []
+        for p in self.read_packs:
+            if p is None:
+                continue
+            packet_id_list.append(p['pid'])            
+        print("_on_message. Received packets id: ", packet_id_list)
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()

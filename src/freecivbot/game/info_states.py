@@ -41,5 +41,5 @@ class RuleState(PlainState):
             self._state.update(self.game_info)
             # TODO: Treating fields that are lists to be treated later on
             for key in ["global_advances", "granary_food_ini", "great_wonder_owners",
-                        "min_city_center_output"]:
+                        "min_city_center_output", "diplchance_initial_odds"]:
                 del self._state[key]

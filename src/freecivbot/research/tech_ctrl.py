@@ -111,8 +111,7 @@ class TechCtrl(CivPropController):
         ignoring whether unit is obsolete and assuming the
         player has a coastal city.
         """
-
-        if not is_tech_known(pplayer, punittype['tech_requirement']):
+        if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
             return False
 
         # FIXME: add support for global advances, check for building reqs etc.*/

@@ -89,7 +89,7 @@ class ListState(PlainState):
     def _lock_properties(self):
         if self._state == {}:
             return
-        first_element = self._state[self._state.keys()[0]]
+        first_element = self._state[list(self._state.keys())[0]]
         self._locked_props = first_element.keys()
 
     def _state_has_locked_properties(self):

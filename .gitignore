@@ -1,8 +1,11 @@
 # User-specific files
 .vscode/
+.settings/
 
 # Generated files
 freecivbot.egg-info/
 geckodriver
 geckodriver.log
+__pycache__/
 *.pyc
+.sonar/

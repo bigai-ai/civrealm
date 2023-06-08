@@ -124,21 +124,22 @@ class ReqCtrl():
     @staticmethod
     def is_tech_in_range(target_player, trange, tech):
         """Is there a source tech within range of the target?"""
-
+ 
         if trange == REQ_RANGE_PLAYER:
             target = TRI_YES if is_tech_known(target_player, tech) else TRI_NO
             return target_player != None and target
 
-        elif trange in [REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE, REQ_RANGE_WORLD]:
-            # /* FIXME: Add support for the above ranges. Freeciv's implementation
-            # * currently (25th Jan 2017) lives in common/requirements.c */
-            freelog("Unimplemented tech requirement range " + range)
+        # elif trange in [REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE, REQ_RANGE_WORLD]:
+        elif trange in [REQ_RANGE_WORLD]:
+            #/* FIXME: Add support for the above ranges. Freeciv's implementation
+            #* currently (25th Jan 2017) lives in common/requirements.c */
+            freelog("Unimplemented tech requirement range %s" % trange)
             return TRI_MAYBE
         elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT,
                         REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT,
                         REQ_RANGE_COUNT]:
 
-            freelog("Invalid tech req range " + range)
+            freelog("Invalid tech req range %s" % trange)
             return TRI_MAYBE
         else:
             return TRI_MAYBE

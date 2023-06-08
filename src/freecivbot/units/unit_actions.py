@@ -18,7 +18,7 @@ from freecivbot.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
 from freecivbot.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
     ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, packet_unit_autosettlers,\
-    ACTION_DISBAND_UNIT, ACTION_RECYCLE_UNIT, packet_city_name_suggestion_req,\
+    ACTION_DISBAND_UNIT, ACTION_DISBAND_UNIT_RECOVER, packet_city_name_suggestion_req,\
     ACTION_JOIN_CITY, ACTIVITY_FALLOUT, ACTIVITY_POLLUTION,\
     packet_unit_change_activity, ACTIVITY_IRRIGATE, ACTIVITY_BASE, ACTIVITY_MINE,\
     ACTIVITY_TRANSFORM, ACTIVITY_SENTRY, ACTIVITY_EXPLORE, ACTIVITY_PILLAGE,\
@@ -29,7 +29,7 @@ from freecivbot.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action
     packet_unit_action_query, packet_unit_get_actions, ACTION_SPY_INCITE_CITY,\
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
     ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
-    ACTION_ATTACK, ACTIVITY_IDLE
+    ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE
 from freecivbot.utils.base_action import Action, ActionList
 
 from freecivbot.units.action_dialog import action_prob_possible, encode_building_id
@@ -163,7 +163,7 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            not punit['ai'] and punit['activity'] == ACTIVITY_IDLE
+               punit['ssa_controller'] == SSA_NONE  and punit['activity'] == ACTIVITY_IDLE
 
 
 class UnitAction(Action):
@@ -180,15 +180,17 @@ class UnitAction(Action):
         """Tell server action of actor_id towards unit target_id with the respective
         action_type"""
 
-        packet = {"pid": packet_unit_do_action,
-                  "actor_id": actor_id,
-                  "extra_id": EXTRA_NONE,
-                  "target_id": target_id,
-                  "value": value,
-                  "name": name,
-                  "action_type": action_type
-                  }
+        packet = {"pid"         : packet_unit_do_action,
+                  "actor_id"    : actor_id,
+                  "extra_id"    : EXTRA_NONE,
+                  "target_id"   : target_id,
+                  "sub_tgt_id"  : 0,
+                  "value"       : value,
+                  "name"        : name,
+                  "action_type" : action_type
+                }
         return packet
+
 
     def _request_new_unit_activity(self, activity, target):
         packet = {"pid": packet_unit_change_activity, "unit_id": self.focus.punit['id'],
@@ -246,8 +248,8 @@ class ActDisband(StdAction):
         # domestic and allied cities are supported here.
         target_city = self.focus.pcity
         target_id = self.focus.punit['id'] if target_city is None else target_city['id']
-        action_id = ACTION_DISBAND_UNIT if target_city is None else ACTION_RECYCLE_UNIT
-        return self.unit_do_action(self.focus.punit['id'], target_id, action_id)
+        action_id = ACTION_DISBAND_UNIT if target_city is None else ACTION_DISBAND_UNIT_RECOVER
+        return self.unit_do_action(self.focus.punit['id'],target_id, action_id)
 
 
 class ActActSel(StdAction):
@@ -494,7 +496,7 @@ class ActBuild(UnitAction):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
-                                   name=urllib.quote(self.next_city_name, safe='~()*!.\''))
+                                   name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 
 class ActFortify(UnitAction):
@@ -870,20 +872,37 @@ class ActGoto(StdAction):
         dir8 = self.move_dir
         target_tile = self.newtile
         self.wait_for_pid = 63
-        packet = {"pid": packet_unit_orders,
-                  "unit_id": actor_unit['id'],
-                  "src_tile": actor_unit['tile'],
-                  "length": 1,
-                  "repeat": False,
-                  "vigilant": False,
-                  "orders": [ORDER_MOVE],
-                  "dir": [dir8],
-                  "activity": [ACTIVITY_LAST],
-                  "target": [EXTRA_NONE],
-                  "action": [ACTION_COUNT],
-                  "dest_tile": target_tile['index'],
-                  "extra": [EXTRA_NONE]
+        # packet = {"pid"       : packet_unit_orders,
+        #           "unit_id"   : actor_unit['id'],
+        #           "src_tile"  : actor_unit['tile'],
+        #           "length"    : 1,
+        #           "repeat"    : False,
+        #           "vigilant"  : False,
+        #           "orders"    : [ORDER_MOVE],
+        #           "dir"       : [dir8],
+        #           "activity"  : [ACTIVITY_LAST],
+        #           "target"    : [EXTRA_NONE],
+        #           "action"    : [ACTION_COUNT],
+        #           "dest_tile" : target_tile['index'],
+        #           "extra"     : [EXTRA_NONE]
+        #           }
+        packet = {"pid"       : packet_unit_orders,
+                  "unit_id"   : actor_unit['id'],
+                  "src_tile"  : actor_unit['tile'],
+                  "length"    : 1,
+                  "repeat"    : False,
+                  "vigilant"  : False,
+                  "orders"    : [{"order":ORDER_MOVE, 
+                                  "activity":ACTIVITY_LAST,
+                                  "target":EXTRA_NONE,
+                                  "sub_target" : 0,
+                                  "action":ACTION_COUNT,
+                                  "dir":dir8
+                                  }],
+                #   "extra"     : [EXTRA_NONE]
+                  "dest_tile" : target_tile['index']
                   }
+
         return packet
 
 

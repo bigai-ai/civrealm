@@ -237,7 +237,7 @@ function create_new_freeciv_user_account_request(action_type)
 
   var shaObj = new jsSHA("SHA-512", "TEXT")
   shaObj.update(password)
-  var sha_password = urllib.quote(shaObj.getHash("HEX"), safe='~()*!.\'')
+  var sha_password = urllib.parse.quote(shaObj.getHash("HEX"), safe='~()*!.\'')
 
   $.ajax({
    type: 'POST',

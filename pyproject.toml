@@ -1,19 +1,19 @@
 [project]
 name = "freecivbot"
-version = "0.1"
+version = "0.1.15"
 description = "Freeciv bot allowing for research on AI for complex strategy games"
 authors = [
-    {name = "Chris1869", email = "TBD@email.com"},
+    {name = "Chris1869", email = "chris1869@github.com"},
 ]
 readme = "README.md"
-requires-python = ">=3.7"
 license = {text = "GLP3.0"}
 dependencies = [
-    "docker", 
+    "wheel",
+    "docker",
     "urllib3", 
     "BitVector", 
     "numpy", 
-    "tornado==4.5.3", 
+    "tornado==6.3.2", 
     "gym==0.10.9", 
     "selenium", 
     "websocket-client",

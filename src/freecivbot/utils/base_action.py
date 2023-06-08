@@ -19,7 +19,7 @@ class Action(object):
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
-        print(packet)
+        print("trigger_action. ", packet)
         return ws_client.send_request(packet, self.wait_for_pid)
 
     def is_action_valid(self):
@@ -113,10 +113,10 @@ class ActionList(object):
                 print("No actions wanted for actor %s" % a_actor)
                 continue
             if type(actor_wants) is list:
-                raise ("Wants for actor %s should be a dictionary not a list" % a_actor)
-
-            action_most_wanted = max(actor_wants.iterkeys(), key=(lambda x: actor_wants[x]))
-
+                raise("Wants for actor %s should be a dictionary not a list" % a_actor)
+            
+            action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
+            
             if actor_wants[action_most_wanted] != ACTION_UNWANTED:
                 print(action_most_wanted)
                 self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)

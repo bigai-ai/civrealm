@@ -22,24 +22,36 @@ On top of these challenges real-time strategy games due their continuous time an
 
 In order to focus on a) b) and c) only, round-based games like Freeciv are a potential intermediate step for developing AI before jumping to real-time strategy games.
 
-Installation
-------------
+Installation for bot developers and gym users
+---------------------------------------------
 
-For **Ubuntu older than 22.04**:
+```
+pip -m venv ./venv
 
-```bash
-pip install -e .
-sudo ./civ_prep_selenium.sh
-test_freeciv_web_gym
+source ./venv/bin/activate
+
+pip install git+https://github.com:chris1869/freeciv-bot.git
+
+civ_prep_selenium.sh
 ```
 
-For **Ubuntu 22.04**:
+Installation for freeciv-bot developers
+---------------------------------------
 
-```bash
-pip install -e .
-sudo snap install firefox && ln -s /snap/bin/firefox.geckodriver geckodriver
-test_freeciv_web_gym
 ```
+git clone https://github.com/chris1869/freeciv-bot && cd freeciv-bot
+
+pip install -e .
+
+civ_prep_selenium.sh
+```
+
+Using a different freeciv version
+---------------------------------
+
+As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py
+
+
 
 Example Gym
 ------------

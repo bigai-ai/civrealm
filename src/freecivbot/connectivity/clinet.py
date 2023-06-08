@@ -42,9 +42,17 @@ class CivWSClient(WebSocketClient):
     def _on_message(self, msg):
         # TODO: Add logging for server messages
         self.read_packs = json.loads(msg)
+        packet_id_list = []
+        for p in self.read_packs:
+            if p is None:
+                continue
+            packet_id_list.append(p['pid'])            
+        print("_on_message. Received packets id: ", packet_id_list)
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
+        print("_on_message. clear_send_queue. wait_for_packs", self.wait_for_packs)
+        
 
     def _on_connection_success(self):
         print('Connected!')
@@ -62,7 +70,7 @@ class CivWSClient(WebSocketClient):
         Sends a request to the server, with a JSON packet.
         """
         self.send_queue.append(packet_payload)
-        print("Sending request: %s" % packet_payload)
+        # print("Before send_request", self.read_packs)
         if wait_for_pid is not None:
             self.wait_for_packs.append(wait_for_pid)
         if self.read_packs == []:
@@ -132,8 +140,7 @@ class CivConnection():
     def _detect_server_up(self):
         try:
             ws = websocket.WebSocket()
-            # , http_proxy_host="proxy_host_name", http_proxy_port=3128)
-            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
+            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)#, http_proxy_host="proxy_host_name", http_proxy_port=3128)
             return True
         except Exception as err:
             print("Connect not successful:", err, " retrying in %s seconds." % self._retry_interval)

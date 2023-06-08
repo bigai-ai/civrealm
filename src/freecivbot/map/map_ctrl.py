@@ -16,6 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 from math import floor, sqrt
+import functools
 import numpy as np
 from BitVector import BitVector
 
@@ -428,17 +429,22 @@ class CityTileMap():
 
                     if d_sq <= new_radius:
                         vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)])
-            vectors.sort(cmp=get_dist)
+            
+            vectors = sorted(vectors, key=functools.cmp_to_key(get_dist))            
             base_map = [None for _ in range((2*r+1)*(2*r+1))]
 
             for vnum, vec in enumerate(vectors):
                 base_map[vec[3]] = vnum
-
+            
+            # print(base_map)            
             self.radius_sq = new_radius
             self.radius = r
             self.base_sorted = vectors
-            self.maps = [base_map]
-
+            # change self.maps to dict type to support adding map based on position
+            # self.maps = [base_map]
+            self.maps = {}
+            self.maps[0] = base_map
+    
     @staticmethod
     def delta_tile_helper(pos, r, size):
         """ Helper for get_city_tile_map_for_pos.
@@ -491,22 +497,42 @@ class CityTileMap():
             dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
             limit_args["dx_min"] = dx[0]
             limit_args["dx_max"] = dx[1]
-            if target_map != None:
-                target_map = (2*r + 1) * dx[2] + dy[2]
-            else:
-                target_map = dx[2]
+            # if target_map != None:
+            #     target_map = (2*r + 1) * dx[2] + dy[2]
+            # else:
+            target_map = dx[2]
 
-        if target_map >= len(self.maps):
+        if target_map == None: # Flat
+            dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
+            dy = self.delta_tile_helper(y, r, self.map_ctrl.map["xsize"])
+            map_i = (2*r + 1) * dx[2] + dy[2]
+            if map_i not in self.maps: 
+                m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
+                self.maps[map_i] = m            
+            return self.maps[map_i]
+        
+        if target_map not in self.maps:
             self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
         return self.maps[target_map]
+
+     
+       
+       
+    
+
+
+
 
     def get_city_dxy_to_index(self, dx, dy, city_tile):
         """
           Converts from coordinate offset from city center (dx, dy),
-          to index in the city_info['food_output'] packet.
+          to index in the city_info['output_food'] packet.
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
         a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
+        print(len(a_map))
+        print(a_map)
+        print(city_tile_map_index)
         return a_map[city_tile_map_index]
 
 

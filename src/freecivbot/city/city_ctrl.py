@@ -76,7 +76,7 @@ class CityCtrl(CivPropController):
         """Returns the name of the unit's homecity."""
 
         if punit['homecity'] != 0 and self.cities[punit['homecity']] != None:
-            return urllib.unquote(self.cities[punit['homecity']]['name'])
+            return urllib.parse.unquote(self.cities[punit['homecity']]['name'])
         else:
             return None
 
@@ -146,11 +146,12 @@ class CityCtrl(CivPropController):
           stop while it waits for the corresponding web_city_info_addition packet.
         """
         # /* Decode the city name. */
-        packet['name'] = urllib.unquote(packet['name'])
-
+        packet['name'] = urllib.parse.unquote(packet['name'])
         # /* Decode bit vectors. */
         packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
         packet['city_options'] = BitVector(bitlist=byte_to_bit_array(packet['city_options']))
+
+        # print("handle_city_info packet: ", packet)
 
         if packet['id'] not in self.cities:
             self.cities[packet['id']] = packet
@@ -163,8 +164,11 @@ class CityCtrl(CivPropController):
         else:
             self.cities[packet['id']].update(packet)
 
+        # print("handle_city_info self.cities: ", self.cities)
         self.map_ctrl.set_tile_worked(packet)
         # /* manually update tile relation.*/
+
+    # TODO_NEW: every time a city is built, the packet 31 will be sent twice, and the info is different, e.g., the output trade. Should find out why
 
     # Stop the processing here. Wait for the web_city_info_addition packet.
     # The processing of this packet will continue once it arrives. */
@@ -176,8 +180,8 @@ class CityCtrl(CivPropController):
           their own. It is used when the player has full information about a city,
           including it's internals.
         """
-
-        if packet["id"] not in self.cities[packet['id']]:
+        # print("handle_web_city_info_addition packet: ", packet)
+        if packet["id"] not in self.cities:
             # /* The city should have been sent before the additional info. */
             print("packet_web_city_info_addition for unknown city ", packet['id'])
             return
@@ -199,7 +203,7 @@ class CityCtrl(CivPropController):
        TODO: does this loose information? */
         """
         # /* Decode the city name. */
-        packet['name'] = urllib.unquote(packet['name'])
+        packet['name'] = urllib.parse.unquote(packet['name'])
 
         # /* Decode bit vectors. */
         packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))

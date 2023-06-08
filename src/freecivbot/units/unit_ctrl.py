@@ -67,6 +67,8 @@ class UnitCtrl(CivPropController):
 
         # self.unit_action_ctrl.register_with_parent(self)
         self.space_ctrl.register_with_parent(self)
+        # store city name to prevent duplicate city names which can cause error
+        self.city_name_list = []
 
     def unit_owner(self, punit):
         """return player object for player owning punit"""
@@ -527,12 +529,28 @@ class UnitCtrl(CivPropController):
        * interpreted as HTML. Avoid the situation by directly using JavaScript
        * like below or by escaping the string. */
        """
-        # /* Decode the city name. */
-        # suggested_name = urllib.unquote(packet['name'])
+        #/* Decode the city name. */
+        #suggested_name = urllib.parse.unquote(packet['name'])
         unit_id = packet['unit_id']
-
+        # print("city_name_suggestion_info: ", packet)
         actor_unit = self.find_unit_by_number(unit_id)
+        # TODO: make sure city_name is ASCII
+        city_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%","")
+        if city_name not in self.city_name_list:
+            self.city_name_list.append(city_name)
+        else:            
+            new_name = city_name
+            while True:                
+                new_name = new_name+str(len(self.city_name_list))
+                if new_name not in self.city_name_list:
+                    city_name = new_name
+                    self.city_name_list.append(city_name)
+                    break                              
 
-        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'],
-                                                 ACTION_FOUND_CITY, name=urllib.quote(packet['name'], safe='~()*!.\''))
+        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, 
+                                                 name = city_name)
+        # print("handle_city_name_suggestion_info. ", packet)
         self.ws_client.send_request(packet, wait_for_pid=31)
+        
+        
+        

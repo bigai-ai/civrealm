@@ -46,10 +46,20 @@ class CityActions(ActionList):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
             self.add_action(city_id, CityBuyProduction(pcity, pplayer))
+                        
+            # for unit_type_id in self.rulectrl.unit_types:
+            #     punit_type = self.rulectrl.unit_types[unit_type_id]
+            #     print("ID: {}, name: {}.".format(unit_type_id, punit_type['name']))
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
                 self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
+            
+            # print("self.rulectrl.improvements:")
+            # for improvement_id in self.rulectrl.improvements:
+            #     print("ID: {}, name: {}.".format(improvement_id, self.rulectrl.improvements[improvement_id]["name"]))
+            # print("pcity['can_build_improvement']: ", pcity['can_build_improvement'])
+            # print("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
                 pimprovement = self.rulectrl.improvements[improvement_id]
@@ -231,10 +241,13 @@ class CityChangeUnitProduction(CityChangeProduction):
           Return whether given city can build given building returns FALSE if
           the building is obsolete.
         """
-
+        # print(pcity)
+        # print(pcity['can_build_unit'])
+        # print(punittype_id)
+        # print(type(pcity['can_build_unit'][0]))
         return (pcity != None and pcity['can_build_unit'] != None and
-                pcity['can_build_unit'][punittype_id] == "1")
-
+                (pcity['can_build_unit'][punittype_id] > 0 if punittype_id<len(pcity['can_build_unit']) else False))
+    
     def get_impact_of_action(self):
         return dict([(key, self.punit_type[key]) for key in ["name", "helptext", "rule_name",
                                                              "build_cost", "attack_strength",
@@ -266,9 +279,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
         Return whether given city can build given building; returns FALSE if
         the building is obsolete.
         """
-        return pcity != None and pcity['can_build_improvement'] != None and \
-            pcity['can_build_improvement'][pimprove_id] == "1"
-
+        return  pcity != None and pcity['can_build_improvement'] != None and \
+              (pcity['can_build_improvement'][pimprove_id] > 0 if pimprove_id < len(pcity['can_build_improvement']) else False)
 
 class CityRename(Action):
     """Rename a city - ignored for bot"""

@@ -93,6 +93,8 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.max_turns = max_turns
         client_port = self.game_ports[self.current_port_id]
         self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
+        # import datetime
+        # username_temp = username+str(hash(datetime.datetime.now()))[:5]
         self.my_civ_client = CivClient(self.my_bot, username, client_port=client_port,
                                        visual_monitor=visualize)
         self.civ_conn = CivConnection(self.my_civ_client, 'http://localhost:8080')

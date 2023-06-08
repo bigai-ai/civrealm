@@ -515,14 +515,6 @@ class CityTileMap():
             self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
         return self.maps[target_map]
 
-     
-       
-       
-    
-
-
-
-
     def get_city_dxy_to_index(self, dx, dy, city_tile):
         """
           Converts from coordinate offset from city center (dx, dy),
@@ -530,9 +522,14 @@ class CityTileMap():
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
         a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
-        print(len(a_map))
-        print(a_map)
-        print(city_tile_map_index)
+        # print("get_city_dxy_to_index")
+        # print(len(a_map))
+        # print(a_map)
+        # print(city_tile_map_index)
+        # print("*"*10)
+        if city_tile_map_index >= len(a_map):
+            print("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(dx, dy, self.radius, city_tile["x"], city_tile["y"]))
+            print("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
         return a_map[city_tile_map_index]
 
 

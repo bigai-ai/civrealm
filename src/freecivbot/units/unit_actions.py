@@ -163,7 +163,7 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-               punit['ssa_controller'] == SSA_NONE  and punit['activity'] == ACTIVITY_IDLE
+            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
 
 
 class UnitAction(Action):
@@ -180,17 +180,16 @@ class UnitAction(Action):
         """Tell server action of actor_id towards unit target_id with the respective
         action_type"""
 
-        packet = {"pid"         : packet_unit_do_action,
-                  "actor_id"    : actor_id,
-                  "extra_id"    : EXTRA_NONE,
-                  "target_id"   : target_id,
-                  "sub_tgt_id"  : 0,
-                  "value"       : value,
-                  "name"        : name,
-                  "action_type" : action_type
-                }
+        packet = {"pid": packet_unit_do_action,
+                  "actor_id": actor_id,
+                  "extra_id": EXTRA_NONE,
+                  "target_id": target_id,
+                  "sub_tgt_id": 0,
+                  "value": value,
+                  "name": name,
+                  "action_type": action_type
+                  }
         return packet
-
 
     def _request_new_unit_activity(self, activity, target):
         packet = {"pid": packet_unit_change_activity, "unit_id": self.focus.punit['id'],
@@ -249,7 +248,7 @@ class ActDisband(StdAction):
         target_city = self.focus.pcity
         target_id = self.focus.punit['id'] if target_city is None else target_city['id']
         action_id = ACTION_DISBAND_UNIT if target_city is None else ACTION_DISBAND_UNIT_RECOVER
-        return self.unit_do_action(self.focus.punit['id'],target_id, action_id)
+        return self.unit_do_action(self.focus.punit['id'], target_id, action_id)
 
 
 class ActActSel(StdAction):
@@ -886,21 +885,21 @@ class ActGoto(StdAction):
         #           "dest_tile" : target_tile['index'],
         #           "extra"     : [EXTRA_NONE]
         #           }
-        packet = {"pid"       : packet_unit_orders,
-                  "unit_id"   : actor_unit['id'],
-                  "src_tile"  : actor_unit['tile'],
-                  "length"    : 1,
-                  "repeat"    : False,
-                  "vigilant"  : False,
-                  "orders"    : [{"order":ORDER_MOVE, 
-                                  "activity":ACTIVITY_LAST,
-                                  "target":EXTRA_NONE,
-                                  "sub_target" : 0,
-                                  "action":ACTION_COUNT,
-                                  "dir":dir8
-                                  }],
-                #   "extra"     : [EXTRA_NONE]
-                  "dest_tile" : target_tile['index']
+        packet = {"pid": packet_unit_orders,
+                  "unit_id": actor_unit['id'],
+                  "src_tile": actor_unit['tile'],
+                  "length": 1,
+                  "repeat": False,
+                  "vigilant": False,
+                  "orders": [{"order": ORDER_MOVE,
+                              "activity": ACTIVITY_LAST,
+                              "target": EXTRA_NONE,
+                              "sub_target": 0,
+                              "action": ACTION_COUNT,
+                              "dir": dir8
+                              }],
+                  #   "extra"     : [EXTRA_NONE]
+                  "dest_tile": target_tile['index']
                   }
 
         return packet
@@ -940,7 +939,7 @@ def order_wants_direction(order, act_id, ptile):
     if order == ORDER_PERFORM_ACTION and action == None:
         # /* Bad action id or action rule data not received and stored
         # * properly. */
-        freelog("Asked to put invalid action " + act_id + " in an order.")
+        logger.warning("Asked to put invalid action " + act_id + " in an order.")
         return False
 
     if order in [ORDER_MOVE, ORDER_ACTION_MOVE]:

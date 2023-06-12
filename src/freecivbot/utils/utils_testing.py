@@ -6,11 +6,12 @@ Created on 07.03.2018
 import unittest
 from freecivbot.utils.base_action import Action
 
+from freecivbot.utils.freeciv_logging import logger
 
 class MockClient(object):
     def send_request(self, packet):
-        print("Sending packet")
-        print(packet)
+        logger.info("Sending packet")
+        logger.info(packet)
         return 1
 
 

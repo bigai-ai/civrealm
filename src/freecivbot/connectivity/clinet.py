@@ -1,4 +1,4 @@
-"""
+'''
 ***********************************************************************
     Freeciv-web - the web version of Freeciv. http://play.freeciv.org/
     Copyright (C) 2009-2015  The Freeciv-web project
@@ -17,18 +17,21 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ***********************************************************************
-"""
+'''
 
 import json
-from tornado import ioloop
 import websocket
-from freecivbot.connectivity.webclient import WebSocketClient
-from freecivbot.utils.fc_types import packet_chat_msg_req
 import urllib
-from freecivbot import init_server
 import docker
+from tornado import ioloop
 from math import ceil
 from time import sleep
+
+from freecivbot.connectivity.webclient import WebSocketClient
+from freecivbot.utils.fc_types import packet_chat_msg_req
+from freecivbot import init_server
+
+from freecivbot.utils.freeciv_logging import logger
 
 
 class CivWSClient(WebSocketClient):
@@ -46,31 +49,30 @@ class CivWSClient(WebSocketClient):
         for p in self.read_packs:
             if p is None:
                 continue
-            packet_id_list.append(p['pid'])            
-        print("_on_message. Received packets id: ", packet_id_list)
+            packet_id_list.append(p['pid'])
+        logger.info(('Received packets id: ', packet_id_list))
         self.civ_client.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
-        print("_on_message. clear_send_queue. wait_for_packs", self.wait_for_packs)
-        
+        logger.info(('Wait_for_packs: ', self.wait_for_packs))
 
     def _on_connection_success(self):
-        print('Connected!')
+        logger.info('Connected!')
         self.civ_client.init_control(self)
 
     def _on_connection_close(self):
-        print('Connection to server is closed. Please reload the page to restart. Sorry!')
+        logger.info('Connection to server is closed. Please reload the page to restart. Sorry!')
 
     def _on_connection_error(self, exception):
-        print("Network error", "Problem %s occured with the " % exception + self.ws_conn.protocol +
-              " WebSocket connection to the server: " + self.ws_conn.request.url)
+        logger.info('Network error', 'Problem %s occured with the ' % exception + self.ws_conn.protocol +
+                    ' WebSocket connection to the server: ' + self.ws_conn.request.url)
 
     def send_request(self, packet_payload, wait_for_pid=None):
-        """
+        '''
         Sends a request to the server, with a JSON packet.
-        """
+        '''
         self.send_queue.append(packet_payload)
-        # print("Before send_request", self.read_packs)
+        # logger.info('Before send_request', self.read_packs)
         if wait_for_pid is not None:
             self.wait_for_packs.append(wait_for_pid)
         if self.read_packs == []:
@@ -79,8 +81,8 @@ class CivWSClient(WebSocketClient):
             return -1
 
     def send_message(self, message):
-        packet = {"pid": packet_chat_msg_req,
-                  "message": message}
+        packet = {'pid': packet_chat_msg_req,
+                  'message': message}
         self.send_request(packet)
 
     def clear_send_queue(self):
@@ -114,11 +116,11 @@ class CivConnection():
     def __init__(
             self, civclient, base_url='http://localhost', restart_server_if_down=True, wait_for_server=120,
             retry_interval=5):
-        """
+        '''
             restart_server_if_down - True if server should be restarted if down
             wait_for_server - Overall time waiting for server being up
             retry_interval - Wait for X seconds until retrying
-        """
+        '''
         self.civserverport = civclient.client_port
         self.client = civclient
         self.proxyport = 1000 + self.civserverport
@@ -140,10 +142,11 @@ class CivConnection():
     def _detect_server_up(self):
         try:
             ws = websocket.WebSocket()
-            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)#, http_proxy_host="proxy_host_name", http_proxy_port=3128)
+            # , http_proxy_host='proxy_host_name', http_proxy_port=3128)
+            ws.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
             return True
         except Exception as err:
-            print("Connect not successful:", err, " retrying in %s seconds." % self._retry_interval)
+            logger.info('Connect not successful:' + str(err) + ' retrying in %s seconds.' % self._retry_interval)
             if self._restart_server_if_down and not self._restarting_server:
                 self._restart_server()
                 return self._detect_server_up()
@@ -156,11 +159,11 @@ class CivConnection():
     def network_init(self):
         self._cur_retry = 0
         self._restarting_server = False
-        print("Connecting to server at %s ..." % self.base_url)
+        logger.info('Connecting to server at %s ...' % self.base_url)
         if self._detect_server_up():
             self.websocket_init()
         else:
-            print("Connection could not be established!")
+            logger.info('Connection could not be established!')
 
     def websocket_init(self):
         '''
@@ -179,10 +182,10 @@ class CivConnection():
             self._restarting_server = True
             init_server.init_freeciv_docker()
         except docker.errors.APIError as err:
-            print(err)
-            print("---------------------------")
-            print("Most likely key ports (80, 8080, 6000-3, 7000-3) on host machine are blocked by existing processes!")
-            print("Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)")
-            print("and kill them via htop, top, or 'kill process_pid'")
-            print("---------------------------")
+            logger.info(err)
+            logger.info('---------------------------')
+            logger.info('Most likely key ports (80, 8080, 6000-3, 7000-3) on host machine are blocked by existing processes!')
+            logger.info('Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)')
+            logger.info('and kill them via htop, top, or "kill process_pid"')
+            logger.info('---------------------------')
             exit()

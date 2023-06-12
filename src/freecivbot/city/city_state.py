@@ -9,6 +9,8 @@ from freecivbot.game.ruleset import RulesetCtrl
 from math import floor
 from freecivbot.utils.base_state import ListState
 
+from freecivbot.utils.freeciv_logging import logger
+
 FEELING_BASE = 0  # /* before any of the modifiers below */
 FEELING_LUXURY = 1  # /* after luxury */
 FEELING_EFFECT = 2  # /* after building effects */
@@ -78,15 +80,15 @@ class CityState(ListState):
 
             if 'improvements' in pcity and pcity['improvements'][z] == 1:
                 cur_state[tech_tag] = True
-        # print("_get_city_state. pcity.keys(): ", pcity.keys())
-        # print("_get_city_state. pcity: ", pcity)
+        # logger.info("_get_city_state. pcity.keys(): ", pcity.keys())
+        # logger.info("_get_city_state. pcity: ", pcity)
         for tile_num, (output_food, output_shield, output_trade) in enumerate(zip(pcity['output_food'],
                                                                                   pcity['output_shield'],
                                                                                   pcity['output_trade'])):
             cur_state["pos_output_food_%i" % tile_num] = output_food
             cur_state["pos_output_shield_%i" % tile_num] = output_shield
             cur_state["pos_output_trade_%i" % tile_num] = output_trade
-            
+
         return cur_state
 
     @staticmethod

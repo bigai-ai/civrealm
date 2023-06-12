@@ -3,8 +3,12 @@ Created on 16.02.2018
 
 @author: christian
 '''
-from freecivbot.bot.base_bot import ACTION_UNWANTED
+
 import json
+
+from freecivbot.bot.base_bot import ACTION_UNWANTED
+
+from freecivbot.utils.freeciv_logging import logger
 
 
 class Action(object):
@@ -19,7 +23,7 @@ class Action(object):
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
-        print("trigger_action. ", packet)
+        logger.info("trigger_action. ", packet)
         return ws_client.send_request(packet, self.wait_for_pid)
 
     def is_action_valid(self):
@@ -52,7 +56,7 @@ class ActionList(object):
         if actor_id in self._action_dict:
             del self._action_dict[actor_id]
         else:
-            print("strange - trying to remove non-existent actor: %s" % actor_id)
+            logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
 
     def add_action(self, actor_id, a_action):
         if actor_id not in self._action_dict:
@@ -110,15 +114,15 @@ class ActionList(object):
                 raise ("Wants for actor %s should have been defined." % a_actor)
             actor_wants = controller_wants[a_actor]
             if actor_wants == {}:
-                print("No actions wanted for actor %s" % a_actor)
+                logger.info("No actions wanted for actor %s" % a_actor)
                 continue
             if type(actor_wants) is list:
-                raise("Wants for actor %s should be a dictionary not a list" % a_actor)
-            
+                raise ("Wants for actor %s should be a dictionary not a list" % a_actor)
+
             action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
-            
+
             if actor_wants[action_most_wanted] != ACTION_UNWANTED:
-                print(action_most_wanted)
+                logger.info(action_most_wanted)
                 self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)
 
     def update(self, pplayer):

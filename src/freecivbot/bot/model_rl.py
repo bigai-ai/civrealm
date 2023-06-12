@@ -15,6 +15,7 @@ import tensorflow as tf
 import matplotlib.pyplot as plt
 import math
 
+from freecivbot.utils.freeciv_logging import logger
 
 class ModelAgent:
     def __init__(self, state_size, action_size, action_ids, numH):
@@ -213,8 +214,8 @@ class ModelAgent:
 
                 running_reward = reward_sum if running_reward is None else running_reward * 0.99 + reward_sum * 0.01
                 if drawFromModel == False:
-                    print('World Perf: Episode %f. Reward %f. action: %f. mean reward %f.' %
-                          (real_episodes, reward_sum/real_bs, action, running_reward/real_bs))
+                    logger.info('World Perf: Episode %f. Reward %f. action: %f. mean reward %f.' %
+                                (real_episodes, reward_sum/real_bs, action, running_reward/real_bs))
                     if reward_sum/batch_size > 200:
                         break
                 reward_sum = 0

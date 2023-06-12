@@ -21,10 +21,11 @@ from freecivbot.utils.fc_types import VUT_ADVANCE
 from freecivbot.research.tech_ctrl import A_NONE
 import sys
 
-from freecivbot.utils.freecivlog import freelog
 from freecivbot.game.info_states import RuleState
 from freecivbot.research.req_info import REQ_RANGE_PLAYER
 from freecivbot.utils.base_action import NoActions
+
+from freecivbot.utils.freeciv_logging import logger
 
 EXTRA_RIVER = None
 EXTRA_ROAD = None
@@ -407,8 +408,8 @@ class RulesetCtrl(CivPropController):
         if rname in ["classic", "civ2civ3", "multiplayer", "webperimental"]:
             return rname
         else:
-            freelog("Don't know the ruleset dir of \"" + ruleset_name
-                    + "\". Guessing \"" + fall_back_dir + "\".")
+            logger.warning("Don't know the ruleset dir of \"" + ruleset_name
+                           + "\". Guessing \"" + fall_back_dir + "\".")
             return fall_back_dir
 
     @staticmethod

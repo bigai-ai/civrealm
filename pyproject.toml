@@ -4,6 +4,7 @@ version = "0.1.15"
 description = "Freeciv bot allowing for research on AI for complex strategy games"
 authors = [
     {name = "Chris1869", email = "chris1869@github.com"},
+    {name = "Siyuan Qi", email = "syqi@bigai.ai"},
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}

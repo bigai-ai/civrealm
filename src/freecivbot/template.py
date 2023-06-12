@@ -15,7 +15,7 @@ class SimpleBot(BaseBot):
         action_wants = {}
         for unit_id in a_options.get_actors():
             action_wants[unit_id] = {}
-            actions =  a_options.get_actions(unit_id, valid_only=True)
+            actions = a_options.get_actions(unit_id, valid_only=True)
             for action_key in actions:
                 if actions[action_key] is None:
                     continue
@@ -28,13 +28,13 @@ class SimpleBot(BaseBot):
                 else:
                     action_wants[unit_id][action_key] = ACTION_UNWANTED
         return action_wants
-    
+
     def calculate_city_actions(self):
         a_options = self._turn_opts["city"]
         action_wants = {}
         for city_id in a_options.get_actors():
             action_wants[city_id] = {}
-            actions =  a_options.get_actions(city_id, valid_only=True)
+            actions = a_options.get_actions(city_id, valid_only=True)
             for action_key in actions:
                 if actions[action_key] is None:
                     continue

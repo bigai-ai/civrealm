@@ -6,6 +6,7 @@ Created on 29.12.2017
 from freecivbot.utils.base_action import ActionList
 from freecivbot.utils.base_state import PropState
 
+from freecivbot.utils.freeciv_logging import logger
 
 class CivPropController():
     """ Controller for certain properties of the Civilization "Board
@@ -30,12 +31,12 @@ class CivPropController():
 
     def handle_pack(self, pid, data):
         if pid in self.hdict:
-            print('Receiving packet: {}'.format(data))
+            logger.debug('Receiving packet: {}'.format(data))
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:
             pass
-            # print("Handler function for pid %i not yet implemented" % pid)
+            # logger.info("Handler function for pid %i not yet implemented" % pid)
 
     def get_current_state(self, pplayer):
         self.prop_state.update(pplayer)

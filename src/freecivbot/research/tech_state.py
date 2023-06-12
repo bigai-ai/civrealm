@@ -9,6 +9,7 @@ from freecivbot.research.reqtree import reqtree, reqtree_multiplayer, reqtree_ci
 from freecivbot.research.req_info import ReqCtrl
 from freecivbot.research import tech_helpers
 
+from freecivbot.utils.freeciv_logging import logger
 
 class TechState(ListState):
     def __init__(self, rule_ctrl, tech_ctrl):
@@ -42,7 +43,7 @@ class TechState(ListState):
         else:
             self.reqtree = reqtree
 
-        print(self.rule_ctrl.ruleset_control['name'])
+        logger.info(self.rule_ctrl.ruleset_control['name'])
 
         self._state = {}
         for tech_id in self.rule_ctrl.techs:

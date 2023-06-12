@@ -5,6 +5,7 @@ Created on 12.03.2018
 '''
 # -*- coding: utf-8 -*-
 
+from freecivbot.utils.freeciv_logging import logger
 from bot.base_bot import StateBot
 
 REWARD_INVALID_ACTION = -10
@@ -84,9 +85,9 @@ class Agent_Bot(StateBot):
                                                                  cur_actors[focus_actor],
                                                                  self._turn_opts[ctrl_type])
 
-        print("Found highest probability for: %s %f" % (action_id, prob))
+        logger.info("Found highest probability for: %s %f" % (action_id, prob))
         if prob < 0.25:
-            print("Highest probability for - Ignoring: %s %f" % (action_id, prob))
+            logger.info("Highest probability for - Ignoring: %s %f" % (action_id, prob))
             return {"ctrl": self.cur_state["ctrl"], "actor": focus_actor + 1}
 
         act_valid = self._turn_opts[ctrl_type].trigger_single_action(cur_actors[focus_actor], action_id)
@@ -99,5 +100,5 @@ class Agent_Bot(StateBot):
             return self.calculate_list_action_actions(ctrl_type, hidden_size)
         else:
             self.rewards[ctrl_type] = reward
-            print("Valid action")
+            logger.info("Valid action")
             return {"ctrl": self.cur_state["ctrl"], "actor": focus_actor}

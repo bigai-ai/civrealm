@@ -21,9 +21,6 @@ except ImportError as e:
     raise error.DependencyNotInstalled(
         "{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
-import logging
-logger = logging.getLogger(__name__)
-
 
 class GymBot(BaseBot):
     def __init__(self, gym_env):
@@ -110,7 +107,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     def is_episode_over(self):
         # return False or self.my_bot.turn > self.max_turns
         return False
-    
+
     def _take_snapshot(self, ob, base_dir):
         f = open(base_dir + "example_observation_turn15_state.json", "w")
         json.dump(ob[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)

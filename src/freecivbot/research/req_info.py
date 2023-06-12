@@ -15,8 +15,9 @@ from freecivbot.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE,\
     VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING, TRI_MAYBE,\
     RPT_POSSIBLE, VUT_COUNT
 
-from freecivbot.utils.freecivlog import freelog
 from freecivbot.research.tech_helpers import is_tech_known
+
+from freecivbot.utils.freeciv_logging import logger
 
 """
 /* Range of requirements.
@@ -85,12 +86,12 @@ class ReqCtrl():
                              VUT_SERVERSETTING]:
 
             # //FIXME: implement
-            freelog("Unimplemented requirement type " + req['kind'])
+            logger.warning("Unimplemented requirement type " + req['kind'])
 
         elif req['kind'] == VUT_COUNT:
             return False
         else:
-            freelog("Unknown requirement type " + req['kind'])
+            logger.warning("Unknown requirement type " + req['kind'])
 
         if result == TRI_MAYBE:
             return prob_type == RPT_POSSIBLE
@@ -124,22 +125,22 @@ class ReqCtrl():
     @staticmethod
     def is_tech_in_range(target_player, trange, tech):
         """Is there a source tech within range of the target?"""
- 
+
         if trange == REQ_RANGE_PLAYER:
             target = TRI_YES if is_tech_known(target_player, tech) else TRI_NO
             return target_player != None and target
 
         # elif trange in [REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE, REQ_RANGE_WORLD]:
         elif trange in [REQ_RANGE_WORLD]:
-            #/* FIXME: Add support for the above ranges. Freeciv's implementation
-            #* currently (25th Jan 2017) lives in common/requirements.c */
-            freelog("Unimplemented tech requirement range %s" % trange)
+            # /* FIXME: Add support for the above ranges. Freeciv's implementation
+            # * currently (25th Jan 2017) lives in common/requirements.c */
+            logger.warning("Unimplemented tech requirement range %s" % trange)
             return TRI_MAYBE
         elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT,
                         REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT,
                         REQ_RANGE_COUNT]:
 
-            freelog("Invalid tech req range %s" % trange)
+            logger.warning("Invalid tech req range %s" % trange)
             return TRI_MAYBE
         else:
             return TRI_MAYBE

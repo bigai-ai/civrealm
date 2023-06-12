@@ -4,12 +4,15 @@ Created on 19.12.2018
 @author: christian
 '''
 
-import gym_freeciv_web
-import gym
-from gym import wrappers, logger
 import random
 import json
 import numpy
+
+import gym
+from gym import wrappers
+import gym_freeciv_web
+
+from freecivbot.utils.freeciv_logging import logger
 
 
 class RandomAgent(object):
@@ -37,7 +40,7 @@ class RandomAgent(object):
         next_action = {"unit_id": None, "action_id": None}
 
         for actor_id in action_opts["unit"].get_actors():
-            print("Trying Moving units or build city: %s" % actor_id)
+            logger.info("Trying Moving units or build city: %s" % actor_id)
             if action_opts["unit"]._can_actor_act(actor_id):
                 pos_acts = action_opts["unit"].get_actions(actor_id, valid_only=True)
 
@@ -46,7 +49,7 @@ class RandomAgent(object):
                     next_action["action_id"] = "build"
                     break
                 move_action = random.choice([key for key in pos_acts.keys() if "goto" in key])
-                print("in direction %s" % move_action)
+                logger.info("in direction %s" % move_action)
                 next_action["action_id"] = move_action
                 break
 
@@ -75,10 +78,6 @@ class RandomAgent(object):
 
 
 def main():
-    # You can set the level to logger.DEBUG or logger.WARN if you
-    # want to change the amount of output.
-    logger.set_level(logger.INFO)
-
     env = gym.make("Freeciv-v0")
 
     # You provide the directory to write to (can be an existing
@@ -95,7 +94,7 @@ def main():
     episode_count = 1
     try:
         for episode_i in range(episode_count):
-            print("Starting episode %i" % episode_i)
+            logger.info("Starting episode %i" % episode_i)
             agent.perform_episode(env)
         # Close the env and write monitor result info to disk
     finally:

@@ -20,6 +20,10 @@
 '''
 
 import random
+import threading
+from selenium import webdriver
+from time import sleep
+
 from freecivbot.connectivity.Basehandler import CivPropController
 from freecivbot.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
@@ -37,11 +41,8 @@ from freecivbot.city.city_ctrl import CityCtrl
 from freecivbot.research.tech_ctrl import TechCtrl
 from freecivbot.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
 from freecivbot.utils.fc_types import packet_nation_select_req, packet_player_phase_done
-from freecivbot.utils.freecivlog import freelog
-from selenium import webdriver
-from time import sleep
 
-import threading
+from freecivbot.utils.freeciv_logging import logger
 
 
 class CivMonitor():
@@ -60,8 +61,7 @@ class CivMonitor():
             self._driver.get("http://localhost:8080/")
             sleep(2)
             self._initiated = True
-    
-        
+
         bt_single_games = None
         bt_observe_game = None
         bt_start_observe = None
@@ -69,48 +69,51 @@ class CivMonitor():
         if self._initiated:
             t = threading.currentThread()
             while getattr(t, "do_run", True):
-                #Find single player button
+                # Find single player button
                 if self.state == "review_games":
                     try:
                         bt_single_games = self._driver.find_element("xpath", "/html/body/div/nav/div/div[2]/ul/li[2]/a")
                         bt_single_games.click()
                         self.state = "find_current_game"
                     except Exception as err:
-                        print("Single Games Element not found! %s" % err)
+                        logger.info("Single Games Element not found! %s" % err)
                     sleep(self._poll_interval)
-                
+
                 if self.state == "find_current_game":
                     try:
-                        bt_observe_game = self._driver.find_element("xpath", "/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
+                        bt_observe_game = self._driver.find_element(
+                            "xpath", "/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
                         bt_observe_game.click()
                         self.state = "logon_game"
                     except Exception as err:
-                        print("Observe Game Element not found! %s" % err)
-                        bt_single_games = self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a") 
+                        logger.info("Observe Game Element not found! %s" % err)
+                        bt_single_games = self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a")
                         bt_single_games.click()
                     sleep(self._poll_interval)
-                
+
                 if self.state == "logon_game":
                     try:
                         inp_username = self._driver.find_element("xpath", "//*[@id='username_req']")
-                        bt_start_observe = self._driver.find_element("xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
-                        
+                        bt_start_observe = self._driver.find_element(
+                            "xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
+
                         inp_username.send_keys("")
                         inp_username.clear()
                         inp_username.send_keys('civmonitor')
                         bt_start_observe.click()
                         self.state = "view_game"
                     except Exception as err:
-                        print("Username Element not found! %s" % err)
+                        logger.info("Username Element not found! %s" % err)
                     sleep(self._poll_interval)
-                
+
                 if self.state == "view_bot":
                     try:
                         players_tab = self._driver.find_element("xpath", "//*[@id='players_tab']")
                         players_tab.click()
-                        
-                        players_table = self._driver.find_element("xpath", "/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
-                        
+
+                        players_table = self._driver.find_element(
+                            "xpath", "/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
+
                         for row in players_table.find_elements("xpath", ".//tr"):
                             for td in row.find_elements("xpath", ".//td"):
                                 if td.text.lower() == user_name.lower():
@@ -119,22 +122,22 @@ class CivMonitor():
                             else:
                                 continue
                             break
-                        
+
                         bt_view_player = self._driver.find_element("xpath", "//*[@id='view_player_button']")
                         bt_view_player.click()
                         # state = "keep_silent"
                         self.state = "view_game"
                     except Exception as err:
-                        print(err)
+                        logger.info(err)
                     sleep(self._poll_interval)
-                
+
                 # if state == "keep_silent":
                 #     sleep(self._poll_interval)
                 if self.state == "view_game" and self.start_observe == False:
                     map_tab = self._driver.find_element("xpath", "//*[@id='map_tab']")
                     map_tab.click()
-                    self.start_observe = True             
-        
+                    self.start_observe = True
+
         if self._initiated:
             self._driver.close()
 
@@ -192,7 +195,7 @@ class CivClient(CivPropController):
         self.register_handler(128, "handle_begin_turn")
         self.register_handler(129, "handle_end_turn")
 
-        # print(pid, self.hdict[pid])
+        # logger.info(pid, self.hdict[pid])
         self.game_ctrl = GameCtrl(self.ws_client)
         self.opt_ctrl = OptionCtrl(self.ws_client)
         self.rule_ctrl = RulesetCtrl(self.ws_client)
@@ -236,7 +239,7 @@ class CivClient(CivPropController):
         self.init_controller()
         if self.visual_monitor:
             self.monitor.start_monitor()
-        
+
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
@@ -259,7 +262,7 @@ class CivClient(CivPropController):
         if p_list is None:
             return
         try:
-            print("Waiting for: ", self.ws_client.wait_for_packs) 
+            logger.info(("Waiting for: ", self.ws_client.wait_for_packs))
             for packet in p_list:
                 if packet is None:
                     continue
@@ -267,7 +270,7 @@ class CivClient(CivPropController):
                 self.handle_pack(packet['pid'], packet)
                 if 31 in self.ws_client.wait_for_packs:
                     pass
-                    # print(packet)
+                    # logger.info(packet)
 
             if not self.ws_client.is_waiting_for_responses():
                 self.bot.calculate_next_move()
@@ -363,15 +366,16 @@ class CivClient(CivPropController):
         if message is None:
             return
         if event is None or event < 0 or event >= E_UNDEFINED:
-            print('Undefined message event type')
-            print(packet)
-            print("\r\n")
+            logger.info('Undefined message event type')
+            logger.info(packet)
+            logger.info("\r\n")
             packet['event'] = event = E_UNDEFINED
 
         if event == E_BAD_COMMAND:
-            print("Bad command event!")
-            print(message)
-            assert(False)
+            logger.info("Bad command event!")
+            logger.info(message)
+            # TODO: handle bad command
+            # assert(False)
 
         if conn_id in self.clstate.connections:
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
@@ -382,15 +386,14 @@ class CivClient(CivPropController):
                 return  # //don't spam message dialog on game start.
 
         packet['message'] = message
-        print("chat_msg: ", packet)
-        print("\r\n")
+        logger.info("chat_msg: ", packet)
 
         if "You are logged in as" in message:
             self.prepare_game()
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""
-        print("Starting Phase")
+        logger.info("Starting Phase")
         self.clstate.update_client_state(C_S_RUNNING)
 
     def handle_end_phase(self, packet):
@@ -400,9 +403,9 @@ class CivClient(CivPropController):
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
         if self.monitor != None:
-            while True:            
+            while True:
                 if self.monitor.start_observe:
-                    break                
+                    break
         self.turn += 1
 
         if self.clstate.client_is_observer() or not self.clstate.is_playing():
@@ -410,7 +413,7 @@ class CivClient(CivPropController):
             return
 
         pplayer = self.clstate.cur_player()
-        # print("handle_begin_turn, pplayer,", pplayer)
+        # logger.info("handle_begin_turn, pplayer,", pplayer)
         self.bot.conduct_turn(pplayer, self.controller_list, self.send_end_turn)
 
     def handle_end_turn(self, packet):
@@ -432,7 +435,7 @@ class CivClient(CivPropController):
         if not packet['used']:
             # Forget the connection
             if pconn is None:
-                freelog("Server removed unknown connection " + str(packet['id']))
+                logger.warning("Server removed unknown connection " + str(packet['id']))
                 return
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
@@ -446,7 +449,7 @@ class CivClient(CivPropController):
                 self.clstate.init_state(packet)
 
             self.clstate.conn_list_append(packet)
-        
+
         if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
             self.clstate.set_client_state(C_S_PREPARING)
 
@@ -459,7 +462,7 @@ class CivClient(CivPropController):
         if self.rule_ctrl.game_info == {}:
             return
 
-        print('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
+        logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         # update_turn_change_timer()

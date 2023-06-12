@@ -26,6 +26,7 @@ from freecivbot.utils.utility import byte_to_bit_array
 from freecivbot.city.city_state import CityState
 from freecivbot.city.city_actions import CityActions
 
+from freecivbot.utils.freeciv_logging import logger
 
 # /* The city_options enum. */
 CITYO_DISBAND = 0
@@ -101,7 +102,7 @@ class CityCtrl(CivPropController):
 
         if pcity['traderoute_count'] != 0 and routes is None:
             # /* This city is supposed to have trade routes. It doesn't.  */
-            print("Can't find the trade routes " + pcity['name'] + " is said to have")
+            logger.info("Can't find the trade routes " + pcity['name'] + " is said to have")
             return
 
         for i in range(pcity['traderoute_count']):
@@ -114,7 +115,7 @@ class CityCtrl(CivPropController):
 
             good = self.rulectrl.goods[routes[i]['goods']]
             if good is None:
-                print("Missing good type " + routes[i]['goods'])
+                logger.info("Missing good type " + routes[i]['goods'])
                 good = {'name': "Unknown"}
 
             tcity = self.cities[tcity_id]
@@ -151,7 +152,7 @@ class CityCtrl(CivPropController):
         packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
         packet['city_options'] = BitVector(bitlist=byte_to_bit_array(packet['city_options']))
 
-        # print("handle_city_info packet: ", packet)
+        # logger.info("handle_city_info packet: ", packet)
 
         if packet['id'] not in self.cities:
             self.cities[packet['id']] = packet
@@ -164,7 +165,7 @@ class CityCtrl(CivPropController):
         else:
             self.cities[packet['id']].update(packet)
 
-        # print("handle_city_info self.cities: ", self.cities)
+        # logger.info("handle_city_info self.cities: ", self.cities)
         self.map_ctrl.set_tile_worked(packet)
         # /* manually update tile relation.*/
 
@@ -180,10 +181,10 @@ class CityCtrl(CivPropController):
           their own. It is used when the player has full information about a city,
           including it's internals.
         """
-        # print("handle_web_city_info_addition packet: ", packet)
+        # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:
             # /* The city should have been sent before the additional info. */
-            print("packet_web_city_info_addition for unknown city ", packet['id'])
+            logger.info("packet_web_city_info_addition for unknown city ", packet['id'])
             return
         else:
             # Merge the information from web_city_info_addition into the recently

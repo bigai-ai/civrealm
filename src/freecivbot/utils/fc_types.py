@@ -56,7 +56,7 @@ ATK_TILE = 3
 ATK_SELF = 4
 ATK_COUNT = 5
 
-#/* Actions */
+# /* Actions */
 # ACTION_ESTABLISH_EMBASSY = 0
 # ACTION_ESTABLISH_EMBASSY_STAY = 1
 # ACTION_SPY_INVESTIGATE_CITY = 2
@@ -219,7 +219,7 @@ ACTION_USER_ACTION1 = 114
 ACTION_USER_ACTION2 = 115
 ACTION_USER_ACTION3 = 116
 ACTION_USER_ACTION4 = 117
-ACTION_COUNT = 118 # The index needs to be updated if new actions are added in the future
+ACTION_COUNT = 118  # The index needs to be updated if new actions are added in the future
 
 # /* The action_decision enum */
 # /* Doesn't need the player to decide what action to take. */
@@ -286,7 +286,7 @@ VUT_COUNTER = 51
 VUT_ORIGINAL_OWNER = 52
 VUT_IMPR_FLAG = 53
 VUT_WRAP = 54
-VUT_COUNT = 55             #/* Keep this last. */
+VUT_COUNT = 55  # /* Keep this last. */
 
 # /* Freeciv's gui_type enum */
 # /* Used for options which do not belong to any gui. */

@@ -32,6 +32,8 @@ from freecivbot.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from freecivbot.units.unit_state import UnitState
 import urllib
 
+from freecivbot.utils.freeciv_logging import logger
+
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
@@ -370,14 +372,14 @@ class UnitCtrl(CivPropController):
         actor_unit = self.find_unit_by_number(diplomat_id)
 
         if actor_unit is None:
-            print("Bad actor unit (" + diplomat_id
-                  + ") in unit action answer.")
+            logger.info("Bad actor unit (" + diplomat_id
+                        + ") in unit action answer.")
             return
 
         if action_type == ACTION_SPY_BRIBE_UNIT:
             target_unit = self.find_unit_by_number(target_id)
             if target_unit is None:
-                print("Bad target unit (" + target_id + ") in unit action answer.")
+                logger.info("Bad target unit (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_bribe_dialog(actor_unit, target_unit, cost, action_type)
@@ -385,23 +387,23 @@ class UnitCtrl(CivPropController):
         elif (action_type == ACTION_SPY_INCITE_CITY
               or action_type == ACTION_SPY_INCITE_CITY_ESC):
             if target_city is None:
-                print("Bad target city (" + target_id + ") in unit action answer.")
+                logger.info("Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_incite_dialog(actor_unit, target_city, cost, action_type)
                 return
         elif action_type == ACTION_UPGRADE_UNIT:
             if target_city is None:
-                print("Bad target city (" + target_id + ") in unit action answer.")
+                logger.info("Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_unit_upgrade_dlg(actor_unit, target_city, cost, action_type)
                 return
 
         elif action_type == ACTION_COUNT:
-            print("unit_action_answer: Server refused to respond.")
+            logger.info("unit_action_answer: Server refused to respond.")
         else:
-            print("unit_action_answer: Invalid answer.")
+            logger.info("unit_action_answer: Invalid answer.")
 
     def handle_unit_actions(self, packet):
         """Handle server reply about what actions an unit can do."""
@@ -450,7 +452,7 @@ class UnitCtrl(CivPropController):
         elif hasActions:
             # /* This was a background request. */
             # /* No background requests are currently made. */
-            print("Received the reply to a background request I didn't do.")
+            logger.info("Received the reply to a background request I didn't do.")
 
     def handle_worker_task(self, packet):
         # TODO: Implement */
@@ -529,28 +531,25 @@ class UnitCtrl(CivPropController):
        * interpreted as HTML. Avoid the situation by directly using JavaScript
        * like below or by escaping the string. */
        """
-        #/* Decode the city name. */
-        #suggested_name = urllib.parse.unquote(packet['name'])
+        # /* Decode the city name. */
+        # suggested_name = urllib.parse.unquote(packet['name'])
         unit_id = packet['unit_id']
-        # print("city_name_suggestion_info: ", packet)
+        # logger.info("city_name_suggestion_info: ", packet)
         actor_unit = self.find_unit_by_number(unit_id)
         # TODO: make sure city_name is ASCII
-        city_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%","")
+        city_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
         if city_name not in self.city_name_list:
             self.city_name_list.append(city_name)
-        else:            
+        else:
             new_name = city_name
-            while True:                
+            while True:
                 new_name = new_name+str(len(self.city_name_list))
                 if new_name not in self.city_name_list:
                     city_name = new_name
                     self.city_name_list.append(city_name)
-                    break                              
+                    break
 
-        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, 
-                                                 name = city_name)
-        # print("handle_city_name_suggestion_info. ", packet)
+        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
+                                                 name=city_name)
+        # logger.info("handle_city_name_suggestion_info. ", packet)
         self.ws_client.send_request(packet, wait_for_pid=31)
-        
-        
-        

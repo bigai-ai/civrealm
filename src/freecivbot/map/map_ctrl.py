@@ -27,6 +27,8 @@ from freecivbot.map.tile import TileState, TILE_UNKNOWN
 from freecivbot.map.map_state import MapState
 import json
 
+from freecivbot.utils.freeciv_logging import logger
+
 
 DIR8_STAY = -1
 DIR8_NORTHWEST = 0
@@ -429,14 +431,14 @@ class CityTileMap():
 
                     if d_sq <= new_radius:
                         vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)])
-            
-            vectors = sorted(vectors, key=functools.cmp_to_key(get_dist))            
+
+            vectors = sorted(vectors, key=functools.cmp_to_key(get_dist))
             base_map = [None for _ in range((2*r+1)*(2*r+1))]
 
             for vnum, vec in enumerate(vectors):
                 base_map[vec[3]] = vnum
-            
-            # print(base_map)            
+
+            # logger.info(base_map)
             self.radius_sq = new_radius
             self.radius = r
             self.base_sorted = vectors
@@ -444,7 +446,7 @@ class CityTileMap():
             # self.maps = [base_map]
             self.maps = {}
             self.maps[0] = base_map
-    
+
     @staticmethod
     def delta_tile_helper(pos, r, size):
         """ Helper for get_city_tile_map_for_pos.
@@ -502,15 +504,15 @@ class CityTileMap():
             # else:
             target_map = dx[2]
 
-        if target_map == None: # Flat
+        if target_map == None:  # Flat
             dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
             dy = self.delta_tile_helper(y, r, self.map_ctrl.map["xsize"])
             map_i = (2*r + 1) * dx[2] + dy[2]
-            if map_i not in self.maps: 
+            if map_i not in self.maps:
                 m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
-                self.maps[map_i] = m            
+                self.maps[map_i] = m
             return self.maps[map_i]
-        
+
         if target_map not in self.maps:
             self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
         return self.maps[target_map]
@@ -522,18 +524,19 @@ class CityTileMap():
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
         a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
-        # print("get_city_dxy_to_index")
-        # print(len(a_map))
-        # print(a_map)
-        # print(city_tile_map_index)
-        # print("*"*10)
+        # logger.info("get_city_dxy_to_index")
+        # logger.info(len(a_map))
+        # logger.info(a_map)
+        # logger.info(city_tile_map_index)
+        # logger.info("*"*10)
         if city_tile_map_index >= len(a_map):
-            print("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(dx, dy, self.radius, city_tile["x"], city_tile["y"]))
-            print("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
+            logger.info("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(
+                dx, dy, self.radius, city_tile["x"], city_tile["y"]))
+            logger.info("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
         return a_map[city_tile_map_index]
 
 
 if __name__ == "__main__":
-    print(MapCtrl.dir_get_name(7))
-    print(MapCtrl.dir_get_name(MapCtrl.dir_ccw(7)))
-    print(MapCtrl.dir_get_name(MapCtrl.dir_cw(7)))
+    logger.info(MapCtrl.dir_get_name(7))
+    logger.info(MapCtrl.dir_get_name(MapCtrl.dir_ccw(7)))
+    logger.info(MapCtrl.dir_get_name(MapCtrl.dir_cw(7)))

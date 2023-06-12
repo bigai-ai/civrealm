@@ -20,9 +20,10 @@
 '''
 
 from freecivbot.connectivity.Basehandler import CivPropController
-from freecivbot.utils.freecivlog import freelog
 from freecivbot.game.info_states import GameState
 from freecivbot.utils.base_action import NoActions
+
+from freecivbot.utils.freeciv_logging import logger
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -114,7 +115,7 @@ class GameCtrl(CivPropController):
             regxp = "/\n/gi"
 
             self.page_msg['message'] = self.page_msg['message'].replace(regxp, "<br>\n")
-            freelog(self.page_msg['headline'] + self.page_msg['message'])
+            logger.info(self.page_msg['headline'] + self.page_msg['message'])
 
             # /* Clear the message. */
             self.page_msg = {}
@@ -148,5 +149,5 @@ class GameCtrl(CivPropController):
         pass
 
     def handle_info_text_message(self, packet):
-        #/* TODO: implement */
+        # /* TODO: implement */
         pass

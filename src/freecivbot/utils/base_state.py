@@ -7,6 +7,8 @@ Created on 07.03.2018
 import numpy as np
 import json
 
+from freecivbot.utils.freeciv_logging import logger
+
 
 def sets_equal(set_a, set_b):
     """Returns true if sets are equal and raises Exception showing keys added/removed in case they
@@ -66,7 +68,7 @@ class PlainState(PropState):
         self._locked_props = self._state.keys()
         for key in self._locked_props:
             if type(self._state[key]) is dict or type(self._state[key]) is list:
-                print(self._locked_props)
+                logger.info(self._locked_props)
                 raise Exception("Lists/Dicts should not be values in a PlainState %s \n \
                                  key: %s val: %s " % (self, key, self._state[key]))
 
@@ -118,7 +120,7 @@ class ListState(PlainState):
                 if np.isnan(vec[0, knum]):
                     raise Exception("No nan allowed for key: %s" % key)
             except:
-                print("Incompatible string/int %s %s" % (key, self._state[item][key]))
+                logger.info("Incompatible string/int %s %s" % (key, self._state[item][key]))
                 err = True
 
         if err:
@@ -129,7 +131,7 @@ class ListState(PlainState):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:
-            print("Strange - Trying to delete unit that is not there: %s" % item_id)
+            logger.info("Strange - Trying to delete unit that is not there: %s" % item_id)
 
 
 class EmptyState(PlainState):

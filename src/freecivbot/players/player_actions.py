@@ -17,6 +17,7 @@ from freecivbot.players.government import GovernmentCtrl
 from freecivbot.research.tech_helpers import is_tech_known, player_invention_state,\
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
 
+from freecivbot.utils.freeciv_logging import logger
 
 class PlayerOptions(ActionList):
     def __init__(self, ws_client, rule_ctrl, players, clstate):
@@ -46,7 +47,7 @@ class PlayerOptions(ActionList):
         cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"],
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 
-        print(cur_state)
+        logger.info(cur_state)
         self.add_action(counter_id, IncreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseSci(**cur_state))

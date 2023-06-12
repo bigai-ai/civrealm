@@ -13,6 +13,8 @@ from freecivbot.utils.fc_types import packet_city_make_specialist,\
     VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
 from freecivbot.map.map_ctrl import CityTileMap
 
+from freecivbot.utils.freeciv_logging import logger
+
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20
 
@@ -46,20 +48,20 @@ class CityActions(ActionList):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
             self.add_action(city_id, CityBuyProduction(pcity, pplayer))
-                        
+
             # for unit_type_id in self.rulectrl.unit_types:
             #     punit_type = self.rulectrl.unit_types[unit_type_id]
-            #     print("ID: {}, name: {}.".format(unit_type_id, punit_type['name']))
+            #     logger.info("ID: {}, name: {}.".format(unit_type_id, punit_type['name']))
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
                 self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
-            
-            # print("self.rulectrl.improvements:")
+
+            # logger.info("self.rulectrl.improvements:")
             # for improvement_id in self.rulectrl.improvements:
-            #     print("ID: {}, name: {}.".format(improvement_id, self.rulectrl.improvements[improvement_id]["name"]))
-            # print("pcity['can_build_improvement']: ", pcity['can_build_improvement'])
-            # print("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
+            #     logger.info("ID: {}, name: {}.".format(improvement_id, self.rulectrl.improvements[improvement_id]["name"]))
+            # logger.info("pcity['can_build_improvement']: ", pcity['can_build_improvement'])
+            # logger.info("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
                 pimprovement = self.rulectrl.improvements[improvement_id]
@@ -87,8 +89,8 @@ class CityWorkTile(Action):
 
     def is_action_valid(self):
         return "worked" in self.ptile and "output_food" in self.pcity and \
-            self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != None 
-    
+            self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != None
+
     def get_output_at_tile(self):
         if "output_food" in self.pcity:
             idx = self.output_idx
@@ -96,7 +98,7 @@ class CityWorkTile(Action):
             output_shield = self.pcity['output_shield'][idx]
             output_trade = self.pcity['output_trade'][idx]
             return output_food, output_shield, output_trade
-    
+
     def _action_packet(self):
         packet = {"pid": packet_city_make_worker,
                   "city_id": self.pcity['id'],
@@ -241,13 +243,9 @@ class CityChangeUnitProduction(CityChangeProduction):
           Return whether given city can build given building returns FALSE if
           the building is obsolete.
         """
-        # print(pcity)
-        # print(pcity['can_build_unit'])
-        # print(punittype_id)
-        # print(type(pcity['can_build_unit'][0]))
-        return (pcity != None and pcity['can_build_unit'] != None and
-                (pcity['can_build_unit'][punittype_id] > 0 if punittype_id<len(pcity['can_build_unit']) else False))
-    
+        return (pcity != None and pcity['can_build_unit'] != None and punittype_id < len(pcity['can_build_unit'])
+                and pcity['can_build_unit'][punittype_id] > 0)
+
     def get_impact_of_action(self):
         return dict([(key, self.punit_type[key]) for key in ["name", "helptext", "rule_name",
                                                              "build_cost", "attack_strength",
@@ -279,8 +277,10 @@ class CityChangeImprovementProduction(CityChangeProduction):
         Return whether given city can build given building; returns FALSE if
         the building is obsolete.
         """
-        return  pcity != None and pcity['can_build_improvement'] != None and \
-              (pcity['can_build_improvement'][pimprove_id] > 0 if pimprove_id < len(pcity['can_build_improvement']) else False)
+        return pcity != None and pcity['can_build_improvement'] != None and (
+            pcity['can_build_improvement'][pimprove_id] > 0
+            if pimprove_id < len(pcity['can_build_improvement']) else False)
+
 
 class CityRename(Action):
     """Rename a city - ignored for bot"""
@@ -294,9 +294,9 @@ class CityRename(Action):
         return True
 
     def _action_packet(self):
-        packet = {"pid" : packet_city_rename,
-                  "name" : urllib.parse.quote(unicode(self.suggested_name).encode('utf-8')),
-                  "city_id" : self.pcity['id'] }
+        packet = {"pid": packet_city_rename,
+                  "name": urllib.parse.quote(unicode(self.suggested_name).encode('utf-8')),
+                  "city_id": self.pcity['id']}
         return packet
 
 

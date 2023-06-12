@@ -51,8 +51,6 @@ Using a different freeciv version
 
 As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py
 
-
-
 Example Gym
 ------------
 
@@ -95,7 +93,7 @@ The main routine for applying a model will require iterating over all actors and
 
 ```python
      for actor_id in action_opts["unit"].get_actors():
-         print("Trying Moving units or build city: %s" % actor_id)
+         logger.info("Trying Moving units or build city: %s" % actor_id)
 ```
 
 Then one needs to check if the unit/city etc. can actually perform an action anymore and check which actions are actually possible.
@@ -111,7 +109,7 @@ Then, one can apply the model, i.e., there is a 50% chance for a settler to buil
              if "build" in pos_acts.keys() and random.random() > 0.5:
                  return action_opts["unit"], pos_acts["build"]
              move_action = random.choice([key for key in pos_acts.keys() if "goto" in key])
-             print("in direction %s" % move_action)
+             logger.info("in direction %s" % move_action)
              return action_opts["unit"], pos_acts[move_action]
 ```
 

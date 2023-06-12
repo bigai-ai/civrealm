@@ -6,6 +6,8 @@ Created on 06.02.2018
 
 from time import sleep
 
+from freecivbot.utils.freeciv_logging import logger
+
 ACTION_UNWANTED = 0
 ACTION_WANTED = 1
 
@@ -40,13 +42,13 @@ class BaseBot:
         self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
 
     def _acquire_state(self):
-        print("Acquiring state and action options for: ")
+        logger.info("Acquiring state and action options for: ")
         for ctrl_type in self._turn_ctrls:
-            print("....: " + ctrl_type)
+            logger.info("....: " + ctrl_type)
             self._acquire_ctrl_state(ctrl_type)
 
     def _conduct_moves(self, turn_wants):
-        print("Carry out controller moves")
+        logger.info("Carry out controller moves")
         for ctrl_type in self._turn_ctrls:
             self._turn_opts[ctrl_type].trigger_wanted_actions(turn_wants[ctrl_type])
 
@@ -67,7 +69,7 @@ class BaseBot:
                                                         self._turn_opts[key], turn_wants[key])
 
     def calculate_next_move(self):
-        print('Bot calculates next move, turn_active: ', self._turn_active)
+        logger.info('Bot calculates next move, turn_active: ', self._turn_active)
         if self._turn_active:
             self._acquire_state()
             turn_wants = self._calculate_want_of_move(self.turn)
@@ -79,7 +81,7 @@ class BaseBot:
         '''
         Main starting point for Freeciv-web Bot - to be called when game is ready
         '''
-        print("Starting Turn")
+        logger.info("Starting Turn")
         self.turn += 1
         self._turn_active = True
         self._turn_ctrls = info_controls
@@ -89,7 +91,7 @@ class BaseBot:
         self._end_turn_hook = end_turn_hook
 
     def end_turn(self):
-        print("Finish turn - sleep for 4 seconds")
+        logger.info("Finish turn - sleep for 4 seconds")
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None
@@ -116,7 +118,7 @@ class BaseBot:
             return self.calculate_non_supported_actions(self._turn_opts[ctrl_type])
 
     def _calculate_want_of_move(self, turn_no):
-        print("Bot calculates want for controller moves")
+        logger.info("Bot calculates want for controller moves")
         self.action_wants = {}
 
         for key in self._turn_ctrls.keys():
@@ -165,9 +167,9 @@ class StateBot(BaseBot):
         self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
 
     def _acquire_state(self):
-        print("Acquiring state and action options for: ")
+        logger.info("Acquiring state and action options for: ")
         for ctrl_type in self._turn_ctrls:
-            print("....: " + ctrl_type)
+            logger.info("....: " + ctrl_type)
             self._acquire_ctrl_state(ctrl_type)
 
     def calculate_next_move(self):
@@ -177,7 +179,7 @@ class StateBot(BaseBot):
             if self.change_state(new_state):
                 self.end_turn()
             else:
-                print(len(self._turn_ctrls["game"].ws_client.send_queue))
+                logger.info(len(self._turn_ctrls["game"].ws_client.send_queue))
 
                 if len(self._turn_ctrls["game"].ws_client.send_queue) == 0:
                     self.calculate_next_move()
@@ -188,7 +190,7 @@ class StateBot(BaseBot):
         self.change_state({"ctrl": 0, "actor": None})
 
     def change_state(self, new_state):
-        print(new_state, self.cur_state)
+        logger.info(new_state, self.cur_state)
         end_turn = False
         if new_state["ctrl"] != self.cur_state["ctrl"]:
             if new_state["ctrl"] >= len(self.ctrl_types):
@@ -207,7 +209,7 @@ class StateBot(BaseBot):
         return {"ctrl": self.cur_state["ctrl"] + 1, "actor": None}
 
     def _calculate_want_of_move_of_ctrl(self, ctrl_type):
-        print(ctrl_type)
+        logger.info(ctrl_type)
         if ctrl_type in ["turn", "map", "rules", "options", "game", "client"]:
             return self._go_to_next_ctrl()
         else:

@@ -21,9 +21,10 @@ from math import ceil, floor
 from freecivbot.connectivity.Basehandler import CivPropController
 from freecivbot.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
     packet_conn_pong
-from freecivbot.utils.freecivlog import freelog
 from freecivbot.utils.base_action import NoActions
 from freecivbot.utils.base_state import EmptyState
+
+from freecivbot.utils.freeciv_logging import logger
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
 C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */
@@ -103,8 +104,8 @@ class ClientState(CivPropController):
         self.seconds_to_phasedone_sync = time.time()
 
     def handle_connect_msg(self, packet):
-        freelog(packet)
-        freelog("\r\n")
+        logger.info(packet)
+        logger.info("\r\n")
 
     def handle_authentication_req(self, packet):
         raise Exception("Not implemented yet")
@@ -133,11 +134,11 @@ class ClientState(CivPropController):
 
     def send_client_info(self):
         client_info = {
-              "pid"          : packet_client_info,
-              "gui"          : GUI_WEB,
-              "emerg_version": 0,
-              "distribution" : ""
-            }
+            "pid": packet_client_info,
+            "gui": GUI_WEB,
+            "emerg_version": 0,
+            "distribution": ""
+        }
 
         self.ws_client.send_request(client_info)
 
@@ -225,7 +226,7 @@ class ClientState(CivPropController):
             player_nation_text = "Welcome, " + self.client["conn"]["username"] + " ruler of the "
             player_nation_text += self.rule_ctrl.nations[pplayer['nation']]['adjective']
             player_nation_text += " empire."
-            freelog(player_nation_text)
+            logger.info(player_nation_text)
             # message = player_nation_text
             # message_log.update({ "event": E_CONNECTION, "message": message })
 

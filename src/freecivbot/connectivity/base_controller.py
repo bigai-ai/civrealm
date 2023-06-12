@@ -8,6 +8,7 @@ from freecivbot.utils.base_state import PropState
 
 from freecivbot.utils.freeciv_logging import logger
 
+
 class CivPropController():
     """ Controller for certain properties of the Civilization "Board
         The controller processes messages from the freeciv server (e.g., stores data)
@@ -35,8 +36,7 @@ class CivPropController():
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:
-            pass
-            # logger.info("Handler function for pid %i not yet implemented" % pid)
+            logger.warning("Handler function for pid %i not yet implemented" % pid)
 
     def get_current_state(self, pplayer):
         self.prop_state.update(pplayer)

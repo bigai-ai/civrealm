@@ -20,7 +20,7 @@ import functools
 import numpy as np
 from BitVector import BitVector
 
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.utils.utility import FC_WRAP, byte_to_bit_array, sign
 from freecivbot.utils.base_action import NoActions
 from freecivbot.map.tile import TileState, TILE_UNKNOWN

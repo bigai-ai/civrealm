@@ -19,7 +19,7 @@ from _collections import defaultdict
 import urllib
 from BitVector import BitVector
 
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.utils.fc_types import MAX_NUM_ITEMS
 from freecivbot.utils.utility import byte_to_bit_array
 

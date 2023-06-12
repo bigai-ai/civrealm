@@ -136,16 +136,16 @@ Create the SimpleBot instance - which is a simple bot that randomly moves units 
 my_bot = SimpleBot()
 ```
 
-Create the CivClient instance - which handles all controllers (i.e., state, potential actions and processing server messages)
+Create the CivController instance - which handles all controllers (i.e., state, potential actions and processing server messages)
 
 ```python
-my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
+my_civ_controller = CivController(my_bot, "chrisrocks", client_port=6000)
 ```
 
-Create the CivConnection - which establishes a handshake to the freeciv server on <http://localhost> and hands over control to CivClient my_civ_client and its controllers once handshake is complete
+Create the CivConnection - which establishes a handshake to the freeciv server on <http://localhost> and hands over control to CivController my_civ_controller and its controllers once handshake is complete
 
 ```python
-CivConnection(my_civ_client, 'http://localhost')
+CivConnection(my_civ_controller, 'http://localhost')
 ```
 
 Prerequisites

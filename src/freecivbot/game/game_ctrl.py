@@ -19,7 +19,7 @@
 ***********************************************************************/
 '''
 
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.game.info_states import GameState
 from freecivbot.utils.base_action import NoActions
 

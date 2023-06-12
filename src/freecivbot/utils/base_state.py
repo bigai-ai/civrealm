@@ -68,7 +68,7 @@ class PlainState(PropState):
         self._locked_props = self._state.keys()
         for key in self._locked_props:
             if type(self._state[key]) is dict or type(self._state[key]) is list:
-                logger.info(self._locked_props)
+                logger.debug(self._locked_props)
                 raise Exception("Lists/Dicts should not be values in a PlainState %s \n \
                                  key: %s val: %s " % (self, key, self._state[key]))
 

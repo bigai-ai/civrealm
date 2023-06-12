@@ -13,7 +13,7 @@ from keras.layers import Dense
 from keras.optimizers import Adam
 from keras import backend as K
 
-from civclient import CivClient
+from civclient import CivController
 from connectivity.clinet import CivConnection
 
 
@@ -91,5 +91,5 @@ class DQNAgent:
 
 
 my_bot = Agent_Bot(DQNAgent)
-my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
-CivConnection(my_civ_client, 'http://localhost')
+my_civ_controller = CivController(my_bot, "chrisrocks", client_port=6000)
+CivConnection(my_civ_controller, 'http://localhost')

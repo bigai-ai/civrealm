@@ -19,7 +19,7 @@ from BitVector import BitVector
 from freecivbot.utils.utility import byte_to_bit_array
 
 from freecivbot.connectivity.client_state import C_S_PREPARING
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 
 from freecivbot.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
 from freecivbot.players.player_state import PlayerState, PLRF_AI

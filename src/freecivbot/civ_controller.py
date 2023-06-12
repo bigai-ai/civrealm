@@ -24,7 +24,7 @@ import threading
 from selenium import webdriver
 from time import sleep
 
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
 from freecivbot.players.player_ctrl import PlayerCtrl, PLRF_AI
@@ -150,7 +150,7 @@ class CivMonitor():
         self.monitor_thread.join()
 
 
-class CivClient(CivPropController):
+class CivController(CivPropController):
     def __init__(self, a_bot, user_name, client_port=6000, visual_monitor=True):
         self.ai_skill_level = 3
         self.nation_select_id = -1

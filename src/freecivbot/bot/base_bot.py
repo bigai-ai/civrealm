@@ -42,9 +42,9 @@ class BaseBot:
         self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
 
     def _acquire_state(self):
-        logger.info("Acquiring state and action options for: ")
+        logger.debug("Acquiring state and action options for: ")
         for ctrl_type in self._turn_ctrls:
-            logger.info("....: " + ctrl_type)
+            logger.debug("....: " + ctrl_type)
             self._acquire_ctrl_state(ctrl_type)
 
     def _conduct_moves(self, turn_wants):
@@ -69,7 +69,7 @@ class BaseBot:
                                                         self._turn_opts[key], turn_wants[key])
 
     def calculate_next_move(self):
-        logger.info('Bot calculates next move, turn_active: ', self._turn_active)
+        logger.info(('Bot calculates next move, turn_active: ', self._turn_active))
         if self._turn_active:
             self._acquire_state()
             turn_wants = self._calculate_want_of_move(self.turn)

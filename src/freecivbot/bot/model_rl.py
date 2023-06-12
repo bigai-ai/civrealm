@@ -5,7 +5,7 @@ Created on 23.03.2018
 '''
 
 from bot.dqn_bot import Agent_Bot, REWARD_INVALID_ACTION
-from civclient import CivClient
+from civclient import CivController
 from connectivity.clinet import CivConnection
 
 import numpy as np
@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 import math
 
 from freecivbot.utils.freeciv_logging import logger
+
 
 class ModelAgent:
     def __init__(self, state_size, action_size, action_ids, numH):
@@ -285,5 +286,5 @@ class ModelAgent:
 
 
 my_bot = Agent_Bot(ModelAgent)
-my_civ_client = CivClient(my_bot, "chrisrocks", client_port=6000)
-CivConnection(my_civ_client, 'http://localhost')
+my_civ_controller = CivController(my_bot, "chrisrocks", client_port=6000)
+CivConnection(my_civ_controller, 'http://localhost')

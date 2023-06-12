@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from freecivbot.utils.base_state import PlainState
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.utils.base_action import NoActions
 
 CLAUSE_ADVANCE = 0

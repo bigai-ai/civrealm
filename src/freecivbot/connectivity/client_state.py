@@ -18,7 +18,7 @@
 
 import time
 from math import ceil, floor
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
     packet_conn_pong
 from freecivbot.utils.base_action import NoActions

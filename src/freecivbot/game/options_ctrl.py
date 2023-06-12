@@ -17,7 +17,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 from freecivbot.utils.fc_types import TRUE, FALSE
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.game.info_states import ServerState
 from freecivbot.utils.base_action import NoActions
 

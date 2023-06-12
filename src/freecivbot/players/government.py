@@ -16,7 +16,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from freecivbot.connectivity.Basehandler import CivPropController
+from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.utils.fc_types import packet_player_change_government, packet_report_req,\
     RPT_CERTAIN
 from freecivbot.utils import base_action

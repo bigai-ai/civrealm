@@ -35,9 +35,9 @@ from freecivbot.utils.freeciv_logging import logger
 
 
 class CivWSClient(WebSocketClient):
-    def __init__(self, civ_client, **kwargs):
+    def __init__(self, civ_controller, **kwargs):
         WebSocketClient.__init__(self, **kwargs)
-        self.civ_client = civ_client
+        self.civ_controller = civ_controller
         self.read_packs = []
         self.wait_for_packs = []
         self.send_queue = []
@@ -51,14 +51,14 @@ class CivWSClient(WebSocketClient):
                 continue
             packet_id_list.append(p['pid'])
         logger.info(('Received packets id: ', packet_id_list))
-        self.civ_client.assign_packets(self.read_packs)
+        self.civ_controller.assign_packets(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
         logger.info(('Wait_for_packs: ', self.wait_for_packs))
 
     def _on_connection_success(self):
         logger.info('Connected!')
-        self.civ_client.init_control(self)
+        self.civ_controller.init_control(self)
 
     def _on_connection_close(self):
         logger.info('Connection to server is closed. Please reload the page to restart. Sorry!')
@@ -108,21 +108,22 @@ class CivWSClient(WebSocketClient):
         return len(self.wait_for_packs) > 0
 
     def stop_waiting(self, pid):
-        if pid in self.wait_for_packs:
-            del self.wait_for_packs[self.wait_for_packs.index(pid)]
-
+        try:
+            self.wait_for_packs.remove(pid)
+        except ValueError:
+            pass
 
 class CivConnection():
     def __init__(
-            self, civclient, base_url='http://localhost', restart_server_if_down=True, wait_for_server=120,
+            self, civ_controller, base_url='http://localhost', restart_server_if_down=True, wait_for_server=120,
             retry_interval=5):
         '''
             restart_server_if_down - True if server should be restarted if down
             wait_for_server - Overall time waiting for server being up
             retry_interval - Wait for X seconds until retrying
         '''
-        self.civserverport = civclient.client_port
-        self.client = civclient
+        self.civserverport = civ_controller.client_port
+        self.civ_controller = civ_controller
         self.proxyport = 1000 + self.civserverport
         self.base_url = base_url
         self._restart_server_if_down = restart_server_if_down
@@ -169,7 +170,7 @@ class CivConnection():
         '''
           Initialized the WebSocket connection.
         '''
-        client = CivWSClient(self.client)
+        client = CivWSClient(self.civ_controller)
         client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
 
         try:

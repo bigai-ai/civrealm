@@ -5,7 +5,7 @@ Created on 05.03.2018
 '''
 from freecivbot.bot.base_bot import ACTION_WANTED, ACTION_UNWANTED, BaseBot
 from random import random
-from freecivbot.civclient import CivClient
+from freecivbot.civ_controller import CivController
 from freecivbot.connectivity.clinet import CivConnection
 
 
@@ -48,5 +48,5 @@ class SimpleBot(BaseBot):
 
 
 my_bot = SimpleBot()
-my_civ_client = CivClient(my_bot, "chrisrocks", visual_monitor=False)
-CivConnection(my_civ_client, 'http://localhost')
+my_civ_controller = CivController(my_bot, "chrisrocks", visual_monitor=False)
+CivConnection(my_civ_controller, 'http://localhost')

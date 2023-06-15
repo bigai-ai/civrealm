@@ -532,24 +532,15 @@ class UnitCtrl(CivPropController):
        * like below or by escaping the string. */
        """
         # /* Decode the city name. */
-        # suggested_name = urllib.parse.unquote(packet['name'])
+        # TODO: make sure suggested_name is ASCII
         unit_id = packet['unit_id']
-        # logger.info("city_name_suggestion_info: ", packet)
         actor_unit = self.find_unit_by_number(unit_id)
-        # TODO: make sure city_name is ASCII
-        city_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
-        if city_name not in self.city_name_list:
-            self.city_name_list.append(city_name)
-        else:
-            new_name = city_name
-            while True:
-                new_name = new_name+str(len(self.city_name_list))
-                if new_name not in self.city_name_list:
-                    city_name = new_name
-                    self.city_name_list.append(city_name)
-                    break
+        suggested_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
+        if suggested_name in self.city_name_list:
+            duplicate_name_num = sum(city_name.startswith(suggested_name) for city_name in self.city_name_list)
+            suggested_name = '{}_{}'.format(suggested_name, duplicate_name_num)
+        self.city_name_list.append(suggested_name)
 
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
-                                                 name=city_name)
-        # logger.info("handle_city_name_suggestion_info. ", packet)
+                                                 name=suggested_name)
         self.ws_client.send_request(packet, wait_for_pid=31)

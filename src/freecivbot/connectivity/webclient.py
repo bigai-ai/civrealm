@@ -73,7 +73,7 @@ class WebSocketClient(object):
         while True:
             msg = yield self._ws_connection.read_message()
             if msg is None:
-                logger.info("_read_messages. msg: ", msg)
+                logger.info("Empty message from server. Closing connection.")
                 self._on_connection_close()
                 break
 

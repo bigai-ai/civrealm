@@ -269,8 +269,8 @@ class CivController(CivPropController):
                 self.ws_client.stop_waiting(packet['pid'])
                 self.handle_pack(packet['pid'], packet)
                 if 31 in self.ws_client.wait_for_packs:
+                    # TODO: handle wait_for_packs
                     pass
-                    # logger.info(packet)
 
             if not self.ws_client.is_waiting_for_responses():
                 self.bot.calculate_next_move()
@@ -372,8 +372,8 @@ class CivController(CivPropController):
             packet['event'] = event = E_UNDEFINED
 
         if event == E_BAD_COMMAND:
-            logger.info("Bad command event!")
-            logger.info(message)
+            logger.warning("Bad command event!")
+            logger.warning(message)
             # TODO: handle bad command
             # assert(False)
 
@@ -407,6 +407,9 @@ class CivController(CivPropController):
                 if self.monitor.start_observe:
                     break
         self.turn += 1
+        logger.info('==============================================')
+        logger.info('============== Begin turn: {0:04d} =============='.format(self.turn))
+        logger.info('==============================================')
 
         if self.clstate.client_is_observer() or not self.clstate.is_playing():
             self.send_end_turn()

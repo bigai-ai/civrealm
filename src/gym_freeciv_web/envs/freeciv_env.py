@@ -81,7 +81,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
 
-    def _reset_client(self, username="civbot", max_turns=10, visualize=False):
+    def _reset_client(self, username="civbot", max_turns=500, visualize=False):
         """
         Provides a chance for subclasses to override this method and supply
         a different server configuration. By default, we initialize one
@@ -105,8 +105,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         pass
 
     def is_episode_over(self):
-        # return False or self.my_bot.turn > self.max_turns
-        return False
+        return False or self.my_bot.turn > self.max_turns
 
     def _take_snapshot(self, ob, base_dir):
         f = open(base_dir + "example_observation_turn15_state.json", "w")

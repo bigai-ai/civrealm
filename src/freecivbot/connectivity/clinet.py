@@ -170,13 +170,13 @@ class CivConnection():
         '''
           Initialized the WebSocket connection.
         '''
-        client = CivWSClient(self.civ_controller)
-        client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
+        civ_ws_client = CivWSClient(self.civ_controller)
+        civ_ws_client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
 
         try:
             ioloop.IOLoop.instance().start()
         except KeyboardInterrupt:
-            client.close()
+            civ_ws_client.close()
 
     def _restart_server(self):
         try:

@@ -181,6 +181,10 @@ class CivController(CivPropController):
             self.monitor = CivMonitor(user_name)
         else:
             self.monitor = None
+        
+        self.hotseat_game = False
+        self.multiplayer_game = True
+        self.multiplayer_follower = False
 
     def init_controller(self):
         CivPropController.__init__(self, self.ws_client)
@@ -194,6 +198,14 @@ class CivController(CivPropController):
 
         self.register_handler(128, "handle_begin_turn")
         self.register_handler(129, "handle_end_turn")
+
+        self.register_handler(29, "handle_version_info")
+        # new handler for hotseat mode (or more generally due to game setting change)
+        # the received messages may need to be handled for different modes
+        self.register_handler(512, "handle_ruleset_clause_msg")
+        self.register_handler(20, "handle_ruleset_impr_flag_msg") 
+        self.register_handler(259, "handle_web_player_addition_info")
+        self.register_handler(66, "handle_unknown_research_msg")
 
         # logger.info(pid, self.hdict[pid])
         self.game_ctrl = GameCtrl(self.ws_client)
@@ -242,7 +254,11 @@ class CivController(CivPropController):
 
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
-        google_user_subject = None
+        google_user_subject = None            
+
+        if self.multiplayer_follower:
+            # change user name for follower player
+            self.user_name = self.user_name+"2"
 
         login_message = {"pid": 4, "username": self.user_name,
                          "capability": freeciv_version, "version_label": "-dev",
@@ -251,6 +267,56 @@ class CivController(CivPropController):
                          "subject": google_user_subject}
 
         self.ws_client.send(login_message)
+                    
+        if self.multiplayer_game:
+            self.set_multiplayer_game()
+
+        if self.hotseat_game:                 
+            self.set_hotseat_game()
+    
+    def set_hotseat_game(self):
+        # set player to 2. Based on HACKING file
+        self.ws_client.send_message("/set aifill 2")
+        # based on https://github.com/freeciv/freeciv-web/blob/4de320067bef09da046d8b1e07b3e018a866493b/freeciv-web/src/main/webapp/javascript/hotseat.js
+        self.ws_client.send_message("/set phasemode player")
+        self.ws_client.send_message("/set minp 2")
+        self.ws_client.send_message("/set ec_chat=enabled")
+        self.ws_client.send_message("/set ec_info=enabled")
+        self.ws_client.send_message("/set ec_max_size=20000")
+        self.ws_client.send_message("/set ec_turns=32768")
+
+        self.ws_client.send_message("/set autotoggle disabled")
+        # add another agent under our control
+        self.ws_client.send_message("/create " + self.user_name+"2")
+        self.ws_client.send_message("/ai " + self.user_name+"2")
+
+        self.ws_client.send_message("/metamessage hotseat game" )
+
+    def set_multiplayer_game(self):
+        if self.multiplayer_follower == False:
+            # set player to 2. Based on HACKING file
+            self.ws_client.send_message("/set aifill 0")
+            # based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
+            self.ws_client.send_message("/set topology \"\"")
+            self.ws_client.send_message("/set wrap WRAPX")
+            self.ws_client.send_message("/set nationset all")
+            self.ws_client.send_message("/set maxplayers 2")
+            self.ws_client.send_message("/set allowtake H1Ah1adOo")        
+            self.ws_client.send_message("/set autotoggle enabled")
+            self.ws_client.send_message("/set timeout 60")
+            self.ws_client.send_message("/set netwait 15")
+            self.ws_client.send_message("/set nettimeout 120")
+            self.ws_client.send_message("/set pingtime 30")
+            self.ws_client.send_message("/set pingtimeout 120")
+            self.ws_client.send_message("/set threaded_save enabled")
+            self.ws_client.send_message("/set scorelog enabled")
+            self.ws_client.send_message("/set size 4")
+            self.ws_client.send_message("/set landm 50")
+            # use /set minp 1 will allow single agent to play
+            self.ws_client.send_message("/set minp 2")
+            self.ws_client.send_message("/set generator FAIR")
+            self.ws_client.send_message("/metaconnection persistent")
+            self.ws_client.send_message("/metamessage New Freeciv-web Multiplayer Game")
 
     def close(self):
         if self.visual_monitor:
@@ -333,6 +399,7 @@ class CivController(CivPropController):
 
         self.ws_client.send_request(test_packet)
         # clearInterval(nation_select_id)
+    
 
     def change_ruleset(self, to):
         # """Change the ruleset to"""
@@ -388,8 +455,15 @@ class CivController(CivPropController):
         packet['message'] = message
         logger.info("chat_msg: ", packet)
 
-        if "You are logged in as" in message:
-            self.prepare_game()
+        # single player game or the client is not the host of multiplayer game
+        if self.multiplayer_game == False or self.multiplayer_follower:
+            if "You are logged in as" in message:
+                self.prepare_game()
+
+        elif self.multiplayer_game:            
+            if "Waiting to start game: 1 out of 2 alive players are ready to start" in message:
+                self.prepare_game()        
+            
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""
@@ -399,6 +473,21 @@ class CivController(CivPropController):
     def handle_end_phase(self, packet):
         # chatbox_clip_messages()
         pass
+    
+    def handle_version_info(self, packet):
+        logger.debug(packet)
+
+    def handle_ruleset_clause_msg(self, packet):
+        logger.debug(packet)
+
+    def handle_ruleset_impr_flag_msg(self, packet):
+        logger.debug(packet)
+    
+    def handle_web_player_addition_info(self, packet):
+        logger.debug(packet)
+
+    def handle_unknown_research_msg(self, packet):
+        logger.debug(packet)    
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""

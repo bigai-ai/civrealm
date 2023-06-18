@@ -48,7 +48,7 @@ class WebSocketClient(object):
         """
         if not self._ws_connection:
             raise RuntimeError('Web socket connection is closed.')
-        # msg = json.dumps(data).replace(" ", "") # clear empty space will cause error when sending set message to server
+        # TODO: check if we need to clear empty spaces
         msg = json.dumps(data)
         ret_future = self._ws_connection.write_message(msg)
 

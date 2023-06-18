@@ -14,7 +14,6 @@ import json
 
 try:
     from freecivbot.civ_controller import CivController
-    from freecivbot.connectivity.clinet import CivConnection
     from freecivbot.bot.base_bot import BaseBot
 
 except ImportError as e:
@@ -93,9 +92,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
         # import datetime
         # username_temp = username+str(hash(datetime.datetime.now()))[:5]
-        self.my_civ_controller = CivController(self.my_bot, username, client_port=client_port,
-                                               visual_monitor=visualize)
-        self.civ_conn = CivConnection(self.my_civ_controller, 'http://localhost:8080')
+        self.my_civ_controller = CivController(self.my_bot, username, visual_monitor=visualize)
 
     def _start_viewer(self):
         """

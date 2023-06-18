@@ -157,6 +157,7 @@ class CivController(CivPropController):
         self.bot = a_bot
         self.turn = -1
         self.client_port = client_port
+        self.user_name_origin = user_name
         self.user_name = user_name
 
         self.game_ctrl = None
@@ -182,9 +183,14 @@ class CivController(CivPropController):
         else:
             self.monitor = None
         
+        # will be initialized by CivConnection's __init__()
+        self.civ_connection = None
+
+        self.name_index = 0
         self.hotseat_game = False
         self.multiplayer_game = True
-        self.multiplayer_follower = False
+        # For host of multiplayer game, multiplayer_follower should be False. For Follower, it should be true
+        self.multiplayer_follower = True
 
     def init_controller(self):
         CivPropController.__init__(self, self.ws_client)
@@ -213,7 +219,7 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(self.ws_client, self.rule_ctrl)
+        self.clstate = ClientState(self.ws_client, self.rule_ctrl, self)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.bot)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
@@ -252,28 +258,31 @@ class CivController(CivPropController):
         if self.visual_monitor:
             self.monitor.start_monitor()
 
-        freeciv_version = "+Freeciv.Web.Devel-3.3"
-        sha_password = None
-        google_user_subject = None            
-
-        if self.multiplayer_follower:
-            # change user name for follower player
-            self.user_name = self.user_name+"2"
-
-        login_message = {"pid": 4, "username": self.user_name,
-                         "capability": freeciv_version, "version_label": "-dev",
-                         "major_version": 2, "minor_version": 5, "patch_version": 99,
-                         "port": self.client_port, "password": sha_password,
-                         "subject": google_user_subject}
-
-        self.ws_client.send(login_message)
-                    
+        self.login()
+        self.multiplayer_follower = True
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:                 
             self.set_hotseat_game()
     
+    def login(self):
+        self.name_index = self.name_index+1
+        freeciv_version = "+Freeciv.Web.Devel-3.3"
+        sha_password = None
+        google_user_subject = None            
+
+        if self.multiplayer_follower:
+            # change user name for follower player
+            self.user_name = self.user_name_origin+str(self.name_index)
+
+        login_message = {"pid": 4, "username": self.user_name,
+                         "capability": freeciv_version, "version_label": "-dev",
+                         "major_version": 2, "minor_version": 5, "patch_version": 99,
+                         "port": self.client_port, "password": sha_password,
+                         "subject": google_user_subject}        
+        self.ws_client.send(login_message)
+
     def set_hotseat_game(self):
         # set player to 2. Based on HACKING file
         self.ws_client.send_message("/set aifill 2")
@@ -294,13 +303,13 @@ class CivController(CivPropController):
 
     def set_multiplayer_game(self):
         if self.multiplayer_follower == False:
-            # set player to 2. Based on HACKING file
+            # set AI player to 0. Based on HACKING file
             self.ws_client.send_message("/set aifill 0")
             # based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
             self.ws_client.send_message("/set topology \"\"")
             self.ws_client.send_message("/set wrap WRAPX")
             self.ws_client.send_message("/set nationset all")
-            self.ws_client.send_message("/set maxplayers 2")
+            self.ws_client.send_message("/set maxplayers 3")
             self.ws_client.send_message("/set allowtake H1Ah1adOo")        
             self.ws_client.send_message("/set autotoggle enabled")
             self.ws_client.send_message("/set timeout 60")
@@ -316,7 +325,7 @@ class CivController(CivPropController):
             self.ws_client.send_message("/set minp 2")
             self.ws_client.send_message("/set generator FAIR")
             self.ws_client.send_message("/metaconnection persistent")
-            self.ws_client.send_message("/metamessage New Freeciv-web Multiplayer Game")
+            self.ws_client.send_message("/metamessage Multiplayer Game hosted by "+self.user_name)
 
     def close(self):
         if self.visual_monitor:
@@ -456,14 +465,25 @@ class CivController(CivPropController):
         logger.info("chat_msg: ", packet)
 
         # single player game or the client is not the host of multiplayer game
-        if self.multiplayer_game == False or self.multiplayer_follower:
-            if "You are logged in as" in message:
-                self.prepare_game()
+        # if self.multiplayer_game == False or self.multiplayer_follower:
+        # try prepare game. If in multiplayer game and not enough player, will not start game
+        if "You are logged in as" in message:
+            self.prepare_game()
 
         elif self.multiplayer_game:            
-            if "Waiting to start game: 1 out of 2 alive players are ready to start" in message:
-                self.prepare_game()        
-            
+            if "alive players are ready to start" in message:
+                # follower always set itself to be ready when new player join
+                if self.multiplayer_follower:
+                    self.prepare_game()
+                else:
+                    ready_player_num, overall_player_num = self.get_ready_state(message)
+                    if ready_player_num == overall_player_num-1:
+                        self.prepare_game()
+
+    def get_ready_state(self, message):
+        temp_str = message.split(' out of ')
+        # assume the player ready message is of format: "m out of n alive players..."
+        return int(temp_str[0][-1]), int(temp_str[1][0])
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""

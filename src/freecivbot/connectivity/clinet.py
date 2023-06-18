@@ -123,7 +123,7 @@ class CivConnection():
             retry_interval - Wait for X seconds until retrying
         '''
         self.civserverport = civ_controller.client_port
-        self.civ_controller = civ_controller
+        self.civ_controller = civ_controller        
         self.proxyport = 1000 + self.civserverport
         self.base_url = base_url
         self._restart_server_if_down = restart_server_if_down
@@ -132,7 +132,9 @@ class CivConnection():
 
         self._restarting_server = False
         self._cur_retry = 0
-
+        # when re-login, civ_controller will call network_init() through civ_connection
+        self.civ_controller.civ_connection = self
+        self.loop_started = False
         self.network_init()
 
     def _retry(self):
@@ -170,13 +172,15 @@ class CivConnection():
         '''
           Initialized the WebSocket connection.
         '''
-        civ_ws_client = CivWSClient(self.civ_controller)
-        civ_ws_client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
-
-        try:
-            ioloop.IOLoop.instance().start()
-        except KeyboardInterrupt:
-            civ_ws_client.close()
+        self.civ_ws_client = CivWSClient(self.civ_controller)
+        self.civ_ws_client.connect('ws://localhost:8080/civsocket/%i' % self.proxyport)
+        
+        if self.loop_started == False:
+            try:
+                self.loop_started = True
+                ioloop.IOLoop.instance().start()
+            except KeyboardInterrupt:
+                self.civ_ws_client.close()
 
     def _restart_server(self):
         try:

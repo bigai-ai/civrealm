@@ -68,6 +68,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.status = None
         self.gym_agent = None
         self.max_turns = max_turns
+        # to join the same multiplayer game, the port should be the same
         self.game_ports = [6000, 6004]
         self.current_port_id = 0
 

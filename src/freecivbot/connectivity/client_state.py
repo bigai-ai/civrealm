@@ -33,9 +33,10 @@ C_S_OVER = 3  # /* Connected with game over. */
 
 
 class ClientState(CivPropController):
-    def __init__(self, ws_client, rule_ctrl):
+    def __init__(self, ws_client, rule_ctrl, civ_controller):
         CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
+        self.civ_controller = civ_controller
         self.civclient_state = C_S_INITIAL
         self.connect_error = False
         self.oldstate = -1
@@ -162,6 +163,10 @@ class ClientState(CivPropController):
             elif self.observing:
                 self.request_observe_game()*/
             """
+        else:
+            if 'already connected' in packet['message']:
+                # login() will increase name_index and connect again                
+                self.civ_controller.civ_connection.network_init()
 
     def update_client_state(self, value):
         self.set_client_state(value)

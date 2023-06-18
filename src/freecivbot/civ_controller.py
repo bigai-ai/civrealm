@@ -81,16 +81,13 @@ class CivController(CivPropController):
         self.name_index = 0
         # TODO: move this initialization to a config file
         self.hotseat_game = False
-        self.multiplayer_game = True
+        self.multiplayer_game = False
         # For host of multiplayer game, multiplayer_follower should be False. For Follower, it should be true
         self.multiplayer_follower = False
         self.ws_client = CivConnection(host, client_port)
         self.ws_client.set_on_connection_success_callback(self.init_control)
         self.ws_client.set_packets_callback(self.assign_packets)
-        self.client_network_init()   
-
-    def client_network_init(self):
-        self.ws_client.network_init()
+        self.ws_client.network_init()        
 
     def init_controller(self):
         # TODO: move this initialization to __init__() method
@@ -119,7 +116,7 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(self.ws_client, self.rule_ctrl, self)
+        self.clstate = ClientState(self.ws_client, self.rule_ctrl)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.bot)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
@@ -156,8 +153,7 @@ class CivController(CivPropController):
         if self.visual_monitor:
             self.monitor.start_monitor()
 
-        self.login()
-        self.multiplayer_follower = True
+        self.login()        
         if self.multiplayer_game:
             self.set_multiplayer_game()
 

@@ -61,7 +61,7 @@ class DiplomacyState(PlainState):
 
 
 class DiplomacyCtrl(CivPropController):
-    def __init__(self, ws_client, clstate, ruleset, dipl_evaluator):
+    def __init__(self, ws_client, clstate, ruleset, dipl_evaluator=None):
         CivPropController.__init__(self, ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []
@@ -71,6 +71,7 @@ class DiplomacyCtrl(CivPropController):
         self.clstate = clstate
         self.prop_state = DiplomacyState(self.diplstates)
         self.prop_actions = NoActions(ws_client)
+        # TODO: dipl_evaluator is not implemented yet
         self.dipl_evaluator = dipl_evaluator
 
         self.register_handler(59, "handle_player_diplstate")
@@ -202,8 +203,9 @@ class DiplomacyCtrl(CivPropController):
             if counterpart in self.diplomacy_request_queue:
                 del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
             elif self.active_diplomacy_meeting_id == counterpart:
-                self.dipl_evaluator.evaluate_clauses(self.diplomacy_clause_map[counterpart], counterpart,
-                                                     myself_accepted, other_accepted)
+                if self.dipl_evaluator is not None:
+                    self.dipl_evaluator.evaluate_clauses(self.diplomacy_clause_map[counterpart], counterpart,
+                                                        myself_accepted, other_accepted)
 
         self.refresh_diplomacy_request_queue()
         # setTimeout(refresh_diplomacy_request_queue, 1000)

@@ -22,10 +22,23 @@ except ImportError as e:
 
 
 class GymBot(BaseBot):
-    def __init__(self, gym_env):
+    def __init__(self, gym_env, username, visualize):
         BaseBot.__init__(self)
         self._env = gym_env
         self._last_action = None
+
+        self.civ_controller = CivController(username=username, visualize=visualize)
+        self.civ_controller.set_begin_turn_callback(self.conduct_turn)
+        self.civ_controller.set_move_callback(self.move)
+
+    def init_env(self):
+        # TODO: rename this function
+        self.civ_controller.init_network()
+
+    def move(self):
+        self.calculate_next_move()
+        if self.wants_to_end():
+            self.civ_controller.close()
 
     def calculate_next_move(self):
         if self._turn_active:
@@ -62,13 +75,19 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render.modes': ['human']}
 
-    def __init__(self, max_turns=10):
+    def __init__(self):
         self.viewer = None
         self.status = None
         self.gym_agent = None
-        self.max_turns = max_turns
+        self.max_turns = None
+
+        self.my_bot = None
+
+        # Switch game ports to avoid conflicts when running multiple instances
         self.game_ports = [6000, 6004]
         self.current_port_id = 0
+        client_port = self.game_ports[self.current_port_id]
+        self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
 
     def __del__(self):
         pass
@@ -79,19 +98,6 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         if self.viewer is not None:
             os.kill(self.viewer.pid, signal.SIGKILL)
         """
-
-    def _reset_client(self, username="civbot", max_turns=500, visualize=False):
-        """
-        Provides a chance for subclasses to override this method and supply
-        a different server configuration. By default, we initialize one
-        offense agent against no defenders.
-        """
-        self.max_turns = max_turns
-        client_port = self.game_ports[self.current_port_id]
-        self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
-        # import datetime
-        # username_temp = username+str(hash(datetime.datetime.now()))[:5]
-        self.my_civ_controller = CivController(self.my_bot, username, visual_monitor=visualize)
 
     def _start_viewer(self):
         """
@@ -112,7 +118,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         json.dump(ob[1], f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
         f.close()
 
-    def _step(self, action):
+    def step(self, action):
         ob = self.my_bot.getState(update=True)
         reward = self._get_reward()
         episode_over = self.is_episode_over()
@@ -124,15 +130,23 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         """ Reward is given for scoring a goal. """
         return self.my_bot.get_reward()
 
-    def _reset(self):
+    def reset(self, username="civbot", max_turns=500, visualize=False):
         """ Repeats NO-OP action until a new episode begins. """
         self.reward = 0
         self.done = False
-        self.my_bot = GymBot(self)
-        self._reset_client(visualize=False)
+
+        """
+        Provides a chance for subclasses to override this method and supply
+        a different server configuration. By default, we initialize one
+        offense agent against no defenders.
+        """
+        self.max_turns = max_turns
+        self.my_bot = GymBot(self, username, visualize=visualize)
+        self.my_bot.init_env()
+
         return self.reward, self.done
 
-    def _render(self, mode='human', close=False):
+    def render(self, mode='human', close=False):
         """ Viewer only supports human mode currently. """
         if close:
             if self.viewer is not None:
@@ -141,5 +155,5 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             if self.viewer is None:
                 self._start_viewer()
 
-    def _seed(self, seed=None):
+    def seed(self, seed=None):
         pass

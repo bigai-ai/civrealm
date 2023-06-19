@@ -46,12 +46,11 @@ from freecivbot.utils.freeciv_logging import logger
 
 
 class CivController(CivPropController):
-    def __init__(self, a_bot, user_name, host='localhost', client_port=6000, visual_monitor=True):
+    def __init__(self, username, host='localhost', client_port=6000, visualize=True):
         self.ai_skill_level = 3
         self.nation_select_id = -1
-        self.bot = a_bot
         self.turn = -1
-        self.user_name = user_name
+        self.user_name = username
 
         self.game_ctrl = None
         self.opt_ctrl = None
@@ -69,12 +68,11 @@ class CivController(CivPropController):
         self.gov_ctrl = None
 
         self.controller_list = {}
-        self.visual_monitor = visual_monitor
 
-        if self.visual_monitor:
-            self.monitor = CivMonitor(host, user_name)
-        else:
-            self.monitor = None
+        self.visualize = visualize
+        self.monitor = None
+        if self.visualize:
+            self.monitor = CivMonitor(host, username)
 
         # TODO: move this initialization to a config file
         self.hotseat_game = False
@@ -84,7 +82,18 @@ class CivController(CivPropController):
         self.ws_client = CivConnection(host, client_port)
         self.ws_client.set_on_connection_success_callback(self.init_control)
         self.ws_client.set_packets_callback(self.assign_packets)
+
+        self.begin_turn_callback = None
+        self.move_callback = None
+
+    def init_network(self):
         self.ws_client.network_init()
+
+    def set_begin_turn_callback(self, callback):
+        self.begin_turn_callback = callback
+
+    def set_move_callback(self, callback):
+        self.move_callback = callback
 
     def init_controller(self):
         # TODO: move this initialization to __init__() method
@@ -115,7 +124,7 @@ class CivController(CivPropController):
 
         self.clstate = ClientState(self.ws_client, self.rule_ctrl)
 
-        self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.bot)
+        self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
 
         self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
@@ -147,7 +156,7 @@ class CivController(CivPropController):
         send the first login message to the server.
         """
         self.init_controller()
-        if self.visual_monitor:
+        if self.visualize:
             self.monitor.start_monitor()
 
         freeciv_version = "+Freeciv.Web.Devel-3.3"
@@ -217,7 +226,7 @@ class CivController(CivPropController):
             self.ws_client.send_message("/metamessage New Freeciv-web Multiplayer Game")
 
     def close(self):
-        if self.visual_monitor:
+        if self.visualize:
             self.monitor.stop_monitor()
         self.ws_client.close()
 
@@ -237,9 +246,7 @@ class CivController(CivPropController):
                     pass
 
             if not self.ws_client.is_waiting_for_responses():
-                self.bot.calculate_next_move()
-                if self.bot.wants_to_end():
-                    self.close()
+                self.move_callback()
         except Exception:
             raise
 
@@ -402,7 +409,8 @@ class CivController(CivPropController):
 
         pplayer = self.clstate.cur_player()
         # logger.info("handle_begin_turn, pplayer,", pplayer)
-        self.bot.conduct_turn(pplayer, self.controller_list, self.send_end_turn)
+
+        self.begin_turn_callback(pplayer, self.controller_list, self.send_end_turn)
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""

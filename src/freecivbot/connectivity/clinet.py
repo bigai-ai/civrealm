@@ -50,6 +50,11 @@ class CivWSClient(WebSocketClient):
         self.packets_callback = callback_func
 
     def _on_message(self, message):
+        if message is None:
+            logger.warning('Received empty message from server. Closing connection')
+            self._on_connection_close()
+            return
+
         self.read_packs = json.loads(message)
         logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
         self.packets_callback(self.read_packs)
@@ -65,8 +70,7 @@ class CivWSClient(WebSocketClient):
         logger.warning('Connection to server is closed. Please reload the page to restart. Sorry!')
 
     def _on_connection_error(self, exception):
-        logger.error('Network error', 'Problem %s occured with the ' % exception + self.ws_conn.protocol +
-                     ' WebSocket connection to the server: ' + self.ws_conn.request.url)
+        logger.error(f'Network error. Problem {exception} occured with the {self.ws_conn.protocol} WebSocket connection to the server: {self.ws_conn.request.url}')
 
     def send_request(self, packet_payload, wait_for_pid=None):
         '''
@@ -144,7 +148,7 @@ class CivConnection(CivWSClient):
             ws.connect(self.ws_address)
             return True
         except Exception as err:
-            logger.info('Connect not successful:' + str(err) + ' retrying in %s seconds.' % self._retry_interval)
+            logger.info(f'Connect not successful: {err} retrying in {self._retry_interval} seconds.')
             if self._restart_server_if_down and not self._restarting_server:
                 self._restart_server()
                 return self._detect_server_up()

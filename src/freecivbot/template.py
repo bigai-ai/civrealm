@@ -48,5 +48,5 @@ class SimpleBot(BaseBot):
 
 
 my_bot = SimpleBot()
-my_civ_controller = CivController(my_bot, "chrisrocks", visual_monitor=False)
+my_civ_controller = CivController(my_bot, "chrisrocks", visualize=False)
 CivConnection(my_civ_controller, 'http://localhost')

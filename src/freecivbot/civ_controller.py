@@ -51,6 +51,12 @@ class CivController(CivPropController):
         self.nation_select_id = -1
         self.bot = a_bot
         self.turn = -1
+        self.multiplayer_game = True
+        # 6000, 6004 and 6005 are for single player game
+        # 6001 and 6002 are for multiplayer game
+        # 6003 and 6006 are for longturn game (one turn per day)
+        if self.multiplayer_game:
+            client_port = 6006 
         self.client_port = client_port
         self.user_name_origin = user_name
         self.user_name = user_name
@@ -81,11 +87,10 @@ class CivController(CivPropController):
         self.name_index = 0
         # TODO: move this initialization to a config file
         self.hotseat_game = False
-        self.multiplayer_game = True
         # For host of multiplayer game, follower should be False. For Follower, it should be true
         self.follower = False
         # whether to wait for observer before start game in multiplayer mode
-        self.wait_for_observer = True
+        self.wait_for_observer = False
         
         self.ws_client = CivConnection(host, client_port)
         self.ws_client.set_on_connection_success_callback(self.init_control)
@@ -155,13 +160,16 @@ class CivController(CivPropController):
         self.init_controller()
         if self.visual_monitor:
             self.monitor.start_monitor()
-        self.follower=True
+        
         self.login()        
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:
-            self.set_hotseat_game()        
+            self.set_hotseat_game()      
+        
+        # Set map seed. The same seed leads to the same map.
+        self.ws_client.send_message("/set mapseed 88")  
 
     def login(self):
         self.name_index = self.name_index+1
@@ -204,7 +212,7 @@ class CivController(CivPropController):
             self.ws_client.send_message("/set wrap WRAPX")
             self.ws_client.send_message("/set nationset all")
             self.ws_client.send_message("/set maxplayers 3")
-            self.ws_client.send_message("/set allowtake H1Ah1adOo")        
+            self.ws_client.send_message("/set allowtake H1Ah1adOo")            
             self.ws_client.send_message("/set autotoggle enabled")
             self.ws_client.send_message("/set timeout 60")
             self.ws_client.send_message("/set netwait 15")
@@ -216,9 +224,9 @@ class CivController(CivPropController):
             self.ws_client.send_message("/set size 4")
             self.ws_client.send_message("/set landm 50")
             # use /set minp 1 will allow single agent to play
-            self.ws_client.send_message("/set minp 2")
+            self.ws_client.send_message("/set minp 1")
             self.ws_client.send_message("/set generator FAIR")
-            self.ws_client.send_message("/metaconnection persistent")
+            # self.ws_client.send_message("/metaconnection persistent")
             self.ws_client.send_message("/metamessage Multiplayer Game hosted by "+self.user_name)
         # self.ws_client.send_message('/observe ')
     def close(self):

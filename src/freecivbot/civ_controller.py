@@ -56,7 +56,7 @@ class CivController(CivPropController):
         # 6001 and 6002 are for multiplayer game
         # 6003 and 6006 are for longturn game (one turn per day)
         if self.multiplayer_game:
-            client_port = 6006 
+            client_port = 6001 
         self.client_port = client_port
         self.user_name_origin = user_name
         self.user_name = user_name

@@ -81,9 +81,12 @@ class CivController(CivPropController):
         self.name_index = 0
         # TODO: move this initialization to a config file
         self.hotseat_game = False
-        self.multiplayer_game = False
-        # For host of multiplayer game, multiplayer_follower should be False. For Follower, it should be true
-        self.multiplayer_follower = False
+        self.multiplayer_game = True
+        # For host of multiplayer game, follower should be False. For Follower, it should be true
+        self.follower = False
+        # whether to wait for observer before start game in multiplayer mode
+        self.wait_for_observer = True
+        
         self.ws_client = CivConnection(host, client_port)
         self.ws_client.set_on_connection_success_callback(self.init_control)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -152,23 +155,20 @@ class CivController(CivPropController):
         self.init_controller()
         if self.visual_monitor:
             self.monitor.start_monitor()
-
+        self.follower=True
         self.login()        
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:
-            self.set_hotseat_game()
-    
+            self.set_hotseat_game()        
+
     def login(self):
         self.name_index = self.name_index+1
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
-        google_user_subject = None            
-
-        if self.multiplayer_follower:
-            # change user name for follower player
-            self.user_name = self.user_name_origin+str(self.name_index)
+        google_user_subject = None                    
+        self.user_name = self.user_name_origin+str(self.name_index)
 
         login_message = {"pid": 4, "username": self.user_name,
                          "capability": freeciv_version, "version_label": "-dev",
@@ -196,7 +196,7 @@ class CivController(CivPropController):
         self.ws_client.send_message("/metamessage hotseat game")
 
     def set_multiplayer_game(self):
-        if self.multiplayer_follower == False:
+        if self.follower == False:
             # set AI player to 0. Based on HACKING file
             self.ws_client.send_message("/set aifill 0")
             # based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
@@ -216,11 +216,11 @@ class CivController(CivPropController):
             self.ws_client.send_message("/set size 4")
             self.ws_client.send_message("/set landm 50")
             # use /set minp 1 will allow single agent to play
-            self.ws_client.send_message("/set minp 3")
+            self.ws_client.send_message("/set minp 2")
             self.ws_client.send_message("/set generator FAIR")
             self.ws_client.send_message("/metaconnection persistent")
             self.ws_client.send_message("/metamessage Multiplayer Game hosted by "+self.user_name)
-
+        # self.ws_client.send_message('/observe ')
     def close(self):
         if self.visual_monitor:
             self.monitor.stop_monitor()
@@ -357,21 +357,23 @@ class CivController(CivPropController):
         packet['message'] = message
         logger.info("chat_msg: ", packet)
 
-        # single player game or the client is not the host of multiplayer game
-        # if self.multiplayer_game == False or self.multiplayer_follower:
-        # try prepare game. If in multiplayer game and not enough player, will not start game
-        if "You are logged in as" in message:
-            self.prepare_game()
-
-        elif self.multiplayer_game:            
-            if "alive players are ready to start" in message:
-                # follower always set itself to be ready when new player join
-                if self.multiplayer_follower:
-                    self.prepare_game()
-                else:
-                    ready_player_num, overall_player_num = self.get_ready_state(message)
-                    if ready_player_num == overall_player_num-1:
+        # not need to wait for observer. auto start game
+        if self.wait_for_observer == False:
+            # try prepare game. If in multiplayer game and not enough player, will not start game
+            if "You are logged in as" in message:
+                self.prepare_game()
+            elif self.multiplayer_game:                                   
+                if "alive players are ready to start" in message:
+                    # follower always set itself to be ready when new player join
+                    if self.follower:
                         self.prepare_game()
+                    else:
+                        ready_player_num, overall_player_num = self.get_ready_state(message)
+                        if ready_player_num == overall_player_num-1:
+                            self.prepare_game()
+        elif 'now observes' in message: # observer has joined
+            self.wait_for_observer = False
+            self.prepare_game()            
 
     def get_ready_state(self, message):
         temp_str = message.split(' out of ')

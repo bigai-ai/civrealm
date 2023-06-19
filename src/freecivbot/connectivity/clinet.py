@@ -135,6 +135,8 @@ class CivConnection(CivWSClient):
 
         self._restarting_server = False
         self._cur_retry = 0
+        # when re-login, civ_controller will call network_init() through callback
+        self.loop_started = False
 
     def _retry(self):
         self._cur_retry += 1
@@ -172,11 +174,13 @@ class CivConnection(CivWSClient):
           Initialized the WebSocket connection.
         '''
         self.connect(self.ws_address)
-
-        try:
-            ioloop.IOLoop.instance().start()
-        except KeyboardInterrupt:
-            self.close()
+        
+        if self.loop_started == False:
+            try:
+                self.loop_started = True
+                ioloop.IOLoop.instance().start()
+            except KeyboardInterrupt:
+                self.close()
 
     def _restart_server(self):
         try:

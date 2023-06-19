@@ -84,6 +84,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.my_bot = None
 
         # Switch game ports to avoid conflicts when running multiple instances
+        # to join the same multiplayer game, the port should be the same
         self.game_ports = [6000, 6004]
         self.current_port_id = 0
         client_port = self.game_ports[self.current_port_id]

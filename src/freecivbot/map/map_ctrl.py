@@ -103,7 +103,7 @@ class MapCtrl(CivPropController):
         return "MapCtrl __repr__() unimplemented."
 
     def topo_has_flag(self, flag):
-        return ((self.map['topology_id'] & (flag)) != 0)
+        return ((self.map['wrap_id'] & (flag)) != 0)
 
     def city_tile(self, pcity):
         if pcity == None:
@@ -467,7 +467,7 @@ class CityTileMap():
               Helper for get_city_tile_map_for_pos."""
         v = self.base_sorted
         vl = len(v)
-        clipped_map = [-1 for _ in range(vl*10)]
+        clipped_map = [-1 for _ in range(vl*100)]
         max_ind = 0
         ind = 0
         for vi in range(vl):
@@ -477,6 +477,7 @@ class CityTileMap():
                 if max_ind < tile_data[3]:
                     max_ind = tile_data[3]
                 ind += 1
+        assert(max_ind+1<=vl*100) # make sure vl*100 is enough
         return clipped_map[:max_ind+1]
 
     def get_city_tile_map_for_pos(self, x, y):
@@ -486,41 +487,31 @@ class CityTileMap():
             return self.maps[0]
 
         r = self.radius
-        limit_args = {"dx_min": -r, "dx_max": r, "dy_min": -r, "dy_max": r}
-        target_map = None
-
         if topo_has_flag(TF_WRAPX):  # Cylinder with N-S axis
-            dy = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
-            limit_args["dy_min"] = dy[0]
-            limit_args["dy_max"] = dy[1]
-            target_map = dy[2]
+            d = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])  
+            if d[2] not in self.maps:
+                self.maps[d[2]] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
+            return self.maps[d[2]]
 
         if topo_has_flag(TF_WRAPY):  # Cylinder with E-W axis
-            dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
-            limit_args["dx_min"] = dx[0]
-            limit_args["dx_max"] = dx[1]
-            # if target_map != None:
-            #     target_map = (2*r + 1) * dx[2] + dy[2]
-            # else:
-            target_map = dx[2]
+            d = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
+            if d[2] not in self.maps:
+                self.maps[d[2]] = self.build_city_tile_map_with_limits(d[0], d[1], -r, r)
+            return self.maps[d[2]]
 
-        if target_map == None:  # Flat
-            dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
-            dy = self.delta_tile_helper(y, r, self.map_ctrl.map["xsize"])
-            map_i = (2*r + 1) * dx[2] + dy[2]
-            if map_i not in self.maps:
-                m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
-                self.maps[map_i] = m
-            return self.maps[map_i]
-
-        if target_map not in self.maps:
-            self.maps[target_map] = self.build_city_tile_map_with_limits(**limit_args)
-        return self.maps[target_map]
+        # Flat
+        dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
+        dy = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
+        map_i = (2*r + 1) * dx[2] + dy[2]
+        if map_i not in self.maps:
+            m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
+            self.maps[map_i] = m
+        return self.maps[map_i]
 
     def get_city_dxy_to_index(self, dx, dy, city_tile):
         """
           Converts from coordinate offset from city center (dx, dy),
-          to index in the city_info['output_food'] packet.
+          to index.
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
         a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])

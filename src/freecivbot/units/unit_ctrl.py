@@ -525,8 +525,7 @@ class UnitCtrl(CivPropController):
         pattern = r"%[0-9A-Fa-f]{2}%[0-9A-Fa-f]{2}"        
         special_char_list = re.findall(pattern, name)
         if len(special_char_list) > 0:            
-            for i in range(len(special_char_list)):
-            # for i in range(0, len(special_char_list), 2):
+            for i in range(len(special_char_list)):            
                 sub_pattern = special_char_list[i]                
                 name = re.sub(sub_pattern, urllib.parse.unquote(sub_pattern), name)        
         # replace empty space encoding with empty space

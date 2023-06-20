@@ -7,6 +7,7 @@ Created on 19.12.2018
 import random
 import json
 import numpy
+import configs
 
 import gym
 from gym import wrappers
@@ -32,7 +33,8 @@ class RandomAgent(object):
                 turn=state["player"]["my_turns_alive"], act=self._num_actions)
 
             with open(base_name + "_state.json", "w") as f:
-                json.dump(state, f, skipkeys=True, default=lambda x: "not serializable", sort_keys=True)
+                json.dump(state, f, skipkeys=True,
+                          default=lambda x: "not serializable", sort_keys=True)
 
             for key in state["map"]:
                 numpy.save(base_name + "_map_%s.npy" % key, state["map"][key])
@@ -42,20 +44,23 @@ class RandomAgent(object):
         for actor_id in action_opts["unit"].get_actors():
             logger.info("Trying Moving units or build city: %s" % actor_id)
             if action_opts["unit"]._can_actor_act(actor_id):
-                pos_acts = action_opts["unit"].get_actions(actor_id, valid_only=True)
+                pos_acts = action_opts["unit"].get_actions(
+                    actor_id, valid_only=True)
 
                 next_action["unit_id"] = actor_id
                 if "build" in pos_acts.keys() and random.random() > 0.5:
                     next_action["action_id"] = "build"
                     break
-                move_action = random.choice([key for key in pos_acts.keys() if "goto" in key])
+                move_action = random.choice(
+                    [key for key in pos_acts.keys() if "goto" in key])
                 logger.info("in direction %s" % move_action)
                 next_action["action_id"] = move_action
                 break
 
         if save_history:
             with open(base_name + "_actions.json", "w") as f:
-                json.dump(action_opts, f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
+                json.dump(action_opts, f, skipkeys=True,
+                          default=lambda x: x.json_struct(), sort_keys=True)
 
             with open(base_name + "_nextAction.json", "w") as f:
                 json.dump(next_action, f, sort_keys=True)
@@ -77,7 +82,14 @@ class RandomAgent(object):
         pass
 
 
+
+
+
 def main():
+
+    # opt = configs.opt
+    # print(str(opt))
+
     env = gym.make("Freeciv-v0")
 
     # You provide the directory to write to (can be an existing

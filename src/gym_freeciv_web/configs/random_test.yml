@@ -1,0 +1,3 @@
+gym_env: Freeciv-v0
+mode: single_player
+out_dir: /tmp/random-agent-results

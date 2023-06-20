@@ -53,8 +53,7 @@ class CivWSClient(WebSocketClient):
         if message is None:
             logger.warning('Received empty message from server. Closing connection')
             self._on_connection_close()
-            return
-
+            return        
         self.read_packs = json.loads(message)
         logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
         self.packets_callback(self.read_packs)

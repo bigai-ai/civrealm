@@ -43,18 +43,17 @@ from freecivbot.utils.fc_types import packet_nation_select_req, packet_player_ph
 from freecivbot.utils.civ_monitor import CivMonitor
 
 from freecivbot.utils.freeciv_logging import logger
-
+from gym_freeciv_web.configs import args
 
 class CivController(CivPropController):
     def __init__(self, username, host='localhost', client_port=6000, visualize=True):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.turn = -1
-        self.multiplayer_game = True
         # 6000, 6004 and 6005 are for single player game
         # 6001 and 6002 are for multiplayer game
         # 6003 and 6006 are for longturn game (one turn per day)
-        if self.multiplayer_game:
+        if args['multiplayer_game']:
             client_port = 6001 
         self.client_port = client_port
         self.user_name = username

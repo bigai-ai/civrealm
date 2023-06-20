@@ -25,6 +25,7 @@ from freecivbot.utils.base_action import NoActions
 from freecivbot.utils.base_state import EmptyState
 
 from freecivbot.utils.freeciv_logging import logger
+from gym_freeciv_web.configs import args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
 C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */
@@ -65,13 +66,12 @@ class ClientState(CivPropController):
         self.pre_game_callback = None
 
         self.name_index = 0
-        # TODO: move this initialization to a config file
-        self.multiplayer_game = True
-        self.hotseat_game = False
+        self.multiplayer_game = args['multiplayer_game']
+        self.hotseat_game = args['hotseat_game']
         # For host of multiplayer game, follower should be False. For Follower, it should be true
-        self.follower = False
+        self.follower = args['follower']
         # whether to wait for observer before start game in multiplayer mode
-        self.wait_for_observer = False
+        self.wait_for_observer = args['wait_for_observer']
         self.user_name_origin = username
 
         self.register_handler(0, "handle_processing_started")
@@ -101,7 +101,7 @@ class ClientState(CivPropController):
             self.set_hotseat_game()      
         
         # Set map seed. The same seed leads to the same map.
-        self.ws_client.send_message("/set mapseed 88")
+        self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
     
     def check_prepare_game_message(self, message):
         # not need to wait for observer. auto start game
@@ -162,15 +162,15 @@ class ClientState(CivPropController):
     def set_multiplayer_game(self):
         if self.follower == False:
             # Set AI player to 0. Based on HACKING file
-            self.ws_client.send_message("/set aifill 0")
+            self.ws_client.send_message(f"/set aifill {args['aifill']}")
             # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
             self.ws_client.send_message("/set topology \"\"")
             self.ws_client.send_message("/set wrap WRAPX")
             self.ws_client.send_message("/set nationset all")
-            self.ws_client.send_message("/set maxplayers 3")
+            self.ws_client.send_message(f"/set maxplayers {args['maxplayers']}")
             # This setting allows human to take the control of the agent in the middle of the game
-            self.ws_client.send_message("/set allowtake HAhadOo")            
-            self.ws_client.send_message("/set autotoggle enabled")
+            self.ws_client.send_message(f"/set allowtake {args['allowtake']}")            
+            self.ws_client.send_message(f"/set autotoggle {args['autotoggle']}")
             self.ws_client.send_message("/set timeout 60")
             self.ws_client.send_message("/set netwait 15")
             self.ws_client.send_message("/set nettimeout 120")
@@ -181,7 +181,7 @@ class ClientState(CivPropController):
             self.ws_client.send_message("/set size 4")
             self.ws_client.send_message("/set landm 50")
             # use /set minp 1 will allow single agent to play
-            self.ws_client.send_message("/set minp 1")
+            self.ws_client.send_message(f"/set minp {args['minp']}")
             self.ws_client.send_message("/set generator FAIR")
             # self.ws_client.send_message("/metaconnection persistent")
             self.ws_client.send_message("/metamessage Multiplayer Game hosted by "+self.user_name)

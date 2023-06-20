@@ -69,8 +69,9 @@ class CivWSClient(WebSocketClient):
         logger.warning('Connection to server is closed. Please reload the page to restart. Sorry!')
 
     def _on_connection_error(self, exception):
-        logger.error(f'Network error. Problem {exception} occured with the {self.ws_conn.protocol} WebSocket connection to the server: {self.ws_conn.request.url}')
-
+        # logger.error(f'Network error. Problem {exception} occured with the {self.ws_conn.protocol} WebSocket connection to the server: {self.ws_conn.request.url}')
+        logger.error(f'Network error. Problem {exception} occured')
+        
     def send_request(self, packet_payload, wait_for_pid=None):
         '''
         Sends a request to the server, with a JSON packet.

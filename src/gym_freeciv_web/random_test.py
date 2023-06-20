@@ -82,9 +82,6 @@ class RandomAgent(object):
         pass
 
 
-
-
-
 def main():
 
     # opt = configs.opt

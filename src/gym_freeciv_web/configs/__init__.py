@@ -3,20 +3,24 @@ import yaml
 # import configparser
 
 def parse_args():
-    '''initialize default arguments with yaml and renew values with input arguments'''
+    """
+    Initialize default arguments with yaml and renew values with input arguments.
+    """
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', help="configuration file *.yml", type=str, required=False, default='src/gym_freeciv_web/configs/random_test.yml')
-    # parser.add_argument('--gym_env', help="gym environment name", type=str, required=False, default='Freeciv-v0')
-    # parser.add_argument('--mode', help="game start mode: single_player, multi_player or hotseat mode", type=str, required=False,  default='single_player')
-    # parser.add_argument('--out_dir', help="folder for storing output results", type=str, required=False,  default='/tmp/random-agent-results')
     args, remaining_argv = parser.parse_known_args()
-    # arg_dcit = args.__dict__
 
     opt = yaml.load(open(args.config_file), Loader=yaml.FullLoader)
-    arg_list = opt.keys()
-    for argument in arg_list:
-        parser.add_argument('--' + argument)
+    for key in opt.keys():
+        # print(opt[key])
+        if type(opt[key]) is dict:
+            group = parser.add_argument_group(key)
+            # print(key)
+            for sub_key in opt[key].keys():
+                group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key])
+        else:
+            parser.add_argument('--' + key, default=opt[key])
     args = parser.parse_args(remaining_argv)
     opt.update(vars(args))
     

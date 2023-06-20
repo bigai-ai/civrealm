@@ -32,10 +32,6 @@ from freecivbot.research.tech_helpers import TECH_KNOWN
 class PlayerCtrl(CivPropController):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
         CivPropController.__init__(self, ws_client)
-        self.register_handler(50, "handle_player_remove")
-        self.register_handler(51, "handle_player_info")
-        self.register_handler(58, "handle_player_attribute_chunk")
-        self.register_handler(60, "handle_research_info")
 
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
@@ -46,6 +42,12 @@ class PlayerCtrl(CivPropController):
 
         self.prop_state = PlayerState(rule_ctrl, self, clstate, dipl_ctrl.diplstates, self.players)
         self.prop_actions = PlayerOptions(ws_client, rule_ctrl, self.players, clstate)
+
+    def register_all_handlers(self):
+        self.register_handler(50, "handle_player_remove")
+        self.register_handler(51, "handle_player_info")
+        self.register_handler(58, "handle_player_attribute_chunk")
+        self.register_handler(60, "handle_research_info")
 
     @staticmethod
     def get_player_connection_status(pplayer):

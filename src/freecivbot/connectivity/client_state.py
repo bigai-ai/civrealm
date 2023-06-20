@@ -73,6 +73,7 @@ class ClientState(CivPropController):
         # whether to wait for observer before start game in multiplayer mode
         self.wait_for_observer = args['wait_for_observer']
 
+    def register_all_handlers(self):
         self.register_handler(0, "handle_processing_started")
         self.register_handler(1, "handle_processing_finished")
 
@@ -106,27 +107,28 @@ class ClientState(CivPropController):
         return self.civclient_state == C_S_PREPARING
 
     def check_prepare_game_message(self, message):
-        # not need to wait for observer. auto start game
         if self.wait_for_observer == False:
-            # try prepare game. If in multiplayer game and not enough player, will not start game
-            if "You are logged in as" in message:
+            # Auto start game if not waiting for observer
+            if 'You are logged in as' in message:
                 self.pre_game_callback()
             elif self.multiplayer_game:
-                if "alive players are ready to start" in message:
-                    # follower always set itself to be ready when new player join
+                # If it is multiplayer game, check if all players are ready
+                if 'alive players are ready to start' in message:
+                    # Follower always set itself to be ready when new player join
                     if self.follower:
                         self.pre_game_callback()
                     else:
                         ready_player_num, overall_player_num = self.get_ready_state(message)
                         if ready_player_num == overall_player_num-1:
                             self.pre_game_callback()
-        elif 'now observes' in message:  # observer has joined
+        elif 'now observes' in message:
+            # Observer has joined
             self.wait_for_observer = False
             self.pre_game_callback()
 
     def get_ready_state(self, message):
+        # Assume the player ready message is of format: "m out of n alive players..."
         temp_str = message.split(' out of ')
-        # assume the player ready message is of format: "m out of n alive players..."
         return int(temp_str[0][-1]), int(temp_str[1][0])
 
     def login(self):
@@ -154,37 +156,39 @@ class ClientState(CivPropController):
 
         self.ws_client.send_message("/set autotoggle disabled")
         # add another agent under our control
-        self.ws_client.send_message("/create " + self.user_name+"2")
-        self.ws_client.send_message("/ai " + self.user_name+"2")
+        self.ws_client.send_message(f"/create {self.user_name}2")
+        self.ws_client.send_message(f"/ai {self.user_name}2")
 
         self.ws_client.send_message("/metamessage hotseat game")
 
     def set_multiplayer_game(self):
-        if self.follower == False:
-            # Set AI player to 0. Based on HACKING file
-            self.ws_client.send_message(f"/set aifill {args['aifill']}")
-            # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
-            self.ws_client.send_message("/set topology \"\"")
-            self.ws_client.send_message("/set wrap WRAPX")
-            self.ws_client.send_message("/set nationset all")
-            self.ws_client.send_message(f"/set maxplayers {args['maxplayers']}")
-            # This setting allows human to take the control of the agent in the middle of the game
-            self.ws_client.send_message(f"/set allowtake {args['allowtake']}")
-            self.ws_client.send_message(f"/set autotoggle {args['autotoggle']}")
-            self.ws_client.send_message("/set timeout 60")
-            self.ws_client.send_message("/set netwait 15")
-            self.ws_client.send_message("/set nettimeout 120")
-            self.ws_client.send_message("/set pingtime 30")
-            self.ws_client.send_message("/set pingtimeout 120")
-            self.ws_client.send_message("/set threaded_save enabled")
-            self.ws_client.send_message("/set scorelog enabled")
-            self.ws_client.send_message("/set size 4")
-            self.ws_client.send_message("/set landm 50")
-            # use /set minp 1 will allow single agent to play
-            self.ws_client.send_message(f"/set minp {args['minp']}")
-            self.ws_client.send_message("/set generator FAIR")
-            # self.ws_client.send_message("/metaconnection persistent")
-            self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
+        if self.follower == True:
+            return
+
+        # Set AI player to 0. Based on HACKING file
+        self.ws_client.send_message(f"/set aifill {args['aifill']}")
+        # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
+        self.ws_client.send_message("/set topology \"\"")
+        self.ws_client.send_message("/set wrap WRAPX")
+        self.ws_client.send_message("/set nationset all")
+        self.ws_client.send_message(f"/set maxplayers {args['maxplayers']}")
+        # This setting allows human to take the control of the agent in the middle of the game
+        self.ws_client.send_message(f"/set allowtake {args['allowtake']}")
+        self.ws_client.send_message(f"/set autotoggle {args['autotoggle']}")
+        self.ws_client.send_message("/set timeout 60")
+        self.ws_client.send_message("/set netwait 15")
+        self.ws_client.send_message("/set nettimeout 120")
+        self.ws_client.send_message("/set pingtime 30")
+        self.ws_client.send_message("/set pingtimeout 120")
+        self.ws_client.send_message("/set threaded_save enabled")
+        self.ws_client.send_message("/set scorelog enabled")
+        self.ws_client.send_message("/set size 4")
+        self.ws_client.send_message("/set landm 50")
+        # use /set minp 1 will allow single agent to play
+        self.ws_client.send_message(f"/set minp {args['minp']}")
+        self.ws_client.send_message("/set generator FAIR")
+        # self.ws_client.send_message("/metaconnection persistent")
+        self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
 
     def init_state(self, packet):
         self.client["conn"] = packet

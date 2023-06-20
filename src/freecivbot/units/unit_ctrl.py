@@ -53,6 +53,12 @@ class UnitCtrl(CivPropController):
 
         self.space_ctrl = SpaceCtrl(ws_client, player_ctrl)
 
+        # self.unit_action_ctrl.register_with_parent(self)
+        self.space_ctrl.register_with_parent(self)
+        # store city name to prevent duplicate city names which can cause error
+        self.city_name_list = []
+
+    def register_all_handlers(self):
         self.register_handler(44, "handle_city_name_suggestion_info")
 
         self.register_handler(62, "handle_unit_remove")
@@ -67,11 +73,6 @@ class UnitCtrl(CivPropController):
         self.register_handler(18, "handle_nuke_tile_info")
         self.register_handler(241, "handle_worker_task")
         # self.register_handler(258, "handle_goto_path")
-
-        # self.unit_action_ctrl.register_with_parent(self)
-        self.space_ctrl.register_with_parent(self)
-        # store city name to prevent duplicate city names which can cause error
-        self.city_name_list = []
 
     def unit_owner(self, punit):
         """return player object for player owning punit"""
@@ -521,13 +522,13 @@ class UnitCtrl(CivPropController):
           unit"""
         self.request_unit_act("unit")
 
-    def decode_special_characters(self, name):        
-        pattern = r"%[0-9A-Fa-f]{2}%[0-9A-Fa-f]{2}"        
+    def decode_special_characters(self, name):
+        pattern = r"%[0-9A-Fa-f]{2}%[0-9A-Fa-f]{2}"
         special_char_list = re.findall(pattern, name)
-        if len(special_char_list) > 0:            
-            for i in range(len(special_char_list)):            
-                sub_pattern = special_char_list[i]                
-                name = re.sub(sub_pattern, urllib.parse.unquote(sub_pattern), name)        
+        if len(special_char_list) > 0:
+            for i in range(len(special_char_list)):
+                sub_pattern = special_char_list[i]
+                name = re.sub(sub_pattern, urllib.parse.unquote(sub_pattern), name)
         # replace empty space encoding with empty space
         pattern = r"%20"
         replacement = " "
@@ -540,10 +541,10 @@ class UnitCtrl(CivPropController):
        * is also used for single quotes. It shouldn't be added unescaped to a
        * string that later is interpreted as HTML. */
        """
-        # /* Decode the city name. */        
+        # /* Decode the city name. */
         unit_id = packet['unit_id']
         actor_unit = self.find_unit_by_number(unit_id)
-        suggested_name = self.decode_special_characters(packet['name'])             
+        suggested_name = self.decode_special_characters(packet['name'])
         # suggested_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
         if suggested_name in self.city_name_list:
             duplicate_name_num = sum(city_name.startswith(suggested_name) for city_name in self.city_name_list)

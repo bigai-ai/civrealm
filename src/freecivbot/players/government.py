@@ -78,6 +78,9 @@ class GovernmentCtrl(CivPropController):
         self.prop_state = GovState(rule_ctrl)
         self.prop_actions = GovActions(ws_client, rule_ctrl, city_ctrl)
 
+    def register_all_handlers(self):
+        pass
+
     def queue_preinfos(self):
         for rtype in [REPORT_ACHIEVEMENTS, REPORT_DEMOGRAPHIC, REPORT_TOP_5_CITIES, REPORT_WONDERS_OF_THE_WORLD]:
             self.request_report(rtype)

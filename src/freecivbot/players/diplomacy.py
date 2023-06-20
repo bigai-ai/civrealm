@@ -74,6 +74,7 @@ class DiplomacyCtrl(CivPropController):
         # TODO: dipl_evaluator is not implemented yet
         self.dipl_evaluator = dipl_evaluator
 
+    def register_all_handlers(self):
         self.register_handler(59, "handle_player_diplstate")
         self.register_handler(96, "handle_diplomacy_init_meeting")
         self.register_handler(98, "handle_diplomacy_cancel_meeting")

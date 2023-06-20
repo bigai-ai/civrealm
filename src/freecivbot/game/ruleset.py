@@ -46,10 +46,35 @@ U_NOT_OBSOLETED = None
 
 
 class RulesetCtrl(CivPropController):
-
     def __init__(self, ws_client):
         CivPropController.__init__(self, ws_client)
 
+        self.terrains = {}
+        self.resources = {}
+        self.unit_types = {}
+
+        self.specialists = {}
+        self.techs = {}
+        self.actions = {}
+        self.governments = {}
+        self.goods = {}
+        self.game_info = {}
+        self.game_rules = {}
+        self.ruleset_control = {}
+        self.ruleset_summary = None
+        self.ruleset_description = None
+        self.terrain_control = None
+        self.city_rules = {}
+        self.improvements = {}
+        self.nation_groups = None
+        self.nations = {}
+        self.effects = {}
+        self.extras = {}
+
+        self.prop_state = RuleState(self.game_info)
+        self.prop_actions = NoActions(ws_client)
+
+    def register_all_handlers(self):
         self.register_handler(9, "handle_ruleset_tech_class")
         self.register_handler(12, "handle_endgame_report")
 
@@ -104,31 +129,6 @@ class RulesetCtrl(CivPropController):
 
         self.register_handler(16, "handle_game_info")
         self.register_handler(127, "handle_new_year")
-
-        self.terrains = {}
-        self.resources = {}
-        self.unit_types = {}
-
-        self.specialists = {}
-        self.techs = {}
-        self.actions = {}
-        self.governments = {}
-        self.goods = {}
-        self.game_info = {}
-        self.game_rules = {}
-        self.ruleset_control = {}
-        self.ruleset_summary = None
-        self.ruleset_description = None
-        self.terrain_control = None
-        self.city_rules = {}
-        self.improvements = {}
-        self.nation_groups = None
-        self.nations = {}
-        self.effects = {}
-        self.extras = {}
-
-        self.prop_state = RuleState(self.game_info)
-        self.prop_actions = NoActions(ws_client)
 
     def handle_ruleset_terrain(self, packet):
         # /* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */

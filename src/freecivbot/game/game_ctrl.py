@@ -34,6 +34,14 @@ class GameCtrl(CivPropController):
     def __init__(self, ws_client):
         CivPropController.__init__(self, ws_client)
 
+        self.calendar_info = {}
+        self.scenario_info = {}
+        self.page_msg = {}
+
+        self.prop_state = GameState(self.scenario_info, self.calendar_info)
+        self.prop_actions = NoActions(ws_client)
+
+    def register_all_handlers(self):
         self.register_handler(13, "handle_scenario_description")
         self.register_handler(180, "handle_scenario_info")
 
@@ -58,13 +66,6 @@ class GameCtrl(CivPropController):
         self.register_handler(238, "handle_achievement_info")
         self.register_handler(245, "handle_play_music")
         self.register_handler(260, "handle_info_text_message")
-
-        self.calendar_info = {}
-        self.scenario_info = {}
-        self.page_msg = {}
-
-        self.prop_state = GameState(self.scenario_info, self.calendar_info)
-        self.prop_actions = NoActions(ws_client)
 
     def handle_scenario_info(self, packet):
         """

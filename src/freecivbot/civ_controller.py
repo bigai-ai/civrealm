@@ -47,72 +47,55 @@ from gym_freeciv_web.configs import args
 
 
 class CivController(CivPropController):
-    def __init__(self, username, host='localhost', client_port=6000, visualize=True):
+    """
+    This class is the main controller for the game. It is responsible for handling the game state and the game logic. It is also responsible for handling the WebSocket connection to the Freeciv server. It is the main interface for the user to interact with the game. 
+
+    To connect to the server, call the connect() method. 
+    To login to a game, call the login() method.  
+    """
+
+    def __init__(self, username, host='localhost', client_port=6000, visualize=False):
+        """
+        Initialize the controller for the game before the WebSocket connection is open. 
+
+        Parameters
+        ----------
+        username : str
+            The username of the player.
+        host : str, optional
+            The host of the Freeciv server. The default is 'localhost'.
+        client_port : int, optional
+            The port of the Freeciv server. The default is 6000.
+            6000, 6004 and 6005 are for single player game.
+            6001 and 6002 are for multiplayer game.
+            6003 and 6006 are for longturn game (one turn per day).
+        visualize : bool, optional
+            Whether to visualize the game. The default is False.
+        """
+        CivPropController.__init__(self, CivConnection(host, client_port))
+        self.ws_client.set_on_connection_success_callback(self.init_control)
+        self.ws_client.set_packets_callback(self.assign_packets)
+
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.turn = -1
-        # 6000, 6004 and 6005 are for single player game
-        # 6001 and 6002 are for multiplayer game
-        # 6003 and 6006 are for longturn game (one turn per day)
         if args['multiplayer_game']:
             client_port = 6001
         self.client_port = client_port
         self.user_name = username
         self.name_index = 0
 
-        self.game_ctrl = None
-        self.opt_ctrl = None
-        self.rule_ctrl = None
-        self.map_ctrl = None
-
-        self.clstate = None
-        self.player_ctrl = None
-
-        self.dipl_ctrl = None
-        self.tech_ctrl = None
-        self.city_ctrl = None
-
-        self.unit_ctrl = None
-        self.gov_ctrl = None
-
-        self.controller_list = {}
-
         self.visualize = visualize
         self.monitor = None
         if self.visualize:
             self.monitor = CivMonitor(host, username)
 
-        self.ws_client = CivConnection(host, client_port)
-        self.ws_client.set_on_connection_success_callback(self.init_control)
-        self.ws_client.set_packets_callback(self.assign_packets)
-
         self.begin_turn_callback = None
         self.move_callback = None
 
-    def init_network(self):
-        self.ws_client.network_init()
+        self.init_controllers()
 
-    def set_begin_turn_callback(self, callback):
-        self.begin_turn_callback = callback
-
-    def set_move_callback(self, callback):
-        self.move_callback = callback
-
-    def init_control(self):
-        """
-        When the WebSocket connection is open and ready to communicate, then
-        send the first login message to the server.
-        """
-        self.init_controller()
-        if self.visualize:
-            self.monitor.start_monitor()
-
-        self.clstate.init_game_setting()
-
-    def init_controller(self):
-        # TODO: move this initialization to __init__() method
-        CivPropController.__init__(self, self.ws_client)
-
+    def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")
         self.register_handler(28, "handle_early_chat_msg")
 
@@ -124,13 +107,17 @@ class CivController(CivPropController):
         self.register_handler(129, "handle_end_turn")
 
         self.register_handler(29, "handle_version_info")
-        # new handler for hotseat mode (or more generally due to game setting change)
-        # the received messages may need to be handled for different modes
+        # New handler for hotseat mode (or more generally due to game setting change)
+        # The received messages may need to be handled for different modes
         self.register_handler(512, "handle_ruleset_clause_msg")
         self.register_handler(20, "handle_ruleset_impr_flag_msg")
         self.register_handler(259, "handle_web_player_addition_info")
         self.register_handler(66, "handle_unknown_research_msg")
 
+    def init_controllers(self):
+        """
+        Initialize all controllers for the game. This is done in the constructor before the WebSocket connection is open, hence it is called before init_control() is called.
+        """
         self.game_ctrl = GameCtrl(self.ws_client)
         self.opt_ctrl = OptionCtrl(self.ws_client)
         self.rule_ctrl = RulesetCtrl(self.ws_client)
@@ -166,6 +153,25 @@ class CivController(CivPropController):
                                 "client": self.clstate}
         for ctrl in self.controller_list:
             self.controller_list[ctrl].register_with_parent(self)
+
+    def set_begin_turn_callback(self, callback):
+        self.begin_turn_callback = callback
+
+    def set_move_callback(self, callback):
+        self.move_callback = callback
+
+    def init_network(self):
+        self.ws_client.network_init()
+
+    def init_control(self):
+        """
+        When the WebSocket connection is open and ready to communicate, then
+        send the first login message to the server.
+        """
+        if self.visualize:
+            self.monitor.start_monitor()
+
+        self.clstate.init_game_setting()
 
     def close(self):
         if self.visualize:
@@ -398,4 +404,3 @@ class CivController(CivPropController):
         logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
-        # update_turn_change_timer()

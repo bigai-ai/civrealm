@@ -94,6 +94,7 @@ class MapCtrl(CivPropController):
         self.prop_state = MapState(self.player_map)
         self.prop_actions = NoActions(ws_client)
 
+    def register_all_handlers(self):
         self.register_handler(15, "handle_tile_info")
         self.register_handler(17, "handle_map_info")
         self.register_handler(253, "handle_set_topology")
@@ -477,7 +478,7 @@ class CityTileMap():
                 if max_ind < tile_data[3]:
                     max_ind = tile_data[3]
                 ind += 1
-        assert(max_ind+1<=vl*100) # make sure vl*100 is enough
+        assert (max_ind+1 <= vl*100)  # make sure vl*100 is enough
         return clipped_map[:max_ind+1]
 
     def get_city_tile_map_for_pos(self, x, y):
@@ -488,7 +489,7 @@ class CityTileMap():
 
         r = self.radius
         if topo_has_flag(TF_WRAPX):  # Cylinder with N-S axis
-            d = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])  
+            d = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
             if d[2] not in self.maps:
                 self.maps[d[2]] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
             return self.maps[d[2]]

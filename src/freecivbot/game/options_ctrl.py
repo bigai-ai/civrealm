@@ -127,6 +127,7 @@ class OptionCtrl(CivPropController):
         self.gui_gtk2_allied_chat_only = FALSE
         self.gui_gtk2_small_display_layout = FALSE
 
+    def register_all_handlers(self):
         self.register_handler(164, "handle_server_setting_control")
         self.register_handler(165, "handle_server_setting_const")
         self.register_handler(166, "handle_server_setting_bool")

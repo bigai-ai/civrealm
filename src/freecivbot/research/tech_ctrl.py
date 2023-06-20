@@ -81,6 +81,9 @@ class TechCtrl(CivPropController):
         self.is_tech_tree_init = False
         self.wikipedia_url = "http://en.wikipedia.org/wiki/"
 
+    def register_all_handlers(self):
+        pass
+
     def get_wiki_tech_info(self, tech_name):
         if freeciv_wiki_docs is None or freeciv_wiki_docs[tech_name] is None:
             return

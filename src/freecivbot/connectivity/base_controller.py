@@ -3,6 +3,9 @@ Created on 29.12.2017
 
 @author: christian
 '''
+
+from freecivbot.connectivity.clinet import CivConnection
+
 from freecivbot.utils.base_action import ActionList
 from freecivbot.utils.base_state import PropState
 
@@ -15,11 +18,15 @@ class CivPropController():
         and can send information back to  
     """
 
-    def __init__(self, ws_client):
+    def __init__(self, ws_client: CivConnection):
         self.hdict = {}
         self.ws_client = ws_client
         self.prop_state = PropState()
         self.prop_actions = ActionList(ws_client)
+        self.register_all_handlers()
+
+    def register_all_handlers(self):
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
     def register_with_parent(self, parent):
         for key in self.hdict.keys():

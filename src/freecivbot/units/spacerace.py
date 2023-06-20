@@ -39,6 +39,8 @@ class SpaceCtrl(CivPropController):
         CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.spaceship_info = {}
+
+    def register_all_handlers(self):
         self.register_handler(137, "handle_spaceship_info")
 
     def get_current_state(self, pplayer):

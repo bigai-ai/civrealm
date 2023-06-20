@@ -55,6 +55,7 @@ class CityCtrl(CivPropController):
         self.prop_state = CityState(ruleset, self.cities)
         self.prop_actions = CityActions(ws_client, ruleset, self.cities, map_ctrl)
 
+    def register_all_handlers(self):
         self.register_handler(30, "handle_city_remove")
         self.register_handler(31, "handle_city_info")
         self.register_handler(32, "handle_city_short_info")

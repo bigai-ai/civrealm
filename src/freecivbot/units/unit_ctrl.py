@@ -31,6 +31,7 @@ from freecivbot.players.diplomacy import DS_ALLIANCE, DS_TEAM
 from freecivbot.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from freecivbot.units.unit_state import UnitState
 import urllib
+import re
 
 from freecivbot.utils.freeciv_logging import logger
 
@@ -520,22 +521,31 @@ class UnitCtrl(CivPropController):
           unit"""
         self.request_unit_act("unit")
 
+    def decode_special_characters(self, name):        
+        pattern = r"%[0-9A-Fa-f]{2}%[0-9A-Fa-f]{2}"        
+        special_char_list = re.findall(pattern, name)
+        if len(special_char_list) > 0:            
+            for i in range(len(special_char_list)):
+            # for i in range(0, len(special_char_list), 2):
+                sub_pattern = special_char_list[i]                
+                name = re.sub(sub_pattern, urllib.parse.unquote(sub_pattern), name)        
+        # replace empty space encoding with empty space
+        pattern = r"%20"
+        replacement = " "
+        name = re.sub(pattern, replacement, name)
+        return name
+
     def handle_city_name_suggestion_info(self, packet):
         """
       /* A suggested city name can contain an apostrophe ("'"). That character
        * is also used for single quotes. It shouldn't be added unescaped to a
        * string that later is interpreted as HTML. */
-      /* TODO: Forbid city names containing an apostrophe or make sure that all
-       * JavaScript using city names handles it correctly. Look for places
-       * where a city name string is added to a string that later is
-       * interpreted as HTML. Avoid the situation by directly using JavaScript
-       * like below or by escaping the string. */
        """
-        # /* Decode the city name. */
-        # TODO: make sure suggested_name is ASCII
+        # /* Decode the city name. */        
         unit_id = packet['unit_id']
         actor_unit = self.find_unit_by_number(unit_id)
-        suggested_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
+        suggested_name = self.decode_special_characters(packet['name'])             
+        # suggested_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
         if suggested_name in self.city_name_list:
             duplicate_name_num = sum(city_name.startswith(suggested_name) for city_name in self.city_name_list)
             suggested_name = '{}_{}'.format(suggested_name, duplicate_name_num)

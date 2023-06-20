@@ -9,6 +9,7 @@ authors = [
 readme = "README.md"
 license = {text = "GLP3.0"}
 dependencies = [
+    "pyyaml",
     "wheel",
     "docker",
     "urllib3", 

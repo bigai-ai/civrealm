@@ -36,13 +36,14 @@ C_S_OVER = 3  # /* Connected with game over. */
 class ClientState(CivPropController):
     def __init__(self, username, ws_client, client_port, rule_ctrl):
         CivPropController.__init__(self, ws_client)
-        self.rule_ctrl = rule_ctrl        
+        self.rule_ctrl = rule_ctrl
         self.civclient_state = C_S_INITIAL
         self.connect_error = False
         self.oldstate = -1
         self.prop_actions = NoActions(ws_client)
         self.prop_state = EmptyState()
 
+        self.username = username
         self.client = {}
         self.client["conn"] = {}
         self.client_frozen = False
@@ -65,14 +66,12 @@ class ClientState(CivPropController):
 
         self.pre_game_callback = None
 
-        self.name_index = 0
         self.multiplayer_game = args['multiplayer_game']
         self.hotseat_game = args['hotseat_game']
         # For host of multiplayer game, follower should be False. For Follower, it should be true
         self.follower = args['follower']
         # whether to wait for observer before start game in multiplayer mode
         self.wait_for_observer = args['wait_for_observer']
-        self.user_name_origin = username
 
         self.register_handler(0, "handle_processing_started")
         self.register_handler(1, "handle_processing_finished")
@@ -93,23 +92,26 @@ class ClientState(CivPropController):
         self.pre_game_callback = callback_func
 
     def init_game_setting(self):
-        self.login()        
+        self.login()
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:
-            self.set_hotseat_game()      
-        
+            self.set_hotseat_game()
+
         # Set map seed. The same seed leads to the same map.
         self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
-    
+
+    def is_pregame(self):
+        return self.civclient_state == C_S_PREPARING
+
     def check_prepare_game_message(self, message):
         # not need to wait for observer. auto start game
         if self.wait_for_observer == False:
             # try prepare game. If in multiplayer game and not enough player, will not start game
             if "You are logged in as" in message:
                 self.pre_game_callback()
-            elif self.multiplayer_game:                                   
+            elif self.multiplayer_game:
                 if "alive players are ready to start" in message:
                     # follower always set itself to be ready when new player join
                     if self.follower:
@@ -118,9 +120,9 @@ class ClientState(CivPropController):
                         ready_player_num, overall_player_num = self.get_ready_state(message)
                         if ready_player_num == overall_player_num-1:
                             self.pre_game_callback()
-        elif 'now observes' in message: # observer has joined
+        elif 'now observes' in message:  # observer has joined
             self.wait_for_observer = False
-            self.pre_game_callback()            
+            self.pre_game_callback()
 
     def get_ready_state(self, message):
         temp_str = message.split(' out of ')
@@ -128,17 +130,15 @@ class ClientState(CivPropController):
         return int(temp_str[0][-1]), int(temp_str[1][0])
 
     def login(self):
-        self.name_index = self.name_index+1
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
-        google_user_subject = None                    
-        self.user_name = self.user_name_origin+str(self.name_index)
+        google_user_subject = None
 
-        login_message = {"pid": 4, "username": self.user_name,
+        login_message = {"pid": 4, "username": self.username,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,
                          "port": self.client_port, "password": sha_password,
-                         "subject": google_user_subject}        
+                         "subject": google_user_subject}
         self.ws_client.send(login_message)
 
     def set_hotseat_game(self):
@@ -169,7 +169,7 @@ class ClientState(CivPropController):
             self.ws_client.send_message("/set nationset all")
             self.ws_client.send_message(f"/set maxplayers {args['maxplayers']}")
             # This setting allows human to take the control of the agent in the middle of the game
-            self.ws_client.send_message(f"/set allowtake {args['allowtake']}")            
+            self.ws_client.send_message(f"/set allowtake {args['allowtake']}")
             self.ws_client.send_message(f"/set autotoggle {args['autotoggle']}")
             self.ws_client.send_message("/set timeout 60")
             self.ws_client.send_message("/set netwait 15")
@@ -184,7 +184,7 @@ class ClientState(CivPropController):
             self.ws_client.send_message(f"/set minp {args['minp']}")
             self.ws_client.send_message("/set generator FAIR")
             # self.ws_client.send_message("/metaconnection persistent")
-            self.ws_client.send_message("/metamessage Multiplayer Game hosted by "+self.user_name)
+            self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
 
     def init_state(self, packet):
         self.client["conn"] = packet
@@ -274,7 +274,7 @@ class ClientState(CivPropController):
             """
         else:
             if 'already connected' in packet['message']:
-                # login() in network_init() will increase name_index and connect again                
+                # login() in network_init() will increase name_index and connect again
                 self.ws_client.network_init()
 
     def update_client_state(self, value):

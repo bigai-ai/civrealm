@@ -45,6 +45,7 @@ from freecivbot.utils.civ_monitor import CivMonitor
 from freecivbot.utils.freeciv_logging import logger
 from gym_freeciv_web.configs import args
 
+
 class CivController(CivPropController):
     def __init__(self, username, host='localhost', client_port=6000, visualize=True):
         self.ai_skill_level = 3
@@ -54,9 +55,10 @@ class CivController(CivPropController):
         # 6001 and 6002 are for multiplayer game
         # 6003 and 6006 are for longturn game (one turn per day)
         if args['multiplayer_game']:
-            client_port = 6001 
+            client_port = 6001
         self.client_port = client_port
         self.user_name = username
+        self.name_index = 0
 
         self.game_ctrl = None
         self.opt_ctrl = None
@@ -79,7 +81,7 @@ class CivController(CivPropController):
         self.monitor = None
         if self.visualize:
             self.monitor = CivMonitor(host, username)
-        
+
         self.ws_client = CivConnection(host, client_port)
         self.ws_client.set_on_connection_success_callback(self.init_control)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -104,7 +106,7 @@ class CivController(CivPropController):
         self.init_controller()
         if self.visualize:
             self.monitor.start_monitor()
-        
+
         self.clstate.init_game_setting()
 
     def init_controller(self):
@@ -134,7 +136,9 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(self.user_name, self.ws_client, self.client_port, self.rule_ctrl)
+        self.name_index += 1
+        self.clstate = ClientState(f'{self.user_name}{self.name_index}',
+                                   self.ws_client, self.client_port, self.rule_ctrl)
         self.clstate.set_pre_game_callback(self.prepare_game)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
@@ -161,8 +165,8 @@ class CivController(CivPropController):
                                 "gov": self.gov_ctrl,
                                 "client": self.clstate}
         for ctrl in self.controller_list:
-            self.controller_list[ctrl].register_with_parent(self)    
-    
+            self.controller_list[ctrl].register_with_parent(self)
+
     def close(self):
         if self.visualize:
             self.monitor.stop_monitor()
@@ -286,6 +290,10 @@ class CivController(CivPropController):
             # TODO: handle bad command
             # assert(False)
 
+        # Check whether to prepare game based on message
+        if self.clstate.is_pregame():
+            self.clstate.check_prepare_game_message(message)
+
         if conn_id in self.clstate.connections:
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
         else:
@@ -296,8 +304,6 @@ class CivController(CivPropController):
 
         packet['message'] = message
         logger.info("chat_msg: ", packet)
-        # check whether to prepare game based on message
-        self.clstate.check_prepare_game_message(message)            
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""

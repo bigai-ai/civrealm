@@ -20,6 +20,7 @@ except ImportError as e:
     raise error.DependencyNotInstalled(
         "{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
 
+from gym_freeciv_web.configs import args
 
 class GymBot(BaseBot):
     def __init__(self, gym_env, username, visualize):
@@ -131,7 +132,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         """ Reward is given for scoring a goal. """
         return self.my_bot.get_reward()
 
-    def reset(self, username="civbot", max_turns=500, visualize=False):
+    def reset(self, username=args['username'], max_turns=500, visualize=False):
         """ Repeats NO-OP action until a new episode begins. """
         self.reward = 0
         self.done = False

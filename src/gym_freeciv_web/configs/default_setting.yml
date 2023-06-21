@@ -5,8 +5,6 @@ out_dir: /tmp/random-agent-results
 multiplayer_game: True
 # Whether to start hotseat game in single player mode
 hotseat_game: False
-# Whether the client is a follower or host of a multiplayer game
-follower: False
 # Whether to wait a observer join before start the game
 wait_for_observer: False
 # The seed used to generate a map
@@ -14,13 +12,14 @@ mapseed: 88
 # Number of AI players
 aifill: 0
 # The maximum number of players
-maxplayers: 3
+maxplayers: 10
 # The minimum number of players that allows the game to start
 minp: 1
 # The allowtake setting decides whether can take control/observe a player
 allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
 autotoggle: False
+username: civbot
 
 trainer:
   epoch: 300

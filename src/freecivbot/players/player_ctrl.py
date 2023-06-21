@@ -262,11 +262,13 @@ class PlayerCtrl(CivPropController):
         packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
         packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
         playerno = packet["playerno"]
+        # Update player information
         if not playerno in self.players.keys() or self.players[playerno] is None:
             self.players[playerno] = packet
         else:
             self.players[playerno].update(packet)
 
+        # TODO: check what the following code is doing
         if self.clstate.is_playing():
             if packet['playerno'] == self.clstate.cur_player()['playerno']:
                 self.clstate.change_player(self.players[packet['playerno']])

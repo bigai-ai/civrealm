@@ -2,9 +2,10 @@ import argparse
 import yaml
 
 def boolean_string(s):
-    if s not in {'False', 'True'}:
-        raise ValueError('Not a valid boolean string')
-    return s == 'True'
+    s = s.lower()
+    if s not in {'false', 'true'}:
+        raise ValueError(f'{s} is not a valid boolean string')
+    return s == 'true'
 
 def parse_args():
     """

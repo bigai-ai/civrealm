@@ -43,11 +43,13 @@ class ClientState(CivPropController):
         self.prop_actions = NoActions(ws_client)
         self.prop_state = EmptyState()
 
-        self.username = username
+        self.username_origin = username
         self.client = {}
+        # Store the client connection state, e.g., conn_id, established
         self.client["conn"] = {}
         self.client_frozen = False
 
+        # Store all connection information. Also include other players' connections with server
         self.connections = {}
         self.conn_ping_info = {}
         self.debug_active = False
@@ -65,12 +67,13 @@ class ClientState(CivPropController):
         self.seconds_to_phasedone_sync = 0
 
         self.name_index = 0
+        self.login_tried = False
         self.pre_game_callback = None
 
         self.multiplayer_game = args['multiplayer_game']
         self.hotseat_game = args['hotseat_game']
         # For host of multiplayer game, follower should be False. For Follower, it should be true
-        self.follower = args['follower']
+        self.follower = False
         # whether to wait for observer before start game in multiplayer mode
         self.wait_for_observer = args['wait_for_observer']
 
@@ -93,14 +96,15 @@ class ClientState(CivPropController):
     def set_pre_game_callback(self, callback_func):
         self.pre_game_callback = callback_func
 
-    def init_game_setting(self):
-        self.login()
+    def set_follower_property(self):
+        self.follower = True
+
+    def init_game_setting(self):        
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:
             self.set_hotseat_game()
-
         # Set map seed. The same seed leads to the same map.
         self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
 
@@ -108,24 +112,29 @@ class ClientState(CivPropController):
         return self.civclient_state == C_S_PREPARING
 
     def check_prepare_game_message(self, message):
-        if self.wait_for_observer == False:
-            # Auto start game if not waiting for observer
-            if 'You are logged in as' in message:
+        if self.follower:
+            # The follower wait for the ready message from the host
+            if 'Please be ready to start' in message:
                 self.pre_game_callback()
-            elif self.multiplayer_game:
-                # If it is multiplayer game, check if all players are ready
-                if 'alive players are ready to start' in message:
-                    # Follower always set itself to be ready when new player join
-                    if self.follower:
-                        self.pre_game_callback()
-                    else:
+        else:
+            if self.wait_for_observer == False:
+                # Auto start game if not waiting for observer. Needed for single player game
+                if 'You are logged in as' in message:
+                    self.pre_game_callback()
+                elif self.multiplayer_game:
+                    # Everytime follower be connected, the host send a ready message
+                    if 'has connected from' in message:
+                        self.ws_client.send_message('Please be ready to start')                                           
+                    # If it is multiplayer game, check if all players are ready
+                    if 'alive players are ready to start' in message:
+                        # Follower always set itself to be ready when new player join                       
                         ready_player_num, overall_player_num = self.get_ready_state(message)
                         if ready_player_num == overall_player_num-1:
                             self.pre_game_callback()
-        elif 'now observes' in message:
-            # Observer has joined
-            self.wait_for_observer = False
-            self.pre_game_callback()
+            elif 'now observes' in message:
+                # Observer has joined
+                self.wait_for_observer = False
+                self.ws_client.send_message('Please be ready to start')                
 
     def get_ready_state(self, message):
         # Assume the player ready message is of format: "m out of n alive players..."
@@ -136,8 +145,14 @@ class ClientState(CivPropController):
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
-        self.name_index += 1
-        login_message = {"pid": 4, "username": f'{self.username}{self.name_index}',
+        if self.login_tried:
+            self.name_index += 1
+            self.username = f'{self.username_origin}{self.name_index}'
+        else:
+            self.username = self.username_origin
+            self.login_tried = True
+            
+        login_message = {"pid": 4, "username": self.username,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,
                          "port": self.client_port, "password": sha_password,
@@ -163,9 +178,6 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/metamessage hotseat game")
 
     def set_multiplayer_game(self):
-        if self.follower:
-            return
-
         # Set AI player to 0. Based on HACKING file
         self.ws_client.send_message(f"/set aifill {args['aifill']}")
         # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
@@ -191,7 +203,7 @@ class ClientState(CivPropController):
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
 
-    def init_state(self, packet):
+    def update_state(self, packet):
         self.client["conn"] = packet
 
     def has_id(self, cid):

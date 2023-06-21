@@ -91,7 +91,8 @@ class CivController(CivPropController):
 
         self.begin_turn_callback = None
         self.move_callback = None
-
+        # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower 
+        self.first_conn_info_received = False
         self.init_controllers()
 
     def register_all_handlers(self):
@@ -169,7 +170,7 @@ class CivController(CivPropController):
         if self.visualize:
             self.monitor.start_monitor()
 
-        self.clstate.init_game_setting()
+        self.clstate.login()
 
     def close(self):
         if self.visualize:
@@ -218,7 +219,7 @@ class CivController(CivPropController):
         # if self.player_ctrl.is_player_ready():
 
     def pregame_choose_nation(self, player_id):
-        namelist = self.rule_ctrl.get_nation_options()
+        namelist = self.rule_ctrl.get_nation_options()        
         nation_name = namelist[random.randint(0, len(namelist))]
         self.submit_nation_choice(nation_name, player_id)
 
@@ -381,17 +382,36 @@ class CivController(CivPropController):
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
         else:
+            # TODO: ensure 'player_num' in packet-115 is equivalent to 'playerno' in packet-51             
             pplayer = self.player_ctrl.valid_player_by_number(packet['player_num'])
+            # Receive the first conn_info
+            if self.first_conn_info_received == False:
+                # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
+                assert(pplayer != None)
+                # The client is a host. Specify the game setting below.
+                if packet['player_num'] == 0:
+                    self.clstate.init_game_setting()
+                else:
+                    # Set the follower property in clstate
+                    self.clstate.set_follower_property()
+                self.first_conn_info_received = True
+            # Unknown player
             if pplayer == None:
                 return
+            
+            # Insert player info into connection info packet. 'playing' means the player is still playing the game
             packet['playing'] = pplayer
-
+            # If the connection info is about the client itself
             if self.clstate.has_id(packet["id"]):
-                self.clstate.init_state(packet)
+                # Update connection info and player info
+                self.clstate.update_state(packet)
 
+            # Store connection info
             self.clstate.conn_list_append(packet)
 
         if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
+            # It seems impossible to get here
+            assert(False)
             self.clstate.set_client_state(C_S_PREPARING)
 
         # /* FIXME: not implemented yet.

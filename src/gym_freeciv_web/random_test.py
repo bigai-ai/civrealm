@@ -7,7 +7,7 @@ Created on 19.12.2018
 import random
 import json
 import numpy
-import configs
+from gym_freeciv_web.configs import args
 
 import gym
 from gym import wrappers
@@ -84,16 +84,13 @@ class RandomAgent(object):
 
 def main():
 
-    opt = configs.opt
-    print(str(opt))
-
-    env = gym.make(opt['gym_env'])
+    env = gym.make(args['gym_env'])
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
-    outdir = opt['out_dir']
+    outdir = args['out_dir']
 
     env = wrappers.Monitor(env, directory=outdir, force=True)
     env.seed(0)

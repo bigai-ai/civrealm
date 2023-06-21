@@ -26,4 +26,4 @@ def parse_args():
     
     return opt
     
-opt = parse_args()
+args = parse_args()

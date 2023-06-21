@@ -84,16 +84,16 @@ class RandomAgent(object):
 
 def main():
 
-    # opt = configs.opt
-    # print(str(opt))
+    opt = configs.opt
+    print(str(opt))
 
-    env = gym.make("Freeciv-v0")
+    env = gym.make(opt['gym_env'])
 
     # You provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
-    outdir = '/tmp/random-agent-results'
+    outdir = opt['out_dir']
 
     env = wrappers.Monitor(env, directory=outdir, force=True)
     env.seed(0)

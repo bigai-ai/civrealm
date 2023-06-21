@@ -1,6 +1,5 @@
 import argparse
 import yaml
-# import configparser
 
 def parse_args():
     """
@@ -18,6 +17,7 @@ def parse_args():
             group = parser.add_argument_group(key)
             # print(key)
             for sub_key in opt[key].keys():
+                assert type(opt[key][sub_key]) is not dict, "Config only accepts two-level of arguments"
                 group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key])
         else:
             parser.add_argument('--' + key, default=opt[key])
@@ -26,4 +26,4 @@ def parse_args():
     
     return opt
     
-args = parse_args()
+opt = parse_args()

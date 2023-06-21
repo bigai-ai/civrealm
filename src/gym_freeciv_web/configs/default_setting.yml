@@ -24,4 +24,4 @@ autotoggle: False
 
 trainer:
   epoch: 300
-  lr: 1e-5
+  lr: 1.0e-5

@@ -1,6 +1,11 @@
 import argparse
 import yaml
 
+def boolean_string(s):
+    if s not in {'False', 'True'}:
+        raise ValueError('Not a valid boolean string')
+    return s == 'True'
+
 def parse_args():
     """
     Initialize default arguments with yaml and renew values with input arguments.
@@ -18,12 +23,17 @@ def parse_args():
             # print(key)
             for sub_key in opt[key].keys():
                 assert type(opt[key][sub_key]) is not dict, "Config only accepts two-level of arguments"
-                group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key])
+                if type(opt[key][sub_key]) is bool:
+                    group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key], type=boolean_string)
+                else:
+                    group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key], type=type(opt[key][sub_key]))
         else:
-            parser.add_argument('--' + key, default=opt[key])
+            if type(opt[key]) is bool:
+                parser.add_argument('--' + key, default=opt[key], type=boolean_string)
+            else:
+                parser.add_argument('--' + key, default=opt[key], type=type(opt[key]))
     args = parser.parse_args(remaining_argv)
-    opt.update(vars(args))
     
-    return opt
+    return vars(args)
     
 args = parse_args()

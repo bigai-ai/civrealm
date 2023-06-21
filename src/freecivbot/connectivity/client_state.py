@@ -64,6 +64,7 @@ class ClientState(CivPropController):
         self.seconds_to_phasedone = 0
         self.seconds_to_phasedone_sync = 0
 
+        self.name_index = 0
         self.pre_game_callback = None
 
         self.multiplayer_game = args['multiplayer_game']
@@ -135,8 +136,8 @@ class ClientState(CivPropController):
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         sha_password = None
         google_user_subject = None
-
-        login_message = {"pid": 4, "username": self.username,
+        self.name_index += 1
+        login_message = {"pid": 4, "username": f'{self.username}{self.name_index}',
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,
                          "port": self.client_port, "password": sha_password,

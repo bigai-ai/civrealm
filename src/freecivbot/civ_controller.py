@@ -82,8 +82,7 @@ class CivController(CivPropController):
         if args['multiplayer_game']:
             client_port = 6001
         self.client_port = client_port
-        self.user_name = username
-        self.name_index = 0
+        self.user_name = username        
 
         self.visualize = visualize
         self.monitor = None
@@ -122,9 +121,8 @@ class CivController(CivPropController):
         self.opt_ctrl = OptionCtrl(self.ws_client)
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
-
-        self.name_index += 1
-        self.clstate = ClientState(f'{self.user_name}{self.name_index}',
+        
+        self.clstate = ClientState(self.user_name,
                                    self.ws_client, self.client_port, self.rule_ctrl)
         self.clstate.set_pre_game_callback(self.prepare_game)
 

@@ -10,6 +10,7 @@ readme = "README.md"
 license = {text = "GLP3.0"}
 dependencies = [
     "pyyaml",
+    "overrides",
     "wheel",
     "docker",
     "urllib3", 
@@ -25,6 +26,3 @@ dependencies = [
 [project.scripts]
 build_freeciv_server = "freecivbot.build_server:build_docker_img"
 test_freeciv_web_gym = "gym_freeciv_web.random_test:main"
-
-[tool.property]
-authors = ["Chris1869 <chris1869@github.com>",]

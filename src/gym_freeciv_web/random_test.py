@@ -100,7 +100,7 @@ def main():
     episode_count = 1
     try:
         for episode_i in range(episode_count):
-            logger.info("Starting episode %i" % episode_i)
+            logger.info(f'Starting episode {episode_i}')
             agent.perform_episode(env)
         # Close the env and write monitor result info to disk
     finally:

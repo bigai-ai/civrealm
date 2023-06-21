@@ -23,9 +23,9 @@ import json
 import websocket
 import urllib
 import docker
-from tornado import ioloop
 from math import ceil
 from time import sleep
+from overrides import override
 
 from freecivbot.connectivity.web_socket_client import WebSocketClient
 from freecivbot.utils.fc_types import packet_chat_msg_req
@@ -49,11 +49,12 @@ class CivWSClient(WebSocketClient):
     def set_packets_callback(self, callback_func):
         self.packets_callback = callback_func
 
+    @override
     def _on_message(self, message):
         if message is None:
             logger.warning('Received empty message from server. Closing connection')
-            self._on_connection_close()
-            return        
+            self.close()
+            return
         self.read_packs = json.loads(message)
         logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
         self.packets_callback(self.read_packs)
@@ -61,17 +62,23 @@ class CivWSClient(WebSocketClient):
         self.clear_send_queue()
         logger.info(('Wait_for_packs: ', self.wait_for_packs))
 
+    @override
     def _on_connection_success(self):
         logger.info('Connected!')
         self.on_connection_success_callback()
 
+    @override
     def _on_connection_close(self):
-        logger.warning('Connection to server is closed. Please reload the page to restart. Sorry!')
+        self.send_queue = []
+        self.wait_for_packs = []
+        self.read_packs = []
+        logger.warning('Connection to server is closed!')
 
+    @override
     def _on_connection_error(self, exception):
         # logger.error(f'Network error. Problem {exception} occured with the {self.ws_conn.protocol} WebSocket connection to the server: {self.ws_conn.request.url}')
         logger.error(f'Network error. Problem {exception} occured')
-        
+
     def send_request(self, packet_payload, wait_for_pid=None):
         '''
         Sends a request to the server, with a JSON packet.
@@ -95,13 +102,6 @@ class CivWSClient(WebSocketClient):
             self.send(pack)
         self.send_queue = []
         return msges
-
-    def close(self):
-        self.send_queue = []
-        self.wait_for_packs = []
-        self.read_packs = []
-        WebSocketClient.close(self)
-        ioloop.IOLoop.instance().stop()
 
     def is_waiting_for_responses(self):
         return len(self.wait_for_packs) > 0
@@ -135,8 +135,6 @@ class CivConnection(CivWSClient):
 
         self._restarting_server = False
         self._cur_retry = 0
-        # when re-login, civ_controller will call network_init() through callback
-        self.loop_started = False
 
     def _retry(self):
         self._cur_retry += 1
@@ -165,22 +163,9 @@ class CivConnection(CivWSClient):
         self._restarting_server = False
         logger.info(f'Connecting to server at {self.host} ...')
         if self._detect_server_up():
-            self.websocket_init()
+            self.connect(self.ws_address)
         else:
             logger.info('Connection could not be established!')
-
-    def websocket_init(self):
-        '''
-          Initialized the WebSocket connection.
-        '''
-        self.connect(self.ws_address)
-        
-        if self.loop_started == False:
-            try:
-                self.loop_started = True
-                ioloop.IOLoop.instance().start()
-            except KeyboardInterrupt:
-                self.close()
 
     def _restart_server(self):
         try:

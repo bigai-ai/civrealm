@@ -31,7 +31,8 @@ class CivPropController():
         server_setting_packets = {165, 166, 167, 168, 169, 170}
         ruleset_packets = {148, 246, 143, 229, 140, 260, 144, 235, 226, 152,
                            175, 232, 151, 150, 149, 240, 512, 145, 230, 227, 252, 228, 177}
-        self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets)
+        info_packets = {15}
+        self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
 
     def register_all_handlers(self):
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')

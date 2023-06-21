@@ -307,9 +307,11 @@ class CivController(CivPropController):
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
         else:
             if "/metamessage" in message:
-                return  # //don't spam message dialog on game start.
+                # don't spam message dialog on game start.
+                return
             if "Metaserver message string" in message:
-                return  # //don't spam message dialog on game start.
+                # don't spam message dialog on game start.
+                return
 
         packet['message'] = message
         logger.info("chat_msg: ", packet)

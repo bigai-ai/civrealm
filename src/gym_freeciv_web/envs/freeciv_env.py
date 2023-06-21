@@ -133,15 +133,9 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         return self.my_bot.get_reward()
 
     def reset(self, username=args['username'], max_turns=500, visualize=False):
-        """ Repeats NO-OP action until a new episode begins. """
         self.reward = 0
         self.done = False
 
-        """
-        Provides a chance for subclasses to override this method and supply
-        a different server configuration. By default, we initialize one
-        offense agent against no defenders.
-        """
         self.max_turns = max_turns
         self.my_bot = GymBot(self, username, visualize=visualize)
         self.my_bot.init_env()

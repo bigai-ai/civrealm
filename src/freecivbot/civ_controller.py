@@ -50,8 +50,8 @@ class CivController(CivPropController):
     """
     This class is the main controller for the game. It is responsible for handling the game state and the game logic. It is also responsible for handling the WebSocket connection to the Freeciv server. It is the main interface for the user to interact with the game. 
 
-    To connect to the server, call the connect() method. 
-    To login to a game, call the login() method.  
+    To connect to the server, call the init_network() method. 
+    To login to a game, call the init_game() method.  
     """
 
     def __init__(self, username, host='localhost', client_port=6000, visualize=False):
@@ -73,7 +73,7 @@ class CivController(CivPropController):
             Whether to visualize the game. The default is False.
         """
         CivPropController.__init__(self, CivConnection(host, client_port))
-        self.ws_client.set_on_connection_success_callback(self.init_control)
+        self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)
 
         self.ai_skill_level = 3
@@ -115,7 +115,7 @@ class CivController(CivPropController):
 
     def init_controllers(self):
         """
-        Initialize all controllers for the game. This is done in the constructor before the WebSocket connection is open, hence it is called before init_control() is called.
+        Initialize all controllers for the game. This is done in the constructor before the WebSocket connection is open, hence it is called before init_game() is called.
         """
         self.game_ctrl = GameCtrl(self.ws_client)
         self.opt_ctrl = OptionCtrl(self.ws_client)
@@ -161,7 +161,7 @@ class CivController(CivPropController):
     def init_network(self):
         self.ws_client.network_init()
 
-    def init_control(self):
+    def init_game(self):
         """
         When the WebSocket connection is open and ready to communicate, then
         send the first login message to the server.
@@ -276,9 +276,13 @@ class CivController(CivPropController):
 
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""
-        message = packet['message']
-        conn_id = packet['conn_id']
-        event = packet['event']
+        try:
+            message = packet['message']
+            conn_id = packet['conn_id']
+            event = packet['event']
+        except KeyError:
+            logger.error(f'Packet is missing some keys: {packet}')
+            raise Exception("Packet is missing some keys")
 
         if message is None:
             return

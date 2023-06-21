@@ -163,7 +163,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/metamessage hotseat game")
 
     def set_multiplayer_game(self):
-        if self.follower == True:
+        if self.follower:
             return
 
         # Set AI player to 0. Based on HACKING file

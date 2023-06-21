@@ -25,6 +25,14 @@ class CivPropController():
         self.prop_actions = ActionList(ws_client)
         self.register_all_handlers()
 
+        # Packets that are filtered when logging debug messages
+        self.unlogged_packets = set()
+        # Packet id 165 are informative packets about server commands
+        server_setting_packets = {165, 166, 167, 168, 169, 170}
+        ruleset_packets = {148, 246, 143, 229, 140, 260, 144, 235, 226, 152,
+                           175, 232, 151, 150, 149, 240, 512, 145, 230, 227, 252, 228, 177}
+        self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets)
+
     def register_all_handlers(self):
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
@@ -39,7 +47,8 @@ class CivPropController():
 
     def handle_pack(self, pid, data):
         if pid in self.hdict:
-            logger.debug('Receiving packet: {}'.format(data))
+            if pid not in self.unlogged_packets:
+                logger.debug('Receiving packet: {}'.format(data))
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:

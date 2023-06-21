@@ -82,7 +82,7 @@ class CivController(CivPropController):
         if args['multiplayer_game']:
             client_port = 6001
         self.client_port = client_port
-        self.user_name = username        
+        self.user_name = username
 
         self.visualize = visualize
         self.monitor = None
@@ -90,8 +90,7 @@ class CivController(CivPropController):
             self.monitor = CivMonitor(host, username)
 
         self.begin_turn_callback = None
-        self.move_callback = None
-        # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower 
+        # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
         self.first_conn_info_received = False
         self.init_controllers()
 
@@ -122,7 +121,7 @@ class CivController(CivPropController):
         self.opt_ctrl = OptionCtrl(self.ws_client)
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
-        
+
         self.clstate = ClientState(self.user_name,
                                    self.ws_client, self.client_port, self.rule_ctrl)
         self.clstate.set_pre_game_callback(self.prepare_game)
@@ -156,11 +155,11 @@ class CivController(CivPropController):
     def set_begin_turn_callback(self, callback):
         self.begin_turn_callback = callback
 
-    def set_move_callback(self, callback):
-        self.move_callback = callback
-
     def init_network(self):
         self.ws_client.network_init()
+
+    def lock_control(self):
+        self.ws_client.start_ioloop()
 
     def init_game(self):
         """
@@ -177,6 +176,17 @@ class CivController(CivPropController):
             self.monitor.stop_monitor()
         self.ws_client.close()
 
+    def ready_to_act(self):
+        """
+        Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
+        """
+        # TODO: make sure the condition is correct
+        return not self.ws_client.is_waiting_for_responses()
+
+    def try_grant_control_to_player(self):
+        if self.ready_to_act():
+            self.ws_client.stop_ioloop()
+
     def assign_packets(self, p_list):
         """Distributes packets to the handlers of the controllers"""
         if p_list is None:
@@ -192,8 +202,8 @@ class CivController(CivPropController):
                     # TODO: handle wait_for_packs
                     pass
 
-            if not self.ws_client.is_waiting_for_responses():
-                self.move_callback()
+            # TODO: check the triggering conditions.
+            self.try_grant_control_to_player()
         except Exception:
             raise
 
@@ -219,7 +229,7 @@ class CivController(CivPropController):
         # if self.player_ctrl.is_player_ready():
 
     def pregame_choose_nation(self, player_id):
-        namelist = self.rule_ctrl.get_nation_options()        
+        namelist = self.rule_ctrl.get_nation_options()
         nation_name = namelist[random.randint(0, len(namelist))]
         self.submit_nation_choice(nation_name, player_id)
 
@@ -283,7 +293,7 @@ class CivController(CivPropController):
             event = packet['event']
         except KeyError:
             logger.error(f'Packet is missing some keys: {packet}')
-            raise Exception("Packet is missing some keys")
+            # raise Exception("Packet is missing some keys")
 
         if message is None:
             return
@@ -384,12 +394,12 @@ class CivController(CivPropController):
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
         else:
-            # TODO: ensure 'player_num' in packet-115 is equivalent to 'playerno' in packet-51             
+            # TODO: ensure 'player_num' in packet-115 is equivalent to 'playerno' in packet-51
             pplayer = self.player_ctrl.valid_player_by_number(packet['player_num'])
             # Receive the first conn_info
             if self.first_conn_info_received == False:
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
-                assert(pplayer != None)
+                assert (pplayer != None)
                 # The client is a host. Specify the game setting below.
                 if packet['player_num'] == 0:
                     self.clstate.init_game_setting()
@@ -400,7 +410,7 @@ class CivController(CivPropController):
             # Unknown player
             if pplayer == None:
                 return
-            
+
             # Insert player info into connection info packet. 'playing' means the player is still playing the game
             packet['playing'] = pplayer
             # If the connection info is about the client itself
@@ -413,7 +423,7 @@ class CivController(CivPropController):
 
         if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
             # It seems impossible to get here
-            assert(False)
+            assert (False)
             self.clstate.set_client_state(C_S_PREPARING)
 
         # /* FIXME: not implemented yet.

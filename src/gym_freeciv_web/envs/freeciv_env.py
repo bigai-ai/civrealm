@@ -22,6 +22,7 @@ except ImportError as e:
 
 from gym_freeciv_web.configs import args
 
+
 class GymBot(BaseBot):
     def __init__(self, gym_env, username, visualize):
         BaseBot.__init__(self)
@@ -30,7 +31,6 @@ class GymBot(BaseBot):
 
         self.civ_controller = CivController(username=username, visualize=visualize)
         self.civ_controller.set_begin_turn_callback(self.conduct_turn)
-        self.civ_controller.set_move_callback(self.move)
 
     def init_env(self):
         # TODO: rename this function
@@ -40,6 +40,7 @@ class GymBot(BaseBot):
         self.calculate_next_move()
         if self.wants_to_end():
             self.civ_controller.close()
+        self.civ_controller.lock_control()
 
     def calculate_next_move(self):
         if self._turn_active:
@@ -128,19 +129,22 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             self.my_bot.close_game()
         return ob, reward, episode_over, {}
 
+    def _get_observations(self):
+        self.my_bot.civ_controller.lock_control()
+
     def _get_reward(self):
         """ Reward is given for scoring a goal. """
         return self.my_bot.get_reward()
 
     def reset(self, username=args['username'], max_turns=500, visualize=False):
-        self.reward = 0
-        self.done = False
-
         self.max_turns = max_turns
         self.my_bot = GymBot(self, username, visualize=visualize)
         self.my_bot.init_env()
 
-        return self.reward, self.done
+        obs = self._get_observations()
+        info = None
+
+        return obs, info
 
     def render(self, mode='human', close=False):
         """ Viewer only supports human mode currently. """

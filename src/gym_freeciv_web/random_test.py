@@ -74,12 +74,12 @@ class RandomAgent(object):
         self._num_actions = 0
         env.env.gym_agent = self
         observation, done = env.reset()
-        self.reset_after_episode()
-        return
+        
+        for _ in range(100):
+            # 100 steps is about 10 turns
+            env.env.my_bot.move()
+        env.close()
 
-    def reset_after_episode(self):
-        # Reset model parameters after episode has finished
-        pass
 
 
 def main():

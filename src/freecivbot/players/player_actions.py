@@ -1,8 +1,17 @@
-'''
-Created on 24.02.2018
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-@author: christian
-'''
 from freecivbot.utils import base_action
 from freecivbot.utils.base_action import ActionList
 from freecivbot.utils.fc_types import packet_player_rates,\
@@ -18,6 +27,7 @@ from freecivbot.research.tech_helpers import is_tech_known, player_invention_sta
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
 
 from freecivbot.utils.freeciv_logging import logger
+
 
 class PlayerOptions(ActionList):
     def __init__(self, ws_client, rule_ctrl, players, clstate):

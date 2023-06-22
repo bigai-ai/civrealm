@@ -1,20 +1,16 @@
-"""
-    Freeciv-web - the web version of Freeciv. http://play.freeciv.org/
-    Copyright (C) 2009-2015  The Freeciv-web project
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
 from math import ceil, floor
@@ -99,7 +95,7 @@ class ClientState(CivPropController):
     def set_follower_property(self):
         self.follower = True
 
-    def init_game_setting(self):        
+    def init_game_setting(self):
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
@@ -124,17 +120,17 @@ class ClientState(CivPropController):
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
                     if 'has connected from' in message:
-                        self.ws_client.send_message('Please be ready to start')                                           
+                        self.ws_client.send_message('Please be ready to start')
                     # If it is multiplayer game, check if all players are ready
                     if 'alive players are ready to start' in message:
-                        # Follower always set itself to be ready when new player join                       
+                        # Follower always set itself to be ready when new player join
                         ready_player_num, overall_player_num = self.get_ready_state(message)
                         if ready_player_num == overall_player_num-1:
                             self.pre_game_callback()
             elif 'now observes' in message:
                 # Observer has joined
                 self.wait_for_observer = False
-                self.ws_client.send_message('Please be ready to start')                
+                self.ws_client.send_message('Please be ready to start')
 
     def get_ready_state(self, message):
         # Assume the player ready message is of format: "m out of n alive players..."
@@ -151,7 +147,7 @@ class ClientState(CivPropController):
         else:
             self.username = self.username_origin
             self.login_tried = True
-            
+
         login_message = {"pid": 4, "username": self.username,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,

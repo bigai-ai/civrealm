@@ -1,23 +1,17 @@
-'''
-**********************************************************************
-    Freeciv-web - the web version of Freeciv. http://play.freeciv.org/
-    Copyright (C) 2009-2015  The Freeciv-web project
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+#  Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-***********************************************************************/
-'''
 
 from freecivbot.connectivity.base_controller import CivPropController
 from freecivbot.game.info_states import GameState
@@ -78,7 +72,7 @@ class GameCtrl(CivPropController):
 
     def handle_scenario_description(self, packet):
         """Receive scenario description of the current scenario."""
-        self.scenario_info['description'] = packet['description']
+        self.scenario_info["description"] = packet["description"]
 
         # /* Show the updated game information. */
         # update_game_info_pregame()
@@ -94,29 +88,29 @@ class GameCtrl(CivPropController):
     def handle_page_msg(self, packet):
         """Page_msg header handler."""
         # Message information
-        self.page_msg['headline'] = packet['headline']
-        self.page_msg['caption'] = packet['caption']
-        self.page_msg['event'] = packet['event']
+        self.page_msg["headline"] = packet["headline"]
+        self.page_msg["caption"] = packet["caption"]
+        self.page_msg["event"] = packet["event"]
 
         # /* How many fragments to expect. */
-        self.page_msg['missing_parts'] = packet['parts']
+        self.page_msg["missing_parts"] = packet["parts"]
 
         # /* Will come in follow up packets. */
-        self.page_msg['message'] = ""
+        self.page_msg["message"] = ""
 
     def handle_page_msg_part(self, packet):
         """Page_msg part handler."""
         # /* Add the new parts of the message content. */
-        self.page_msg['message'] = self.page_msg['message'] + packet['lines']
+        self.page_msg["message"] = self.page_msg["message"] + packet["lines"]
 
         # /* Register that it was received. */
-        self.page_msg['missing_parts'] -= 1
-        if self.page_msg['missing_parts'] == 0:
+        self.page_msg["missing_parts"] -= 1
+        if self.page_msg["missing_parts"] == 0:
             # /* This was the last part. */
             regxp = "/\n/gi"
 
-            self.page_msg['message'] = self.page_msg['message'].replace(regxp, "<br>\n")
-            logger.info(self.page_msg['headline'] + self.page_msg['message'])
+            self.page_msg["message"] = self.page_msg["message"].replace(regxp, "<br>\n")
+            logger.info(self.page_msg["headline"] + self.page_msg["message"])
 
             # /* Clear the message. */
             self.page_msg = {}

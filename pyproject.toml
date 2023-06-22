@@ -5,6 +5,8 @@ description = "Freeciv bot allowing for research on AI for complex strategy game
 authors = [
     {name = "Chris1869", email = "chris1869@github.com"},
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
+    {name = "Shuo Chen", email = "chenshuo@bigai.ai"},
+    {name = "Xiangyu Kong", email = "kongxiangyu@bigai.ai"},
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}

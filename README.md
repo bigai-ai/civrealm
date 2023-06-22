@@ -1,14 +1,12 @@
-# freeciv-bot
+# Freeciv Gym
 
-Summary
---------
+Freeciv Gym is a reinforcement learning environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/). The goal is to provide a simple interface for AI researchers to train agents on Freeciv. The interface is based on the [Gymnasium](https://gymnasium.farama.org/) and [Stable Baselines](https://stable-baselines.readthedocs.io/en/master/) framework.
 
-Freeciv-bot allows to steer freeciv via Python and build automated bots that can ultimately beat human players. The main goal is to foster AI research using a round-based strategy game like freeciv.
+## About
 
-Looking for contributors, AI and Freeciv enthusiasts.
+Freeciv Gym is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and is currently being developed by [BIGAI](https://www.bigai.ai/). Going forward, Freeciv Gym is where future maintenance will occur.
 
-Motivation
---------
+## Motivation
 
 Pace of AI research is ever increasing. Recent breakthroughs by AlphaZero, AlphaGo show capabilities of current systems to master "simple" board games via reinforcement learning and Montecarlo tree search (MCTS). OpenAI and Deepmind already start tackling more complex strategy games like Dota 2 and Starcraft 2. The key challenges when switching from board games to strategy games is:
 
@@ -22,10 +20,15 @@ On top of these challenges real-time strategy games due their continuous time an
 
 In order to focus on a) b) and c) only, round-based games like Freeciv are a potential intermediate step for developing AI before jumping to real-time strategy games.
 
-Installation for bot developers and gym users
----------------------------------------------
+## Prerequisites
 
-```
+In order to test the overall bot on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
+
+## Installation
+
+### Installation for gym users
+
+```bash
 pip -m venv ./venv
 
 source ./venv/bin/activate
@@ -35,10 +38,9 @@ pip install git+https://github.com:chris1869/freeciv-bot.git
 civ_prep_selenium.sh
 ```
 
-Installation for freeciv-bot developers
----------------------------------------
+### Installation for freeciv-bot developers
 
-```
+```bash
 git clone https://github.com/chris1869/freeciv-bot && cd freeciv-bot
 
 pip install -e .
@@ -46,13 +48,11 @@ pip install -e .
 civ_prep_selenium.sh
 ```
 
-Using a different freeciv version
----------------------------------
+<!-- ### Using a different freeciv version
 
-As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py
+As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py -->
 
-Example Gym
-------------
+## Example Gym
 
 For an initial start on training models on freeciv-web - see the example installed by running
 
@@ -113,17 +113,13 @@ Then, one can apply the model, i.e., there is a 50% chance for a settler to buil
              return action_opts["unit"], pos_acts[move_action]
 ```
 
-API
---------
-
-Example Bot
---------
+### Example Bot
 
 A simple bot can move units randomly, create cities and auto-explores territory.
 
 Just run
 
-```
+```bash
 python template.py
 ```
 
@@ -148,13 +144,7 @@ Create the CivConnection - which establishes a handshake to the freeciv server o
 CivConnection(my_civ_controller, 'http://localhost')
 ```
 
-Prerequisites
---------
-
-In order to test the overall bot on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
-
-Building your own bot
---------
+### Building your own bot
 
 The file template.py gives an initial example on how a bot should work. The basic idea is that a bot is only responsible for calculating the "action_want" of a certain action given the full state of the board. In SimpleBot, only unit_actions have been defined.
 
@@ -213,6 +203,8 @@ Example 4: Set all other actions to ACTION_UNWANTED
 ```
 
 ## Trouble shooting
+
+The following are some common issues that you may encounter when running the code. If you encounter any other issues, please feel free to open an issue.
 
 * If firefox keeps loading the page, please try to add the following line to `/etc/hosts`:
 

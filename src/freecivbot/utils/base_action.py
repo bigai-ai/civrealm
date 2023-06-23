@@ -12,8 +12,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.bot.base_bot import ACTION_UNWANTED
-
 from freecivbot.utils.freeciv_logging import logger
 
 
@@ -116,9 +114,6 @@ class ActionList(object):
             return True
         return False
 
-    def trigger_validated_action(self, act):
-        act.trigger_action(self.ws_client)
-
     def trigger_wanted_actions(self, controller_wants):
         for a_actor in self._action_dict:
             if a_actor not in controller_wants:
@@ -132,7 +127,7 @@ class ActionList(object):
 
             action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
 
-            if actor_wants[action_most_wanted] != ACTION_UNWANTED:
+            if actor_wants[action_most_wanted] > 0:
                 logger.info(action_most_wanted)
                 self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)
 

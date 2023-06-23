@@ -57,7 +57,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
 
     def _record_action(self, action):
         if action:
-            self._record_to_file('chosen_action', action[1], lambda x: x.encode_to_json())
+            self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())
         self._record_step_count += 1
 
     def _get_observations(self):

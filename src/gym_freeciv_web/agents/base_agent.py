@@ -12,62 +12,26 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import time
-from freecivbot.civ_controller import CivController
+from abc import ABC, abstractmethod
+
 from freecivbot.utils.freeciv_logging import logger
 
-ACTION_UNWANTED = 0
-ACTION_WANTED = 1
-
-
-class BaseAgent(object):
+class BaseAgent(ABC):
     def __init__(self):
-        self.turn_history = []
+        pass
 
-        self.cur_state = {}
-        self.action_options = {}
-        self.action_wants = None
+    def get_ctrl_types(self, observations):
+        return observations[1].keys()
 
-    def _calculate_want_of_move(self):
-        logger.info("Bot calculates want for controller moves")
-        self.action_wants = {}
+    def get_next_action_dict(self, observations, ctrl_type):
+        action_list = observations[1][ctrl_type]
+        for actor_id in action_list.get_actors():
+            if action_list._can_actor_act(actor_id):
+                logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type} controller')
+                valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
+                return actor_id, valid_action_dict
+        return None, None
 
-        for ctrl_type in self.turn_manager.turn_ctrls.keys():
-            try:
-                calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
-                return calculate_func()
-            except AttributeError:
-                logger.error(f'Controller type {ctrl_type} is not supported')
-                self.action_wants[ctrl_type] = self.calculate_func(ctrl_type)
-        return self.action_wants
-
-    def calculate_non_supported_actions(self, ctrl_type):
-        """Ensures that non supported actions are "UNWANTED", i.e., will not be triggered"""
-
-        logger.warning('Unsupported actions are set to "UNWANTED"')
-        a_options = self._turn_opts[ctrl_type]
-        action_wants = {}
-        if a_options != None:
-            for a_actor in a_options.get_actors():
-                action_wants[a_actor] = {}
-                for a_action in a_options.get_actions(a_actor):
-                    action_wants[a_actor][a_action] = ACTION_UNWANTED
-        return action_wants
-
-    def calculate_city_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["city"])
-
-    def calculate_unit_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["unit"])
-
-    def calculate_player_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["player"])
-
-    def calculate_dipl_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["dipl"])
-
-    def calculate_tech_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["tech"])
-
-    def calculate_gov_actions(self):
-        return self.calculate_non_supported_actions(self._turn_opts["gov"])
+    @abstractmethod
+    def act(self, observation):
+        return None

@@ -164,7 +164,7 @@ class CivController(CivPropController):
             self.monitor.start_monitor()
 
         self.clstate.login()
-    
+
     def get_turn(self):
         return self.turn_manager.turn
 
@@ -186,8 +186,7 @@ class CivController(CivPropController):
         if action == None:
             self.send_end_turn()
         else:
-            action_list = action[0]
-            action_list.trigger_validated_action(action[1])
+            action.trigger_action(self.ws_client)
 
     def get_observations(self):
         self.lock_control()

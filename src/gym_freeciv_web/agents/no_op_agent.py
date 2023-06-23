@@ -12,24 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gym
-import gym_freeciv_web
-
-from gym_freeciv_web.configs import args
-from gym_freeciv_web.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerRandomAgent
+from gym_freeciv_web.agents.base_agent import BaseAgent
 
 
-def main():
-    env = gym.make(args['gym_env'])
-    agent = ControllerRandomAgent()
+class NoOpAgent(BaseAgent):
+    def __init__(self):
+        super().__init__()
 
-    observations, info = env.reset()
-    terminated = False
-    while not terminated:
-        action = agent.act(observations)
-        observations, reward, terminated, info = env.step(action)
-    env.close()
-
-
-if __name__ == '__main__':
-    main()
+    def act(self, observations):
+        # Send None indicating end of turn
+        return None

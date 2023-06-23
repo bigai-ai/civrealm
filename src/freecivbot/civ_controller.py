@@ -170,13 +170,14 @@ class CivController(CivPropController):
         self.ws_client.close()
 
     def ready_to_act(self):
-        """
-        Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
-        """
         # TODO: make sure the condition is correct
         return not self.ws_client.is_waiting_for_responses()
 
     def try_grant_control_to_player(self):
+        """
+        Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
+        """
+        # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if not self.turn_manager.turn_active:
             return
         if self.ready_to_act():
@@ -197,7 +198,6 @@ class CivController(CivPropController):
                     # TODO: handle wait_for_packs
                     pass
 
-            # TODO: check the triggering conditions.
             self.try_grant_control_to_player()
         except Exception:
             raise

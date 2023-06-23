@@ -22,7 +22,6 @@ import json
 
 try:
     from freecivbot.civ_controller import CivController
-    from gym_freeciv_web.agents.random_agent import RandomAgent
     from gym_freeciv_web.configs import args
 except ImportError as e:
     raise error.DependencyNotInstalled(
@@ -35,10 +34,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     def __init__(self):
         self.viewer = None
         self.status = None
-        self.gym_agent = None
         self.max_turns = None
-
-        self.env_agent = None
 
         # Switch game ports to avoid conflicts when running multiple instances
         # to join the same multiplayer game, the port should be the same
@@ -83,7 +79,8 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         ob = self.turn_manager.get_observation()
         episode_over = self.is_episode_over()
         if episode_over:
-            self.env_agent.close_game()
+            # TODO: close game
+            pass
 
         reward = 0
         return ob, reward, episode_over, {}
@@ -93,7 +90,6 @@ class FreecivEnv(gym.Env, utils.EzPickle):
 
     def reset(self, max_turns=500, visualize=False):
         self.max_turns = max_turns
-        self.env_agent = RandomAgent(self)
         self.civ_controller.init_network()
 
         obs = self._get_observations()

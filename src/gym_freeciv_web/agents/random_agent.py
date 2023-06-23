@@ -33,16 +33,13 @@ class RandomAgent(BaseAgent):
         obs, self._env.reward, self._env.done, _ = self._env.step(self._last_action)
         if self._env.done:
             pass
-        action = self._env.gym_agent.act(obs, self._env.reward, self._env.done)
+        action = self.act(obs, self._env.reward, self._env.done)
         if action == None:
             time.sleep(2)
             self._env.end_turn()
             return
         else:
             self.take_action(action)
-
-    def reset(self):
-        self._env.gym_agent.reset()
 
     def take_action(self, action):
         action_list = action[0]

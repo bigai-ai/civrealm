@@ -32,20 +32,18 @@ def main():
     env = wrappers.Monitor(env, directory=args['out_dir'], force=True)
     env.seed(0)
 
-    agent = RandomAgent(env.action_space)
+    agent = RandomAgent(env.env)
 
     episode_count = 1
     try:
         for episode_i in range(episode_count):
             logger.info(f'Starting episode {episode_i}')
-            # agent.perform_episode(env)
             
-            env.env.gym_agent = agent
             observation, done = env.reset()
 
             for _ in range(100):
                 # 100 steps is about 10 turns
-                env.env.env_agent.calculate_next_move()
+                agent.calculate_next_move()
                 env.env.civ_controller.lock_control()
             env.close()
         # Close the env and write monitor result info to disk

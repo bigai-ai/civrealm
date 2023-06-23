@@ -21,7 +21,7 @@ class MapState(PlainState):
         PlainState.__init__(self)
         self._state = player_map
 
-    def json_struct(self):
+    def encode_to_json(self):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
 
     def _update_state(self, pplayer):

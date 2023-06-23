@@ -164,6 +164,9 @@ class CivController(CivPropController):
             self.monitor.start_monitor()
 
         self.clstate.login()
+    
+    def get_turn(self):
+        return self.turn_manager.turn
 
     def ready_to_act(self):
         # TODO: make sure the condition is correct

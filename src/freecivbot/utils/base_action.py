@@ -12,8 +12,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import json
-
 from freecivbot.bot.base_bot import ACTION_UNWANTED
 
 from freecivbot.utils.freeciv_logging import logger
@@ -28,6 +26,11 @@ class Action(object):
     def __repr__(self):
         return self.action_key
 
+    def encode_to_json(self):
+        """Encode action to json - abstract function should be overwritten"""
+        logger.warning(f'encode_to_json not implemented for {self.__class__}')
+        return self._action_packet()
+
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
@@ -36,12 +39,12 @@ class Action(object):
 
     def is_action_valid(self):
         """Check if action is valid - abstract function should be overwritten"""
-        raise Exception("Abstract function - To be overwritten by %s" % self.__class__)
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
     def _action_packet(self):
         """returns the packet that should be sent to the server to carry out action -
         abstract function should be overwritten"""
-        raise Exception("Abstract function - To be overwritten by %s" % self.__class__)
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
 
 class ActionList(object):
@@ -49,7 +52,7 @@ class ActionList(object):
         self._action_dict = {}
         self.ws_client = ws_client
 
-    def json_struct(self):
+    def encode_to_json(self):
         return dict(
             [(actor_id,
               dict(

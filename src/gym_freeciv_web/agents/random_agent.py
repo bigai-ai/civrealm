@@ -23,23 +23,10 @@ from gym_freeciv_web.agents.base_agent import BaseAgent
 class RandomAgent(BaseAgent):
     def __init__(self):
         super().__init__()
-        self._num_actions = 0
 
-    def act(self, observation, save_history=False):
-        self._num_actions += 1
+    def act(self, observation):
         state = observation[0]
         action_opts = observation[1]
-
-        if save_history:
-            base_name = "../../examples/observation_turn{turn:02d}_agentAct{act:04d}".format(
-                turn=state["player"]["my_turns_alive"], act=self._num_actions)
-
-            with open(base_name + "_state.json", "w") as f:
-                json.dump(state, f, skipkeys=True,
-                          default=lambda x: "not serializable", sort_keys=True)
-
-            for key in state["map"]:
-                numpy.save(base_name + "_map_%s.npy" % key, state["map"][key])
 
         next_action = {"unit_id": None, "action_id": None}
 
@@ -58,14 +45,6 @@ class RandomAgent(BaseAgent):
                 logger.info("in direction %s" % move_action)
                 next_action["action_id"] = move_action
                 break
-
-        if save_history:
-            with open(base_name + "_actions.json", "w") as f:
-                json.dump(action_opts, f, skipkeys=True,
-                          default=lambda x: x.json_struct(), sort_keys=True)
-
-            with open(base_name + "_nextAction.json", "w") as f:
-                json.dump(next_action, f, sort_keys=True)
 
         if next_action["action_id"] is None:
             return None  # Send None indicating end of turn

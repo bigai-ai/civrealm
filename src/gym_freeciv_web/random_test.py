@@ -21,8 +21,6 @@ from gym_freeciv_web.agents.random_agent import RandomAgent
 
 def main():
     env = gym.make(args['gym_env'])
-    env.seed(0)
-
     agent = RandomAgent()
 
     observations, info = env.reset()

@@ -36,22 +36,33 @@ class FreecivEnv(gym.Env, utils.EzPickle):
 
         # For recording purposes. self.record_step_count only increases when recording is enabled.
         self._record_step_count = 0
-        self._recording_dir = os.path.join(os.path.dirname(logger.handlers[0].baseFilename), 'recordings')
-        os.makedirs(self._recording_dir, exist_ok=True)
+        self.recording_dir = os.path.join(
+            os.path.dirname(logger.handlers[0].baseFilename),
+            'recordings', args['username'])
+        os.makedirs(self.recording_dir, exist_ok=True)
 
-    def record(self, observations):
+    def _record_to_file(self, name, content, default_json_encoder=None):
         if args['record'] is False:
             return
 
-        with open(os.path.join(self._recording_dir, f'turn_{self._record_step_count:04d}_state.json'), 'w') as f:
-            json.dump(observations[0], f, skipkeys=True, default=lambda x: x.tolist(), sort_keys=True)
-        with open(os.path.join(self._recording_dir, f'turn_{self._record_step_count:04d}_action.json'), 'w') as f:
-            json.dump(observations[1], f, skipkeys=True, default=lambda x: x.json_struct(), sort_keys=True)
+        turn = self.civ_controller.get_turn()
+        self._recording_base_filename = os.path.join(
+            self.recording_dir, f'turn_{turn:03d}_step_{self._record_step_count:04d}')
+        with open(f'{self._recording_base_filename}_{name}.json', 'w') as f:
+            json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
+
+    def _record_observation(self, observations):
+        self._record_to_file('state', observations[0], lambda x: x.tolist())
+        self._record_to_file('available_action', observations[1], lambda x: x.encode_to_json())
+
+    def _record_action(self, action):
+        if action:
+            self._record_to_file('chosen_action', action[1], lambda x: x.encode_to_json())
         self._record_step_count += 1
 
     def _get_observations(self):
         observations = self.civ_controller.get_observations()
-        self.record(observations)
+        self._record_observation(observations)
         return observations
 
     def _get_reward(self):
@@ -65,6 +76,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
+        self._record_action(action)
 
         observation = self._get_observations()
         reward = self._get_reward()

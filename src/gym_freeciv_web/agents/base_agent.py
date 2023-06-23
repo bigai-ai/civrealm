@@ -15,7 +15,6 @@
 import time
 from freecivbot.civ_controller import CivController
 from freecivbot.utils.freeciv_logging import logger
-from gym_freeciv_web.configs import args
 
 ACTION_UNWANTED = 0
 ACTION_WANTED = 1

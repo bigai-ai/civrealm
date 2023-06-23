@@ -83,7 +83,8 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             pass
 
         reward = 0
-        return ob, reward, episode_over, {}
+        info = None
+        return ob, reward, episode_over, info
 
     def _get_observations(self):
         self.civ_controller.lock_control()

@@ -12,41 +12,36 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gym_freeciv_web.configs import args
-
 import gym
-from gym import wrappers
-import gym_freeciv_web
 
 from freecivbot.utils.freeciv_logging import logger
+import gym_freeciv_web
+from gym_freeciv_web.configs import args
 from gym_freeciv_web.agents.random_agent import RandomAgent
 
 
 def main():
     env = gym.make(args['gym_env'])
-
-    # You can provide the directory to write to (can be an existing
-    # directory, including one with existing data -- all monitor files
-    # will be namespaced). You can also dump to a tempdir if you'd
-    # like: tempfile.mkdtemp().
-    env = wrappers.Monitor(env, directory=args['out_dir'], force=True)
     env.seed(0)
 
-    agent = RandomAgent(env.env)
+    agent = RandomAgent()
 
     episode_count = 1
     try:
         for episode_i in range(episode_count):
             logger.info(f'Starting episode {episode_i}')
-            
-            observation, done = env.reset()
+
+            observation, info = env.reset()
 
             for _ in range(100):
-                # 100 steps is about 10 turns
-                agent.calculate_next_move()
-                env.env.civ_controller.lock_control()
+                obs, reward, done, info = env.step(agent._last_action)
+                action = agent.act(obs, reward, done)
+                if action == None:
+                    env.end_turn()
+                else:
+                    agent.take_action(action)
+                env.civ_controller.lock_control()
             env.close()
-        # Close the env and write monitor result info to disk
     finally:
         env.close()
 

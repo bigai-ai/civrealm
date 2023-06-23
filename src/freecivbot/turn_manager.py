@@ -12,18 +12,20 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
+
 from freecivbot.utils.freeciv_logging import logger
 
 class TurnManager(object):
     def __init__(self) -> None:
         self._turn = 0
+        self._turn_sleep_time = 1
 
         self._turn_active = False
         self._turn_player = None
         self._turn_ctrls = None
         self._turn_state = None
         self._turn_opts = None
-
         self._turn_history = []
 
     @property
@@ -36,7 +38,7 @@ class TurnManager(object):
 
     def begin_turn(self, pplayer, info_controls):
         logger.info('==============================================')
-        logger.info('============== Begin turn: {0:04d} =============='.format(self._turn))
+        logger.info(f'============== Begin turn: {self._turn:04d} ==============')
         logger.info('==============================================')
         self._turn += 1
 
@@ -58,9 +60,11 @@ class TurnManager(object):
         return self._turn_state["player"]["my_score"]
 
     def end_turn(self):
-        logger.info(f"Finish turn {self._turn:04d} - sleep for 4 seconds")
+        logger.info(f'============== Finish turn {self._turn:04d} ==============')
+        logger.info(f'Sleeping for {self._turn_sleep_time} seconds')
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None
         self._turn_state = None
         self._turn_opts = None
+        time.sleep(self._turn_sleep_time)

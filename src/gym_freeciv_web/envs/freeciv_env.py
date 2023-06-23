@@ -22,64 +22,11 @@ import json
 
 try:
     from freecivbot.civ_controller import CivController
-    from freecivbot.bot.base_bot import BaseBot
-
+    from gym_freeciv_web.agents.random_agent import RandomAgent
+    from gym_freeciv_web.configs import args
 except ImportError as e:
     raise error.DependencyNotInstalled(
         "{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
-
-from gym_freeciv_web.configs import args
-
-
-class GymBot(BaseBot):
-    def __init__(self, gym_env, username, visualize):
-        BaseBot.__init__(self)
-        self._env = gym_env
-        self._last_action = None
-
-        self.civ_controller = CivController(username=username, visualize=visualize)
-        self.civ_controller.set_begin_turn_callback(self.conduct_turn)
-
-    def init_env(self):
-        # TODO: rename this function
-        self.civ_controller.init_network()
-
-    def move(self):
-        self.calculate_next_move()
-        if self.wants_to_end():
-            self.civ_controller.close()
-        self.civ_controller.lock_control()
-
-    def calculate_next_move(self):
-        if self._turn_active:
-            obs, self._env.reward, self._env.done, _ = self._env.step(self._last_action)
-            if self._env.done:
-                pass
-            action = self._env.gym_agent.act(obs, self._env.reward, self._env.done)
-            if action == None:
-                time.sleep(2)
-                self.end_turn()
-                return
-            else:
-                self.take_action(action)
-
-    def reset(self):
-        self._env.gym_agent.reset()
-
-    def take_action(self, action):
-        action_list = action[0]
-        action_list.trigger_validated_action(action[1])
-
-        self._last_action = action
-
-    def getState(self, update=False):
-        if update:
-            self._acquire_state()
-        return self._turn_state, self._turn_opts
-
-    def get_reward(self):
-        return self._turn_state["player"]["my_score"]
-
 
 class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
@@ -91,7 +38,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.gym_agent = None
         self.max_turns = None
 
-        self.my_bot = None
+        self.env_agent = None
 
         # Switch game ports to avoid conflicts when running multiple instances
         # to join the same multiplayer game, the port should be the same
@@ -99,6 +46,9 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.current_port_id = 0
         client_port = self.game_ports[self.current_port_id]
         self.current_port_id = (self.current_port_id + 1) % len(self.game_ports)
+
+        self.civ_controller = CivController(username=args['username'])
+        self.turn_manager = self.civ_controller.turn_manager
 
     def __del__(self):
         pass
@@ -119,7 +69,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         pass
 
     def is_episode_over(self):
-        return False or self.my_bot.turn > self.max_turns
+        return False or self.civ_controller.turn_manager._turn > self.max_turns
 
     def _take_snapshot(self, ob, base_dir):
         f = open(base_dir + "example_observation_turn15_state.json", "w")
@@ -130,29 +80,29 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         f.close()
 
     def step(self, action):
-        ob = self.my_bot.getState(update=True)
-        reward = self._get_reward()
+        ob = self.turn_manager.get_observation()
         episode_over = self.is_episode_over()
         if episode_over:
-            self.my_bot.close_game()
+            self.env_agent.close_game()
+
+        reward = 0
         return ob, reward, episode_over, {}
 
     def _get_observations(self):
-        self.my_bot.civ_controller.lock_control()
+        self.civ_controller.lock_control()
 
-    def _get_reward(self):
-        """ Reward is given for scoring a goal. """
-        return self.my_bot.get_reward()
-
-    def reset(self, username=args['username'], max_turns=500, visualize=False):
+    def reset(self, max_turns=500, visualize=False):
         self.max_turns = max_turns
-        self.my_bot = GymBot(self, username, visualize=visualize)
-        self.my_bot.init_env()
+        self.env_agent = RandomAgent(self)
+        self.civ_controller.init_network()
 
         obs = self._get_observations()
         info = None
 
         return obs, info
+    
+    def end_turn(self):
+        self.civ_controller.send_end_turn()
 
     def render(self, mode='human', close=False):
         """ Viewer only supports human mode currently. """

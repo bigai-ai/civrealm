@@ -1,10 +1,3 @@
-'''
-Created on 06.02.2018
-
-@author: christian
-'''
-
-from time import sleep
 
 from freecivbot.utils.freeciv_logging import logger
 
@@ -14,7 +7,6 @@ ACTION_WANTED = 1
 
 class BaseBot:
     def __init__(self):
-        self.turn = 0
         self.turn_history = []
 
         self._turn_active = False
@@ -52,9 +44,9 @@ class BaseBot:
         for ctrl_type in self._turn_ctrls:
             self._turn_opts[ctrl_type].trigger_wanted_actions(turn_wants[ctrl_type])
 
-    def _save_history(self, turn_no, turn_wants):
+    def _save_history(self, turn_wants):
         bot_turns = len(self.turn_history)
-        self.game_turn = turn_no
+        self.game_turn = self.civ
 
         if self.game_turn == bot_turns:
             self.turn_history.append({})
@@ -72,9 +64,9 @@ class BaseBot:
         logger.info(('Bot calculates next move, turn_active: ', self._turn_active))
         if self._turn_active:
             self._acquire_state()
-            turn_wants = self._calculate_want_of_move(self.turn)
+            turn_wants = self._calculate_want_of_move()
             self._conduct_moves(turn_wants)
-            self._save_history(self.turn, turn_wants)
+            self._save_history(turn_wants)
             self.end_turn()
 
     def conduct_turn(self, pplayer, info_controls, end_turn_hook):
@@ -82,7 +74,6 @@ class BaseBot:
         Main starting point for Freeciv-web Bot - to be called when game is ready
         '''
         logger.info("Starting Turn")
-        self.turn += 1
         self._turn_active = True
         self._turn_ctrls = info_controls
         self._turn_player = pplayer
@@ -117,7 +108,7 @@ class BaseBot:
         else:
             return self.calculate_non_supported_actions(self._turn_opts[ctrl_type])
 
-    def _calculate_want_of_move(self, turn_no):
+    def _calculate_want_of_move(self):
         logger.info("Bot calculates want for controller moves")
         self.action_wants = {}
 

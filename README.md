@@ -4,7 +4,7 @@ Freeciv Gym is a reinforcement learning environment for the open-source strategy
 
 ## About
 
-Freeciv Gym is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and is currently being developed by [BIGAI](https://www.bigai.ai/). Going forward, Freeciv Gym is where future maintenance will occur.
+Freeciv Gym is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and is currently being developed by [BIGAI](https://www.bigai.ai/). Going forward, Freeciv Gym will be maintained in the long term.
 
 ## Motivation
 

@@ -85,21 +85,19 @@ class RandomAgent(object):
 
         for _ in range(100):
             # 100 steps is about 10 turns
-            env.env.my_bot.move()
+            env.env.env_agent.calculate_next_move()
+            env.env.civ_controller.lock_control()
         env.close()
 
 
 def main():
-
     env = gym.make(args['gym_env'])
 
-    # You provide the directory to write to (can be an existing
+    # You can provide the directory to write to (can be an existing
     # directory, including one with existing data -- all monitor files
     # will be namespaced). You can also dump to a tempdir if you'd
     # like: tempfile.mkdtemp().
-    outdir = args['out_dir']
-
-    env = wrappers.Monitor(env, directory=outdir, force=True)
+    env = wrappers.Monitor(env, directory=args['out_dir'], force=True)
     env.seed(0)
 
     agent = RandomAgent(env.action_space)

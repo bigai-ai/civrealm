@@ -35,6 +35,7 @@ from freecivbot.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
 from freecivbot.utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from freecivbot.utils.civ_monitor import CivMonitor
 
+from freecivbot.turn_manager import TurnManager
 from freecivbot.utils.freeciv_logging import logger
 from gym_freeciv_web.configs import args
 
@@ -71,7 +72,7 @@ class CivController(CivPropController):
 
         self.ai_skill_level = 3
         self.nation_select_id = -1
-        self.turn = -1
+        self.turn_manager = TurnManager()
         if args['multiplayer_game']:
             client_port = 6001
         self.client_port = client_port
@@ -82,7 +83,6 @@ class CivController(CivPropController):
         if self.visualize:
             self.monitor = CivMonitor(host, username)
 
-        self.begin_turn_callback = None
         # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
         self.first_conn_info_received = False
         self.init_controllers()
@@ -145,13 +145,13 @@ class CivController(CivPropController):
         for ctrl in self.controller_list:
             self.controller_list[ctrl].register_with_parent(self)
 
-    def set_begin_turn_callback(self, callback):
-        self.begin_turn_callback = callback
-
     def init_network(self):
         self.ws_client.network_init()
 
     def lock_control(self):
+        """
+        Lock the control of the game. This is called when the player is waiting for the server to respond and should not be able to act.
+        """
         self.ws_client.start_ioloop()
 
     def init_game(self):
@@ -177,6 +177,8 @@ class CivController(CivPropController):
         return not self.ws_client.is_waiting_for_responses()
 
     def try_grant_control_to_player(self):
+        if not self.turn_manager.turn_active:
+            return
         if self.ready_to_act():
             self.ws_client.stop_ioloop()
 
@@ -349,19 +351,13 @@ class CivController(CivPropController):
             while True:
                 if self.monitor.start_observe:
                     break
-        self.turn += 1
-        logger.info('==============================================')
-        logger.info('============== Begin turn: {0:04d} =============='.format(self.turn))
-        logger.info('==============================================')
 
         if self.clstate.client_is_observer() or not self.clstate.is_playing():
             self.send_end_turn()
             return
 
         pplayer = self.clstate.cur_player()
-        # logger.info("handle_begin_turn, pplayer,", pplayer)
-
-        self.begin_turn_callback(pplayer, self.controller_list, self.send_end_turn)
+        self.turn_manager.begin_turn(pplayer, self.controller_list)
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
@@ -428,6 +424,7 @@ class CivController(CivPropController):
         if self.rule_ctrl.game_info == {}:
             return
 
+        self.turn_manager.end_turn()
         logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)

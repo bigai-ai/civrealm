@@ -30,7 +30,7 @@ C_S_OVER = 3  # /* Connected with game over. */
 
 
 class ClientState(CivPropController):
-    def __init__(self, username, ws_client, client_port, rule_ctrl):
+    def __init__(self, username, ws_client, rule_ctrl):
         CivPropController.__init__(self, ws_client)
         self.rule_ctrl = rule_ctrl
         self.civclient_state = C_S_INITIAL
@@ -51,7 +51,6 @@ class ClientState(CivPropController):
         self.debug_active = False
         self.debug_ping_list = []
         self.ping_last = None
-        self.client_port = client_port
 
         self.observing = False
         self.metamessage_changed = False
@@ -151,7 +150,7 @@ class ClientState(CivPropController):
         login_message = {"pid": 4, "username": self.username,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,
-                         "port": self.client_port, "password": sha_password,
+                         "port": self.ws_client.client_port, "password": sha_password,
                          "subject": google_user_subject}
         self.ws_client.send(login_message)
 

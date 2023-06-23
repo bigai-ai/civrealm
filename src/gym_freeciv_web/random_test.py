@@ -13,9 +13,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gym
-
-from freecivbot.utils.freeciv_logging import logger
 import gym_freeciv_web
+
 from gym_freeciv_web.configs import args
 from gym_freeciv_web.agents.random_agent import RandomAgent
 
@@ -26,24 +25,12 @@ def main():
 
     agent = RandomAgent()
 
-    episode_count = 1
-    try:
-        for episode_i in range(episode_count):
-            logger.info(f'Starting episode {episode_i}')
-
-            observation, info = env.reset()
-
-            for _ in range(100):
-                obs, reward, done, info = env.step(agent._last_action)
-                action = agent.act(obs, reward, done)
-                if action == None:
-                    env.end_turn()
-                else:
-                    agent.take_action(action)
-                env.civ_controller.lock_control()
-            env.close()
-    finally:
-        env.close()
+    observations, info = env.reset()
+    terminated = False
+    while not terminated:
+        action = agent.act(observations)
+        observations, reward, terminated, info = env.step(action)
+    env.close()
 
 
 if __name__ == '__main__':

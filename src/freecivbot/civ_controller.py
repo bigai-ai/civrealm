@@ -48,7 +48,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host='localhost', client_port=6000, visualize=False):
+    def __init__(self, username, host='localhost', client_port=args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -74,8 +74,7 @@ class CivController(CivPropController):
         self.nation_select_id = -1
         self.turn_manager = TurnManager()
         if args['multiplayer_game']:
-            client_port = 6001
-        self.client_port = client_port
+            assert client_port == 6001, 'Multiplayer game must use port 6001'
         self.user_name = username
 
         self.visualize = visualize
@@ -116,7 +115,7 @@ class CivController(CivPropController):
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
         self.clstate = ClientState(self.user_name,
-                                   self.ws_client, self.client_port, self.rule_ctrl)
+                                   self.ws_client, self.rule_ctrl)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
@@ -144,12 +143,15 @@ class CivController(CivPropController):
         for ctrl in self.controller_list:
             self.controller_list[ctrl].register_with_parent(self)
 
+    # ============================================================
+    # ======================= Game control =======================
+    # ============================================================
     def init_network(self):
         self.ws_client.network_init()
 
     def lock_control(self):
         """
-        Lock the control of the game. This is called when the player is waiting for the server to respond and should not be able to act.
+        Lock the control of the game. This is a blocking function, should be called when the player is waiting for the server to respond and should not be able to act.
         """
         self.ws_client.start_ioloop()
 
@@ -162,11 +164,6 @@ class CivController(CivPropController):
             self.monitor.start_monitor()
 
         self.clstate.login()
-
-    def close(self):
-        if self.visualize:
-            self.monitor.stop_monitor()
-        self.ws_client.close()
 
     def ready_to_act(self):
         # TODO: make sure the condition is correct
@@ -182,6 +179,47 @@ class CivController(CivPropController):
         if self.ready_to_act():
             self.ws_client.stop_ioloop()
 
+    def perform_action(self, action):
+        if action == None:
+            self.send_end_turn()
+        else:
+            action_list = action[0]
+            action_list.trigger_validated_action(action[1])
+
+    def get_observations(self):
+        self.lock_control()
+        return self.turn_manager.get_observation()
+
+    def get_reward(self):
+        return self.turn_manager.get_reward()
+
+    def get_info(self):
+        return None
+
+    def send_end_turn(self):
+        """Ends the current turn."""
+        if self.rule_ctrl.game_info == {}:
+            return
+
+        self.turn_manager.end_turn()
+        logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
+        packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
+        self.ws_client.send_request(packet)
+
+    def game_has_terminated(self) -> bool:
+        """Returns True if the game has ended.       
+        """
+        # TODO: check victory conditions.
+        return self.turn_manager.turn > args['max_turns']
+
+    def close(self):
+        if self.visualize:
+            self.monitor.stop_monitor()
+        self.ws_client.close()
+
+    # ============================================================
+    # ========================= Handlers =========================
+    # ============================================================
     def assign_packets(self, p_list):
         """Distributes packets to the handlers of the controllers"""
         if p_list is None:
@@ -224,37 +262,29 @@ class CivController(CivPropController):
 
     def pregame_choose_nation(self, player_id):
         namelist = self.rule_ctrl.get_nation_options()
-        nation_name = namelist[random.randint(0, len(namelist))]
-        self.submit_nation_choice(nation_name, player_id)
-
-    def submit_nation_choice(self, chosen_nation, choosing_player):
+        chosen_nation_name = namelist[random.randint(0, len(namelist))]
         player_num = self.clstate.player_num()
-        if (chosen_nation == -1 or player_num == None
-                or choosing_player == None or choosing_player < 0):
+        if (chosen_nation_name == -1 or player_num == None
+                or player_id == None or player_id < 0):
             return
 
-        pplayer = self.player_ctrl.get_player(choosing_player)
-        pnation = self.rule_ctrl.nations[chosen_nation]
-
+        pplayer = self.player_ctrl.get_player(player_id)
+        pnation = self.rule_ctrl.nations[chosen_nation_name]
         if pplayer == None:
             return
 
         leader_name = pplayer['name']
-
         if pplayer['flags'][PLRF_AI] > 0:
             leader_name = pnation['leader_name'][0]
 
-        style = pnation['style']
+        packet = {"pid": packet_nation_select_req,
+                  "player_no": player_id,
+                  "nation_no": chosen_nation_name,
+                  "is_male": True,  # /* FIXME */
+                  "name": leader_name,
+                  "style": pnation['style']}
 
-        test_packet = {"pid": packet_nation_select_req,
-                       "player_no": choosing_player,
-                       "nation_no": chosen_nation,
-                       "is_male": True,  # /* FIXME */
-                       "name": leader_name,
-                       "style": style}
-
-        self.ws_client.send_request(test_packet)
-        # clearInterval(nation_select_id)
+        self.ws_client.send_request(packet)
 
     def change_ruleset(self, to):
         # """Change the ruleset to"""
@@ -416,13 +446,3 @@ class CivController(CivPropController):
         # /* FIXME: not implemented yet.
         # update_players_dialog()
         # update_conn_list_dialog()
-
-    def send_end_turn(self):
-        """Ends the current turn."""
-        if self.rule_ctrl.game_info == {}:
-            return
-
-        self.turn_manager.end_turn()
-        logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
-        packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
-        self.ws_client.send_request(packet)

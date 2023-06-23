@@ -23,16 +23,9 @@ from gym_freeciv_web.agents.base_agent import BaseAgent
 class RandomAgent(BaseAgent):
     def __init__(self):
         super().__init__()
-        self._last_action = None
         self._num_actions = 0
 
-    def take_action(self, action):
-        action_list = action[0]
-        action_list.trigger_validated_action(action[1])
-
-        self._last_action = action
-
-    def act(self, observation, reward, done, save_history=False):
+    def act(self, observation, save_history=False):
         self._num_actions += 1
         state = observation[0]
         action_opts = observation[1]

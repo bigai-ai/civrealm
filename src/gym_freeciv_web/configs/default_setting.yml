@@ -1,6 +1,11 @@
 gym_env: Freeciv-v0
 out_dir: /tmp/random-agent-results
 
+username: civbot
+# Max number of turns per game
+max_turns: 10
+# The The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
+client_port: 6001
 # Whether to start in multiplayer mode or single player mode
 multiplayer_game: True
 # Whether to start hotseat game in single player mode
@@ -19,7 +24,10 @@ minp: 1
 allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
 autotoggle: False
-username: civbot
+
+# Records the game state and available actions at every step. 
+# **Warning**: generates many log files if True. Turned off by default.
+record: False
 
 trainer:
   epoch: 300

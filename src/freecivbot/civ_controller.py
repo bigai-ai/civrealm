@@ -117,7 +117,6 @@ class CivController(CivPropController):
 
         self.clstate = ClientState(self.user_name,
                                    self.ws_client, self.client_port, self.rule_ctrl)
-        self.clstate.set_pre_game_callback(self.prepare_game)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
@@ -304,9 +303,8 @@ class CivController(CivPropController):
             # TODO: handle bad command
             # assert(False)
 
-        # Check whether to prepare game based on message
-        if self.clstate.is_pregame():
-            self.clstate.check_prepare_game_message(message)
+        if self.clstate.should_prepare_game_base_on_message(message):
+            self.prepare_game()
 
         if conn_id in self.clstate.connections:
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message

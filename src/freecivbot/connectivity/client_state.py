@@ -64,7 +64,6 @@ class ClientState(CivPropController):
 
         self.name_index = 0
         self.login_tried = False
-        self.pre_game_callback = None
 
         self.multiplayer_game = args['multiplayer_game']
         self.hotseat_game = args['hotseat_game']
@@ -89,9 +88,6 @@ class ClientState(CivPropController):
 
         self.register_handler(116, "handle_conn_ping_info")
 
-    def set_pre_game_callback(self, callback_func):
-        self.pre_game_callback = callback_func
-
     def set_follower_property(self):
         self.follower = True
 
@@ -105,18 +101,21 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
 
     def is_pregame(self):
-        return self.civclient_state == C_S_PREPARING
+        return 
 
-    def check_prepare_game_message(self, message):
+    def should_prepare_game_base_on_message(self, message) -> bool:
+        if not self.civclient_state == C_S_PREPARING:
+            return False
+        
         if self.follower:
             # The follower wait for the ready message from the host
             if 'Please be ready to start' in message:
-                self.pre_game_callback()
+                return True
         else:
             if self.wait_for_observer == False:
                 # Auto start game if not waiting for observer. Needed for single player game
                 if 'You are logged in as' in message:
-                    self.pre_game_callback()
+                    return True
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
                     if 'has connected from' in message:
@@ -126,11 +125,12 @@ class ClientState(CivPropController):
                         # Follower always set itself to be ready when new player join
                         ready_player_num, overall_player_num = self.get_ready_state(message)
                         if ready_player_num == overall_player_num-1:
-                            self.pre_game_callback()
+                            return True
             elif 'now observes' in message:
                 # Observer has joined
                 self.wait_for_observer = False
                 self.ws_client.send_message('Please be ready to start')
+        return False
 
     def get_ready_state(self, message):
         # Assume the player ready message is of format: "m out of n alive players..."

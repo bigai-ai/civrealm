@@ -28,12 +28,12 @@ class RandomAgent(BaseAgent):
         if action_choices:
             return valid_action_dict[random.choice(action_choices)]
 
-    def act(self, observations):
-        unit_actor, unit_action_dict = self.get_next_action_dict(observations, 'unit')
+    def act(self, observations, info):
+        unit_actor, unit_action_dict = self.get_next_valid_actor(observations, info, 'unit')
         logger.info(f'Valid actions: {unit_action_dict}')
         if not unit_actor:
             return None
-        
+
         # Try to build a city
         build_action = self.random_action_by_name(unit_action_dict, 'build')
         if build_action and random.random() > 0.2:

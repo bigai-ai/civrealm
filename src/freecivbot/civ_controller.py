@@ -15,7 +15,7 @@
 import random
 
 from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.connectivity.clinet import CivConnection
+from freecivbot.connectivity.civ_connection import CivConnection
 from freecivbot.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
 from freecivbot.players.player_ctrl import PlayerCtrl, PLRF_AI
@@ -196,7 +196,7 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward()
 
     def get_info(self):
-        return None
+        return {'turn': self.turn_manager.turn}
 
     def send_end_turn(self):
         """Ends the current turn."""
@@ -319,7 +319,7 @@ class CivController(CivPropController):
             event = packet['event']
         except KeyError:
             logger.error(f'Packet is missing some keys: {packet}')
-            # raise Exception("Packet is missing some keys")
+            raise Exception("Packet is missing some keys")
 
         if message is None:
             return

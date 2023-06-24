@@ -19,7 +19,7 @@ from freecivbot.utils.freeciv_logging import logger
 class TurnManager(object):
     def __init__(self) -> None:
         self._turn = 0
-        self._turn_sleep_time = 1
+        self._turn_sleep_time = 0.0
 
         self._turn_active = False
         self._turn_player = None

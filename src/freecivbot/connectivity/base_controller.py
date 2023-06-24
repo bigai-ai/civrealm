@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.connectivity.clinet import CivConnection
+from freecivbot.connectivity.civ_connection import CivConnection
 
 from freecivbot.utils.base_action import ActionList
 from freecivbot.utils.base_state import PropState
@@ -39,7 +39,7 @@ class CivPropController():
         server_setting_packets = {165, 166, 167, 168, 169, 170}
         ruleset_packets = {148, 246, 143, 229, 140, 260, 144, 235, 226, 152,
                            175, 232, 151, 150, 149, 240, 512, 145, 230, 227, 252, 228, 177}
-        info_packets = {15}
+        info_packets = {15, 51}
         self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
 
     def register_all_handlers(self):

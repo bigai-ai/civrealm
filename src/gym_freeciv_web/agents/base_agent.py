@@ -16,22 +16,45 @@ from abc import ABC, abstractmethod
 
 from freecivbot.utils.freeciv_logging import logger
 
+
 class BaseAgent(ABC):
     def __init__(self):
-        pass
+        self.turn = None
+        self.planned_actor_ids = []
+
+    @abstractmethod
+    def act(self, observation, info):
+        return None
 
     def get_ctrl_types(self, observations):
         return observations[1].keys()
 
-    def get_next_action_dict(self, observations, ctrl_type):
-        action_list = observations[1][ctrl_type]
-        for actor_id in action_list.get_actors():
-            if action_list._can_actor_act(actor_id):
-                logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type} controller')
-                valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
-                return actor_id, valid_action_dict
-        return None, None
+    def get_next_valid_actor(self, observations, info, desired_ctrl_type=None):
+        """
+        Return the first actable actor_id and its valid_action_dict that has not been planned in this turn.
+        """
+        if info['turn'] != self.turn:
+            self.planned_actor_ids = []
+            self.turn = info['turn']
+    
+        for ctrl_type in self.get_ctrl_types(observations):
+            if desired_ctrl_type and desired_ctrl_type != ctrl_type:
+                continue
 
-    @abstractmethod
-    def act(self, observation):
-        return None
+            action_list = observations[1][ctrl_type]
+            for actor_id in action_list.get_actors():
+                if actor_id in self.planned_actor_ids:
+                    # We have planned an action for this actor in this turn.
+                    continue
+
+                if action_list._can_actor_act(actor_id):
+                    logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')
+                    valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
+                    if not valid_action_dict:
+                        continue
+                    
+                    logger.debug(f'{ctrl_type}_ctrl: Valid actor_id {actor_id} with valid actions found {valid_action_dict}')
+                    self.planned_actor_ids.append(actor_id)
+                    return actor_id, valid_action_dict
+        
+        return None, None

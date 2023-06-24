@@ -18,34 +18,23 @@ from gym_freeciv_web.agents.base_agent import BaseAgent
 from freecivbot.utils.freeciv_logging import logger
 
 
-class ControllerRandomAgent(BaseAgent):
+class ControllerAgent(BaseAgent):
     def __init__(self):
         super().__init__()
 
-        self.cur_state = {}
-        self.action_options = {}
-        self.action_wants = None
-
-    def act(self, observations):
+    def act(self, observations, info):
         for ctrl_type in self.get_ctrl_types(observations):
-            try:
-                valid_actor_id, valid_action_dict = self.get_next_action_dict(observations, ctrl_type)
-                if not valid_actor_id:
-                    continue
+            valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations, info, ctrl_type)
+            if not valid_actor_id:
+                continue
 
-                logger.debug(
-                    f'{ctrl_type} controller: Valid actor_id {valid_actor_id} with valid actions found {valid_action_dict}')
-                calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
-                action_name = calculate_func(valid_action_dict)
-                if action_name:
-                    return valid_action_dict[action_name]
-            except AttributeError:
-                logger.error(
-                    f'Controller type {ctrl_type} is not supported. Please imlement calculate_{ctrl_type}_actions()')
-                exit(1)
+            calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
+            action_name = calculate_func(valid_action_dict)
+            if action_name:
+                return valid_action_dict[action_name]
         return None
 
-    def sample_action(self, action_probabilities):
+    def sample_action_by_prob(self, action_probabilities):
         action_list = list(action_probabilities.keys())
         action_probabilities = list(action_probabilities.values())
         try:
@@ -57,34 +46,42 @@ class ControllerRandomAgent(BaseAgent):
             return None
 
     def sample_desired_actions(self, action_dict, desired_actions):
+        # Use desired_actions = {'': 0.0} for random sample
         action_probabilities = {}
         for action_key in action_dict:
+            action_probabilities[action_key] = 0.0
             for desired_action_key in desired_actions:
                 if desired_action_key in action_key:
                     action_probabilities[action_key] = desired_actions[desired_action_key]
                     break
-                action_probabilities[action_key] = 0.0
-        return self.sample_action(action_probabilities)
+        return self.sample_action_by_prob(action_probabilities)
 
     def calculate_unit_actions(self, action_dict):
-        desired_actions = {'explore': random.random()*0.5,
-                           'goto': random.random()*0.25,
+        desired_actions = {'explore': 1.0,
+                           'goto': random.random()*0.1,
+                           # 'autosettlers': 1.0,
                            'build': 1.0}
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_city_actions(self, action_dict):
-        desired_actions = {'change_improve_prod': random.random()*0.0,
-                           'change_unit_prod': random.random()*0.0}
+        desired_actions = {'change_unit_prod_Settlers': 1.0,
+                           # 'city_work': random.random()*0.2,
+                           'change_improve_prod': random.random()*0.2,
+                           'change_unit_prod': random.random()*0.2, }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_player_actions(self, action_dict):
-        return None
+        desired_actions = {}
+        return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_dipl_actions(self, action_dict):
-        return None
+        desired_actions = {}
+        return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_tech_actions(self, action_dict):
-        return None
+        desired_actions = {'set_tech_goal_Rocketry': 1.0}
+        return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_gov_actions(self, action_dict):
-        return None
+        desired_actions = {}
+        return self.sample_desired_actions(action_dict, desired_actions)

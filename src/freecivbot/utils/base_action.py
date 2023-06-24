@@ -12,10 +12,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from abc import ABC, abstractmethod
+
 from freecivbot.utils.freeciv_logging import logger
 
 
-class Action(object):
+class Action(ABC):
     """ Baseclass for all actions that can be send to the server -
         validity of actions needs to be ensured prior to triggering action"""
     action_key = None
@@ -35,10 +37,12 @@ class Action(object):
         logger.info("trigger_action. ", packet)
         return ws_client.send_request(packet, self.wait_for_pid)
 
+    @abstractmethod
     def is_action_valid(self):
         """Check if action is valid - abstract function should be overwritten"""
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
-
+    
+    @abstractmethod
     def _action_packet(self):
         """returns the packet that should be sent to the server to carry out action -
         abstract function should be overwritten"""

@@ -19,6 +19,6 @@ class NoOpAgent(BaseAgent):
     def __init__(self):
         super().__init__()
 
-    def act(self, observations):
+    def act(self, observations, info):
         # Send None indicating end of turn
         return None

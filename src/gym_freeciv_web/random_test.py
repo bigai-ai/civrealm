@@ -16,17 +16,17 @@ import gym
 import gym_freeciv_web
 
 from gym_freeciv_web.configs import args
-from gym_freeciv_web.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerRandomAgent
+from gym_freeciv_web.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
 
 
 def main():
     env = gym.make(args['gym_env'])
-    agent = ControllerRandomAgent()
+    agent = ControllerAgent()
 
     observations, info = env.reset()
     terminated = False
     while not terminated:
-        action = agent.act(observations)
+        action = agent.act(observations, info)
         observations, reward, terminated, info = env.step(action)
     env.close()
 

@@ -31,7 +31,7 @@ from freecivbot.utils.freeciv_logging import logger
 
 class PlayerOptions(ActionList):
     def __init__(self, ws_client, rule_ctrl, players, clstate):
-        ActionList.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.players = players
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
@@ -104,7 +104,7 @@ class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
 
     def __init__(self, tax, sci, lux, max_rate):
-        base_action.Action.__init__(self)
+        super().__init__()
         self.tax = self.get_corrected_num(tax)
         self.sci = self.get_corrected_num(sci)
         self.lux = self.get_corrected_num(lux)
@@ -164,7 +164,7 @@ class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
 
     def __init__(self, counterpart):
-        base_action.Action.__init__(self)
+        base_action.super().__init__()
         self.counterpart = counterpart
 
     def is_action_valid(self):
@@ -198,7 +198,7 @@ class RemoveClause(base_action.Action):
     action_key = "remove_clause"
 
     def __init__(self, clause_type, value, giver, taker, cur_player):
-        base_action.Action.__init__(self)
+        base_action.super().__init__()
         self.clause_type = clause_type
         self.value = value
         self.giver = giver
@@ -263,7 +263,7 @@ class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
     def __init__(self, clause_type, value, giver, taker, cur_player, rule_ctrl):
-        AddClause.__init__(self, clause_type, value, giver, taker, cur_player)
+        super().__init__(clause_type, value, giver, taker, cur_player)
         self.rule_ctrl = rule_ctrl
         self.action_key += "_%i_%s" % (value, rule_ctrl.techs[value]["name"])
 

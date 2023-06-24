@@ -121,7 +121,7 @@ class FocusUnit():
 
 class UnitActions(ActionList):
     def __init__(self, ws_client, unit_ctrl, rule_ctrl, player_ctrl, map_ctrl, city_ctrl):
-        ActionList.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.unit_ctrl = unit_ctrl
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
@@ -337,7 +337,7 @@ class ActOnExtra(EngineerAction):
     action_key = None
 
     def __init__(self, cur_focus):
-        EngineerAction.__init__(self, cur_focus)
+        super().__init__(cur_focus)
         self.extra_type = None
 
     def is_eng_action_valid(self):
@@ -386,7 +386,7 @@ class ActIrrigation(ActOnExtra):
 
     def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_IRRIGATION
-        ActOnExtra.__init__(self, cur_focus)
+        super().__init__(cur_focus)
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
@@ -398,7 +398,7 @@ class ActFallout(ActOnExtra):
 
     def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_FALLOUT
-        ActOnExtra.__init__(self, cur_focus)
+        super().__init__(cur_focus)
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_FALLOUT, EXTRA_NONE)
@@ -410,7 +410,7 @@ class ActPollution(ActOnExtra):
 
     def __init__(self, cur_focus):
         self.extra_type = ruleset.EXTRA_POLLUTION
-        ActOnExtra.__init__(self, cur_focus)
+        super().__init__(cur_focus)
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_POLLUTION, EXTRA_NONE)
@@ -459,7 +459,7 @@ class ActBuild(UnitAction):
     action_key = "build"
 
     def __init__(self, cur_focus):
-        UnitAction.__init__(self, cur_focus)
+        super().__init__(cur_focus)
         self.next_city_name = None
 
     def is_action_valid(self):
@@ -660,7 +660,7 @@ class ActSpySteal(DiplomaticAction):
     action_id = ACTION_SPY_STEAL_TECH
 
     def __init__(self, cur_focus):
-        DiplomaticAction.__init__(self, cur_focus)
+        super().__init__(cur_focus)
         self.tech_id = None
 
     def is_dipl_action_valid(self):
@@ -688,7 +688,7 @@ class ActSpyStealTargeted(ActSpySteal):
     action_id = ACTION_SPY_TARGETED_STEAL_TECH
 
     def __init__(self, cur_focus):
-        ActSpySteal.__init__(self, cur_focus)
+        super().__init__(cur_focus)
         self._prep_tech_tree()
 
     def _prep_tech_tree(self):
@@ -859,7 +859,7 @@ class ActGoto(StdAction):
     action_key = "goto"
 
     def __init__(self, focus, dir8):
-        StdAction.__init__(self, focus)
+        super().__init__(focus)
         self.dir8 = dir8
         self.action_key += "_%i" % dir8
         self.newtile = None

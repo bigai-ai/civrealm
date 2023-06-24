@@ -32,7 +32,7 @@ citizen_types = ["angry", "unhappy", "content", "happy"]
 
 class CityState(ListState):
     def __init__(self, ruleset, city_list):
-        ListState.__init__(self)
+        super().__init__()
         self.rulectrl = ruleset
         self.city_list = city_list
 

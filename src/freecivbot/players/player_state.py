@@ -26,7 +26,7 @@ AI_SKILLS = ["Away", "Handicapped", "Novice", "Easy", "Normal", "Hard", "Cheatin
 
 class PlayerState(PlainState):
     def __init__(self, rule_ctrl, player_ctrl, clstate, diplstates, players):
-        PlainState.__init__(self)
+        super().__init__()
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
         self.clstate = clstate

@@ -17,7 +17,7 @@ from freecivbot.utils.base_state import PlainState, ListState
 
 class GameState(PlainState):
     def __init__(self, scenario_info, calendar_info):
-        PlainState.__init__(self)
+        super().__init__()
         self.scenario_info = scenario_info
         self.calendar_info = calendar_info
 
@@ -30,7 +30,7 @@ class GameState(PlainState):
 
 class ServerState(ListState):
     def __init__(self, server_settings):
-        PlainState.__init__(self)
+        super().__init__()
         self.server_settings = server_settings
 
     def _update_state(self, pplayer):
@@ -42,7 +42,7 @@ class ServerState(ListState):
 
 class RuleState(PlainState):
     def __init__(self, game_info):
-        PlainState.__init__(self)
+        super().__init__()
         self.game_info = game_info
 
     def _update_state(self, pplayer):

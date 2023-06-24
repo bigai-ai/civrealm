@@ -18,7 +18,7 @@ from freecivbot.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
 class UnitState(ListState):
     def __init__(self, unit_ctrl, rule_ctrl, city_ctrl):
-        ListState.__init__(self)
+        super().__init__()
         self.unit_ctrl = unit_ctrl
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl

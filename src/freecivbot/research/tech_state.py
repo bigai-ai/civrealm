@@ -23,7 +23,7 @@ from freecivbot.utils.freeciv_logging import logger
 
 class TechState(ListState):
     def __init__(self, rule_ctrl, tech_ctrl):
-        PlainState.__init__(self)
+        super().__init__()
         self.rule_ctrl = rule_ctrl
         self.tech_ctrl = tech_ctrl
 

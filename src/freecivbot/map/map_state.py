@@ -18,7 +18,7 @@ import json
 
 class MapState(PlainState):
     def __init__(self, player_map):
-        PlainState.__init__(self)
+        super().__init__()
         self._state = player_map
 
     def encode_to_json(self):

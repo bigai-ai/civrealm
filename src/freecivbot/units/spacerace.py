@@ -33,7 +33,7 @@ class SpaceCtrl(CivPropController):
     """ Controls spaceship information collection from server and state/actions towards spaceship"""
 
     def __init__(self, ws_client, rule_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.spaceship_info = {}
 
@@ -82,7 +82,7 @@ class LaunchSpaceship(Action):
     """ Launch Spaceship """
 
     def __init__(self, spaceship_playerinfo):
-        Action.__init__(self)
+        super().__init__()
         self.spaceship_playerinfo = spaceship_playerinfo
 
     def is_action_valid(self):

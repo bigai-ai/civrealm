@@ -29,7 +29,7 @@ from freecivbot.utils.freeciv_logging import logger
 
 class CivWSClient(WebSocketClient):
     def __init__(self, **kwargs):
-        WebSocketClient.__init__(self, **kwargs)
+        super().__init__(**kwargs)
         self.read_packs = []
         self.wait_for_packs = []
         self.send_queue = []
@@ -115,7 +115,7 @@ class CivConnection(CivWSClient):
             wait_for_server - Overall time waiting for server being up
             retry_interval - Wait for X seconds until retrying
         '''
-        CivWSClient.__init__(self)
+        super().__init__()
 
         self.host = host
         self.client_port = client_port

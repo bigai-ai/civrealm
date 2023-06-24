@@ -43,7 +43,7 @@ U_NOT_OBSOLETED = None
 
 class RulesetCtrl(CivPropController):
     def __init__(self, ws_client):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
 
         self.terrains = {}
         self.resources = {}

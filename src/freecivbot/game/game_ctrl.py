@@ -26,7 +26,7 @@ IDENTITY_NUMBER_ZERO = 0
 
 class GameCtrl(CivPropController):
     def __init__(self, ws_client):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
 
         self.calendar_info = {}
         self.scenario_info = {}

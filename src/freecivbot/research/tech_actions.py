@@ -19,7 +19,7 @@ from freecivbot.research.tech_helpers import is_tech_unknown, is_tech_prereq_kno
 
 class TechActions(ActionList):
     def __init__(self, ws_client, rule_ctrl):
-        ActionList.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
 
     def _can_actor_act(self, actor_id):
@@ -41,7 +41,7 @@ class ActChooseResearchTech(Action):
     action_key = "research_tech"
 
     def __init__(self, pplayer, new_tech_id, new_tech_name):
-        Action.__init__(self)
+        super().__init__()
         self.pplayer = pplayer
         self.new_tech_id = new_tech_id
         self.action_key += "_%s_%i" % (new_tech_name, new_tech_id)

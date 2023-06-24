@@ -79,7 +79,7 @@ DIR_DY = [-1, -1, -1, 0, 0, 1, 1, 1]
 
 class MapCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.map = {}
         self.tiles = []
         self.player_map = {}

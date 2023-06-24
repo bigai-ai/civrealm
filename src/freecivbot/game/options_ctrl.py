@@ -32,7 +32,7 @@ class OptionCtrl(CivPropController):
     """
 
     def __init__(self, ws_client):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.server_settings = {}
         self.prop_state = ServerState(self.server_settings)
         self.prop_actions = NoActions(ws_client)

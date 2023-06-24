@@ -27,7 +27,7 @@ class MockClient(object):
 
 class TestAction(Action):
     def __init__(self, ws_client, state):
-        Action.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.state = state
 
     def is_action_valid(self):

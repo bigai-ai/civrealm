@@ -39,7 +39,7 @@ GOV_TXT = {GOV_ANARCHY: "Anarchy", GOV_DESPOTISM: "Despotism",
 
 class GovState(PlainState):
     def __init__(self, rule_ctrl):
-        PlainState.__init__(self)
+        super().__init__()
         self.rule_ctrl = rule_ctrl
 
     def _update_state(self, pplayer):
@@ -50,7 +50,7 @@ class GovState(PlainState):
 
 class GovActions(ActionList):
     def __init__(self, ws_client, rule_ctrl, city_ctrl):
-        ActionList.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
 
@@ -68,7 +68,7 @@ class GovActions(ActionList):
 
 class GovernmentCtrl(CivPropController):
     def __init__(self, ws_client, city_ctrl, rule_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl
         self.prop_state = GovState(rule_ctrl)
@@ -109,7 +109,7 @@ class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
 
     def __init__(self, govt_id, city_ctrl, rule_ctrl, pplayer):
-        base_action.Action.__init__(self)
+        super().__init__()
         self.govt_id = govt_id
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl

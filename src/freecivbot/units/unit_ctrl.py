@@ -35,7 +35,7 @@ from freecivbot.utils.freeciv_logging import logger
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.units = {}
         self.rule_ctrl = rule_ctrl
         self.map_ctrl = map_ctrl

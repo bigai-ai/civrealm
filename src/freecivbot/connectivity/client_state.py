@@ -31,7 +31,7 @@ C_S_OVER = 3  # /* Connected with game over. */
 
 class ClientState(CivPropController):
     def __init__(self, username, ws_client, rule_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.civclient_state = C_S_INITIAL
         self.connect_error = False
@@ -100,12 +100,12 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
 
     def is_pregame(self):
-        return 
+        return
 
     def should_prepare_game_base_on_message(self, message) -> bool:
         if not self.civclient_state == C_S_PREPARING:
             return False
-        
+
         if self.follower:
             # The follower wait for the ready message from the host
             if 'Please be ready to start' in message:

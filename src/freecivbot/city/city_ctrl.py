@@ -38,7 +38,7 @@ INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
 class CityCtrl(CivPropController):
     def __init__(self, ws_client=None, ruleset=None, player_ctrl=None, clstate=None, game_ctrl=None,
                  map_ctrl=None):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
 
         # self.register_handler(13, "handle_scenario_description")
         self.cities = {}

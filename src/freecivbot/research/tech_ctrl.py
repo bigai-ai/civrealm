@@ -68,7 +68,7 @@ U_NOT_OBSOLETED = None
 
 class TechCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, player_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
         self.reqtree = None

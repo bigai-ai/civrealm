@@ -29,7 +29,7 @@ MAX_SPECIALISTS = 20
 
 class CityActions(ActionList):
     def __init__(self, ws_client, rulectrl, city_list, map_ctrl):
-        ActionList.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.rulectrl = rulectrl
         self.cities = city_list
         self.city_map = CityTileMap(1, map_ctrl)
@@ -81,7 +81,7 @@ class CityWorkTile(Action):
     action_key = "city_work"
 
     def __init__(self, pcity, dx, dy, city_map):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
@@ -134,7 +134,7 @@ class CityChangeSpecialist(Action):
     action_key = "city_change_specialist"
 
     def __init__(self, pcity, specialist_num):
-        Action.__init__(self)
+        super().__init__()
         self.specialist_num = specialist_num
         self.pcity = pcity
         self.action_key += "_%i" % specialist_num
@@ -155,7 +155,7 @@ class CityBuyProduction(Action):
     action_key = "city_buy_production"
 
     def __init__(self, pcity, pplayer):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
         self.pplayer = pplayer
 
@@ -176,7 +176,7 @@ class CitySellImprovement(Action):
     action_key = "city_sell_improvement"
 
     def __init__(self, pcity, improvement_id, improvement_name):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
         self.improvement_id = improvement_id
         self.action_key += "_%s" % improvement_name
@@ -195,7 +195,7 @@ class CityChangeProduction(Action):
     action_key = "change_production"
 
     def __init__(self, pcity, prod_kind, prod_value, prod_name):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
         self.prod_kind = prod_kind
         self.prod_value = prod_value
@@ -236,7 +236,7 @@ class CityChangeUnitProduction(CityChangeProduction):
     action_key = "change_unit_prod"
 
     def __init__(self, pcity, punit_type):
-        CityChangeProduction.__init__(self, pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
+        super().__init__(pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
         self.punit_type = punit_type
 
     def is_action_valid(self):
@@ -264,7 +264,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
     action_key = "change_improve_prod"
 
     def __init__(self, pcity, pimprovement):
-        CityChangeProduction.__init__(self, pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])
+        super().__init__(pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
@@ -294,7 +294,7 @@ class CityRename(Action):
     """Rename a city - ignored for bot"""
 
     def __init__(self, pcity, suggested_name):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
         self.suggested_name = suggested_name
 
@@ -312,7 +312,7 @@ class CityDoWorklist(Action):
     """Set worklist for city - Irrelevant for bot - can automatically assess production each turn"""
 
     def __init__(self, pcity):
-        Action.__init__(self)
+        super().__init__()
         self.pcity = pcity
 
     def _action_packet(self):

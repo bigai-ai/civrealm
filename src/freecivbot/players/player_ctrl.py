@@ -28,7 +28,7 @@ from freecivbot.research.tech_helpers import TECH_KNOWN
 
 class PlayerCtrl(CivPropController):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
 
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl

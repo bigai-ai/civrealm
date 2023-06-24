@@ -44,7 +44,7 @@ DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "T
 
 class DiplomacyState(PlainState):
     def __init__(self, diplstates):
-        PlainState.__init__(self)
+        super().__init__()
         self.diplstates = diplstates
 
     def _lock_properties(self):
@@ -59,7 +59,7 @@ class DiplomacyState(PlainState):
 
 class DiplomacyCtrl(CivPropController):
     def __init__(self, ws_client, clstate, ruleset, dipl_evaluator=None):
-        CivPropController.__init__(self, ws_client)
+        super().__init__(ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}

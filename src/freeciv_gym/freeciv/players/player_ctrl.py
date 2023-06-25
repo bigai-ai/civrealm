@@ -13,17 +13,17 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from BitVector import BitVector
-from freecivbot.utils.utility import byte_to_bit_array
+from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
-from freecivbot.connectivity.client_state import C_S_PREPARING
-from freecivbot.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
 
-from freecivbot.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
-from freecivbot.players.player_state import PlayerState, PLRF_AI
-from freecivbot.players.player_actions import PlayerOptions
+from freeciv_gym.freeciv.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
+from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI
+from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 
-from freecivbot.city.city_state import CityState
-from freecivbot.research.tech_helpers import TECH_KNOWN
+from freeciv_gym.freeciv.city.city_state import CityState
+from freeciv_gym.freeciv.research.tech_helpers import TECH_KNOWN
 
 
 class PlayerCtrl(CivPropController):

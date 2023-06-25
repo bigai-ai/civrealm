@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.base_state import PlainState, ListState
+from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
 
 
 class GameState(PlainState):

@@ -14,18 +14,13 @@
 
 import os
 import json
+
 import gym
-from gym import error
 from gym import utils
 
-try:
-    from freecivbot.civ_controller import CivController
-    from freecivbot.utils.freeciv_logging import logger
-    from gym_freeciv_web.configs import args
-except ImportError as e:
-    raise error.DependencyNotInstalled(
-        "{}. (HINT: you can install Freeciv dependencies with 'pip install gym[freeciv].)'".format(e))
-
+from freeciv_gym.freeciv.civ_controller import CivController
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.configs import args
 
 class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """

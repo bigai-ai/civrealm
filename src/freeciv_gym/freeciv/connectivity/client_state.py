@@ -14,14 +14,14 @@
 
 import time
 from math import ceil, floor
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
     packet_conn_pong
-from freecivbot.utils.base_action import NoActions
-from freecivbot.utils.base_state import EmptyState
+from freeciv_gym.freeciv.utils.base_action import NoActions
+from freeciv_gym.freeciv.utils.base_state import EmptyState
 
-from freecivbot.utils.freeciv_logging import logger
-from gym_freeciv_web.configs import args
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.configs import args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
 C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */

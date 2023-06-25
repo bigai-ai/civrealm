@@ -16,7 +16,7 @@ import threading
 from selenium import webdriver
 from time import sleep
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class CivMonitor():

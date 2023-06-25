@@ -14,12 +14,14 @@
 
 import time
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.configs import args
+
 
 class TurnManager(object):
     def __init__(self) -> None:
         self._turn = 0
-        self._turn_sleep_time = 0.0
+        self._sleep_time_after_turn = args['sleep_time_after_turn']
 
         self._turn_active = False
         self._turn_player = None
@@ -63,10 +65,10 @@ class TurnManager(object):
 
     def end_turn(self):
         logger.info(f'============== Finish turn {self._turn:04d} ==============')
-        logger.info(f'Sleeping for {self._turn_sleep_time} seconds')
+        logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None
         self._turn_state = None
         self._turn_opts = None
-        time.sleep(self._turn_sleep_time)
+        time.sleep(self._sleep_time_after_turn)

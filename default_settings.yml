@@ -28,6 +28,7 @@ autotoggle: False
 # Records the game state and available actions at every step. 
 # **Warning**: generates many log files if True. Turned off by default.
 record: False
+sleep_time_after_turn: 0.0
 
 trainer:
   epoch: 300

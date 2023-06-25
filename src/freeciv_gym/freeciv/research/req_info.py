@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE,\
+from freeciv_gym.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE,\
     VUT_GOVERNMENT, VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION, VUT_UTYPE,\
     VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE, VUT_SPECIALIST, VUT_MINSIZE,\
     VUT_AI_LEVEL, VUT_TERRAINCLASS, VUT_MINYEAR, VUT_TERRAINALTER, VUT_CITYTILE,\
@@ -23,9 +23,9 @@ from freecivbot.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE,\
     VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING, TRI_MAYBE,\
     RPT_POSSIBLE, VUT_COUNT
 
-from freecivbot.research.tech_helpers import is_tech_known
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_known
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 """
 /* Range of requirements.

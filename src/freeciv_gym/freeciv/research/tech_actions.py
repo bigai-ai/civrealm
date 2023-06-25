@@ -12,9 +12,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.base_action import Action, ActionList
-from freecivbot.utils.fc_types import packet_player_research, packet_player_tech_goal
-from freecivbot.research.tech_helpers import is_tech_unknown, is_tech_prereq_known
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList
+from freeciv_gym.freeciv.utils.fc_types import packet_player_research, packet_player_tech_goal
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_unknown, is_tech_prereq_known
 
 
 class TechActions(ActionList):

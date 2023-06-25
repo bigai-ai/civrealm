@@ -12,13 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
+from freeciv_gym.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
-from freecivbot.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from math import floor
-from freecivbot.utils.base_state import ListState
+from freeciv_gym.freeciv.utils.base_state import ListState
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 FEELING_BASE = 0  # /* before any of the modifiers below */
 FEELING_LUXURY = 1  # /* after luxury */

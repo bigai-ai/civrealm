@@ -12,13 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.fc_types import MAX_NUM_ITEMS
-from freecivbot.utils.freeciv_wiki import freeciv_wiki_docs
+from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
+from freeciv_gym.freeciv.utils.freeciv_wiki import freeciv_wiki_docs
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.research.tech_state import TechState
-from freecivbot.research.tech_actions import TechActions
-from freecivbot.research.tech_helpers import is_tech_known
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.research.tech_state import TechState
+from freeciv_gym.freeciv.research.tech_actions import TechActions
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_known
 
 """
 /* TECH_KNOWN is self-explanatory, TECH_PREREQS_KNOWN are those for which all

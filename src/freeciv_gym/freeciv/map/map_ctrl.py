@@ -17,14 +17,14 @@ import functools
 import numpy as np
 from BitVector import BitVector
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.utility import FC_WRAP, byte_to_bit_array, sign
-from freecivbot.utils.base_action import NoActions
-from freecivbot.map.tile import TileState, TILE_UNKNOWN
-from freecivbot.map.map_state import MapState
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.utility import FC_WRAP, byte_to_bit_array, sign
+from freeciv_gym.freeciv.utils.base_action import NoActions
+from freeciv_gym.freeciv.map.tile import TileState, TILE_UNKNOWN
+from freeciv_gym.freeciv.map.map_state import MapState
 import json
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 DIR8_STAY = -1

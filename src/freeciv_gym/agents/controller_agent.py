@@ -14,8 +14,8 @@
 
 import random
 
-from gym_freeciv_web.agents.base_agent import BaseAgent
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.agents.base_agent import BaseAgent
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class ControllerAgent(BaseAgent):

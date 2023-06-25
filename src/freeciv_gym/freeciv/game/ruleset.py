@@ -12,16 +12,16 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.fc_types import VUT_ADVANCE
-from freecivbot.research.tech_ctrl import A_NONE
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.fc_types import VUT_ADVANCE
+from freeciv_gym.freeciv.research.tech_ctrl import A_NONE
 import sys
 
-from freecivbot.game.info_states import RuleState
-from freecivbot.research.req_info import REQ_RANGE_PLAYER
-from freecivbot.utils.base_action import NoActions
+from freeciv_gym.freeciv.game.info_states import RuleState
+from freeciv_gym.freeciv.research.req_info import REQ_RANGE_PLAYER
+from freeciv_gym.freeciv.utils.base_action import NoActions
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 EXTRA_RIVER = None
 EXTRA_ROAD = None

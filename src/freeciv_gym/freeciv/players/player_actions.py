@@ -12,21 +12,21 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils import base_action
-from freecivbot.utils.base_action import ActionList
-from freecivbot.utils.fc_types import packet_player_rates,\
+from freeciv_gym.freeciv.utils import base_action
+from freeciv_gym.freeciv.utils.base_action import ActionList
+from freeciv_gym.freeciv.utils.fc_types import packet_player_rates,\
     packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req,\
     packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
-from freecivbot.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
+from freeciv_gym.freeciv.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
     CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE,\
     CLAUSE_TXT
 
-from freecivbot.players.government import GovernmentCtrl
-from freecivbot.research.tech_helpers import is_tech_known, player_invention_state,\
+from freeciv_gym.freeciv.players.government import GovernmentCtrl
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, player_invention_state,\
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class PlayerOptions(ActionList):
@@ -164,7 +164,7 @@ class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
 
     def __init__(self, counterpart):
-        base_action.super().__init__()
+        super().__init__()
         self.counterpart = counterpart
 
     def is_action_valid(self):
@@ -198,7 +198,7 @@ class RemoveClause(base_action.Action):
     action_key = "remove_clause"
 
     def __init__(self, clause_type, value, giver, taker, cur_player):
-        base_action.super().__init__()
+        super().__init__()
         self.clause_type = clause_type
         self.value = value
         self.giver = giver

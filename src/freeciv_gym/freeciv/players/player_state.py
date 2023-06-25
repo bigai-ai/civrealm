@@ -12,8 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.base_state import PlainState
-from freecivbot.research.tech_helpers import TECH_KNOWN
+from freeciv_gym.freeciv.utils.base_state import PlainState
+from freeciv_gym.freeciv.research.tech_helpers import TECH_KNOWN
 
 MAX_NUM_PLAYERS = 30
 MAX_AI_LOVE = 1000

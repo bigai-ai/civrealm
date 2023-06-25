@@ -7,16 +7,16 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gym
-import gym_freeciv_web
+import freeciv_gym
 
-from gym_freeciv_web.configs import args
-from gym_freeciv_web.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
+from freeciv_gym.configs import args
+from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
 
 
 def main():

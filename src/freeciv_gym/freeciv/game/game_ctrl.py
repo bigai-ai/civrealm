@@ -13,11 +13,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.game.info_states import GameState
-from freecivbot.utils.base_action import NoActions
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.game.info_states import GameState
+from freeciv_gym.freeciv.utils.base_action import NoActions
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1

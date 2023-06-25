@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class Action(ABC):
@@ -41,7 +41,7 @@ class Action(ABC):
     def is_action_valid(self):
         """Check if action is valid - abstract function should be overwritten"""
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
-    
+
     @abstractmethod
     def _action_packet(self):
         """returns the packet that should be sent to the server to carry out action -

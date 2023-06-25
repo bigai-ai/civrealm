@@ -12,13 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.fc_types import packet_player_change_government, packet_report_req,\
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, packet_report_req,\
     RPT_CERTAIN
-from freecivbot.utils import base_action
-from freecivbot.utils.base_action import ActionList
-from freecivbot.utils.base_state import PlainState
-from freecivbot.research.req_info import ReqCtrl
+from freeciv_gym.freeciv.utils import base_action
+from freeciv_gym.freeciv.utils.base_action import ActionList
+from freeciv_gym.freeciv.utils.base_state import PlainState
+from freeciv_gym.freeciv.research.req_info import ReqCtrl
 
 REPORT_WONDERS_OF_THE_WORLD = 0
 REPORT_TOP_5_CITIES = 1

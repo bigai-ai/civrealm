@@ -16,14 +16,14 @@ from _collections import defaultdict
 import urllib
 from BitVector import BitVector
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.fc_types import MAX_NUM_ITEMS
-from freecivbot.utils.utility import byte_to_bit_array
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
+from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
-from freecivbot.city.city_state import CityState
-from freecivbot.city.city_actions import CityActions
+from freeciv_gym.freeciv.city.city_state import CityState
+from freeciv_gym.freeciv.city.city_actions import CityActions
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 # /* The city_options enum. */
 CITYO_DISBAND = 0

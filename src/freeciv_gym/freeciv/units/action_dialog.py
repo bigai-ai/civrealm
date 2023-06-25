@@ -25,7 +25,7 @@ def action_prob_possible(aprob):
 
 def action_prob_not_impl(probability):
     """Returns TRUE iff the given action probability represents that support
-    for finding this action probability currently is missing from Freeciv."""
+    for finding this action probability currently is missing from freeciv_gym.freeciv."""
     return probability['min'] == 254 and probability['max'] == 0
 
 

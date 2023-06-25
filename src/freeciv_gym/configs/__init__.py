@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
 import argparse
 import yaml
 
@@ -28,9 +29,12 @@ def parse_args():
     Initialize default arguments with yaml and renew values with input arguments.
     """
 
+    default_config_file = os.path.normpath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                     '../../../default_settings.yml'))
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', help="configuration file *.yml", type=str,
-                        required=False, default='src/gym_freeciv_web/configs/default_setting.yml')
+                        required=False, default=default_config_file)
     args, remaining_argv = parser.parse_known_args()
 
     opt = yaml.load(open(args.config_file), Loader=yaml.FullLoader)

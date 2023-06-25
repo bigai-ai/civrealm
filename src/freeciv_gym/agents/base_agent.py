@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class BaseAgent(ABC):
@@ -36,7 +36,7 @@ class BaseAgent(ABC):
         if info['turn'] != self.turn:
             self.planned_actor_ids = []
             self.turn = info['turn']
-    
+
         for ctrl_type in self.get_ctrl_types(observations):
             if desired_ctrl_type and desired_ctrl_type != ctrl_type:
                 continue
@@ -52,9 +52,10 @@ class BaseAgent(ABC):
                     valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
                     if not valid_action_dict:
                         continue
-                    
-                    logger.debug(f'{ctrl_type}_ctrl: Valid actor_id {actor_id} with valid actions found {valid_action_dict}')
+
+                    logger.debug(
+                        f'{ctrl_type}_ctrl: Valid actor_id {actor_id} with valid actions found {valid_action_dict}')
                     self.planned_actor_ids.append(actor_id)
                     return actor_id, valid_action_dict
-        
+
         return None, None

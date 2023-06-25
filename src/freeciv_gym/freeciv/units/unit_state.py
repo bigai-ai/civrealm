@@ -12,8 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.base_state import ListState
-from freecivbot.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
+from freeciv_gym.freeciv.utils.base_state import ListState
+from freeciv_gym.freeciv.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
 
 class UnitState(ListState):

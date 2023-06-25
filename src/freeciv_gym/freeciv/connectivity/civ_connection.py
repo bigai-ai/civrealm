@@ -20,11 +20,11 @@ from math import ceil
 from time import sleep
 from overrides import override
 
-from freecivbot.connectivity.web_socket_client import WebSocketClient
-from freecivbot.utils.fc_types import packet_chat_msg_req
-from freecivbot import init_server
+from freeciv_gym.freeciv.connectivity.web_socket_client import WebSocketClient
+from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
+from freeciv_gym.freeciv import init_server
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class CivWSClient(WebSocketClient):

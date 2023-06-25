@@ -13,9 +13,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import unittest
-from freecivbot.utils.base_action import Action
+from freeciv_gym.freeciv.utils.base_action import Action
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class MockClient(object):

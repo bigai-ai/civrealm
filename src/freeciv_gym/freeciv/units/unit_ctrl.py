@@ -14,23 +14,23 @@
 
 from BitVector.BitVector import BitVector
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
     ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_NOTHING,\
     ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\
     USSDT_UNQUEUE, USSDT_QUEUE, ACTION_FOUND_CITY
 
-from freecivbot.units.spacerace import SpaceCtrl
-from freecivbot.units.action_dialog import action_prob_possible
+from freeciv_gym.freeciv.units.spacerace import SpaceCtrl
+from freeciv_gym.freeciv.units.action_dialog import action_prob_possible
 
-from freecivbot.game.game_ctrl import IDENTITY_NUMBER_ZERO
-from freecivbot.players.diplomacy import DS_ALLIANCE, DS_TEAM
-from freecivbot.units.unit_actions import UnitActions, UnitAction, FocusUnit
-from freecivbot.units.unit_state import UnitState
+from freeciv_gym.freeciv.game.game_ctrl import IDENTITY_NUMBER_ZERO
+from freeciv_gym.freeciv.players.diplomacy import DS_ALLIANCE, DS_TEAM
+from freeciv_gym.freeciv.units.unit_actions import UnitActions, UnitAction, FocusUnit
+from freeciv_gym.freeciv.units.unit_state import UnitState
 import urllib
 import re
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class UnitCtrl(CivPropController):

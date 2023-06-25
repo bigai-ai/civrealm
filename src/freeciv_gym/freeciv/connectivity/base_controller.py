@@ -12,12 +12,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
-from freecivbot.utils.base_action import ActionList
-from freecivbot.utils.base_state import PropState
+from freeciv_gym.freeciv.utils.base_action import ActionList
+from freeciv_gym.freeciv.utils.base_state import PropState
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class CivPropController():

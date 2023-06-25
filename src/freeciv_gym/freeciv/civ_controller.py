@@ -14,30 +14,30 @@
 
 import random
 
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.connectivity.civ_connection import CivConnection
-from freecivbot.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
-from freecivbot.players.player_ctrl import PlayerCtrl, PLRF_AI
-from freecivbot.players.diplomacy import DiplomacyCtrl
-from freecivbot.players.government import GovernmentCtrl
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl, PLRF_AI
+from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+from freeciv_gym.freeciv.players.government import GovernmentCtrl
 
-from freecivbot.game.game_ctrl import GameCtrl
-from freecivbot.game.ruleset import RulesetCtrl
-from freecivbot.game.options_ctrl import OptionCtrl
+from freeciv_gym.freeciv.game.game_ctrl import GameCtrl
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.game.options_ctrl import OptionCtrl
 
-from freecivbot.units.unit_ctrl import UnitCtrl
-from freecivbot.map.map_ctrl import MapCtrl
-from freecivbot.city.city_ctrl import CityCtrl
-from freecivbot.research.tech_ctrl import TechCtrl
+from freeciv_gym.freeciv.units.unit_ctrl import UnitCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
+from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
+from freeciv_gym.freeciv.research.tech_ctrl import TechCtrl
 
-from freecivbot.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
-from freecivbot.utils.fc_types import packet_nation_select_req, packet_player_phase_done
-from freecivbot.utils.civ_monitor import CivMonitor
+from freeciv_gym.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
+from freeciv_gym.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
+from freeciv_gym.freeciv.utils.civ_monitor import CivMonitor
 
-from freecivbot.turn_manager import TurnManager
-from freecivbot.utils.freeciv_logging import logger
-from gym_freeciv_web.configs import args
+from freeciv_gym.freeciv.turn_manager import TurnManager
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.configs import args
 
 
 class CivController(CivPropController):

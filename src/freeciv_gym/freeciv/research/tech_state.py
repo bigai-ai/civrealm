@@ -12,13 +12,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freecivbot.utils.base_state import PlainState, ListState
-from freecivbot.utils.fc_types import RPT_CERTAIN
-from freecivbot.research.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
-from freecivbot.research.req_info import ReqCtrl
-from freecivbot.research import tech_helpers
+from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
+from freeciv_gym.freeciv.utils.fc_types import RPT_CERTAIN
+from freeciv_gym.freeciv.research.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
+from freeciv_gym.freeciv.research.req_info import ReqCtrl
+from freeciv_gym.freeciv.research import tech_helpers
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 class TechState(ListState):

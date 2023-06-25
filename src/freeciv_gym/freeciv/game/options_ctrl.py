@@ -18,10 +18,10 @@ You can look up a setting by its name or by its id number. */
 """
 
 
-from freecivbot.utils.fc_types import TRUE, FALSE
-from freecivbot.connectivity.base_controller import CivPropController
-from freecivbot.game.info_states import ServerState
-from freecivbot.utils.base_action import NoActions
+from freeciv_gym.freeciv.utils.fc_types import TRUE, FALSE
+from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.game.info_states import ServerState
+from freeciv_gym.freeciv.utils.base_action import NoActions
 
 
 class OptionCtrl(CivPropController):

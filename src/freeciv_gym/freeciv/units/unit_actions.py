@@ -14,16 +14,16 @@
 
 import urllib
 
-from freecivbot.research.tech_ctrl import TechCtrl
-from freecivbot.research.tech_helpers import is_tech_known, is_tech_prereq_known
+from freeciv_gym.freeciv.research.tech_ctrl import TechCtrl
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, is_tech_prereq_known
 
-from freecivbot.city.city_state import CityState
-from freecivbot.city.city_ctrl import INCITE_IMPOSSIBLE_COST
-from freecivbot.game import ruleset
-from freecivbot.game.game_ctrl import EXTRA_NONE
-from freecivbot.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
+from freeciv_gym.freeciv.city.city_state import CityState
+from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
+from freeciv_gym.freeciv.game import ruleset
+from freeciv_gym.freeciv.game.game_ctrl import EXTRA_NONE
+from freeciv_gym.freeciv.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
 
-from freecivbot.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
+from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
     ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, packet_unit_autosettlers,\
     ACTION_DISBAND_UNIT, ACTION_DISBAND_UNIT_RECOVER, packet_city_name_suggestion_req,\
@@ -38,12 +38,12 @@ from freecivbot.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
     ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
     ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE
-from freecivbot.utils.base_action import Action, ActionList
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 
-from freecivbot.units.action_dialog import action_prob_possible, encode_building_id
+from freeciv_gym.freeciv.units.action_dialog import action_prob_possible, encode_building_id
 
-from freecivbot.map.tile import TileState
-from freecivbot.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
+from freeciv_gym.freeciv.map.tile import TileState
+from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
     DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
 
 

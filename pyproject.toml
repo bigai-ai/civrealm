@@ -1,12 +1,14 @@
 [project]
-name = "freecivbot"
-version = "0.1.15"
-description = "Freeciv bot allowing for research on AI for complex strategy games"
+name = "freeciv-gym"
+version = "0.1"
+description = "Freeciv Gym is a reinforcement learning environment for the open-source strategy game Freeciv-web."
 authors = [
     {name = "Chris1869", email = "chris1869@github.com"},
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
     {name = "Shuo Chen", email = "chenshuo@bigai.ai"},
     {name = "Xiangyu Kong", email = "kongxiangyu@bigai.ai"},
+    {name = "Zhaowei Zhang", email = "zhangzhaowei@bigai.ai"},
+    {name = "Yexin Li", email = "liyexin@bigai.ai"},
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}
@@ -26,5 +28,5 @@ dependencies = [
 
 
 [project.scripts]
-build_freeciv_server = "freecivbot.build_server:build_docker_img"
-test_freeciv_web_gym = "gym_freeciv_web.random_test:main"
+build_freeciv_server = "freeciv.build_server:build_docker_img"
+test_freeciv_gym = "freeciv_gym.random_test:main"

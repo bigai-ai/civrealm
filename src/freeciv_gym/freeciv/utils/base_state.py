@@ -15,7 +15,7 @@
 import numpy as np
 import json
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
 def sets_equal(set_a, set_b):

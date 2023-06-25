@@ -14,14 +14,14 @@
 
 from math import floor, sqrt
 import urllib
-from freecivbot.utils.base_action import Action, ActionList
-from freecivbot.utils.fc_types import packet_city_make_specialist,\
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList
+from freeciv_gym.freeciv.utils.fc_types import packet_city_make_specialist,\
     packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
     packet_city_sell, packet_city_change, VUT_UTYPE,\
     VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
-from freecivbot.map.map_ctrl import CityTileMap
+from freeciv_gym.freeciv.map.map_ctrl import CityTileMap
 
-from freecivbot.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20

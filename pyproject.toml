@@ -24,12 +24,15 @@ dependencies = [
     "gym==0.10.9", 
     "selenium", 
     "websocket-client",
+    "pytest",
+    "pytest-asyncio",
+    "pytest-timeout",
 ]
 
 
 [project.scripts]
 build_freeciv_server = "freeciv.build_server:build_docker_img"
-test_freeciv_gym = "freeciv_gym.random_test:main"
+test_freeciv_gym = "freeciv_gym.random_game:main"
 
 [tool.pytest.ini_options]
 addopts = [

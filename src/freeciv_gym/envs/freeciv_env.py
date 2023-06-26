@@ -20,24 +20,24 @@ from gym import utils
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import logger
-from freeciv_gym.configs import args
+from freeciv_gym.configs import fc_args
 
 class FreecivEnv(gym.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render.modes': ['human']}
 
     def __init__(self):
-        self.civ_controller = CivController(username=args['username'])
+        self.civ_controller = CivController(username=fc_args['username'])
 
         # For recording purposes. self.record_step_count only increases when recording is enabled.
         self._record_step_count = 0
         self.recording_dir = os.path.join(
             os.path.dirname(logger.handlers[0].baseFilename),
-            'recordings', args['username'])
+            'recordings', fc_args['username'])
         os.makedirs(self.recording_dir, exist_ok=True)
 
     def _record_to_file(self, name, content, default_json_encoder=None):
-        if args['record'] is False:
+        if fc_args['record'] is False:
             return
 
         turn = self.civ_controller.get_turn()

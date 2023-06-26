@@ -55,7 +55,7 @@ class WebSocketClient(object):
     def start_ioloop(self):
         """Start IO/Event loop.
 
-        This method will block current thread, and only return after self.stop_loop() is called in a callback. The function should be started everytime the user wants to resume listening to the server or sending messages to the server.
+        This method will block current thread, and only return after self.stop_loop() is called in a callback. The function should be started everytime the user wants to resume listening to the server or sending messages to the server. Only after the ioloop is started, the responses from the server (including those for connection and login requests) can be received and the corresponding callbacks can be called.
         """
         if self._connection_closed:
             # This happens when the connection was closed intentionally before the call to start_loop, e.g., the user pressed Ctrl+C to stop the client, or the server closed the connection.
@@ -85,8 +85,10 @@ class WebSocketClient(object):
     def close(self):
         """Close connection.
         """
+        # Connection already closed.
         if not self._ws_connection:
-            raise RuntimeError('Web socket connection is already closed.')
+            return
+            # raise RuntimeError('Web socket connection is already closed.')
 
         self._connection_closed = True
         self._on_connection_close()

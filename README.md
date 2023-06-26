@@ -60,7 +60,7 @@ For an initial start on training models on freeciv-web - see the example install
 test_freeciv_web_gym
 ```
 
-It will run gym_freeciv_web/random_test with the key class RandomAgent(object). The central function is
+It will run gym_freeciv_web/random_game with the key class RandomAgent(object). The central function is
 
 ```python
  def act(self, observation, reward, done):

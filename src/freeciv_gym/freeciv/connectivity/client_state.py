@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.base_state import EmptyState
 
 from freeciv_gym.freeciv.utils.freeciv_logging import logger
-from freeciv_gym.configs import args
+from freeciv_gym.configs import fc_args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
 C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */
@@ -64,12 +64,12 @@ class ClientState(CivPropController):
         self.name_index = 0
         self.login_tried = False
 
-        self.multiplayer_game = args['multiplayer_game']
-        self.hotseat_game = args['hotseat_game']
+        self.multiplayer_game = fc_args['multiplayer_game']
+        self.hotseat_game = fc_args['hotseat_game']
         # For host of multiplayer game, follower should be False. For Follower, it should be true
         self.follower = False
         # whether to wait for observer before start game in multiplayer mode
-        self.wait_for_observer = args['wait_for_observer']
+        self.wait_for_observer = fc_args['wait_for_observer']
 
     def register_all_handlers(self):
         self.register_handler(0, "handle_processing_started")
@@ -97,7 +97,7 @@ class ClientState(CivPropController):
         if self.hotseat_game:
             self.set_hotseat_game()
         # Set map seed. The same seed leads to the same map.
-        self.ws_client.send_message(f"/set mapseed {args['mapseed']}")
+        self.ws_client.send_message(f"/set mapseed {fc_args['mapseed']}")
 
     def is_pregame(self):
         return
@@ -174,15 +174,17 @@ class ClientState(CivPropController):
 
     def set_multiplayer_game(self):
         # Set AI player to 0. Based on HACKING file
-        self.ws_client.send_message(f"/set aifill {args['aifill']}")
+        self.ws_client.send_message(f"/set aifill {fc_args['aifill']}")
         # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
         self.ws_client.send_message("/set topology \"\"")
         self.ws_client.send_message("/set wrap WRAPX")
+        # Set mode as turn-by-turn. Not allow players to play simultaneously.
+        self.ws_client.send_message("/set phasemode player")
         self.ws_client.send_message("/set nationset all")
-        self.ws_client.send_message(f"/set maxplayers {args['maxplayers']}")
+        self.ws_client.send_message(f"/set maxplayers {fc_args['maxplayers']}")
         # This setting allows human to take the control of the agent in the middle of the game
-        self.ws_client.send_message(f"/set allowtake {args['allowtake']}")
-        self.ws_client.send_message(f"/set autotoggle {args['autotoggle']}")
+        self.ws_client.send_message(f"/set allowtake {fc_args['allowtake']}")
+        self.ws_client.send_message(f"/set autotoggle {fc_args['autotoggle']}")
         self.ws_client.send_message("/set timeout 60")
         self.ws_client.send_message("/set netwait 15")
         self.ws_client.send_message("/set nettimeout 120")
@@ -193,7 +195,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/set size 4")
         self.ws_client.send_message("/set landm 50")
         # use /set minp 1 will allow single agent to play
-        self.ws_client.send_message(f"/set minp {args['minp']}")
+        self.ws_client.send_message(f"/set minp {fc_args['minp']}")
         self.ws_client.send_message("/set generator FAIR")
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
@@ -284,10 +286,11 @@ class ClientState(CivPropController):
             elif self.observing:
                 self.request_observe_game()*/
             """
+        elif 'already connected' in packet['message']:
+            # login() in network_init() will increase name_index and connect again
+            self.ws_client.network_init()
         else:
-            if 'already connected' in packet['message']:
-                # login() in network_init() will increase name_index and connect again
-                self.ws_client.network_init()
+            raise RuntimeError(f"Log in rejected: {packet['message']}")
 
     def update_client_state(self, value):
         self.set_client_state(value)

@@ -37,7 +37,7 @@ from freeciv_gym.freeciv.utils.civ_monitor import CivMonitor
 
 from freeciv_gym.freeciv.turn_manager import TurnManager
 from freeciv_gym.freeciv.utils.freeciv_logging import logger
-from freeciv_gym.configs import args
+from freeciv_gym.configs import fc_args
 
 
 class CivController(CivPropController):
@@ -48,7 +48,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host='localhost', client_port=args['client_port'], visualize=False):
+    def __init__(self, username, host='localhost', client_port=fc_args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -73,7 +73,7 @@ class CivController(CivPropController):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.turn_manager = TurnManager()
-        if args['multiplayer_game']:
+        if fc_args['multiplayer_game']:
             assert client_port == 6001, 'Multiplayer game must use port 6001'
         self.user_name = username
 
@@ -147,6 +147,9 @@ class CivController(CivPropController):
     # ======================= Game control =======================
     # ============================================================
     def init_network(self):
+        """
+        Called when Env calls reset() method.
+        """
         self.ws_client.network_init()
 
     def lock_control(self):
@@ -169,7 +172,9 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def ready_to_act(self):
-        # TODO: make sure the condition is correct
+        # TODO: make sure the condition is correct        
+        if not self.turn_manager.turn_active:
+            return False
         return not self.ws_client.is_waiting_for_responses()
 
     def try_grant_control_to_player(self):
@@ -177,8 +182,6 @@ class CivController(CivPropController):
         Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
-        if not self.turn_manager.turn_active:
-            return
         if self.ready_to_act():
             self.ws_client.stop_ioloop()
 
@@ -212,7 +215,7 @@ class CivController(CivPropController):
         """Returns True if the game has ended.       
         """
         # TODO: check victory conditions.
-        return self.turn_manager.turn > args['max_turns']
+        return self.turn_manager.turn > fc_args['max_turns']
 
     def close(self):
         if self.visualize:

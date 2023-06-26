@@ -149,16 +149,14 @@ class CivConnection(CivWSClient):
             if self._cur_retry < self._num_retries:
                 return self._retry()
 
-            return False
-
+            raise Exception('Connection could not be established!') from err
+    
     def network_init(self):
         self._cur_retry = 0
         self._restarting_server = False
         logger.info(f'Connecting to server at {self.host} ...')
         if self._detect_server_up():
             self.connect(self.ws_address)
-        else:
-            logger.info('Connection could not be established!')
 
     def _restart_server(self):
         try:

@@ -243,6 +243,14 @@ class CivController(CivPropController):
             self.try_grant_control_to_player()
         except Exception:
             raise
+    
+    def save_game(self, save_name = ''):
+        self.ws_client.send_message(f"/save {save_name}")
+    
+    def load_game(self, save_name):
+        self.ws_client.send_message(f"/load {save_name}")
+        turn = int(save_name.split('_')[1][1:])
+        self.turn_manager.set_turn(turn)
 
     def prepare_game(self):
         names, opts = self.player_ctrl.pregame_getplayer_options()
@@ -338,8 +346,14 @@ class CivController(CivPropController):
             # TODO: handle bad command
             # assert(False)
 
-        if self.clstate.should_prepare_game_base_on_message(message):
-            self.prepare_game()
+        if self.clstate.should_prepare_game_base_on_message(message):            
+            if fc_args['load_game'] != "":
+                self.load_game(fc_args['load_game'])                               
+                # Already load game, directly start                
+                self.clstate.pregame_start_game()
+            else:
+                # Choose nation and start game
+                self.prepare_game()
 
         if conn_id in self.clstate.connections:
             message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
@@ -395,6 +409,9 @@ class CivController(CivPropController):
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
+        # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}")
+        # Save game command '/save' does not support user-defined save_name
+        self.save_game()
         pass
 
     def handle_conn_info(self, packet):

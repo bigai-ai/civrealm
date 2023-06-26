@@ -38,6 +38,9 @@ class TurnManager(object):
     def turn_active(self):
         return self._turn_active
 
+    def set_turn(self, turn):
+        self._turn = turn
+
     def begin_turn(self, pplayer, info_controls):
         logger.info('==============================================')
         logger.info(f'============== Begin turn: {self._turn:04d} ==============')

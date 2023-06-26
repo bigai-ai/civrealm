@@ -274,8 +274,10 @@ class PlayerCtrl(CivPropController):
         # update_player_info_pregame()
         # update_tech_screen()
 
+    # TODO: Currently we receive player_remove packet when we load a game, so we do nothing. Check whether there are other cases that would also lead to player removal, e.g., other players lost connection.
     def handle_player_remove(self, packet):
-        del self.players[packet['playerno']]
+        pass
+        # del self.players[packet['playerno']]
         # update_player_info_pregame()
 
     def handle_player_attribute_chunk(self, packet):

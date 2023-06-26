@@ -30,6 +30,8 @@ autotoggle: False
 record: False
 sleep_time_after_turn: 0.0
 
+load_game: ""
+
 trainer:
   epoch: 300
   lr: 1.0e-5

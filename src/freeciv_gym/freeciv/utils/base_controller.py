@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from abc import ABC, abstractmethod
+
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.base_action import ActionList
@@ -20,19 +22,23 @@ from freeciv_gym.freeciv.utils.base_state import PropState
 from freeciv_gym.freeciv.utils.freeciv_logging import logger
 
 
-class CivPropController():
-    """ Controller for certain properties of the Civilization "Board
-        The controller processes messages from the freeciv server (e.g., stores data)
-        and can send information back to  
+class CivPropController(ABC):
+    """ Controller for certain properties of the Civilization "Board"
+        The controller processes messages from the freeciv server (e.g., state)
+        and can send information back to the server (e.g., actions).
     """
 
     def __init__(self, ws_client: CivConnection):
         self.hdict = {}
         self.ws_client = ws_client
+        self.set_unlogged_packets()
+
         self.prop_state = PropState()
         self.prop_actions = ActionList(ws_client)
+
         self.register_all_handlers()
 
+    def set_unlogged_packets(self):
         # Packets that are filtered when logging debug messages
         self.unlogged_packets = set()
         # Packet id 165 are informative packets about server commands
@@ -42,6 +48,7 @@ class CivPropController():
         info_packets = {15, 51}
         self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
 
+    @abstractmethod
     def register_all_handlers(self):
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
@@ -68,6 +75,7 @@ class CivPropController():
         return self.prop_state.get_state()
 
     def get_current_state_vec(self, pplayer, item=None):
+        # XXX: probably use Gymnasium's native API to get the state vector
         self.prop_state.update(pplayer)
         return self.prop_state.get_state_vec(item)
 

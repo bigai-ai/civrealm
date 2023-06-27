@@ -19,7 +19,7 @@ You can look up a setting by its name or by its id number. */
 
 
 from freeciv_gym.freeciv.utils.fc_types import TRUE, FALSE
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.game.info_states import ServerState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 

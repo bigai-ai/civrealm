@@ -25,10 +25,11 @@ allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
 autotoggle: False
 
-# Records the game state and available actions at every step. 
-# **Warning**: generates many log files if True. Turned off by default.
-record: False
-sleep_time_after_turn: 0.0
+debug:
+  # Records the game state and available actions at every step. 
+  # **Warning**: generates many log files if True. Turned off by default.
+  record: False
+  sleep_time_after_turn: 0.0
 
 load_game: ""
 

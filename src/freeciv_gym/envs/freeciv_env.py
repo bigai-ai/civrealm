@@ -37,7 +37,7 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         os.makedirs(self.recording_dir, exist_ok=True)
 
     def _record_to_file(self, name, content, default_json_encoder=None):
-        if fc_args['record'] is False:
+        if fc_args['debug.record'] is False:
             return
 
         turn = self.civ_controller.get_turn()

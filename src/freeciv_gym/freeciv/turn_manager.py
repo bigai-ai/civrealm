@@ -21,7 +21,7 @@ from freeciv_gym.configs import fc_args
 class TurnManager(object):
     def __init__(self) -> None:
         self._turn = 0
-        self._sleep_time_after_turn = fc_args['sleep_time_after_turn']
+        self._sleep_time_after_turn = fc_args['debug.sleep_time_after_turn']
 
         self._turn_active = False
         self._turn_player = None

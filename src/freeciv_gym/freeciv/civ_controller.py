@@ -14,7 +14,7 @@
 
 import random
 
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
@@ -177,7 +177,7 @@ class CivController(CivPropController):
             return False
         return not self.ws_client.is_waiting_for_responses()
 
-    def try_grant_control_to_player(self):
+    def maybe_grant_control_to_player(self):
         """
         Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
         """
@@ -240,7 +240,7 @@ class CivController(CivPropController):
                     # TODO: handle wait_for_packs
                     pass
 
-            self.try_grant_control_to_player()
+            self.maybe_grant_control_to_player()
         except Exception:
             raise
     

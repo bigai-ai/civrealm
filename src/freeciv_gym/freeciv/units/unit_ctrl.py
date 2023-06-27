@@ -14,7 +14,7 @@
 
 from BitVector.BitVector import BitVector
 
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
     ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_NOTHING,\
     ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\

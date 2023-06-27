@@ -16,7 +16,7 @@ from _collections import defaultdict
 import urllib
 from BitVector import BitVector
 
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 

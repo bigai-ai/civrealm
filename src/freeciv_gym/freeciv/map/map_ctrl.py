@@ -17,7 +17,7 @@ import functools
 import numpy as np
 from BitVector import BitVector
 
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.utility import FC_WRAP, byte_to_bit_array, sign
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.map.tile import TileState, TILE_UNKNOWN

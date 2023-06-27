@@ -13,9 +13,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
-from freeciv_gym.freeciv.utils.freeciv_wiki import freeciv_wiki_docs
+from freeciv_gym.freeciv.misc.freeciv_wiki import freeciv_wiki_docs
 
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.research.tech_state import TechState
 from freeciv_gym.freeciv.research.tech_actions import TechActions
 from freeciv_gym.freeciv.research.tech_helpers import is_tech_known

@@ -16,7 +16,7 @@ from BitVector import BitVector
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
 from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING
-from freeciv_gym.freeciv.connectivity.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 
 from freeciv_gym.freeciv.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
 from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI

@@ -91,6 +91,8 @@ class CivController(CivPropController):
         self.first_conn_info_received = False
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
+        # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not. 
+        self.turn_diff = 0
         self.init_controllers()
 
     def register_all_handlers(self):
@@ -254,13 +256,13 @@ class CivController(CivPropController):
     def save_game(self):
         current_time = datetime.now(pytz.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name1 = f"{self.user_name}_T{self.turn_manager.turn}_{formatted_time}"
+        self.save_name1 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
         # self.ws_client.send_message(f"/save {save_name}")
         self.ws_client.send_message(f"/save ")
         # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
         current_time = datetime.now(pytz.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name2 = f"{self.user_name}_T{self.turn_manager.turn}_{formatted_time}"
+        self.save_name2 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
     
     def delete_save_game(self):
         url = f"http://{self.host}:8080/listsavegames?username={self.user_name}"
@@ -288,6 +290,7 @@ class CivController(CivPropController):
     def load_game(self, save_name):
         self.ws_client.send_message(f"/load {save_name}")
         turn = int(save_name.split('_')[1][1:])
+        self.turn_diff = turn-1
         self.turn_manager.set_turn(turn)
 
     def prepare_game(self):

@@ -5,9 +5,9 @@ username: civbot
 # Max number of turns per game
 max_turns: 10
 # The The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
-client_port: 6001
+client_port: 6000
 # Whether to start in multiplayer mode or single player mode
-multiplayer_game: True
+multiplayer_game: False
 # Whether to start hotseat game in single player mode
 hotseat_game: False
 # Whether to wait a observer join before start the game
@@ -31,6 +31,8 @@ debug:
   record: False
   sleep_time_after_turn: 0.0
 
+# If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
+autosave: True
 load_game: ""
 
 trainer:

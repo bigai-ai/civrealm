@@ -42,10 +42,11 @@ class TurnManager(object):
         self._turn = turn
 
     def begin_turn(self, pplayer, info_controls):
+        # The server counts the turn number from 1.
+        self._turn += 1
         logger.info('==============================================')
         logger.info(f'============== Begin turn: {self._turn:04d} ==============')
-        logger.info('==============================================')
-        self._turn += 1
+        logger.info('==============================================')        
 
         self._turn_active = True
         self._turn_ctrls = info_controls

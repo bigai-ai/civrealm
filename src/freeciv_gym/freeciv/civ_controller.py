@@ -13,6 +13,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import random
+from datetime import datetime
+import pytz
+import requests
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -81,9 +84,13 @@ class CivController(CivPropController):
         self.monitor = None
         if self.visualize:
             self.monitor = CivMonitor(host, username)
+        
+        self.host = host
 
         # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
         self.first_conn_info_received = False
+        # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
+        self.delete_save = True
         self.init_controllers()
 
     def register_all_handlers(self):
@@ -244,8 +251,39 @@ class CivController(CivPropController):
         except Exception:
             raise
     
-    def save_game(self, save_name = ''):
-        self.ws_client.send_message(f"/save {save_name}")
+    def save_game(self):
+        current_time = datetime.now(pytz.utc)
+        formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
+        self.save_name1 = f"{self.user_name}_T{self.turn_manager.turn}_{formatted_time}"
+        # self.ws_client.send_message(f"/save {save_name}")
+        self.ws_client.send_message(f"/save ")
+        # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
+        current_time = datetime.now(pytz.utc)
+        formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
+        self.save_name2 = f"{self.user_name}_T{self.turn_manager.turn}_{formatted_time}"
+    
+    def delete_save_game(self):
+        url = f"http://{self.host}:8080/listsavegames?username={self.user_name}"
+        response = requests.post(url)
+        save_list = response.text.split(';')
+        real_save_name = ''
+        for save_name in save_list:
+            # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
+            if self.save_name1 in save_name:
+                real_save_name = self.save_name1
+            if self.save_name2 in save_name:
+                real_save_name = self.save_name2
+        
+        if real_save_name == '':
+            logger.debug(f'Failed to match save name. The names being tried are {self.save_name1} and {self.save_name2}.')
+            return
+        
+        # If use savegame=ALL, it will delete all saves under the given username.
+        url = f"http://{self.host}:8080/deletesavegame?username={self.user_name}&savegame={real_save_name}&sha_password="
+        response = requests.post(url)
+        if response.text != "":
+            logger.debug(f'Failed to delete save. Response text: {response.text}')
+            return    
     
     def load_game(self, save_name):
         self.ws_client.send_message(f"/load {save_name}")
@@ -405,13 +443,20 @@ class CivController(CivPropController):
 
         pplayer = self.clstate.cur_player()
         self.turn_manager.begin_turn(pplayer, self.controller_list)
+        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['autosave']:
+            # Save the game state in the begining of every turn.
+            # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}").
+            # Save game command '/save' does not support user-defined save_name.
+            self.save_game()
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
-        # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}")
-        # Save game command '/save' does not support user-defined save_name
-        self.save_game()
+        # Delete saved game in the end of turn.
+        if fc_args['autosave'] and self.delete_save:
+            self.delete_save_game() 
+        # Set delete_save for the next turn
+        self.delete_save = True     
         pass
 
     def handle_conn_info(self, packet):

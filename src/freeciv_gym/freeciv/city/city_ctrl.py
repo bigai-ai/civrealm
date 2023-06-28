@@ -81,7 +81,7 @@ class CityCtrl(CivPropController):
 
     def remove_city(self, pcity_id):
         """Removes a city from the game"""
-        if pcity_id is None or self.player_ctrl.cur_player is None:
+        if pcity_id is None or self.clstate.cur_player is None:
             return
 
         if pcity_id not in self.cities:

@@ -42,7 +42,8 @@ class ClientState(CivPropController):
         self.prop_actions = NoActions(ws_client)
         self.prop_state = EmptyState()
 
-        self.username_origin = username
+        self.username_original = username
+        self.username = username
         self.client = {}
         # Store the client connection state, e.g., conn_id, established
         self.client["conn"] = {}
@@ -64,8 +65,8 @@ class ClientState(CivPropController):
         self.seconds_to_phasedone = 0
         self.seconds_to_phasedone_sync = 0
 
+        # If there is name conflict, add an index to the end of the username
         self.name_index = 0
-        self.login_tried = False
 
         self.multiplayer_game = fc_args['multiplayer_game']
         self.hotseat_game = fc_args['hotseat_game']
@@ -139,6 +140,12 @@ class ClientState(CivPropController):
         temp_str = message.split(' out of ')
         return int(temp_str[0][-1]), int(temp_str[1][0])
 
+    def get_password(self):
+        password = fc_args['debug.password']
+        sha_password = hashlib.sha512(password.encode('UTF-8'))
+        sha_password = urllib.parse.quote(sha_password.hexdigest())
+        return sha_password
+
     def try_create_user_account(self, host, username, password):
         url = f"http://{host}:8080/create_pbem_user?username={username}&email={username}@freecivgym.org&password={password}&captcha=null"
         response = requests.post(url)
@@ -147,16 +154,12 @@ class ClientState(CivPropController):
     def login(self):
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         google_user_subject = None
-        if self.login_tried:
-            self.name_index += 1
-            self.username = f'{self.username_origin}{self.name_index}'
-        else:
-            self.username = self.username_origin
-            self.login_tried = True
+        if self.name_index > 0:
+            self.username = f'{self.username_original}{self.name_index}'
+        self.name_index += 1
 
         # Maybe create an user account on Freeciv Web
-        sha_password = hashlib.sha512(fc_args['debug.password'].encode('UTF-8'))
-        sha_password = urllib.parse.quote(sha_password.hexdigest())
+        sha_password = self.get_password()
         self.try_create_user_account(fc_args['host'], self.username, sha_password)
 
         # Log in to Freeciv Web through websocket

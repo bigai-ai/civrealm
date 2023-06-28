@@ -42,11 +42,11 @@ import org.freeciv.util.Constants;
  * URL: /deletesavegame
  */
 public class DeleteSaveGame extends HttpServlet {
-
+	
 	private static final long serialVersionUID = 1L;
 
 	private final Validation validation = new Validation();
-
+	
 	private String savegameDirectory;
 
 	public void init(ServletConfig config) throws ServletException {
@@ -86,25 +86,25 @@ public class DeleteSaveGame extends HttpServlet {
 			conn = ds.getConnection();
 
 			// Salted, hashed password.
-			String saltHashQuery = "SELECT secure_hashed_password "
-					+ "FROM auth "
-					+ "WHERE LOWER(username) = LOWER(?) "
-					+ "	AND activated = '1' LIMIT 1";
+			String saltHashQuery =
+					"SELECT secure_hashed_password "
+							+ "FROM auth "
+							+ "WHERE LOWER(username) = LOWER(?) "
+							+ "	AND activated = '1' LIMIT 1";
 			PreparedStatement ps1 = conn.prepareStatement(saltHashQuery);
 			ps1.setString(1, username);
 			ResultSet rs1 = ps1.executeQuery();
 			if (!rs1.next()) {
 				response.getOutputStream().print("Failed");
-				// return;
+				return;
 			} else {
 				String hashedPasswordFromDB = rs1.getString(1);
 				if (hashedPasswordFromDB != null &&
 						hashedPasswordFromDB.equals(DigestUtils.sha256Hex(secure_password))) {
 					// Login OK!
-					response.getOutputStream().print("OK");
 				} else {
 					response.getOutputStream().print("Failed");
-					// return;
+					return;
 				}
 			}
 
@@ -127,30 +127,16 @@ public class DeleteSaveGame extends HttpServlet {
 				if (!folder.exists()) {
 					response.getOutputStream().print("Error!");
 				} else {
-					for (File savegameFile : folder.listFiles()) {
-						if (savegameFile.exists() && savegameFile.isFile()) {
+					for
+					 (File savegameFile: folder.listFiles()) {
+						if (savegameFile.exists() && savegameFile.isFile() && savegameFile.getName().endsWith(".sav.xz")) {
 							Files.delete(savegameFile.toPath());
 						}
 					}
 				}
 			} else {
-				String fileName = null;
-				File folder = new File(savegameDirectory + "/" + username);
-				if (!folder.exists()) {
-					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Save folder under the given username cannot be found");
-					return;
-				} else {
-					fileName = getFilenameFromFolder(folder, savegame);
-				}
-				if (fileName == null) {
-					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-							"Savegame cannot be found");
-					return;
-				}
-
-				File savegameFile = new File(savegameDirectory + "/" + username + "/" + fileName);
-				if (savegameFile.exists() && savegameFile.isFile()) {
+				File savegameFile = new File(savegameDirectory + username + "/" + savegame + ".sav.xz");
+				if (savegameFile.exists() && savegameFile.isFile() && savegameFile.getName().endsWith(".sav.xz")) {
 					Files.delete(savegameFile.toPath());
 				}
 			}
@@ -160,19 +146,6 @@ public class DeleteSaveGame extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ERROR");
 		}
 
-	}
-
-	private String getFilenameFromFolder(File folder, String savegame) {
-		File[] files = folder.listFiles();
-		if (files == null) {
-			return null;
-		}
-		for (File file : files) {
-			if (file.isFile() && file.getName().contains(savegame)) {
-				return file.getName();
-			}
-		}
-		return null;
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)

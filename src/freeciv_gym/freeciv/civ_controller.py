@@ -75,9 +75,9 @@ class CivController(CivPropController):
         self.ai_skill_level = 3
         self.nation_select_id = -1
         self.turn_manager = TurnManager()
+
         if fc_args['multiplayer_game']:
             assert client_port == 6001, 'Multiplayer game must use port 6001'
-        self.username = username
 
         self.visualize = visualize
         self.monitor = None
@@ -92,7 +92,7 @@ class CivController(CivPropController):
         self.delete_save = True
         # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
         self.turn_diff = 0
-        self.init_controllers()
+        self.init_controllers(username)
 
     def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")
@@ -113,7 +113,7 @@ class CivController(CivPropController):
         self.register_handler(259, "handle_web_player_addition_info")
         self.register_handler(66, "handle_unknown_research_msg")
 
-    def init_controllers(self):
+    def init_controllers(self, username):
         """
         Initialize all controllers for the game. This is done in the constructor before the WebSocket connection is open, hence it is called before init_game() is called.
         """
@@ -122,7 +122,7 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(self.username,
+        self.clstate = ClientState(username,
                                    self.ws_client, self.rule_ctrl)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
@@ -267,20 +267,20 @@ class CivController(CivPropController):
     def save_game(self):
         current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name1 = f"{self.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
+        self.save_name1 = f"{self.clstate.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
         # self.ws_client.send_message(f"/save {save_name}")
         self.ws_client.send_message(f"/save ")
         # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
         current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name2 = f"{self.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
+        self.save_name2 = f"{self.clstate.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
 
     def delete_save_game(self):
         """
-        Delete the save game on the server.
+        Delete the save game on the server (docker).
         Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
         """
-        url = f"http://{self.host}:8080/listsavegames?username={self.username}"
+        url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
         response = requests.post(url)
         save_list = response.text.split(';')
         real_save_name = ''
@@ -297,11 +297,10 @@ class CivController(CivPropController):
             return
 
         # If use savegame=ALL, it will delete all saves under the given username.
-        url = f"http://{self.host}:8080/deletesavegame?username={self.username}&savegame={real_save_name}&sha_password={fc_args['debug.password']}"
+        sha_password = self.clstate.get_password()
+        url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_save_name}&sha_password={sha_password}"
         response = requests.post(url)
-        if response.text != "":
-            fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
-            return
+        fc_logger.debug(f'Deleting unnecessary saved game; response text: {response.text}')
 
     def load_game(self, save_name):
         self.ws_client.send_message(f"/load {save_name}")

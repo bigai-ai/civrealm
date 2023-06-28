@@ -1,6 +1,6 @@
 gym_env: Freeciv-v0
 
-username: civbot
+username: myagent
 # Max number of turns per game
 max_turns: 10
 # The host url
@@ -34,7 +34,7 @@ debug:
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True
   # Password used to login to the freeciv web account
-  password: civbot
+  password: freecivgym
   load_game: ""
 
 trainer:

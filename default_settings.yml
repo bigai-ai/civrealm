@@ -1,10 +1,11 @@
 gym_env: Freeciv-v0
-out_dir: /tmp/random-agent-results
 
 username: civbot
 # Max number of turns per game
 max_turns: 10
-# The The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
+# The host url
+host: localhost
+#The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
 client_port: 6000
 # Whether to start in multiplayer mode or single player mode
 multiplayer_game: False
@@ -32,6 +33,8 @@ debug:
   sleep_time_after_turn: 0.0
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True
+  # Password used to login to the freeciv web account
+  password: civbot
   load_game: ""
 
 trainer:

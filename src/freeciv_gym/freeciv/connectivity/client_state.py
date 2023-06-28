@@ -13,6 +13,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+import hashlib
+import urllib
+import requests
 from math import ceil, floor
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
@@ -136,9 +139,13 @@ class ClientState(CivPropController):
         temp_str = message.split(' out of ')
         return int(temp_str[0][-1]), int(temp_str[1][0])
 
+    def try_create_user_account(self, host, username, password):
+        url = f"http://{host}:8080/create_pbem_user?username={username}&email={username}@freecivgym.org&password={password}&captcha=null"
+        response = requests.post(url)
+        return response.status_code
+
     def login(self):
         freeciv_version = "+Freeciv.Web.Devel-3.3"
-        sha_password = None
         google_user_subject = None
         if self.login_tried:
             self.name_index += 1
@@ -147,6 +154,12 @@ class ClientState(CivPropController):
             self.username = self.username_origin
             self.login_tried = True
 
+        # Maybe create an user account on Freeciv Web
+        sha_password = hashlib.sha512(fc_args['debug.password'].encode('UTF-8'))
+        sha_password = urllib.parse.quote(sha_password.hexdigest())
+        self.try_create_user_account(fc_args['host'], self.username, sha_password)
+
+        # Log in to Freeciv Web through websocket
         login_message = {"pid": 4, "username": self.username,
                          "capability": freeciv_version, "version_label": "-dev",
                          "major_version": 2, "minor_version": 5, "patch_version": 99,

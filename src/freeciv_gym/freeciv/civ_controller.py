@@ -13,8 +13,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import random
-from datetime import datetime, timezone
 import requests
+from datetime import datetime, timezone
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -50,7 +50,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host='localhost', client_port=fc_args['client_port'], visualize=False):
+    def __init__(self, username, host=fc_args['host'], client_port=fc_args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -77,7 +77,7 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager()
         if fc_args['multiplayer_game']:
             assert client_port == 6001, 'Multiplayer game must use port 6001'
-        self.user_name = username
+        self.username = username
 
         self.visualize = visualize
         self.monitor = None
@@ -122,7 +122,7 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(self.user_name,
+        self.clstate = ClientState(self.username,
                                    self.ws_client, self.rule_ctrl)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
@@ -267,20 +267,20 @@ class CivController(CivPropController):
     def save_game(self):
         current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name1 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
+        self.save_name1 = f"{self.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
         # self.ws_client.send_message(f"/save {save_name}")
         self.ws_client.send_message(f"/save ")
         # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
         current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name2 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
+        self.save_name2 = f"{self.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
 
     def delete_save_game(self):
         """
         Delete the save game on the server.
         Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
         """
-        url = f"http://{self.host}:8080/listsavegames?username={self.user_name}"
+        url = f"http://{self.host}:8080/listsavegames?username={self.username}"
         response = requests.post(url)
         save_list = response.text.split(';')
         real_save_name = ''
@@ -297,7 +297,7 @@ class CivController(CivPropController):
             return
 
         # If use savegame=ALL, it will delete all saves under the given username.
-        url = f"http://{self.host}:8080/deletesavegame?username={self.user_name}&savegame={real_save_name}&sha_password="
+        url = f"http://{self.host}:8080/deletesavegame?username={self.username}&savegame={real_save_name}&sha_password={fc_args['debug.password']}"
         response = requests.post(url)
         if response.text != "":
             fc_logger.debug(f'Failed to delete save. Response text: {response.text}')

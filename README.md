@@ -24,6 +24,28 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 In order to test the overall bot on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
+### Custom freeciv-web to save game files for debugging
+
+Replace the `DeleteSaveGame.java` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
+
+```bash
+cd modified_server_code
+docker cp DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java
+```
+
+Enter the freeciv-web docker:
+
+```bash
+docker exec -it freeciv-web bash
+```
+
+and compile the new file:
+
+```bash
+cd /docker/freeciv-web
+sh build.sh
+```
+
 ## Installation
 
 ### Installation for gym users

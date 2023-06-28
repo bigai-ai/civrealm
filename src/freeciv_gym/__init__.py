@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from gym.envs.registration import register
+from gymnasium.envs.registration import register
 
 register(
     id='Freeciv-v0',

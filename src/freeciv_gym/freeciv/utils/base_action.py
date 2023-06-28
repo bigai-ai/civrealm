@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class Action(ABC):
@@ -28,13 +28,13 @@ class Action(ABC):
 
     def encode_to_json(self):
         """Encode action to json - abstract function should be overwritten"""
-        logger.warning(f'encode_to_json not implemented for {self.__class__}')
+        fc_logger.warning(f'encode_to_json not implemented for {self.__class__}')
         return self._action_packet()
 
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
-        logger.info("trigger_action. ", packet)
+        fc_logger.info("trigger_action. ", packet)
         return ws_client.send_request(packet, self.wait_for_pid)
 
     @abstractmethod
@@ -69,7 +69,7 @@ class ActionList(object):
         if actor_id in self._action_dict:
             del self._action_dict[actor_id]
         else:
-            logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
+            fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
 
     def add_action(self, actor_id, a_action):
         if actor_id not in self._action_dict:
@@ -119,12 +119,13 @@ class ActionList(object):
         return False
 
     def trigger_wanted_actions(self, controller_wants):
+        # FIXME: unsed function
         for a_actor in self._action_dict:
             if a_actor not in controller_wants:
                 raise ("Wants for actor %s should have been defined." % a_actor)
             actor_wants = controller_wants[a_actor]
             if actor_wants == {}:
-                logger.info("No actions wanted for actor %s" % a_actor)
+                fc_logger.info("No actions wanted for actor %s" % a_actor)
                 continue
             if type(actor_wants) is list:
                 raise ("Wants for actor %s should be a dictionary not a list" % a_actor)
@@ -132,7 +133,7 @@ class ActionList(object):
             action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
 
             if actor_wants[action_most_wanted] > 0:
-                logger.info(action_most_wanted)
+                fc_logger.info(action_most_wanted)
                 self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)
 
     def update(self, pplayer):

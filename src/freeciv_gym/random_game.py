@@ -12,7 +12,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gym
+import warnings
+# FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
+warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*')
+
+import gymnasium
 import freeciv_gym
 
 from freeciv_gym.configs import fc_args
@@ -20,14 +24,15 @@ from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgen
 
 
 def main():
-    env = gym.make(fc_args['gym_env'])
+    env = gymnasium.make(fc_args['gym_env'])
     agent = ControllerAgent()
 
     observations, info = env.reset()
-    terminated = False
-    while not terminated:
+    done = False
+    while not done:
         action = agent.act(observations, info)
-        observations, reward, terminated, info = env.step(action)
+        observations, reward, terminated, truncated, info = env.step(action)
+        done = terminated or truncated
     env.close()
 
 

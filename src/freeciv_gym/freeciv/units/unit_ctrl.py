@@ -30,7 +30,7 @@ from freeciv_gym.freeciv.units.unit_state import UnitState
 import urllib
 import re
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class UnitCtrl(CivPropController):
@@ -371,14 +371,14 @@ class UnitCtrl(CivPropController):
         actor_unit = self.find_unit_by_number(diplomat_id)
 
         if actor_unit is None:
-            logger.info("Bad actor unit (" + diplomat_id
-                        + ") in unit action answer.")
+            fc_logger.info("Bad actor unit (" + diplomat_id
+                           + ") in unit action answer.")
             return
 
         if action_type == ACTION_SPY_BRIBE_UNIT:
             target_unit = self.find_unit_by_number(target_id)
             if target_unit is None:
-                logger.info("Bad target unit (" + target_id + ") in unit action answer.")
+                fc_logger.info("Bad target unit (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_bribe_dialog(actor_unit, target_unit, cost, action_type)
@@ -386,23 +386,23 @@ class UnitCtrl(CivPropController):
         elif (action_type == ACTION_SPY_INCITE_CITY
               or action_type == ACTION_SPY_INCITE_CITY_ESC):
             if target_city is None:
-                logger.info("Bad target city (" + target_id + ") in unit action answer.")
+                fc_logger.info("Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_incite_dialog(actor_unit, target_city, cost, action_type)
                 return
         elif action_type == ACTION_UPGRADE_UNIT:
             if target_city is None:
-                logger.info("Bad target city (" + target_id + ") in unit action answer.")
+                fc_logger.info("Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_unit_upgrade_dlg(actor_unit, target_city, cost, action_type)
                 return
 
         elif action_type == ACTION_COUNT:
-            logger.info("unit_action_answer: Server refused to respond.")
+            fc_logger.info("unit_action_answer: Server refused to respond.")
         else:
-            logger.info("unit_action_answer: Invalid answer.")
+            fc_logger.info("unit_action_answer: Invalid answer.")
 
     def handle_unit_actions(self, packet):
         """Handle server reply about what actions an unit can do."""
@@ -451,7 +451,7 @@ class UnitCtrl(CivPropController):
         elif hasActions:
             # /* This was a background request. */
             # /* No background requests are currently made. */
-            logger.info("Received the reply to a background request I didn't do.")
+            fc_logger.info("Received the reply to a background request I didn't do.")
 
     def handle_worker_task(self, packet):
         # TODO: Implement */

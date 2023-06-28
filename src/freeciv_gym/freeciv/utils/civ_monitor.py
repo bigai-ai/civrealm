@@ -16,7 +16,7 @@ import threading
 from selenium import webdriver
 from time import sleep
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivMonitor():
@@ -51,7 +51,7 @@ class CivMonitor():
                         bt_single_games.click()
                         self.state = "find_current_game"
                     except Exception as err:
-                        logger.info("Single Games Element not found! %s" % err)
+                        fc_logger.info("Single Games Element not found! %s" % err)
                     sleep(self._poll_interval)
 
                 if self.state == "find_current_game":
@@ -61,7 +61,7 @@ class CivMonitor():
                         bt_observe_game.click()
                         self.state = "logon_game"
                     except Exception as err:
-                        logger.info("Observe Game Element not found! %s" % err)
+                        fc_logger.info("Observe Game Element not found! %s" % err)
                         bt_single_games = self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a")
                         bt_single_games.click()
                     sleep(self._poll_interval)
@@ -78,7 +78,7 @@ class CivMonitor():
                         bt_start_observe.click()
                         self.state = "view_game"
                     except Exception as err:
-                        logger.info("Username Element not found! %s" % err)
+                        fc_logger.info("Username Element not found! %s" % err)
                     sleep(self._poll_interval)
 
                 if self.state == "view_bot":
@@ -103,7 +103,7 @@ class CivMonitor():
                         # state = "keep_silent"
                         self.state = "view_game"
                     except Exception as err:
-                        logger.info(err)
+                        fc_logger.info(err)
                     sleep(self._poll_interval)
 
                 # if state == "keep_silent":

@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.research.reqtree import reqtree, reqtree_multiplayer, r
 from freeciv_gym.freeciv.research.req_info import ReqCtrl
 from freeciv_gym.freeciv.research import tech_helpers
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class TechState(ListState):
@@ -53,7 +53,7 @@ class TechState(ListState):
         else:
             self.reqtree = reqtree
 
-        logger.info(self.rule_ctrl.ruleset_control['name'])
+        fc_logger.info(self.rule_ctrl.ruleset_control['name'])
 
         self._state = {}
         for tech_id in self.rule_ctrl.techs:

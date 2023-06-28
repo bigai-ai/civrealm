@@ -14,7 +14,7 @@
 
 import random
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.agents.base_agent import BaseAgent
 
 
@@ -30,7 +30,7 @@ class RandomAgent(BaseAgent):
 
     def act(self, observations, info):
         unit_actor, unit_action_dict = self.get_next_valid_actor(observations, info, 'unit')
-        logger.info(f'Valid actions: {unit_action_dict}')
+        fc_logger.info(f'Valid actions: {unit_action_dict}')
         if not unit_actor:
             return None
 

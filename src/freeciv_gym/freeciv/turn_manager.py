@@ -14,7 +14,9 @@
 
 import time
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+import gymnasium
+
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
 
@@ -42,10 +44,10 @@ class TurnManager(object):
     def set_turn(self, turn):
         self._turn = turn
 
-    def begin_turn(self, pplayer, info_controls):        
-        logger.info('==============================================')
-        logger.info(f'============== Begin turn: {self._turn:04d} ==============')
-        logger.info('==============================================')        
+    def begin_turn(self, pplayer, info_controls):
+        fc_logger.info('==============================================')
+        fc_logger.info(f'============== Begin turn: {self._turn:04d} ==============')
+        fc_logger.info('==============================================')
 
         self._turn_active = True
         self._turn_ctrls = info_controls
@@ -53,10 +55,16 @@ class TurnManager(object):
         self._turn_state = dict()
         self._turn_opts = dict()
 
+    def get_action_space(self):
+        return gymnasium.spaces.Discrete(1)
+
+    def get_observation_space(self):
+        return gymnasium.spaces.Discrete(1)
+
     def get_observation(self):
-        logger.debug("Acquiring state and action options for: ")
+        fc_logger.debug("Acquiring state and action for: ")
         for ctrl_type, ctrl in self._turn_ctrls.items():
-            logger.debug(f'....: {ctrl_type}')
+            fc_logger.debug(f'....: {ctrl_type}')
             self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
             self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
         return self._turn_state, self._turn_opts
@@ -67,8 +75,8 @@ class TurnManager(object):
         return self._turn_state["player"]["my_score"]
 
     def end_turn(self):
-        logger.info(f'============== Finish turn {self._turn:04d} ==============')
-        logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
+        fc_logger.info(f'============== Finish turn {self._turn:04d} ==============')
+        fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None

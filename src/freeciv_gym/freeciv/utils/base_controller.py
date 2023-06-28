@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.utils.base_action import ActionList
 from freeciv_gym.freeciv.utils.base_state import PropState
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivPropController(ABC):
@@ -64,18 +64,18 @@ class CivPropController(ABC):
     def handle_pack(self, pid, data):
         if pid in self.hdict:
             if pid not in self.unlogged_packets:
-                logger.debug('Receiving packet: {}'.format(data))
+                fc_logger.debug('Receiving packet: {}'.format(data))
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:
-            logger.warning("Handler function for pid %i not yet implemented" % pid)
+            fc_logger.warning("Handler function for pid %i not yet implemented" % pid)
 
     def get_current_state(self, pplayer):
         self.prop_state.update(pplayer)
         return self.prop_state.get_state()
 
     def get_current_state_vec(self, pplayer, item=None):
-        # XXX: probably use Gymnasium's native API to get the state vector
+        # NOTE: probably use Gymnasium's native API to get the state vector
         self.prop_state.update(pplayer)
         return self.prop_state.get_state_vec(item)
 

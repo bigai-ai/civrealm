@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.map.tile import TileState, TILE_UNKNOWN
 from freeciv_gym.freeciv.map.map_state import MapState
 import json
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 DIR8_STAY = -1
@@ -519,13 +519,13 @@ class CityTileMap():
         # logger.info(city_tile_map_index)
         # logger.info("*"*10)
         if city_tile_map_index >= len(a_map):
-            logger.info("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(
+            fc_logger.info("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(
                 dx, dy, self.radius, city_tile["x"], city_tile["y"]))
-            logger.info("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
+            fc_logger.info("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
         return a_map[city_tile_map_index]
 
 
 if __name__ == "__main__":
-    logger.info(MapCtrl.dir_get_name(7))
-    logger.info(MapCtrl.dir_get_name(MapCtrl.dir_ccw(7)))
-    logger.info(MapCtrl.dir_get_name(MapCtrl.dir_cw(7)))
+    fc_logger.info(MapCtrl.dir_get_name(7))
+    fc_logger.info(MapCtrl.dir_get_name(MapCtrl.dir_ccw(7)))
+    fc_logger.info(MapCtrl.dir_get_name(MapCtrl.dir_cw(7)))

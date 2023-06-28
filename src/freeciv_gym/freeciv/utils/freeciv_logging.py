@@ -21,5 +21,5 @@ log_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../../
 log_file_path = os.path.normpath(log_file_path)
 
 logging.config.fileConfig(log_file_path, disable_existing_loggers=False)
-logger = logging.getLogger('freecivGym')
-logger.setLevel(logging.DEBUG)
+fc_logger = logging.getLogger('freecivGym')
+fc_logger.setLevel(logging.DEBUG)

@@ -13,8 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import random
-from datetime import datetime
-import pytz
+from datetime import datetime, timezone
 import requests
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -39,7 +38,7 @@ from freeciv_gym.freeciv.utils.fc_types import packet_nation_select_req, packet_
 from freeciv_gym.freeciv.utils.civ_monitor import CivMonitor
 
 from freeciv_gym.freeciv.turn_manager import TurnManager
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
 
@@ -84,14 +83,14 @@ class CivController(CivPropController):
         self.monitor = None
         if self.visualize:
             self.monitor = CivMonitor(host, username)
-        
+
         self.host = host
 
         # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
         self.first_conn_info_received = False
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
-        # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not. 
+        # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
         self.turn_diff = 0
         self.init_controllers()
 
@@ -181,7 +180,7 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def ready_to_act(self):
-        # TODO: make sure the condition is correct        
+        # TODO: make sure the condition is correct
         if not self.turn_manager.turn_active:
             return False
         return not self.ws_client.is_waiting_for_responses()
@@ -194,13 +193,20 @@ class CivController(CivPropController):
         if self.ready_to_act():
             self.ws_client.stop_ioloop()
 
+    def get_action_space(self):
+        return self.turn_manager.get_action_space()
+
+    def get_observation_space(self):
+        return self.turn_manager.get_observation_space()
+
     def perform_action(self, action):
         if action == None:
             self.send_end_turn()
         else:
             action.trigger_action(self.ws_client)
 
-    def get_observations(self):
+    def get_observation(self):
+        # TODO: change function name and return value
         self.lock_control()
         return self.turn_manager.get_observation()
 
@@ -216,15 +222,20 @@ class CivController(CivPropController):
             return
 
         self.turn_manager.end_turn()
-        logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
+        fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
+
+    def game_has_truncated(self) -> bool:
+        """Returns True if the game has been truncated.
+        """
+        return self.turn_manager.turn > fc_args['max_turns']
 
     def game_has_terminated(self) -> bool:
         """Returns True if the game has ended.       
         """
-        # TODO: check victory conditions.
-        return self.turn_manager.turn > fc_args['max_turns']
+        # FIXME: check victory conditions.
+        return False
 
     def close(self):
         if self.visualize:
@@ -239,7 +250,7 @@ class CivController(CivPropController):
         if p_list is None:
             return
         try:
-            logger.info(("Waiting for: ", self.ws_client.wait_for_packs))
+            fc_logger.info(("Waiting for: ", self.ws_client.wait_for_packs))
             for packet in p_list:
                 if packet is None:
                     continue
@@ -252,19 +263,23 @@ class CivController(CivPropController):
             self.maybe_grant_control_to_player()
         except Exception:
             raise
-    
+
     def save_game(self):
-        current_time = datetime.now(pytz.utc)
+        current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
         self.save_name1 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
         # self.ws_client.send_message(f"/save {save_name}")
         self.ws_client.send_message(f"/save ")
         # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
-        current_time = datetime.now(pytz.utc)
+        current_time = datetime.now(timezone.utc)
         formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
         self.save_name2 = f"{self.user_name}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
-    
+
     def delete_save_game(self):
+        """
+        Delete the save game on the server.
+        Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
+        """
         url = f"http://{self.host}:8080/listsavegames?username={self.user_name}"
         response = requests.post(url)
         save_list = response.text.split(';')
@@ -275,18 +290,19 @@ class CivController(CivPropController):
                 real_save_name = self.save_name1
             if self.save_name2 in save_name:
                 real_save_name = self.save_name2
-        
+
         if real_save_name == '':
-            logger.debug(f'Failed to match save name. The names being tried are {self.save_name1} and {self.save_name2}.')
+            fc_logger.debug(
+                f'Failed to match save name. The names being tried are {self.save_name1} and {self.save_name2}.')
             return
-        
+
         # If use savegame=ALL, it will delete all saves under the given username.
         url = f"http://{self.host}:8080/deletesavegame?username={self.user_name}&savegame={real_save_name}&sha_password="
         response = requests.post(url)
         if response.text != "":
-            logger.debug(f'Failed to delete save. Response text: {response.text}')
-            return    
-    
+            fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
+            return
+
     def load_game(self, save_name):
         self.ws_client.send_message(f"/load {save_name}")
         turn = int(save_name.split('_')[1][1:])
@@ -370,27 +386,27 @@ class CivController(CivPropController):
             conn_id = packet['conn_id']
             event = packet['event']
         except KeyError:
-            logger.error(f'Packet is missing some keys: {packet}')
+            fc_logger.error(f'Packet is missing some keys: {packet}')
             raise Exception("Packet is missing some keys")
 
         if message is None:
             return
         if event is None or event < 0 or event >= E_UNDEFINED:
-            logger.info('Undefined message event type')
-            logger.info(packet)
-            logger.info("\r\n")
+            fc_logger.info('Undefined message event type')
+            fc_logger.info(packet)
+            fc_logger.info("\r\n")
             packet['event'] = event = E_UNDEFINED
 
         if event == E_BAD_COMMAND:
-            logger.warning("Bad command event!")
-            logger.warning(message)
+            fc_logger.warning("Bad command event!")
+            fc_logger.warning(message)
             # TODO: handle bad command
             # assert(False)
 
-        if self.clstate.should_prepare_game_base_on_message(message):            
-            if fc_args['load_game'] != "":
-                self.load_game(fc_args['load_game'])                               
-                # Already load game, directly start                
+        if self.clstate.should_prepare_game_base_on_message(message):
+            if fc_args['debug.load_game'] != "":
+                self.load_game(fc_args['debug.load_game'])
+                # Already load game, directly start
                 self.clstate.pregame_start_game()
             else:
                 # Choose nation and start game
@@ -407,11 +423,11 @@ class CivController(CivPropController):
                 return
 
         packet['message'] = message
-        logger.info("chat_msg: ", packet)
+        fc_logger.info("chat_msg: ", packet)
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""
-        logger.info("Starting Phase")
+        fc_logger.info("Starting Phase")
         self.clstate.update_client_state(C_S_RUNNING)
 
     def handle_end_phase(self, packet):
@@ -419,19 +435,19 @@ class CivController(CivPropController):
         pass
 
     def handle_version_info(self, packet):
-        logger.debug(packet)
+        fc_logger.debug(packet)
 
     def handle_ruleset_clause_msg(self, packet):
-        logger.debug(packet)
+        fc_logger.debug(packet)
 
     def handle_ruleset_impr_flag_msg(self, packet):
-        logger.debug(packet)
+        fc_logger.debug(packet)
 
     def handle_web_player_addition_info(self, packet):
-        logger.debug(packet)
+        fc_logger.debug(packet)
 
     def handle_unknown_research_msg(self, packet):
-        logger.debug(packet)
+        fc_logger.debug(packet)
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
@@ -446,7 +462,7 @@ class CivController(CivPropController):
 
         pplayer = self.clstate.cur_player()
         self.turn_manager.begin_turn(pplayer, self.controller_list)
-        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['autosave']:
+        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
             # Save the game state in the begining of every turn.
             # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}").
             # Save game command '/save' does not support user-defined save_name.
@@ -456,11 +472,10 @@ class CivController(CivPropController):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
         # Delete saved game in the end of turn.
-        if fc_args['autosave'] and self.delete_save:
-            self.delete_save_game() 
+        if fc_args['debug.autosave'] and self.delete_save:
+            self.delete_save_game()
         # Set delete_save for the next turn
-        self.delete_save = True     
-        pass
+        self.delete_save = True
 
     def handle_conn_info(self, packet):
         """
@@ -476,7 +491,7 @@ class CivController(CivPropController):
         if not packet['used']:
             # Forget the connection
             if pconn is None:
-                logger.warning("Server removed unknown connection " + str(packet['id']))
+                fc_logger.warning("Server removed unknown connection " + str(packet['id']))
                 return
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None

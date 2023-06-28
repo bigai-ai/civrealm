@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_actions import CityActions
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 # /* The city_options enum. */
 CITYO_DISBAND = 0
@@ -100,7 +100,7 @@ class CityCtrl(CivPropController):
 
         if pcity['traderoute_count'] != 0 and routes is None:
             # /* This city is supposed to have trade routes. It doesn't.  */
-            logger.info("Can't find the trade routes " + pcity['name'] + " is said to have")
+            fc_logger.info("Can't find the trade routes " + pcity['name'] + " is said to have")
             return
 
         for i in range(pcity['traderoute_count']):
@@ -113,7 +113,7 @@ class CityCtrl(CivPropController):
 
             good = self.rulectrl.goods[routes[i]['goods']]
             if good is None:
-                logger.info("Missing good type " + routes[i]['goods'])
+                fc_logger.info("Missing good type " + routes[i]['goods'])
                 good = {'name': "Unknown"}
 
             tcity = self.cities[tcity_id]
@@ -182,7 +182,7 @@ class CityCtrl(CivPropController):
         # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:
             # /* The city should have been sent before the additional info. */
-            logger.info("packet_web_city_info_addition for unknown city ", packet['id'])
+            fc_logger.info("packet_web_city_info_addition for unknown city ", packet['id'])
             return
         else:
             # Merge the information from web_city_info_addition into the recently

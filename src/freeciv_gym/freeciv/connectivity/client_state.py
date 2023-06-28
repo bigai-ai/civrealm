@@ -20,7 +20,7 @@ from freeciv_gym.freeciv.utils.fc_types import GUI_WEB, packet_client_info, pack
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.base_state import EmptyState
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
@@ -228,8 +228,8 @@ class ClientState(CivPropController):
         self.seconds_to_phasedone_sync = time.time()
 
     def handle_connect_msg(self, packet):
-        logger.info(packet)
-        logger.info("\r\n")
+        fc_logger.info(packet)
+        fc_logger.info("\r\n")
 
     def handle_authentication_req(self, packet):
         raise Exception("Not implemented yet")
@@ -355,7 +355,7 @@ class ClientState(CivPropController):
             player_nation_text = "Welcome, " + self.client["conn"]["username"] + " ruler of the "
             player_nation_text += self.rule_ctrl.nations[pplayer['nation']]['adjective']
             player_nation_text += " empire."
-            logger.info(player_nation_text)
+            fc_logger.info(player_nation_text)
             # message = player_nation_text
             # message_log.update({ "event": E_CONNECTION, "message": message })
 

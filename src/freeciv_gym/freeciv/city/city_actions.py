@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.utils.fc_types import packet_city_make_specialist,\
     VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
 from freeciv_gym.freeciv.map.map_ctrl import CityTileMap
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20

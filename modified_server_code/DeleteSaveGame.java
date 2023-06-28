@@ -35,7 +35,6 @@ import javax.sql.DataSource;
 import org.freeciv.services.Validation;
 import org.freeciv.util.Constants;
 
-
 // store in freeciv-web/src/main/java/org/freeciv/servlet
 // run "docker cp DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java" to replace server code. Then enter the freeciv-web docker and run "sh build.sh" in the /docker/freeciv-web folder.
 
@@ -45,11 +44,11 @@ import org.freeciv.util.Constants;
  * URL: /deletesavegame
  */
 public class DeleteSaveGame extends HttpServlet {
-	
+
 	private static final long serialVersionUID = 1L;
 
 	private final Validation validation = new Validation();
-	
+
 	private String savegameDirectory;
 
 	public void init(ServletConfig config) throws ServletException {
@@ -85,47 +84,49 @@ public class DeleteSaveGame extends HttpServlet {
 		// Disable authentication for development
 		// Connection conn = null;
 		// try {
-		// 	Context env = (Context) (new InitialContext().lookup(Constants.JNDI_CONNECTION));
-		// 	DataSource ds = (DataSource) env.lookup(Constants.JNDI_DDBBCON_MYSQL);
-		// 	conn = ds.getConnection();
+		// Context env = (Context) (new
+		// InitialContext().lookup(Constants.JNDI_CONNECTION));
+		// DataSource ds = (DataSource) env.lookup(Constants.JNDI_DDBBCON_MYSQL);
+		// conn = ds.getConnection();
 
-		// 	// Salted, hashed password.
-		// 	String saltHashQuery =
-		// 			"SELECT secure_hashed_password "
-		// 					+ "FROM auth "
-		// 					+ "WHERE LOWER(username) = LOWER(?) "
-		// 					+ "	AND activated = '1' LIMIT 1";
-		// 	PreparedStatement ps1 = conn.prepareStatement(saltHashQuery);
-		// 	ps1.setString(1, username);
-		// 	ResultSet rs1 = ps1.executeQuery();
-		// 	if (!rs1.next()) {
-		// 		response.getOutputStream().print("Failed");
-		// 		return;
-		// 	} else {
-		// 		String hashedPasswordFromDB = rs1.getString(1);
-		// 		if (hashedPasswordFromDB == null || secure_password == null) {
-		// 			response.getOutputStream().print("Failed auth when deleting.");
-		// 			return;
-		// 		}
-		// 		if ( hashedPasswordFromDB.equals(Crypt.crypt(secure_password, hashedPasswordFromDB))) {
-		// 			// Login OK!
-		// 		} else {
-		// 			response.getOutputStream().print("Failed");
-		// 			return;
-		// 		}
-		// 	}
+		// // Salted, hashed password.
+		// String saltHashQuery =
+		// "SELECT secure_hashed_password "
+		// + "FROM auth "
+		// + "WHERE LOWER(username) = LOWER(?) "
+		// + " AND activated = '1' LIMIT 1";
+		// PreparedStatement ps1 = conn.prepareStatement(saltHashQuery);
+		// ps1.setString(1, username);
+		// ResultSet rs1 = ps1.executeQuery();
+		// if (!rs1.next()) {
+		// response.getOutputStream().print("Failed");
+		// return;
+		// } else {
+		// String hashedPasswordFromDB = rs1.getString(1);
+		// if (hashedPasswordFromDB == null || secure_password == null) {
+		// response.getOutputStream().print("Failed auth when deleting.");
+		// return;
+		// }
+		// if ( hashedPasswordFromDB.equals(Crypt.crypt(secure_password,
+		// hashedPasswordFromDB))) {
+		// // Login OK!
+		// } else {
+		// response.getOutputStream().print("Failed");
+		// return;
+		// }
+		// }
 
 		// } catch (Exception err) {
-		// 	response.setHeader("result", "error");
-		// 	err.printStackTrace();
-		// 	response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to login");
+		// response.setHeader("result", "error");
+		// err.printStackTrace();
+		// response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unable to login");
 		// } finally {
-		// 	if (conn != null)
-		// 		try {
-		// 			conn.close();
-		// 		} catch (SQLException e) {
-		// 			e.printStackTrace();
-		// 		}
+		// if (conn != null)
+		// try {
+		// conn.close();
+		// } catch (SQLException e) {
+		// e.printStackTrace();
+		// }
 		// }
 
 		try {
@@ -134,8 +135,9 @@ public class DeleteSaveGame extends HttpServlet {
 				if (!folder.exists()) {
 					response.getOutputStream().print("Error!");
 				} else {
-					for (File savegameFile: folder.listFiles()) {
-						//if (savegameFile.exists() && savegameFile.isFile() && savegameFile.getName().endsWith(".sav.xz")) {
+					for (File savegameFile : folder.listFiles()) {
+						// if (savegameFile.exists() && savegameFile.isFile() &&
+						// savegameFile.getName().endsWith(".sav.xz")) {
 						if (savegameFile.exists() && savegameFile.isFile()) {
 							Files.delete(savegameFile.toPath());
 						}
@@ -146,24 +148,14 @@ public class DeleteSaveGame extends HttpServlet {
 				File folder = new File(savegameDirectory + "/" + username);
 				if (!folder.exists()) {
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-						"Save folder under the given username cannot be found");
+							"Save folder under the given username cannot be found");
 					return;
 				} else {
-					File[] files = folder.listFiles();
-							
-					if (files != null) {						
-						for (File file : files) {
-							if (file.isFile()) {
-								if (file.getName().contains(savegame)){
-									fileName = file.getName();
-								}
-							}
-						}
-					}					
+					fileName = getFilenameFromFolder(folder, savegame);
 				}
-				if (fileName == null){
+				if (fileName == null) {
 					response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
-						"Savegame cannot be found");
+							"Savegame cannot be found");
 					return;
 				}
 
@@ -178,6 +170,19 @@ public class DeleteSaveGame extends HttpServlet {
 			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "ERROR");
 		}
 
+	}
+
+	private String getFilenameFromFolder(File folder, String savegame) {
+		File[] files = folder.listFiles();
+		if (files == null) {
+			return null;
+		}
+		for (File file : files) {
+			if (file.isFile() && file.getName().contains(savegame)) {
+				return file.getName();
+			}
+		}
+		return null;
 	}
 
 	public void doGet(HttpServletRequest request, HttpServletResponse response)

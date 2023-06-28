@@ -14,7 +14,7 @@
 
 from abc import ABC, abstractmethod
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class BaseAgent(ABC):
@@ -48,12 +48,12 @@ class BaseAgent(ABC):
                     continue
 
                 if action_list._can_actor_act(actor_id):
-                    logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')
+                    fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')
                     valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
                     if not valid_action_dict:
                         continue
 
-                    logger.debug(
+                    fc_logger.debug(
                         f'{ctrl_type}_ctrl: Valid actor_id {actor_id} with valid actions found {valid_action_dict}')
                     self.planned_actor_ids.append(actor_id)
                     return actor_id, valid_action_dict

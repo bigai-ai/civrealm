@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.game.info_states import RuleState
 from freeciv_gym.freeciv.research.req_info import REQ_RANGE_PLAYER
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 EXTRA_RIVER = None
 EXTRA_ROAD = None
@@ -404,8 +404,8 @@ class RulesetCtrl(CivPropController):
         if rname in ["classic", "civ2civ3", "multiplayer", "webperimental"]:
             return rname
         else:
-            logger.warning("Don't know the ruleset dir of \"" + ruleset_name
-                           + "\". Guessing \"" + fall_back_dir + "\".")
+            fc_logger.warning("Don't know the ruleset dir of \"" + ruleset_name
+                              + "\". Guessing \"" + fall_back_dir + "\".")
             return fall_back_dir
 
     @staticmethod

@@ -31,24 +31,27 @@ def test_login_fail_with_underscore_in_name():
 
 # if __name__ == '__main__':
 #     main()
-    
+
 
 @pytest.fixture
 def controller():
-    controller = CivController('testcontroller')    
+    controller = CivController('testcontroller')
     yield controller
     controller.close()
 
 # Test whether server is up
+
+
 def test_server_up(controller):
     # There is a _detect_server_up() method inside init_network()
     controller.init_network()
 
 # Test whether login is success
+
+
 def test_login_success(controller):
     controller.init_network()
     controller.lock_control()
-
 
 
 # # async def test_websocket_connection(websocket_client):
@@ -70,7 +73,7 @@ def test_login_success(controller):
 # @pytest.mark.asyncio
 # async def test_websocket_connection():
 #     connection_event = asyncio.Event()
-    
+
 #     def connect_callback():
 #         print('*************')
 #         connection_event.set()
@@ -78,7 +81,7 @@ def test_login_success(controller):
 #     async def connect():
 #         controller = CivController('test_controller')
 #         controller.init_network()
-#         async with controller.lock_control() as conn:            
+#         async with controller.lock_control() as conn:
 #             connect_callback()
 
 #     await connect()
@@ -91,12 +94,12 @@ def test_login_success(controller):
 # def test_game_login():
 #     controller = CivController('test_controller')
 #     controller.init_network()
-#     controller.get_observations()
+#     controller.get_observation()
 
 # def test_first_observation():
 #     controller = CivController('test_controller')
 #     controller.init_network()
-#     obs = controller.get_observations()
+#     obs = controller.get_observation()
 #     assert(obs != None)
 
 # class A:

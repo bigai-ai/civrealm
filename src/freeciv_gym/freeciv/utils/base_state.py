@@ -15,7 +15,7 @@
 import numpy as np
 import json
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 def sets_equal(set_a, set_b):
@@ -76,7 +76,7 @@ class PlainState(PropState):
         self._locked_props = self._state.keys()
         for key in self._locked_props:
             if type(self._state[key]) is dict or type(self._state[key]) is list:
-                logger.debug(self._locked_props)
+                fc_logger.debug(self._locked_props)
                 raise Exception("Lists/Dicts should not be values in a PlainState %s \n \
                                  key: %s val: %s " % (self, key, self._state[key]))
 
@@ -128,7 +128,7 @@ class ListState(PlainState):
                 if np.isnan(vec[0, knum]):
                     raise Exception("No nan allowed for key: %s" % key)
             except:
-                logger.info("Incompatible string/int %s %s" % (key, self._state[item][key]))
+                fc_logger.info("Incompatible string/int %s %s" % (key, self._state[item][key]))
                 err = True
 
         if err:
@@ -139,7 +139,7 @@ class ListState(PlainState):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:
-            logger.info("Strange - Trying to delete unit that is not there: %s" % item_id)
+            fc_logger.info("Strange - Trying to delete unit that is not there: %s" % item_id)
 
 
 class EmptyState(PlainState):

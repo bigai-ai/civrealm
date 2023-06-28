@@ -15,7 +15,7 @@
 import random
 
 from freeciv_gym.agents.base_agent import BaseAgent
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class ControllerAgent(BaseAgent):
@@ -39,7 +39,7 @@ class ControllerAgent(BaseAgent):
         action_probabilities = list(action_probabilities.values())
         try:
             action_name = random.choices(action_list, weights=action_probabilities, k=1)[0]
-            logger.info(f'Action sampled: {action_name}')
+            fc_logger.info(f'Action sampled: {action_name}')
             return action_name
         except ValueError:
             # This happens when all action_probabilities are 0.0.

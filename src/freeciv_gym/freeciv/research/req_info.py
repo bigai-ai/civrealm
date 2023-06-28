@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_AD
 
 from freeciv_gym.freeciv.research.tech_helpers import is_tech_known
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 """
 /* Range of requirements.
@@ -94,12 +94,12 @@ class ReqCtrl():
                              VUT_SERVERSETTING]:
 
             # //FIXME: implement
-            logger.warning("Unimplemented requirement type " + req['kind'])
+            fc_logger.warning("Unimplemented requirement type " + req['kind'])
 
         elif req['kind'] == VUT_COUNT:
             return False
         else:
-            logger.warning("Unknown requirement type " + req['kind'])
+            fc_logger.warning("Unknown requirement type " + req['kind'])
 
         if result == TRI_MAYBE:
             return prob_type == RPT_POSSIBLE
@@ -142,13 +142,13 @@ class ReqCtrl():
         elif trange in [REQ_RANGE_WORLD]:
             # /* FIXME: Add support for the above ranges. Freeciv's implementation
             # * currently (25th Jan 2017) lives in common/requirements.c */
-            logger.warning("Unimplemented tech requirement range %s" % trange)
+            fc_logger.warning("Unimplemented tech requirement range %s" % trange)
             return TRI_MAYBE
         elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT,
                         REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT,
                         REQ_RANGE_COUNT]:
 
-            logger.warning("Invalid tech req range %s" % trange)
+            fc_logger.warning("Invalid tech req range %s" % trange)
             return TRI_MAYBE
         else:
             return TRI_MAYBE

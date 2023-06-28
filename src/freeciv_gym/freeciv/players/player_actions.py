@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.players.government import GovernmentCtrl
 from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, player_invention_state,\
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class PlayerOptions(ActionList):
@@ -57,7 +57,7 @@ class PlayerOptions(ActionList):
         cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"],
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 
-        logger.info(cur_state)
+        fc_logger.info(cur_state)
         self.add_action(counter_id, IncreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseLux(**cur_state))
         self.add_action(counter_id, DecreaseSci(**cur_state))

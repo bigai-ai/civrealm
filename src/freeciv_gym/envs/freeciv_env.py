@@ -15,26 +15,41 @@
 import os
 import json
 
-import gym
-from gym import utils
+import gymnasium
+from gymnasium import utils
 
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
-class FreecivEnv(gym.Env, utils.EzPickle):
+
+class FreecivEnv(gymnasium.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
-    metadata = {'render.modes': ['human']}
+    metadata = {'render_modes': ['human']}
 
     def __init__(self):
         self.civ_controller = CivController(username=fc_args['username'])
+        self._action_space = self.civ_controller.get_action_space()
+        self._observation_space = self.civ_controller.get_observation_space()
+        self.set_up_recording()
 
+    def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
         self._record_step_count = 0
         self.recording_dir = os.path.join(
-            os.path.dirname(logger.handlers[0].baseFilename),
+            os.path.dirname(fc_logger.handlers[0].baseFilename),
             'recordings', fc_args['username'])
         os.makedirs(self.recording_dir, exist_ok=True)
+
+    @property
+    def action_space(self):
+        self._action_space = self.civ_controller.get_action_space()
+        return self._action_space
+
+    @property
+    def observation_space(self):
+        self._observation_space = self.civ_controller.get_observation_space()
+        return self._observation_space
 
     def _record_to_file(self, name, content, default_json_encoder=None):
         if fc_args['debug.record'] is False:
@@ -55,8 +70,8 @@ class FreecivEnv(gym.Env, utils.EzPickle):
             self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())
         self._record_step_count += 1
 
-    def _get_observations(self):
-        observations = self.civ_controller.get_observations()
+    def _get_observation(self):
+        observations = self.civ_controller.get_observation()
         self._record_observation(observations)
         return observations
 
@@ -66,6 +81,9 @@ class FreecivEnv(gym.Env, utils.EzPickle):
     def _get_terminated(self):
         return self.civ_controller.game_has_terminated()
 
+    def _get_truncated(self):
+        return self.civ_controller.game_has_truncated()
+
     def _get_info(self):
         return self.civ_controller.get_info()
 
@@ -73,16 +91,17 @@ class FreecivEnv(gym.Env, utils.EzPickle):
         self.civ_controller.perform_action(action)
         self._record_action(action)
 
-        observation = self._get_observations()
+        observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
+        truncated = self._get_truncated()
         info = self._get_info()
 
-        return observation, reward, terminated, info
+        return observation, reward, terminated, truncated, info
 
     def reset(self):
         self.civ_controller.init_network()
-        observation = self._get_observations()
+        observation = self._get_observation()
         info = self._get_info()
 
         return observation, info

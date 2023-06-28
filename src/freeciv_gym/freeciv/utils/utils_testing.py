@@ -15,13 +15,13 @@
 import unittest
 from freeciv_gym.freeciv.utils.base_action import Action
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class MockClient(object):
     def send_request(self, packet):
-        logger.info("Sending packet")
-        logger.info(packet)
+        fc_logger.info("Sending packet")
+        fc_logger.info(packet)
         return 1
 
 

@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from math import floor
 from freeciv_gym.freeciv.utils.base_state import ListState
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 FEELING_BASE = 0  # /* before any of the modifiers below */
 FEELING_LUXURY = 1  # /* after luxury */

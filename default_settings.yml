@@ -26,14 +26,13 @@ allowtake: HAhadOo
 autotoggle: False
 
 debug:
-  # Records the game state and available actions at every step. 
+  # Records the game state and available actions at every step.
   # **Warning**: generates many log files if True. Turned off by default.
   record: False
   sleep_time_after_turn: 0.0
-
-# If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
-autosave: True
-load_game: ""
+  # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
+  autosave: True
+  load_game: ""
 
 trainer:
   epoch: 300

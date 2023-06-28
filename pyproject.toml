@@ -21,13 +21,12 @@ dependencies = [
     "BitVector", 
     "numpy", 
     "tornado==6.3.2", 
-    "gym==0.10.9", 
+    "gymnasium", 
     "selenium", 
     "websocket-client",
     "pytest",
     "pytest-asyncio",
     "pytest-timeout",
-    "pytz",
 ]
 
 

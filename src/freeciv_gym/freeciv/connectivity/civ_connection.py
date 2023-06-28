@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.connectivity.web_socket_client import WebSocketClient
 from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
 from freeciv_gym.freeciv import init_server
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivWSClient(WebSocketClient):
@@ -45,19 +45,19 @@ class CivWSClient(WebSocketClient):
     @override
     def _on_message(self, message):
         if message is None:
-            logger.warning('Received empty message from server. Closing connection')
+            fc_logger.warning('Received empty message from server. Closing connection')
             self.close()
             return
         self.read_packs = json.loads(message)
-        logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
+        fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
         self.packets_callback(self.read_packs)
         self.read_packs = []
         self.clear_send_queue()
-        logger.info(('Wait_for_packs: ', self.wait_for_packs))
+        fc_logger.info(('Wait_for_packs: ', self.wait_for_packs))
 
     @override
     def _on_connection_success(self):
-        logger.info('Connected!')
+        fc_logger.info('Connected!')
         self.on_connection_success_callback()
 
     @override
@@ -65,12 +65,12 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         self.wait_for_packs = []
         self.read_packs = []
-        logger.warning('Connection to server is closed!')
+        fc_logger.warning('Connection to server is closed!')
 
     @override
     def _on_connection_error(self, exception):
         # logger.error(f'Network error. Problem {exception} occured with the {self.ws_conn.protocol} WebSocket connection to the server: {self.ws_conn.request.url}')
-        logger.error(f'Network error. Problem {exception} occured')
+        fc_logger.error(f'Network error. Problem {exception} occured')
 
     def send_request(self, packet_payload, wait_for_pid=None):
         '''
@@ -141,7 +141,7 @@ class CivConnection(CivWSClient):
             ws.connect(self.ws_address)
             return True
         except Exception as err:
-            logger.info(f'Connect not successful: {err} retrying in {self._retry_interval} seconds.')
+            fc_logger.info(f'Connect not successful: {err} retrying in {self._retry_interval} seconds.')
             if self._restart_server_if_down and not self._restarting_server:
                 self._restart_server()
                 return self._detect_server_up()
@@ -150,11 +150,11 @@ class CivConnection(CivWSClient):
                 return self._retry()
 
             raise Exception('Connection could not be established!') from err
-    
+
     def network_init(self):
         self._cur_retry = 0
         self._restarting_server = False
-        logger.info(f'Connecting to server at {self.host} ...')
+        fc_logger.info(f'Connecting to server at {self.host} ...')
         if self._detect_server_up():
             self.connect(self.ws_address)
 
@@ -163,10 +163,11 @@ class CivConnection(CivWSClient):
             self._restarting_server = True
             init_server.init_freeciv_docker()
         except docker.errors.APIError as err:
-            logger.info(err)
-            logger.info('---------------------------')
-            logger.info('Most likely key ports (80, 8080, 6000-3, 7000-3) on host machine are blocked by existing processes!')
-            logger.info('Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)')
-            logger.info('and kill them via htop, top, or "kill process_pid"')
-            logger.info('---------------------------')
+            fc_logger.info(err)
+            fc_logger.info('---------------------------')
+            fc_logger.info(
+                'Most likely key ports (80, 8080, 6000-3, 7000-3) on host machine are blocked by existing processes!')
+            fc_logger.info('Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)')
+            fc_logger.info('and kill them via htop, top, or "kill process_pid"')
+            fc_logger.info('---------------------------')
             exit()

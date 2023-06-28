@@ -17,7 +17,7 @@ from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.game.info_states import GameState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
-from freeciv_gym.freeciv.utils.freeciv_logging import logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -110,7 +110,7 @@ class GameCtrl(CivPropController):
             regxp = "/\n/gi"
 
             self.page_msg["message"] = self.page_msg["message"].replace(regxp, "<br>\n")
-            logger.info(self.page_msg["headline"] + self.page_msg["message"])
+            fc_logger.info(self.page_msg["headline"] + self.page_msg["message"])
 
             # /* Clear the message. */
             self.page_msg = {}

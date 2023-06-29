@@ -26,7 +26,7 @@ class TileState:
         Return a known_type enumeration value for the tile.
         Note that the client only has known data about its own player.
         """
-        if ptile['known'] == None:
+        if ptile['known'] is None:
             return TILE_UNKNOWN
         else:
             return ptile['known']
@@ -35,7 +35,7 @@ class TileState:
     def tile_has_extra(ptile, extra):
         """Returns true iff the specified tile has the extra with the specified
           extra number."""
-        if ptile['extras'] == None:
+        if ptile['extras'] is None:
             return False
 
         return extra in ptile['extras']

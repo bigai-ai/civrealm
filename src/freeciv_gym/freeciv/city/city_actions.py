@@ -110,8 +110,7 @@ class CityWorkTile(Action):
     def _action_packet(self):
         packet = {"pid": packet_city_make_worker,
                   "city_id": self.pcity['id'],
-                  "worker_x": self.ptile['x'],
-                  "worker_y": self.ptile['y']}
+                  "tile_id": self.ptile['index']}
         return packet
 
 

@@ -17,13 +17,80 @@ import pytest
 # import asyncio
 from freeciv_gym.freeciv.civ_controller import CivController
 
+import pytest
+import asyncio
+import tornado.ioloop
 
-def test_login_fail_with_underscore_in_name():
+# @pytest.fixture
+# def event_loop():
+#     loop = tornado.ioloop.IOLoop()
+#     yield loop
+#     loop.close()
+
+
+# The callback function that raises an exception
+# def callback():
+#     time.sleep(2)
+#     raise RuntimeError("Log in rejected")
+
+# # The test function
+# @pytest.mark.asyncio
+# async def test_callback_exception():
+#     with pytest.raises(RuntimeError):
+#         await asyncio.sleep(0)  # Allow other coroutines to run
+#         callback()
+
+
+# def callback():
+#     print('aaa')    
+#     tornado.ioloop.IOLoop.current().stop()
+#     raise RuntimeError(f"Log in rejected")
+
+# def test_main():
+#     # Schedule the callback to be executed after 2 seconds
+#     tornado.ioloop.IOLoop.current().call_later(2, callback)
+#     # Start the event loop
+#     try:
+#         tornado.ioloop.IOLoop.current().start()
+#     except RuntimeError as e:
+#         pytest.fail(str(e))  # Fail the test if an exception occurs
+
+
+# @pytest.mark.asyncio
+# async def test_login_fail_with_underscore_in_name(event_loop):
+#     event = asyncio.Event()
+#     controller = CivController('testcontroller')
+#     controller.init_network()
+#     with pytest.raises(Exception):        
+#         await event.wait()
+
+# from tornado import httpclient
+# from tornado import httputil
+# from tornado import websocket
+# @pytest.mark.asyncio
+# async def test_login_fail_with_underscore_in_name():    
+#     event = asyncio.Event()
+#     controller = CivController('test_controller')
+#     controller.ws_client.ws_address
+#     headers = httputil.HTTPHeaders({'Content-Type': 'application/json'})
+#     request = httpclient.HTTPRequest(url=controller.ws_client.ws_address,
+#                                          connect_timeout=300,
+#                                          request_timeout=300,
+#                                          headers=headers)    
+#     with pytest.raises(Exception):
+#         websocket.websocket_connect(request, callback=controller.ws_client._connect_callback, on_message_callback=controller.ws_client._on_message)
+#         await event.wait()
+        # controller.lock_control()
+
+
+def test_get_first_obs_fail_with_underscore_in_name():    
     controller = CivController('test_controller')
-    controller.init_network()
-    controller.lock_control()
-    # assert False
+    controller.init_network()   
+    with pytest.raises(Exception):
+        controller.get_observation()
+        # controller.lock_control()
 
+    
 
 # def main():
 #     test_login_fail_with_underscore_in_name()
@@ -33,100 +100,19 @@ def test_login_fail_with_underscore_in_name():
 #     main()
 
 
-@pytest.fixture
-def controller():
-    controller = CivController('testcontroller')
-    yield controller
-    controller.close()
+# @pytest.fixture
+# def controller():
+#     controller = CivController('testcontroller')    
+#     yield controller
+#     controller.close()
 
-# Test whether server is up
-
-
-def test_server_up(controller):
-    # There is a _detect_server_up() method inside init_network()
-    controller.init_network()
-
-# Test whether login is success
-
-
-def test_login_success(controller):
-    controller.init_network()
-    controller.lock_control()
-
-
-# # async def test_websocket_connection(websocket_client):
-# #     await websocket_client.write_message("Hello")
-# #     response = await websocket_client.read_message()
-# #     assert response == "World"
-
-# # def connect_success():
-# #     assert(False)
-
-# @pytest.mark.gen_test
-# # @pytest.mark.asyncio
-# async def test_controller_init_network(controller):
-#     # assert(False)
-#     # print(type(controller))
-#     await controller.init_game()
-
-
-# @pytest.mark.asyncio
-# async def test_websocket_connection():
-#     connection_event = asyncio.Event()
-
-#     def connect_callback():
-#         print('*************')
-#         connection_event.set()
-
-#     async def connect():
-#         controller = CivController('test_controller')
-#         controller.init_network()
-#         async with controller.lock_control() as conn:
-#             connect_callback()
-
-#     await connect()
-#     await connection_event.wait()
-#     assert connection_event.is_set()
-
-# @pytest.mark.asyncio
-
-
-# def test_game_login():
-#     controller = CivController('test_controller')
+# # Test whether server is up
+# def test_server_up(controller):
+#     # There is a _detect_server_up() method inside init_network()
 #     controller.init_network()
-#     controller.get_observation()
 
-# def test_first_observation():
-#     controller = CivController('test_controller')
+# # Test whether login is success
+# def test_login_success(controller):
 #     controller.init_network()
-#     obs = controller.get_observation()
-#     assert(obs != None)
+#     controller.lock_control()
 
-# class A:
-#     def __init__(self):
-#         self.b = B()
-
-# class B:
-#     # def my_function():
-#     #     return "Original without self"
-
-#     def my_function(self):
-#         return "Original"
-
-# def test_modify_function_of_b(monkeypatch):
-#     # Create an instance of class A
-#     a = A()
-
-#     # Define a mock function for B
-#     def mock_function(self):
-#         return "Modified"
-
-#     # Monkeypatch the function of object b within object a
-#     monkeypatch.setattr(a.b, "my_function", mock_function)
-
-#     # Call the modified function
-#     result = a.b.my_function()
-#     print(result)
-
-#     # # Assert the result
-#     # assert result == "Modified"

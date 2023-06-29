@@ -92,6 +92,8 @@ class CivController(CivPropController):
         self.delete_save = True
         # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
         self.turn_diff = 0
+        self.load_game_tried = False
+        self.load_complete = False
         self.init_controllers(username)
 
     def register_all_handlers(self):
@@ -300,12 +302,18 @@ class CivController(CivPropController):
         sha_password = self.clstate.get_password()
         url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_save_name}&sha_password={sha_password}"
         response = requests.post(url)
-        fc_logger.debug(f'Deleting unnecessary saved game; response text: {response.text}')
+        if response.text != '':
+            fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
+        else:
+            fc_logger.debug(f'Deleting unnecessary saved game.')
 
     def load_game(self, save_name):
+        load_username = save_name.split('_')[0]
+        if load_username != self.clstate.username:
+            raise RuntimeError(f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
         self.ws_client.send_message(f"/load {save_name}")
         turn = int(save_name.split('_')[1][1:])
-        self.turn_diff = turn-1
+        # self.turn_diff = turn-1
         self.turn_manager.set_turn(turn)
 
     def prepare_game(self):
@@ -378,6 +386,19 @@ class CivController(CivPropController):
         # /* Handle as a regular chat message for now. */
         self.handle_chat_msg(packet)
 
+    def handle_load_game(self, message):
+        # To observe a load game, you can first sign in and then send /observe PLAYER_NAME message by console or chatbox. If there is a space in the PLAYER_NAME, use "" to specify.
+        if 'You are logged in as' in message and not self.load_game_tried:            
+            self.load_game(fc_args['debug.load_game'])
+            self.load_game_tried = True
+
+        if 'load: Cannot find savegame or scenario with the name' in message:
+            fc_logger.error(f"Load game unsuccessfully. Message: {message}")            
+            raise RuntimeError(f"Load game unsuccessfully. Message: {message}")
+
+        if 'Load complete' in message:
+            self.load_complete = True
+
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""
         try:
@@ -402,11 +423,17 @@ class CivController(CivPropController):
             # TODO: handle bad command
             # assert(False)
 
+        if 'connected to no player' in message:
+            raise RuntimeError(f"{message}. There is no room for new players. You may increase the maximum player number or change the username to match an existing player if you are loading a game.")
+
+        if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING:
+            self.handle_load_game(message)
+
         if self.clstate.should_prepare_game_base_on_message(message):
             if fc_args['debug.load_game'] != "":
-                self.load_game(fc_args['debug.load_game'])
-                # Already load game, directly start
-                self.clstate.pregame_start_game()
+                if self.load_complete:
+                    # Already load game, start without choosing nation
+                    self.clstate.pregame_start_game()
             else:
                 # Choose nation and start game
                 self.prepare_game()
@@ -450,6 +477,12 @@ class CivController(CivPropController):
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
+        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
+            # Save the game state in the begining of every turn.
+            # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}").
+            # Save game command '/save' does not support user-defined save_name.
+            self.save_game()
+
         if self.monitor != None:
             while True:
                 if self.monitor.start_observe:
@@ -461,12 +494,6 @@ class CivController(CivPropController):
 
         pplayer = self.clstate.cur_player()
         self.turn_manager.begin_turn(pplayer, self.controller_list)
-        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
-            # Save the game state in the begining of every turn.
-            # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}").
-            # Save game command '/save' does not support user-defined save_name.
-            self.save_game()
-
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
@@ -502,7 +529,8 @@ class CivController(CivPropController):
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
                 assert (pplayer != None)
                 # The client is a host. Specify the game setting below.
-                if packet['player_num'] == 0:
+                # TODO: Is incorrect when loading a game which is saved by follower
+                if packet['player_num'] == 0 and packet['username'] == self.clstate.username:
                     self.clstate.init_game_setting()
                 else:
                     # Set the follower property in clstate

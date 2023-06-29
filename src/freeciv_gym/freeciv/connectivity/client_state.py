@@ -119,6 +119,9 @@ class ClientState(CivPropController):
                 # Auto start game if not waiting for observer. Needed for single player game
                 if 'You are logged in as' in message:
                     return True
+                # When wait_for_observer was True, we need this to start the game for single player mode.
+                if (fc_args['minp'] == 1 or self.multiplayer_game == False) and ('Please be ready to start' in message or 'Load complete' in message):
+                    return True
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
                     if 'has connected from' in message:
@@ -293,15 +296,7 @@ class ClientState(CivPropController):
 
             self.set_client_state(C_S_PREPARING)
             self.send_client_info()
-
-            """
-            TODO:
-             #pregame.pregame_start_game(self)
-            if self.autostart:
-                pregame.pregame_start_game(self)
-            elif self.observing:
-                self.request_observe_game()*/
-            """
+            
         elif 'already connected' in packet['message']:
             # login() in network_init() will increase name_index and connect again
             self.ws_client.network_init()
@@ -398,9 +393,6 @@ class ClientState(CivPropController):
                                                                  ]['name'] if self.rule_ctrl.techs[pplayer['researching']] != None else "-"
 
         self.ws_client.send_message("/metamessage " + metasuggest)
-
-    def request_observe_game(self):
-        self.ws_client.send_message("/observe ")
 
     def surrender_game(self):
         if not self.client_is_observer() and self.ws_client != None and self.ws_client.readyState == 1:

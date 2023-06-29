@@ -43,17 +43,22 @@ class CivWSClient(WebSocketClient):
         self.packets_callback = callback_func
 
     @override
-    def _on_message(self, message):
-        if message is None:
-            fc_logger.warning('Received empty message from server. Closing connection')
-            self.close()
-            return
-        self.read_packs = json.loads(message)
-        fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
-        self.packets_callback(self.read_packs)
-        self.read_packs = []
-        self.clear_send_queue()
-        fc_logger.info(('Wait_for_packs: ', self.wait_for_packs))
+    def _on_message(self, message):        
+        try:
+            if message is None:
+                # fc_logger.warning('Received empty message from server. Closing connection')
+                raise Exception("Received empty message from server. Closing connection")
+            self.read_packs = json.loads(message)
+            fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
+            self.packets_callback(self.read_packs)
+            self.read_packs = []
+            self.clear_send_queue()
+            fc_logger.info(('Wait_for_packs: ', self.wait_for_packs))        
+        except Exception as e:
+            self.close()            
+            fc_logger.error(f"{str(e)}")            
+            # assert False, f"{str(e)}"
+            raise Exception("Exception occurred in on_message_callback")
 
     @override
     def _on_connection_success(self):

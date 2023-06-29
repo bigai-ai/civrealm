@@ -86,7 +86,7 @@ class WebSocketClient(object):
         """Close connection.
         """
         # Connection already closed.
-        if not self._ws_connection:
+        if self._connection_closed:
             return
             # raise RuntimeError('Web socket connection is already closed.')
 

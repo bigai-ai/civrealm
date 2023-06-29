@@ -78,7 +78,9 @@ class GameCtrl(CivPropController):
         # update_game_info_pregame()
 
     def handle_game_load(self, packet):
-        # /* TODO: implement */
+        # if not packet['load_successful']:
+        #     fc_logger.debug(f"Load game unsuccessfully. Message: {packet['load_filename']}")
+        #     raise RuntimeError(f"Load game unsuccessfully. Message: {packet['load_filename']}")
         pass
 
     def handle_calendar_info(self, packet):

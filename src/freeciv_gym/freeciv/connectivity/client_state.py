@@ -93,6 +93,9 @@ class ClientState(CivPropController):
 
     def set_follower_property(self):
         self.follower = True
+    
+    def get_follower_property(self):
+        return self.follower
 
     def init_game_setting(self):
         # Set map seed. The same seed leads to the same map.

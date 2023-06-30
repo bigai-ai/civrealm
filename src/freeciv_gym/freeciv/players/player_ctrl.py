@@ -62,6 +62,15 @@ class PlayerCtrl(CivPropController):
         else:
             return "moving"
 
+    # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
+    def others_finished(self) -> bool:
+        cur_player_id = self.clstate.cur_player()["playerno"]
+        finished = True
+        for playerno in self.players:
+            if playerno < cur_player_id and not self.players[playerno]['phase_done']:
+                finished = False
+        return finished
+
     def player_is_myself(self, player_id):
         cur_player = self.clstate.cur_player()
         if cur_player != None:
@@ -267,8 +276,8 @@ class PlayerCtrl(CivPropController):
 
         # TODO: check what the following code is doing
         if self.clstate.is_playing():
-            if packet['playerno'] == self.clstate.cur_player()['playerno']:
-                self.clstate.change_player(self.players[packet['playerno']])
+            if playerno == self.clstate.cur_player()['playerno']:
+                self.clstate.change_player(self.players[playerno])
                 # update_game_status_panel()
                 # update_net_income()
         # update_player_info_pregame()

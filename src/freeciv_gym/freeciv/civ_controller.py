@@ -183,9 +183,14 @@ class CivController(CivPropController):
 
     def ready_to_act(self):
         # TODO: make sure the condition is correct
+        # turn_active is true after receving PACKET_BEGIN_TURN
         if not self.turn_manager.turn_active:
             return False
-        return not self.ws_client.is_waiting_for_responses()
+        
+        
+        # Wait for the players with a smaller playerno to end their phase.
+        if self.player_ctrl.others_finished():
+            return not self.ws_client.is_waiting_for_responses()
 
     def maybe_grant_control_to_player(self):
         """

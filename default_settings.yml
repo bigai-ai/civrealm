@@ -6,9 +6,9 @@ max_turns: 10
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
-client_port: 6000
+client_port: 6001
 # Whether to start in multiplayer mode or single player mode
-multiplayer_game: False
+multiplayer_game: True
 # Whether to start hotseat game in single player mode
 hotseat_game: False
 # Whether to wait a observer join before start the game

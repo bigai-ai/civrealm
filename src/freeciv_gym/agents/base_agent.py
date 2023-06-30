@@ -14,6 +14,7 @@
 
 from abc import ABC, abstractmethod
 
+import random
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
@@ -21,6 +22,16 @@ class BaseAgent(ABC):
     def __init__(self):
         self.turn = None
         self.planned_actor_ids = []
+
+    def set_agent_seed(self,seed: int):
+        """
+        Parameters
+        ----------
+        seed: int, seed of the agent
+        """
+        self.agent_seed = seed
+        random.seed(self.agent_seed)
+        fc_logger.info(f"Agent seed set to {self.agent_seed}.")
 
     @abstractmethod
     def act(self, observation, info):

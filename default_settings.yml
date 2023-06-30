@@ -36,6 +36,14 @@ debug:
   # Password used to login to the freeciv web account
   password: freecivgym
   load_game: ""
+  # game-reproducer
+  # set mapseed for generating a fixed map, can overwrite the above mapseed
+  mapseed: 1729
+  # set gameseed for fixing the behavior of random outputs
+  gameseed: 1729
+  # set agentseed to fix the action sequence when game/map are fixed
+  agentseed: 1729
+  
 
 trainer:
   epoch: 300

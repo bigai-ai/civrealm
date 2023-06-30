@@ -95,13 +95,18 @@ class ClientState(CivPropController):
         self.follower = True
 
     def init_game_setting(self):
+        # Set map seed. The same seed leads to the same map.
+        self.ws_client.send_message(f"/set mapseed {fc_args['mapseed']}")
+        if "debug.mapseed" in fc_args:
+            self.ws_client.send_message(f"/set mapseed {fc_args['debug.mapseed']}")
+        if "debug.gameseed" in fc_args:
+            self.ws_client.send_message(f"/set gameseed {fc_args['debug.gameseed']}")
+
         if self.multiplayer_game:
             self.set_multiplayer_game()
 
         if self.hotseat_game:
             self.set_hotseat_game()
-        # Set map seed. The same seed leads to the same map.
-        self.ws_client.send_message(f"/set mapseed {fc_args['mapseed']}")
 
     def is_pregame(self):
         return

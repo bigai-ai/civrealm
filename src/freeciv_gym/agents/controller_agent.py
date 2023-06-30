@@ -16,11 +16,13 @@ import random
 
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-
+from freeciv_gym.configs import fc_args
 
 class ControllerAgent(BaseAgent):
     def __init__(self):
         super().__init__()
+        if "debug.agentseed" in fc_args:
+            self.set_agent_seed(fc_args["debug.agentseed"])
 
     def act(self, observations, info):
         for ctrl_type in self.get_ctrl_types(observations):

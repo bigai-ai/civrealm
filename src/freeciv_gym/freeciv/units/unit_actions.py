@@ -304,7 +304,7 @@ class ActTileInfo(StdAction):
 
 class EngineerAction(UnitAction):
     def is_action_valid(self):
-        if self.focus.ptype['name'] == "Engineers":
+        if self.focus.ptype['name'] in ["Workers", "Engineers"]:
             return self.is_eng_action_valid()
         return False
 
@@ -339,6 +339,10 @@ class ActOnExtra(EngineerAction):
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
         self.extra_type = None
+    
+    # Temporarily block other actions on extra
+    def is_action_valid(self):
+        return False
 
     def is_eng_action_valid(self):
         if self.extra_type is None:
@@ -380,13 +384,18 @@ class ActAirbase(EngineerAction):
         return self._request_new_unit_activity(ACTIVITY_BASE, ruleset.EXTRA_AIRBASE)
 
 
-class ActIrrigation(ActOnExtra):
+# class ActIrrigation(ActOnExtra):
+class ActIrrigation(EngineerAction):
     """Action to create an irrigation"""
     action_key = "irrigation"
 
-    def __init__(self, cur_focus):
-        self.extra_type = ruleset.EXTRA_IRRIGATION
-        super().__init__(cur_focus)
+    # def __init__(self, cur_focus):
+    #     self.extra_type = ruleset.EXTRA_IRRIGATION
+    #     super().__init__(cur_focus)
+
+    def is_eng_action_valid(self):
+        # trust server returned actions for now
+        return True
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
@@ -524,10 +533,10 @@ class ActBuildRoad(EngineerAction):
     action_key = "road"
 
     def is_eng_action_valid(self):
-        road_known = is_tech_known(self.focus.pplayer, 8)
+        bridge_known = is_tech_known(self.focus.pplayer, 8)
         tile_no_river = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RIVER)
         no_road_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
-        return road_known and tile_no_river and no_road_yet
+        return (bridge_known or tile_no_river) and no_road_yet
 
     def _action_packet(self):
         extra_id = self.focus.rule_ctrl.extras['Road']['id']

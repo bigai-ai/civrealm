@@ -62,6 +62,9 @@ class ControllerAgent(BaseAgent):
         desired_actions = {'explore': 1.0,
                            'goto': random.random()*0.1,
                            # 'autosettlers': 1.0,
+                        #    'road': 1.0,
+                           'irrigation': 1.0,
+                           'mine': 1.0,
                            'build': 1.0}
         return self.sample_desired_actions(action_dict, desired_actions)
 

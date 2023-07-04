@@ -94,6 +94,7 @@ class CivController(CivPropController):
         self.turn_diff = 0
         self.load_game_tried = False
         self.load_complete = False
+        self.begin_logged = False
         self.init_controllers(username)
 
     def register_all_handlers(self):
@@ -187,7 +188,6 @@ class CivController(CivPropController):
         if not self.turn_manager.turn_active:
             return False
         
-        
         # Wait for the players with a smaller playerno to end their phase.
         if self.player_ctrl.others_finished():
             return not self.ws_client.is_waiting_for_responses()
@@ -195,9 +195,12 @@ class CivController(CivPropController):
     def maybe_grant_control_to_player(self):
         """
         Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
-        """
+        """        
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
+            if not self.begin_logged:
+                self.turn_manager.log_begin_turn()
+                self.begin_logged = True
             self.ws_client.stop_ioloop()
 
     def get_action_space(self):
@@ -227,7 +230,7 @@ class CivController(CivPropController):
         """Ends the current turn."""
         if self.rule_ctrl.game_info == {}:
             return
-
+        self.begin_logged = False
         self.turn_manager.end_turn()
         fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
@@ -358,7 +361,8 @@ class CivController(CivPropController):
         leader_name = pplayer['name']
         if pplayer['flags'][PLRF_AI] > 0:
             leader_name = pnation['leader_name'][0]
-
+        # China id is 107
+        # chosen_nation_name = 107
         packet = {"pid": packet_nation_select_req,
                   "player_no": player_id,
                   "nation_no": chosen_nation_name,
@@ -498,6 +502,7 @@ class CivController(CivPropController):
             return
 
         pplayer = self.clstate.cur_player()
+        fc_logger.debug(f'Receiving begin turn packets: {packet}')
         self.turn_manager.begin_turn(pplayer, self.controller_list)
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""

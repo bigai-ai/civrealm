@@ -44,16 +44,21 @@ class TurnManager(object):
     def set_turn(self, turn):
         self._turn = turn
 
-    def begin_turn(self, pplayer, info_controls):
+    def log_begin_turn(self):
         fc_logger.info('==============================================')
         fc_logger.info(f'============== Begin turn: {self._turn:04d} ==============')
         fc_logger.info('==============================================')
 
+    def begin_turn(self, pplayer, info_controls):        
         self._turn_active = True
         self._turn_ctrls = info_controls
         self._turn_player = pplayer
         self._turn_state = dict()
         self._turn_opts = dict()
+        if self._turn == 1 and fc_args['wait_for_observer']:
+            import time
+            time.sleep(8)
+
 
     def get_action_space(self):
         return gymnasium.spaces.Discrete(1)

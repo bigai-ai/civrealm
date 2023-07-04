@@ -48,6 +48,7 @@ class CivPropController(ABC):
         info_packets = {15, 51}
         # info_packets = {15}
         self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
+        # self.unlogged_packets = set()
 
     @abstractmethod
     def register_all_handlers(self):

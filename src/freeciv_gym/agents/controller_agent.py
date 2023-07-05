@@ -81,7 +81,17 @@ class ControllerAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_player_actions(self, action_dict):
-        desired_actions = {}
+        desired_actions = {'increase_sci': 1.0,
+                           'decrease_sci': random.random() * 0.2,
+                           'increase_lux': random.random() * 0.2,
+                           'decrease_lux': random.random() * 0.2,
+                           'start_negotiation': random.random() * 0.2,
+                           'accept_treaty': random.random() * 0.2,
+                           'stop_negotiation': random.random() * 0.2,
+                           'remove_clause': random.random() * 0.2,
+                           'add_clause': random.random() * 0.2,
+                           'cancel_clause': random.random() * 0.2,
+                           'trade_tech_clause': random.random() * 0.2, }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_dipl_actions(self, action_dict):

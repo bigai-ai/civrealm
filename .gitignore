@@ -10,3 +10,4 @@ geckodriver.log
 __pycache__/
 *.pyc
 .sonar/
+.idea

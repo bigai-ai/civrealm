@@ -138,14 +138,14 @@ class CityChangeSpecialist(Action):
         self.action_key += "_%i" % specialist_num
 
     def is_action_valid(self):
-        return self.pcity["specialists_size"] < self.specialist_num
+        return self.pcity["specialists_size"] > self.specialist_num
 
     def _action_packet(self):
-        from_specialist_id = self.pcity["specialists"][self.specialist_num][id]
+        # from_specialist_id = self.pcity["specialists"][self.specialist_num][id]
         packet = {"pid": packet_city_change_specialist,
                   "city_id": self.pcity["id"],
-                  "from": from_specialist_id,
-                  "to": (from_specialist_id + 1) % 3}
+                  "from": self.specialist_num,
+                  "to": (self.specialist_num + 1) % 3}
         return packet
 
 

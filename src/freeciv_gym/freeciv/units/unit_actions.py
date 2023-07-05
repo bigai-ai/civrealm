@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
 from freeciv_gym.freeciv.game import ruleset
 from freeciv_gym.freeciv.game.game_ctrl import EXTRA_NONE
-from freeciv_gym.freeciv.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAIL
+from freeciv_gym.freeciv.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAILROAD
 
 from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
@@ -550,7 +550,7 @@ class ActBuildRailRoad(EngineerAction):
     def is_eng_action_valid(self):
         railroad_known = is_tech_known(self.focus.pplayer, 65)
         already_road = TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
-        no_rail_yet = TileState.tile_has_extra(self.focus.ptile, EXTRA_RAIL)
+        no_rail_yet = TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
         return railroad_known and already_road and no_rail_yet
 
     def _action_packet(self):

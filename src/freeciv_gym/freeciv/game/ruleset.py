@@ -23,15 +23,20 @@ from freeciv_gym.freeciv.utils.base_action import NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
-EXTRA_RIVER = None
-EXTRA_ROAD = None
-EXTRA_RAIL = None
-EXTRA_OIL_WELL = None
-EXTRA_HUT = None
-EXTRA_IRRIGATION = None
-EXTRA_FALLOUT = None
-EXTRA_POLLUTION = None
-EXTRA_AIRBASE = None
+EXTRA_IRRIGATION = 0
+EXTRA_MINE = 1
+EXTRA_OIL_MINE = 2
+EXTRA_POLLUTION = 3
+EXTRA_HUT = 4
+
+EXTRA_FORTRESS = 7
+EXTRA_AIRBASE = 8
+
+EXTRA_ROAD = 11
+EXTRA_RAILROAD = 12
+EXTRA_RIVER = 13
+
+# EXTRA_FALLOUT = None
 
 """
 Freeciv Web Client.

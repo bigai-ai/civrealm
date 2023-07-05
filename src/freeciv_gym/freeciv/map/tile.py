@@ -39,7 +39,7 @@ class TileState:
             return False
 
         # return extra in ptile['extras']
-        return False
+        return ptile['extras'][extra] == 1
 
     @staticmethod
     def tile_resource(tile):

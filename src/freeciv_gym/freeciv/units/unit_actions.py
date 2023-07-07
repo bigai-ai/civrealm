@@ -480,11 +480,12 @@ class ActBuild(UnitAction):
         else:
             _map = self.focus.map_ctrl
             unit_tile = _map.index_to_tile(self.focus.punit["tile"])
+            unit_owner = self.focus.punit['owner']
             for city_id in self.focus.unit_ctrl.city_ctrl.cities.keys():
                 pcity = self.focus.unit_ctrl.city_ctrl.cities[city_id]
                 city_tile = _map.index_to_tile(pcity["tile"])
-                if not (city_tile['owner'] == 0):
-                    # If settler is now on a foreign territory
+                if city_tile['owner'] != unit_owner:
+                    # If settler is on a foreign territory
                     return False
                 dx, dy = _map.map_distance_vector(unit_tile, city_tile)
                 dist = _map.map_vector_to_sq_distance(dx, dy)

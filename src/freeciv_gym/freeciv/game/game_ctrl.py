@@ -117,6 +117,10 @@ class GameCtrl(CivPropController):
             # /* Clear the message. */
             self.page_msg = {}
 
+    def handle_endgame_player(self, packet):
+        # /* TODO: implement */
+        return
+
     def handle_play_music(self, packet):
         pass
 

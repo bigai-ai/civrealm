@@ -254,20 +254,38 @@ class MapCtrl(CivPropController):
                 return max(abs(dx), abs(dy))
         else:
             return max(abs(dx), abs(dy))
-
+        
     def map_distance_vector(self, tile0, tile1):
-        """Return a vector of minimum distance between tiles."""
+        """
+            A more straightforward way to compute distance vector compared with the below one
+        """
         dx = tile1["x"] - tile0["x"]
+        xsize = self.map["xsize"]
         if self.topo_has_flag(TF_WRAPX):
-            half_world = floor(self.map["xsize"] / 2)
-            dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
-
+            dx = min((dx + xsize) % xsize, (- dx + xsize) % xsize)
+            
         dy = tile1["y"] - tile0["y"]
+        ysize = self.map["ysize"]
         if self.topo_has_flag(TF_WRAPY):
-            half_world = floor(self.map["ysize"] / 2)
-            dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world
-
+            dy = min((dy + ysize) % ysize, (- dy + ysize) % ysize)
+            
         return dx, dy
+
+    # # Implementation from freeciv-web
+    # def map_distance_vector(self, tile0, tile1):
+    #     """Return a vector of minimum distance between tiles."""
+    #     dx = tile1["x"] - tile0["x"]
+    #     if self.topo_has_flag(TF_WRAPX):
+    #         half_world = floor(self.map["xsize"] / 2)
+    #         dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
+
+    #     dy = tile1["y"] - tile0["y"]
+    #     if self.topo_has_flag(TF_WRAPY):
+    #         half_world = floor(self.map["ysize"] / 2)
+    #         # Shouldn't be dy = ... here?
+    #         dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world            
+
+    #     return dx, dy
 
     def map_distances(self, dx, dy):
         if self.topo_has_flag(TF_WRAPX):

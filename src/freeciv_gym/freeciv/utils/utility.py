@@ -20,7 +20,8 @@
 
 
 def FC_WRAP(value, arange):
-    return (value % (arange) + (arange) if (value) % (arange) != 0 else 0) \
+    # return (value % (arange) + (arange) if (value) % (arange) != 0 else 0) \
+    return ((value + arange) % arange if value % arange != 0 else 0) \
         if value < 0 else (value % arange if value >= arange else value)
 
 

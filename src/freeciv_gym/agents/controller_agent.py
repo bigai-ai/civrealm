@@ -69,8 +69,7 @@ class ControllerAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_city_actions(self, action_dict):
-        desired_actions = {'change_unit_prod_Settlers': 1.0,
-                           'city_work': random.random() * 0.2,
+        desired_actions = {'city_work': random.random() * 0.2,
                            'city_unwork': random.random() * 0.2,
                            'change_improve_prod': random.random() * 0.2,
                            'change_unit_prod': random.random() * 0.2,

@@ -42,7 +42,9 @@ def test_move_to(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140:
-            test_action_list.append(valid_actions[f'goto_{DIR8_EAST}'])            
+            test_action_list.append(valid_actions[f'goto_{DIR8_EAST}'])
+            # goto_south is not a valid action for this unit.
+            assert(f'goto_{DIR8_SOUTH}' not in valid_actions)        
         elif unit_id == 166:
             test_action_list.append(valid_actions[f'goto_{DIR8_NORTHWEST}'])
         elif unit_id == 185:
@@ -69,6 +71,7 @@ def test_move_to(controller):
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])        
         old_position = origin_position[unit_id]
         new_position = (unit_tile['x'], unit_tile['y'])
+        print(f'old_position: {old_position}, new_position: {new_position}')
         if unit_id == 140:
             # EAST
             assert(new_position[0] == old_position[0]+1)                     

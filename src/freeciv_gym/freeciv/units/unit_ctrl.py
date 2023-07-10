@@ -32,6 +32,11 @@ import re
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
+# TODO: update the below list after meets more unit type and terrain.
+# The units on land
+LAND_UNIT = ['Warriors', 'Explorer', 'Workers', 'Settlers']
+LAND_UNIT_INACCESS_TERRAIN = [0, 2, 3]
+
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
@@ -472,6 +477,11 @@ class UnitCtrl(CivPropController):
                                                        target_tile)):
             # /* The target tile is too far away for one-step move. */
             return False
+
+        # If the unit cannot access the terrain, return False               
+        if self.rule_ctrl.unit_type(actor_unit)['name'] in LAND_UNIT and target_tile['terrain'] in LAND_UNIT_INACCESS_TERRAIN:
+            return False
+        
         for tile_unit in target_tile['units']:
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']
 

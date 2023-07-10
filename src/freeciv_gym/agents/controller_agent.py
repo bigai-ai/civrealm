@@ -66,6 +66,9 @@ class ControllerAgent(BaseAgent):
                            'road': random.random()*0.2,
                            'irrigation': random.random()*0.2,
                            'mine': random.random()*0.2,
+                           'fortress': random.random()*0.2,
+                           'railroad': random.random()*0.2,
+                           'airbase': random.random()*0.2,
                            'build': 1.0,}
         return self.sample_desired_actions(action_dict, desired_actions)
 

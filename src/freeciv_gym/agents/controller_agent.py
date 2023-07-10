@@ -24,6 +24,7 @@ class ControllerAgent(BaseAgent):
         if "debug.agentseed" in fc_args:
             self.set_agent_seed(fc_args["debug.agentseed"])
 
+    # Each act() lets one actor perform an action.
     def act(self, observations, info):
         for ctrl_type in self.get_ctrl_types(observations):
             valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations, info, ctrl_type)

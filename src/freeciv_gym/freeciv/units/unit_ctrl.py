@@ -470,9 +470,8 @@ class UnitCtrl(CivPropController):
 
         if (-1 == self.map_ctrl.get_direction_for_step(idx(actor_unit['tile']),
                                                        target_tile)):
-            # /* The target tile is too far away. */
+            # /* The target tile is too far away for one-step move. */
             return False
-
         for tile_unit in target_tile['units']:
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']
 

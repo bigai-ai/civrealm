@@ -163,6 +163,10 @@ class CivController(CivPropController):
         """
         self.ws_client.network_init()
 
+    # Set the parameter with para_name as the given value.
+    def set_parameter(self, para_name, value):
+        fc_args[para_name] = value
+    
     def lock_control(self):
         """
         Lock the control of the game. This is a blocking function, should be called when the player is waiting for the server to respond and should not be able to act.

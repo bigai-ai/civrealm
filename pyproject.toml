@@ -37,4 +37,6 @@ test_freeciv_gym = "freeciv_gym.random_game:main"
 [tool.pytest.ini_options]
 addopts = [
     "--import-mode=importlib",
+    "-s", # show print statements in console 
+    "test_move_to.py", # specify which test file to run
 ]

@@ -44,6 +44,7 @@ class BaseAgent(ABC):
         """
         Return the first actable actor_id and its valid_action_dict that has not been planned in this turn.
         """
+        # TODO: Do we need the turn variable for Agent class?
         if info['turn'] != self.turn:
             self.planned_actor_ids = []
             self.turn = info['turn']

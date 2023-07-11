@@ -37,7 +37,7 @@ def test_move_to(controller):
     for unit_id in unit_opt.unit_ctrl.units.keys():    
         punit = unit_opt.unit_ctrl.units[unit_id]        
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        print(f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {punit['movesleft']}.")
+        print(f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
         origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -66,15 +66,25 @@ def test_move_to(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     _, options = controller.get_observation()
+    unit_opt = options['unit']
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])        
         old_position = origin_position[unit_id]
         new_position = (unit_tile['x'], unit_tile['y'])
-        print(f'old_position: {old_position}, new_position: {new_position}')
+        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        if unit_id == 140 or unit_id == 189:
+            assert(valid_actions != {})
+            assert(unit_opt.unit_ctrl.get_unit_moves_left(punit) != '0')
+        else:            
+            assert(valid_actions == {})
+            assert(unit_opt.unit_ctrl.get_unit_moves_left(punit) == '0')
+
         if unit_id == 140:
             # EAST
-            assert(new_position[0] == old_position[0]+1)                     
+            assert(new_position[0] == old_position[0]+1)
         elif unit_id == 166:
             # NORTHWEST
             assert(new_position[0] == old_position[0]-1 and new_position[1] == old_position[1]-1)

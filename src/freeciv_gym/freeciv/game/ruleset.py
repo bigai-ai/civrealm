@@ -233,7 +233,7 @@ class RulesetCtrl(CivPropController):
 
         # /* Separate since it is easier understand what SINGLE_MOVE means than to
         # * understand what terrain_control['move_fragments'] means. */
-        # SINGLE_MOVE = self.terrain_control['move_fragments']
+        self.SINGLE_MOVE = self.terrain_control['move_fragments']        
 
     def handle_ruleset_nation_groups(self, packet):
         self.nation_groups = packet['groups']

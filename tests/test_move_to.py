@@ -28,7 +28,8 @@ def controller():
 
 def test_move_to(controller):
     controller.init_network()
-    _, options = controller.get_observation()
+    controller.get_observation()
+    options= controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']
     # print(unit_opt.unit_ctrl.units.keys())
@@ -65,7 +66,8 @@ def test_move_to(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    _, options = controller.get_observation()
+    controller.get_observation()
+    options= controller.turn_manager.get_available_actions()    
     unit_opt = options['unit']
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]

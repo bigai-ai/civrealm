@@ -37,9 +37,6 @@ class BaseAgent(ABC):
     def act(self, observation, info):
         return None
 
-    def get_ctrl_types(self, observations):
-        return observations[1].keys()
-
     def get_next_valid_actor(self, observations, info, desired_ctrl_type=None):
         """
         Return the first actable actor_id and its valid_action_dict that has not been planned in this turn.
@@ -49,11 +46,12 @@ class BaseAgent(ABC):
             self.planned_actor_ids = []
             self.turn = info['turn']
 
-        for ctrl_type in self.get_ctrl_types(observations):
+        available_actions = info['available_actions']
+        for ctrl_type in available_actions.keys():
             if desired_ctrl_type and desired_ctrl_type != ctrl_type:
                 continue
 
-            action_list = observations[1][ctrl_type]
+            action_list = available_actions[ctrl_type]
             for actor_id in action_list.get_actors():
                 if actor_id in self.planned_actor_ids:
                     # We have planned an action for this actor in this turn.

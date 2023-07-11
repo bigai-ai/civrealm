@@ -72,6 +72,10 @@ class CivPropController(ABC):
         else:
             fc_logger.warning("Handler function for pid %i not yet implemented" % pid)
 
+    def get_observation_space(self, pplayer):
+        self.prop_state.update(pplayer)
+        return self.prop_state.get_observation_space()
+
     def get_current_state(self, pplayer):
         self.prop_state.update(pplayer)
         return self.prop_state.get_state()

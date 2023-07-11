@@ -122,23 +122,26 @@ public class DeleteSaveGame extends HttpServlet {
 		}
 
 		try {
-			if (savegame.equals("ALL")) {
-				File folder = new File(savegameDirectory + "/" + username);
-				if (!folder.exists()) {
-					response.getOutputStream().print("Error!");
-				} else {
-					for
-					 (File savegameFile: folder.listFiles()) {
-						if (savegameFile.exists() && savegameFile.isFile() && savegameFile.getName().endsWith(".sav.xz")) {
-							Files.delete(savegameFile.toPath());
-						}
+			File folder = new File(savegameDirectory + "/" + username);
+			if (!folder.exists()) {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Save folder under the given username cannot be found.");
+				return;
+			} 
+			boolean fileFound = false;
+			for (File savegameFile: folder.listFiles()) {
+				if (savegameFile.exists() && savegameFile.isFile()) {
+					if (savegame.equals("ALL") || savegameFile.getName().startsWith(savegame)){
+						// NOTE: the server does not distinguish saved games of different extensions when loading. So we can delete all of them.
+						Files.delete(savegameFile.toPath());
+						fileFound = true;
 					}
 				}
-			} else {
-				File savegameFile = new File(savegameDirectory + username + "/" + savegame + ".sav.xz");
-				if (savegameFile.exists() && savegameFile.isFile() && savegameFile.getName().endsWith(".sav.xz")) {
-					Files.delete(savegameFile.toPath());
-				}
+			}
+			if (!fileFound) {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+						"Saved game not found.");
+				return;
 			}
 		} catch (Exception err) {
 			response.setHeader("result", "error");

@@ -49,7 +49,7 @@ class TurnManager(object):
         fc_logger.info(f'============== Begin turn: {self._turn:04d} ==============')
         fc_logger.info('==============================================')
 
-    def begin_turn(self, pplayer, info_controls):        
+    def begin_turn(self, pplayer, info_controls):
         self._turn_active = True
         self._turn_ctrls = info_controls
         self._turn_player = pplayer
@@ -59,20 +59,41 @@ class TurnManager(object):
             import time
             time.sleep(8)
 
-
-    def get_action_space(self):
+    @property
+    def action_space(self):
         return gymnasium.spaces.Discrete(1)
 
-    def get_observation_space(self):
-        return gymnasium.spaces.Discrete(1)
+    @property
+    def observation_space(self):
+        # return gymnasium.spaces.Discrete(1)
+        if self._turn_ctrls is None:
+            return gymnasium.spaces.Discrete(1)
+        
+        observation_space = dict()
+        fc_logger.debug('Computing observation space for: ')
+        for ctrl_type, ctrl in self._turn_ctrls.items():
+            if ctrl_type != 'map':
+                # TODO: add observation spaces for all controllers
+                observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
+                continue
+            fc_logger.debug(f'....: {ctrl_type}')
+            observation_space[ctrl_type] = ctrl.get_observation_space(self._turn_player)
+
+        return gymnasium.spaces.Dict(observation_space)
 
     def get_observation(self):
-        fc_logger.debug("Acquiring state and action for: ")
+        fc_logger.debug("Acquiring state for: ")
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
             self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
+        return self._turn_state
+    
+    def get_available_actions(self):
+        fc_logger.debug("Acquiring action for: ")
+        for ctrl_type, ctrl in self._turn_ctrls.items():
+            fc_logger.debug(f'....: {ctrl_type}')
             self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
-        return self._turn_state, self._turn_opts
+        return self._turn_opts
 
     def get_reward(self):
         # FIXME: this function gets called every time the agent takes an action.

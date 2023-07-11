@@ -29,8 +29,8 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
 
     def __init__(self):
         self.civ_controller = CivController(username=fc_args['username'])
-        self._action_space = self.civ_controller.get_action_space()
-        self._observation_space = self.civ_controller.get_observation_space()
+        self._action_space = self.civ_controller.action_space
+        self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
 
     def set_up_recording(self):
@@ -43,12 +43,12 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
 
     @property
     def action_space(self):
-        self._action_space = self.civ_controller.get_action_space()
+        self._action_space = self.civ_controller.action_space
         return self._action_space
 
     @property
     def observation_space(self):
-        self._observation_space = self.civ_controller.get_observation_space()
+        self._observation_space = self.civ_controller.observation_space
         return self._observation_space
 
     def _record_to_file(self, name, content, default_json_encoder=None):
@@ -62,10 +62,10 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
             json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
 
     def _record_observation(self, observations):
-        self._record_to_file('state', observations[0], lambda x: x.tolist())
-        self._record_to_file('available_action', observations[1], lambda x: x.encode_to_json())
+        self._record_to_file('state', observations, lambda x: x.tolist())
 
-    def _record_action(self, action):
+    def _record_action(self, available_actions, action):
+        self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
         if action:
             self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())
         self._record_step_count += 1
@@ -89,13 +89,15 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        self._record_action(action)
 
         observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
         info = self._get_info()
+
+        available_actions = info['available_actions']
+        self._record_action(available_actions, action)
 
         return observation, reward, terminated, truncated, info
 

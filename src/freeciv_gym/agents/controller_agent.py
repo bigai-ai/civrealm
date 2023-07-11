@@ -26,7 +26,8 @@ class ControllerAgent(BaseAgent):
 
     # Each act() lets one actor perform an action.
     def act(self, observations, info):
-        for ctrl_type in self.get_ctrl_types(observations):
+        available_actions = info['available_actions']
+        for ctrl_type in available_actions.keys():
             valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations, info, ctrl_type)
             if not valid_actor_id:
                 continue

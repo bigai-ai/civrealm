@@ -191,15 +191,16 @@ class CivController(CivPropController):
         # turn_active is true after receving PACKET_BEGIN_TURN
         if not self.turn_manager.turn_active:
             return False
-        
+
         # Wait for the players with a smaller playerno to end their phase.
+        # FIXME: incorporate this logic with the logic in the turn manager
         if self.player_ctrl.others_finished():
             return not self.ws_client.is_waiting_for_responses()
 
     def maybe_grant_control_to_player(self):
         """
         Check whether the player is ready to act. If true, the controller should stop the WebSocket loop and grant control to the player.
-        """        
+        """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
             if not self.begin_logged:
@@ -207,11 +208,13 @@ class CivController(CivPropController):
                 self.begin_logged = True
             self.ws_client.stop_ioloop()
 
-    def get_action_space(self):
-        return self.turn_manager.get_action_space()
+    @property
+    def action_space(self):
+        return self.turn_manager.action_space
 
-    def get_observation_space(self):
-        return self.turn_manager.get_observation_space()
+    @property
+    def observation_space(self):
+        return self.turn_manager.observation_space
 
     def perform_action(self, action):
         if action == None:
@@ -228,7 +231,7 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward()
 
     def get_info(self):
-        return {'turn': self.turn_manager.turn}
+        return {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
 
     def send_end_turn(self):
         """Ends the current turn."""
@@ -322,7 +325,8 @@ class CivController(CivPropController):
     def load_game(self, save_name):
         load_username = save_name.split('_')[0]
         if load_username != self.clstate.username:
-            raise RuntimeError(f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
+            raise RuntimeError(
+                f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
         self.ws_client.send_message(f"/load {save_name}")
         turn = int(save_name.split('_')[1][1:])
         # self.turn_diff = turn-1
@@ -401,12 +405,12 @@ class CivController(CivPropController):
 
     def handle_load_game(self, message):
         # To observe a load game, you can first sign in and then send /observe PLAYER_NAME message by console or chatbox. If there is a space in the PLAYER_NAME, use "" to specify.
-        if 'You are logged in as' in message and not self.load_game_tried:            
+        if 'You are logged in as' in message and not self.load_game_tried:
             self.load_game(fc_args['debug.load_game'])
             self.load_game_tried = True
 
         if 'load: Cannot find savegame or scenario with the name' in message:
-            fc_logger.error(f"Load game unsuccessfully. Message: {message}")            
+            fc_logger.error(f"Load game unsuccessfully. Message: {message}")
             raise RuntimeError(f"Load game unsuccessfully. Message: {message}")
 
         if 'Load complete' in message:
@@ -437,7 +441,8 @@ class CivController(CivPropController):
             # assert(False)
 
         if 'connected to no player' in message:
-            raise RuntimeError(f"{message}. There is no room for new players. You may increase the maximum player number or change the username to match an existing player if you are loading a game.")
+            raise RuntimeError(
+                f"{message}. There is no room for new players. You may increase the maximum player number or change the username to match an existing player if you are loading a game.")
 
         if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING:
             self.handle_load_game(message)
@@ -508,6 +513,7 @@ class CivController(CivPropController):
         pplayer = self.clstate.cur_player()
         fc_logger.debug(f'Receiving begin turn packets: {packet}')
         self.turn_manager.begin_turn(pplayer, self.controller_list)
+
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()

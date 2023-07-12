@@ -306,6 +306,9 @@ class ActTileInfo(StdAction):
 
 class EngineerAction(UnitAction):
     def is_action_valid(self):
+        if self.focus.punit['movesleft'] == 0:
+            return False  # raise Exception("Unit has no moves left to build city")
+        
         if self.focus.ptype['name'] in ["Workers", "Engineers"]:
             return self.is_eng_action_valid()
         return False
@@ -553,7 +556,7 @@ class ActBuildRailRoad(EngineerAction):
     def is_eng_action_valid(self):
         railroad_known = is_tech_known(self.focus.pplayer, 65)
         already_road = TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
-        no_rail_yet = TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+        no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
         return railroad_known and already_road and no_rail_yet
 
     def _action_packet(self):

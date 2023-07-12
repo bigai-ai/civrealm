@@ -14,7 +14,7 @@
 
 import random
 import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -90,8 +90,8 @@ class CivController(CivPropController):
         self.first_conn_info_received = False
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
+        self.game_saving_time_range = []
         # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
-        self.turn_diff = 0
         self.load_game_tried = False
         self.load_complete = False
         self.begin_logged = False
@@ -166,7 +166,7 @@ class CivController(CivPropController):
     # Set the parameter with para_name as the given value.
     def set_parameter(self, para_name, value):
         fc_args[para_name] = value
-    
+
     def lock_control(self):
         """
         Lock the control of the game. This is a blocking function, should be called when the player is waiting for the server to respond and should not be able to act.
@@ -282,15 +282,13 @@ class CivController(CivPropController):
             raise
 
     def save_game(self):
-        current_time = datetime.now(timezone.utc)
-        formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name1 = f"{self.clstate.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
-        # self.ws_client.send_message(f"/save {save_name}")
+        # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name
+        begin_time = datetime.now(timezone.utc)
         self.ws_client.send_message(f"/save ")
-        # We keep two save_name in case the message delay causes the first or second save_name is different from the real save_name
-        current_time = datetime.now(timezone.utc)
-        formatted_time = current_time.strftime("%Y-%m-%d-%H_%M")
-        self.save_name2 = f"{self.clstate.username}_T{self.turn_manager.turn-self.turn_diff}_{formatted_time}"
+        end_time = datetime.now(timezone.utc)
+
+        minutes_diff = (end_time - begin_time).total_seconds() // 60.0 + 1
+        self.game_saving_time_range = [begin_time + timedelta(it) for it in range(int(minutes_diff))]
 
     def delete_save_game(self):
         """
@@ -300,22 +298,23 @@ class CivController(CivPropController):
         url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
         response = requests.post(url)
         save_list = response.text.split(';')
-        real_save_name = ''
-        for save_name in save_list:
-            # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
-            if self.save_name1 in save_name:
-                real_save_name = self.save_name1
-            if self.save_name2 in save_name:
-                real_save_name = self.save_name2
 
-        if real_save_name == '':
-            fc_logger.debug(
-                f'Failed to match save name. The names being tried are {self.save_name1} and {self.save_name2}.')
+        real_saved_name = ''
+        for saving_time in self.game_saving_time_range:
+            possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
+            for saved_name in save_list:
+                # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
+                if possible_saved_name in saved_name:
+                    real_saved_name = possible_saved_name
+                    break
+
+        if real_saved_name == '':
+            fc_logger.warning('Failed to match save name.')
             return
 
         # If use savegame=ALL, it will delete all saves under the given username.
         sha_password = self.clstate.get_password()
-        url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_save_name}&sha_password={sha_password}"
+        url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
         response = requests.post(url)
         if response.text != '':
             fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
@@ -329,7 +328,6 @@ class CivController(CivPropController):
                 f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
         self.ws_client.send_message(f"/load {save_name}")
         turn = int(save_name.split('_')[1][1:])
-        # self.turn_diff = turn-1
         self.turn_manager.set_turn(turn)
 
     def prepare_game(self):
@@ -495,9 +493,8 @@ class CivController(CivPropController):
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
-        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
+        if self.turn_manager.turn < fc_args['max_turns'] and fc_args['debug.autosave']:
             # Save the game state in the begining of every turn.
-            # self.save_game(f"{self.user_name}-T{self.turn_manager.turn()}").
             # Save game command '/save' does not support user-defined save_name.
             self.save_game()
 

@@ -22,8 +22,8 @@ from freeciv_gym.configs import fc_args
 
 class TurnManager(object):
     def __init__(self) -> None:
-        # The server counts the turn number from 1.
-        self._turn = 1
+        # NOTE: The server counts the turn number from 1.
+        self._turn = 0
         self._sleep_time_after_turn = fc_args['debug.sleep_time_after_turn']
 
         self._turn_active = False
@@ -50,6 +50,7 @@ class TurnManager(object):
         fc_logger.info('==============================================')
 
     def begin_turn(self, pplayer, info_controls):
+        self._turn += 1
         self._turn_active = True
         self._turn_ctrls = info_controls
         self._turn_player = pplayer
@@ -108,5 +109,4 @@ class TurnManager(object):
         self._turn_player = None
         self._turn_state = None
         self._turn_opts = None
-        self._turn += 1
         time.sleep(self._sleep_time_after_turn)

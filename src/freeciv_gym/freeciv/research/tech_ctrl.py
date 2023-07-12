@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
+from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ADVANCES
 from freeciv_gym.freeciv.misc.freeciv_wiki import freeciv_wiki_docs
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -56,7 +56,7 @@ typedef int Tech_type_id
 """
 A_NONE = 0
 A_FIRST = 1
-A_LAST = MAX_NUM_ITEMS
+A_LAST = MAX_NUM_ADVANCES + 1
 A_UNSET = A_LAST + 1
 A_FUTURE = A_LAST + 2
 A_UNKNOWN = A_LAST + 3

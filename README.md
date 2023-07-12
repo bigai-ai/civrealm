@@ -26,11 +26,12 @@ In order to test the overall bot on <http://localhost>, kindly follow the docker
 
 ### Custom freeciv-web to save game files for debugging
 
-Replace the `DeleteSaveGame.java` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
+Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
 
 ```bash
 cd modified_server_code
 docker cp DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java
+docker cp ListSaveGames.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/ListSaveGames.java
 ```
 
 Enter the freeciv-web docker:

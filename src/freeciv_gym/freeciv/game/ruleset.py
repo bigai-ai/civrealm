@@ -132,7 +132,7 @@ class RulesetCtrl(CivPropController):
         self.register_handler(127, "handle_new_year")
 
     def handle_ruleset_terrain(self, packet):
-        # /* FIXME: These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly. */
+        # These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly.
         if packet['name'] == "Lake":
             packet['graphic_str'] = packet['graphic_alt']
         if packet['name'] == "Glacier":

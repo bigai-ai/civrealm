@@ -3,11 +3,12 @@
 .settings/
 
 # Generated files
-freecivbot.egg-info/
 freeciv_gym.egg-info/
 geckodriver
 geckodriver.log
+.pytest_cache/
 __pycache__/
 *.pyc
 .sonar/
 .idea
+.VSCodeCounter/

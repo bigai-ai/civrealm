@@ -176,7 +176,6 @@ class CivController(CivPropController):
         except KeyboardInterrupt:
             self.delete_save_game()
             self.ws_client.close()
-        
 
     def init_game(self):
         """
@@ -314,7 +313,7 @@ class CivController(CivPropController):
                     break
 
         if real_saved_name == '':
-            fc_logger.warning('Failed to match save name.')
+            fc_logger.warning('Failed to find saved game file to delete.')
             return
 
         # If use savegame=ALL, it will delete all saves under the given username.

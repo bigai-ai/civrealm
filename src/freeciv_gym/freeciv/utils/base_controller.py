@@ -17,7 +17,7 @@ from abc import ABC, abstractmethod
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.base_action import ActionList
-from freeciv_gym.freeciv.utils.base_state import PropState
+from freeciv_gym.freeciv.utils.base_state import EmptyState
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
@@ -33,7 +33,7 @@ class CivPropController(ABC):
         self.ws_client = ws_client
         self.set_unlogged_packets()
 
-        self.prop_state = PropState()
+        self.prop_state = EmptyState()
         self.prop_actions = ActionList(ws_client)
 
         self.register_all_handlers()

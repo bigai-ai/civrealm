@@ -12,6 +12,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from abc import ABC, abstractmethod
+
 import numpy as np
 import json
 
@@ -29,7 +31,7 @@ def sets_equal(set_a, set_b):
     return set_a, None, None
 
 
-class PropState():
+class PropState(ABC):
     def __init__(self):
         self._state = {}
         self._locked_props = []
@@ -39,14 +41,17 @@ class PropState():
     def __repr__(self):
         return json.dumps(self._state, sort_keys=True)
 
+    @abstractmethod
     def _update_state(self, pplayer):
-        raise Exception("To be overwritten; cur_player: %s" % pplayer)
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
+    @abstractmethod
     def _lock_properties(self):
-        raise Exception("To be overwritten")
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
+    @abstractmethod
     def _state_has_locked_properties(self):
-        raise Exception("To be overwritten")
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
     def update(self, pplayer):
         self._update_state(pplayer)
@@ -55,8 +60,9 @@ class PropState():
             self._locked_set = set(self._locked_props)
             self._set_num_vars()
 
+    @abstractmethod
     def _set_num_vars(self):
-        raise Exception("To be implemented by child class")
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
     def get_state(self):
         """Get state ensures that the returned state only contains the properties that
@@ -67,8 +73,9 @@ class PropState():
     def get_num_vars(self):
         return self._num_vars
 
+    @abstractmethod
     def get_state_vec(self, item=None):
-        raise Exception("To be implemented by child class")
+        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
 
 class PlainState(PropState):

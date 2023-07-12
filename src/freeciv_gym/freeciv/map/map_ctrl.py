@@ -20,9 +20,10 @@ from BitVector import BitVector
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.utility import FC_WRAP, byte_to_bit_array, sign
 from freeciv_gym.freeciv.utils.base_action import NoActions
-from freeciv_gym.freeciv.map.tile import TileState, TILE_UNKNOWN
 from freeciv_gym.freeciv.map.map_state import MapState
-import json
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
@@ -39,16 +40,14 @@ DIR8_SOUTHEAST = 7
 DIR8_LAST = 8
 DIR8_COUNT = DIR8_LAST
 
-DIR8_NAMES = ["NW", "N", "NE", "W", "E", "SW", "S", "SE"]
+DIR8_NAMES = ['NW', 'N', 'NE', 'W', 'E', 'SW', 'S', 'SE']
 
-DIR8_ORDER = [DIR8_NORTHWEST, DIR8_NORTH, DIR8_NORTHEAST, DIR8_WEST, DIR8_EAST, DIR8_SOUTHWEST, DIR8_SOUTH, DIR8_SOUTHEAST]
-
-# DIR8_ORDER = [DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,
-#               DIR8_SOUTH, DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]
+DIR8_ORDER = [DIR8_NORTHWEST, DIR8_NORTH, DIR8_NORTHEAST, DIR8_WEST,
+              DIR8_EAST, DIR8_SOUTHWEST, DIR8_SOUTH, DIR8_SOUTHEAST]
 
 # Dict for the next direction clock-wise
-DIR8_CW = {DIR8_NORTHWEST: DIR8_NORTH, 
-           DIR8_NORTH: DIR8_NORTHEAST, 
+DIR8_CW = {DIR8_NORTHWEST: DIR8_NORTH,
+           DIR8_NORTH: DIR8_NORTHEAST,
            DIR8_NORTHEAST: DIR8_EAST,
            DIR8_EAST: DIR8_SOUTHEAST,
            DIR8_SOUTHEAST: DIR8_SOUTH,
@@ -57,24 +56,19 @@ DIR8_CW = {DIR8_NORTHWEST: DIR8_NORTH,
            DIR8_WEST: DIR8_NORTHWEST}
 
 # Dict for the next direction counter clock-wise
-DIR8_CCW = {DIR8_NORTHWEST: DIR8_WEST, 
-           DIR8_NORTH: DIR8_NORTHWEST, 
-           DIR8_NORTHEAST: DIR8_NORTH,
-           DIR8_EAST: DIR8_NORTHEAST,
-           DIR8_SOUTHEAST: DIR8_EAST,
-           DIR8_SOUTH: DIR8_SOUTHEAST,
-           DIR8_SOUTHWEST: DIR8_SOUTH,
-           DIR8_WEST: DIR8_SOUTHWEST}
+DIR8_CCW = {DIR8_NORTHWEST: DIR8_WEST,
+            DIR8_NORTH: DIR8_NORTHWEST,
+            DIR8_NORTHEAST: DIR8_NORTH,
+            DIR8_EAST: DIR8_NORTHEAST,
+            DIR8_SOUTHEAST: DIR8_EAST,
+            DIR8_SOUTH: DIR8_SOUTHEAST,
+            DIR8_SOUTHWEST: DIR8_SOUTH,
+            DIR8_WEST: DIR8_SOUTHWEST}
 
 TF_WRAPX = 1
 TF_WRAPY = 2
 TF_ISO = 4
 TF_HEX = 8
-
-T_NONE = 0  # /* A special flag meaning no terrain type. */
-T_UNKNOWN = 0  # /* An unknown terrain. */
-
-T_FIRST = 0  # /* The first terrain value. */
 
 """used to compute neighboring tiles.
  *
@@ -97,105 +91,51 @@ DIR_DY = [-1, -1, -1, 0, 0, 1, 1, 1]
 
 
 class MapCtrl(CivPropController):
-    def __init__(self, ws_client, rule_ctrl):
+    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl):
         super().__init__(ws_client)
-        self.map = {}
-        self.tiles = []
-        self.player_map = {}
-        self.player_map["status"] = None
-        self.player_map["terrain"] = None
-        self.player_map["extras"] = None
 
-        self.rule_ctrl = rule_ctrl
-        self.prop_state = MapState(self.player_map)
+        self.map_info = {}
+
+        self.prop_state = MapState(rule_ctrl)
         self.prop_actions = NoActions(ws_client)
 
     def register_all_handlers(self):
-        self.register_handler(15, "handle_tile_info")
-        self.register_handler(17, "handle_map_info")
-        self.register_handler(253, "handle_set_topology")
+        self.register_handler(15, 'handle_tile_info')
+        self.register_handler(17, 'handle_map_info')
+        self.register_handler(253, 'handle_set_topology')
 
     def __repr__(self):
-        # return json.dumps(self.tiles, sort_keys=True)
-        return "MapCtrl __repr__() unimplemented."
+        return 'MapCtrl __repr__() unimplemented.'
 
     def topo_has_flag(self, flag):
-        return ((self.map['wrap_id'] & (flag)) != 0)
+        return ((self.map_info['topology_id'] & (flag)) != 0)
+
+    def wrap_has_flag(self, flag):
+        return ((self.map_info['wrap_id'] & (flag)) != 0)
 
     def city_tile(self, pcity):
         if pcity == None:
             return None
-
         return self.index_to_tile(pcity['tile'])
 
-    def map_allocate(self):
-        """
-            Allocate space for map, and initialise the tiles.
-            Uses current map.xsize and map.ysize.
-        """
-
-        self.tiles = []
-        """
-        Note this use of whole_map_iterate may be a bit sketchy, since the
-        tile values (ptile->index, etc.) haven't been set yet.  It might be
-        better to do a manual loop here.
-        """
-
-        shape_map = (self.map['xsize'], self.map['ysize'])
-
-        self.player_map["status"] = np.zeros(shape_map, dtype="B")
-        self.player_map["terrain"] = np.zeros(shape_map, dtype="H")
-
-        for y in range(self.map['ysize']):
-            for x in range(self.map['xsize']):
-                self.tiles.append(None)
-                tile = {}
-                tile['index'] = x + y * self.map['xsize']
-                tile['x'] = x
-                tile['y'] = y
-                tile['height'] = 0
-                tile = self.tile_init(tile)
-                self.tiles[tile['index']] = tile
-
-        # /* TODO: generate_city_map_indices() */
-        # /* TODO: generate_map_indices() */
-
-        self.map['startpos_table'] = {}
-        # init_overview()
-
-    def tile_init(self, tile):
-        tile['known'] = None  # /* tile_known in C side */
-        tile['seen'] = {}  # /* tile_seen in C side */
-        tile['specials'] = []
-        tile['resource'] = None
-        tile['terrain'] = T_UNKNOWN
-        tile['units'] = []
-        tile['owner'] = None
-        tile['claimer'] = None
-        tile['worked'] = None
-        tile['spec_sprite'] = None
-        tile['goto_dir'] = None
-        tile['nuke'] = 0
-        return tile
-
     def map_init_topology(self):
-        self.map["valid_dirs"] = {}
-        self.map["cardinal_dirs"] = {}
+        self.map_info['valid_dirs'] = {}
+        self.map_info['cardinal_dirs'] = {}
 
-        self.map["num_valid_dirs"] = 0
-        self.map["num_cardinal_dirs"] = 0
+        self.map_info['num_valid_dirs'] = 0
+        self.map_info['num_cardinal_dirs'] = 0
 
         for dir8 in range(DIR8_COUNT):
             if self.is_valid_dir(dir8):
-                self.map["valid_dirs"][self.map["num_valid_dirs"]] = dir8
-                self.map["num_valid_dirs"] += 1
+                self.map_info['valid_dirs'][self.map_info['num_valid_dirs']] = dir8
+                self.map_info['num_valid_dirs'] += 1
             if self.is_cardinal_dir(dir8):
-                self.map["cardinal_dirs"][self.map["num_cardinal_dirs"]] = dir8
-                self.map["num_cardinal_dirs"] += 1
+                self.map_info['cardinal_dirs'][self.map_info['num_cardinal_dirs']] = dir8
+                self.map_info['num_cardinal_dirs'] += 1
 
     def set_tile_worked(self, packet):
-        if packet['tile'] < len(self.tiles) and self.tiles[packet['tile']] != None:
-            self.tiles[packet['tile']]['worked'] = packet['id']
+        if packet['tile'] < len(self.prop_state.tiles) and self.prop_state.tiles[packet['tile']] != None:
+            self.prop_state.tiles[packet['tile']]['worked'] = packet['id']
 
     def is_valid_dir(self, dir8):
         if dir8 in [DIR8_SOUTHEAST, DIR8_NORTHWEST]:
@@ -223,34 +163,34 @@ class MapCtrl(CivPropController):
 
     def map_pos_to_tile(self, x, y):
         """ Return the tile for the given cartesian (map) position."""
-        if x >= self.map['xsize']:
+        if x >= self.map_info['xsize']:
             y -= 1
         elif (x < 0):
             y += 1
-        return self.tiles[x + y * self.map['xsize']]
+        return self.prop_state.tiles[x + y * self.map_info['xsize']]
 
     def index_to_tile(self, index):
         """Return the tile for the given index."""
-        return self.tiles[index]
+        return self.prop_state.tiles[index]
 
     def NATIVE_TO_MAP_POS(self, nat_x, nat_y):
         """Obscure math.  See explanation in doc/HACKING."""
         pmap_x = floor(((nat_y) + ((nat_y) & 1)) / 2 + (nat_x))
-        pmap_y = floor(nat_y - pmap_x + self.map['xsize'])
+        pmap_y = floor(nat_y - pmap_x + self.map_info['xsize'])
         return {'map_x': pmap_x, 'map_y': pmap_y}
 
     def MAP_TO_NATIVE_POS(self, map_x, map_y):
-        pnat_y = floor(map_x + map_y - self.map['xsize'])
+        pnat_y = floor(map_x + map_y - self.map_info['xsize'])
         pnat_x = floor((2 * map_x - pnat_y - (pnat_y & 1)) / 2)
         return {'nat_y': pnat_y, 'nat_x': pnat_x}
 
     def NATURAL_TO_MAP_POS(self, nat_x, nat_y):
         pmap_x = floor(((nat_y) + (nat_x)) / 2)
-        pmap_y = floor(nat_y - pmap_x + self.map['xsize'])
+        pmap_y = floor(nat_y - pmap_x + self.map_info['xsize'])
         return {'map_x': pmap_x, 'map_y': pmap_y}
 
     def MAP_TO_NATURAL_POS(self, map_x, map_y):
-        pnat_y = floor((map_x) + (map_y) - self.map['xsize'])
+        pnat_y = floor((map_x) + (map_y) - self.map_info['xsize'])
         pnat_x = floor(2 * (map_x) - pnat_y)
 
         return {'nat_y': pnat_y, 'nat_x': pnat_x}
@@ -273,47 +213,31 @@ class MapCtrl(CivPropController):
                 return max(abs(dx), abs(dy))
         else:
             return max(abs(dx), abs(dy))
-        
+
     def map_distance_vector(self, tile0, tile1):
         """
             A more straightforward way to compute distance vector compared with the below one
         """
-        dx = tile1["x"] - tile0["x"]
-        xsize = self.map["xsize"]
-        if self.topo_has_flag(TF_WRAPX):
+        dx = tile1['x'] - tile0['x']
+        xsize = self.map_info['xsize']
+        if self.wrap_has_flag(TF_WRAPX):
             dx = min((dx + xsize) % xsize, (- dx + xsize) % xsize)
-            
-        dy = tile1["y"] - tile0["y"]
-        ysize = self.map["ysize"]
-        if self.topo_has_flag(TF_WRAPY):
+
+        dy = tile1['y'] - tile0['y']
+        ysize = self.map_info['ysize']
+        if self.wrap_has_flag(TF_WRAPY):
             dy = min((dy + ysize) % ysize, (- dy + ysize) % ysize)
-            
+
         return dx, dy
 
-    # # Implementation from freeciv-web
-    # def map_distance_vector(self, tile0, tile1):
-    #     """Return a vector of minimum distance between tiles."""
-    #     dx = tile1["x"] - tile0["x"]
-    #     if self.topo_has_flag(TF_WRAPX):
-    #         half_world = floor(self.map["xsize"] / 2)
-    #         dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
-
-    #     dy = tile1["y"] - tile0["y"]
-    #     if self.topo_has_flag(TF_WRAPY):
-    #         half_world = floor(self.map["ysize"] / 2)
-    #         # Shouldn't be dy = ... here?
-    #         dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world            
-
-    #     return dx, dy
-
     def map_distances(self, dx, dy):
-        if self.topo_has_flag(TF_WRAPX):
-            half_world = floor(self.map["xsize"] / 2)
-            dx = FC_WRAP(dx + half_world, self.map["xsize"]) - half_world
+        if self.wrap_has_flag(TF_WRAPX):
+            half_world = floor(self.map_info['xsize'] / 2)
+            dx = FC_WRAP(dx + half_world, self.map_info['xsize']) - half_world
 
-        if self.topo_has_flag(TF_WRAPY):
-            half_world = floor(self.map["ysize"] / 2)
-            dx = FC_WRAP(dy + half_world, self.map["ysize"]) - half_world
+        if self.wrap_has_flag(TF_WRAPY):
+            half_world = floor(self.map_info['ysize'] / 2)
+            dx = FC_WRAP(dy + half_world, self.map_info['ysize']) - half_world
 
         return [dx, dy]
 
@@ -346,7 +270,7 @@ class MapCtrl(CivPropController):
         try:
             return DIR8_NAMES[dir8]
         except KeyError:
-            return "[undef]"
+            return '[undef]'
 
     @staticmethod
     def dir_cw(dir8):
@@ -367,62 +291,45 @@ class MapCtrl(CivPropController):
     def clear_goto_tiles(self):
         """Removes goto lines and clears goto tiles."""
 
-        for x in range(self.map['xsize']):
-            for y in range(self.map['ysize']):
-                self.tiles[x + y * self.map['xsize']]['goto_dir'] = None
+        for x in range(self.map_info['xsize']):
+            for y in range(self.map_info['ysize']):
+                self.prop_state.tiles[x + y * self.map_info['xsize']]['goto_dir'] = None
 
     def handle_tile_info(self, packet):
-        if self.tiles != None:
-            packet['extras'] = BitVector(bitlist=byte_to_bit_array(packet["extras"]))
-            if self.player_map["extras"] is None:
-                extras_map = (self.map['xsize'], self.map['ysize'], len(packet['extras']))
-                self.player_map["extras"] = np.zeros(extras_map, dtype="?")
+        packet['extras'] = BitVector(bitlist=byte_to_bit_array(packet['extras']))
+        if self.prop_state.state['extras'] is None:
+            extras_shape = (self.map_info['xsize'], self.map_info['ysize'], len(packet['extras']))
+            self.prop_state.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
 
-            ptile = packet['tile']
-            if self.tiles[ptile] == None:
-                self.tiles[ptile] = {}
+        ptile = packet['tile']
+        assert self.prop_state.tiles != None
+        assert self.prop_state.tiles[ptile] != None
 
-            self.tiles[ptile].update(packet)
-            self.player_map["status"][self.tiles[ptile]['x'], self.tiles[ptile]['y']] = packet['known']
-            self.player_map["terrain"][self.tiles[ptile]['x'], self.tiles[ptile]['y']] = packet['terrain']
-            self.player_map["extras"][self.tiles[ptile]['x'], self.tiles[ptile]['y'], :] = packet['extras']
+        self.prop_state.tiles[ptile].update(packet)
+        self.prop_state.state['status'][
+            self.prop_state.tiles[ptile]['x'],
+            self.prop_state.tiles[ptile]['y']] = packet['known']
+        self.prop_state.state['terrain'][
+            self.prop_state.tiles[ptile]['x'],
+            self.prop_state.tiles[ptile]['y']] = packet['terrain']
+        self.prop_state.state['extras'][
+            self.prop_state.tiles[ptile]['x'],
+            self.prop_state.tiles[ptile]['y'],
+            :] = packet['extras']
 
     def handle_set_topology(self, packet):
         """
         Server requested topology change.
+        # NOTE: currently not planned to be implemented
         """
         pass
-        # /* TODO */
 
     def handle_map_info(self, packet):
-        self.map = packet
+        # NOTE: init_client_goto(), generate_citydlg_dimensions(), calculate_overview_dimensions() are not implemented in freeciv-web
+        self.map_info = packet
         self.map_init_topology()
-        self.map_allocate()
-
-        # /* TODO: init_client_goto()*/
-
-        # mapdeco_init()
-
-        # /* TODO: generate_citydlg_dimensions()*/
-
-        # /* TODO: calculate_overview_dimensions()*/
-
-    def tile_terrain_near(self, ptile):
-        tterrain_near = []
-        for dir8 in range(DIR8_LAST):
-            tile1 = self.mapstep(ptile, dir8)
-            if tile1 != None and TileState.tile_get_known(tile1) != TILE_UNKNOWN:
-                terrain1 = self.rule_ctrl.tile_terrain(tile1)
-
-                if terrain1 != None:
-                    tterrain_near[dir8] = terrain1
-                    continue
-            """
-            /* At the edges of the (known) map, pretend the same terrain continued
-             * past the edge of the map. */
-            """
-            tterrain_near[dir8] = self.rule_ctrl.tile_terrain(ptile)
-        return tterrain_near
+        self.prop_state.map_allocate(self.map_info['xsize'], self.map_info['ysize'])
+        self.map_info['startpos_table'] = {}
 
 
 def get_dist(a, b):
@@ -448,7 +355,7 @@ def dxy_to_center_index(dx, dy, r):
 class CityTileMap():
     """Builds city_tile_map info for a given squared city radius."""
 
-    def __init__(self, radius_sq, map_ctrl):
+    def __init__(self, radius_sq, map_ctrl: MapCtrl):
         self.radius_sq = radius_sq
         self.radius = None
         self.base_sorted = None
@@ -517,26 +424,26 @@ class CityTileMap():
 
     def get_city_tile_map_for_pos(self, x, y):
         """Returns the map of position from city center to index in city_info."""
-        topo_has_flag = self.map_ctrl.topo_has_flag
-        if topo_has_flag(TF_WRAPX) and topo_has_flag(TF_WRAPY):
+        wrap_has_flag = self.map_ctrl.wrap_has_flag
+        if wrap_has_flag(TF_WRAPX) and wrap_has_flag(TF_WRAPY):
             return self.maps[0]
 
         r = self.radius
-        if topo_has_flag(TF_WRAPX):  # Cylinder with N-S axis
-            d = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
+        if wrap_has_flag(TF_WRAPX):  # Cylinder with N-S axis
+            d = self.delta_tile_helper(y, r, self.map_ctrl.map_info['ysize'])
             if d[2] not in self.maps:
                 self.maps[d[2]] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
             return self.maps[d[2]]
 
-        if topo_has_flag(TF_WRAPY):  # Cylinder with E-W axis
-            d = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
+        if wrap_has_flag(TF_WRAPY):  # Cylinder with E-W axis
+            d = self.delta_tile_helper(x, r, self.map_ctrl.map_info['xsize'])
             if d[2] not in self.maps:
                 self.maps[d[2]] = self.build_city_tile_map_with_limits(d[0], d[1], -r, r)
             return self.maps[d[2]]
 
         # Flat
-        dx = self.delta_tile_helper(x, r, self.map_ctrl.map["xsize"])
-        dy = self.delta_tile_helper(y, r, self.map_ctrl.map["ysize"])
+        dx = self.delta_tile_helper(x, r, self.map_ctrl.map_info['xsize'])
+        dy = self.delta_tile_helper(y, r, self.map_ctrl.map_info['ysize'])
         map_i = (2*r + 1) * dx[2] + dy[2]
         if map_i not in self.maps:
             m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
@@ -549,20 +456,20 @@ class CityTileMap():
           to index.
         """
         city_tile_map_index = dxy_to_center_index(dx, dy, self.radius)
-        a_map = self.get_city_tile_map_for_pos(city_tile["x"], city_tile["y"])
-        # logger.info("get_city_dxy_to_index")
+        a_map = self.get_city_tile_map_for_pos(city_tile['x'], city_tile['y'])
+        # logger.info('get_city_dxy_to_index')
         # logger.info(len(a_map))
         # logger.info(a_map)
         # logger.info(city_tile_map_index)
-        # logger.info("*"*10)
+        # logger.info('*'*10)
         if city_tile_map_index >= len(a_map):
-            fc_logger.info("dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}".format(
-                dx, dy, self.radius, city_tile["x"], city_tile["y"]))
-            fc_logger.info("city_tile_map_index: {}, a_map length: {}".format(city_tile_map_index, len(a_map)))
+            fc_logger.info('dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}'.format(
+                dx, dy, self.radius, city_tile['x'], city_tile['y']))
+            fc_logger.info('city_tile_map_index: {}, a_map length: {}'.format(city_tile_map_index, len(a_map)))
         return a_map[city_tile_map_index]
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     fc_logger.info(MapCtrl.dir_get_name(7))
     fc_logger.info(MapCtrl.dir_get_name(MapCtrl.dir_ccw(7)))
     fc_logger.info(MapCtrl.dir_get_name(MapCtrl.dir_cw(7)))

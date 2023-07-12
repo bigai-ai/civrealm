@@ -38,7 +38,7 @@ def player_invention_state(pplayer, tech_id):
       If pplayer is None this checks whether any player knows the tech (used
       by the client).
     """
-    if (pplayer is None) or ("inventions" not in pplayer) or tech_id >= len(pplayer["inventions"]):
+    if (pplayer is None) or ('inventions' not in pplayer) or tech_id >= len(pplayer['inventions']):
         return TECH_UNKNOWN
     else:
         # /* Research can be None in client when looking for tech_leakage
@@ -51,3 +51,17 @@ def player_invention_state(pplayer, tech_id):
     # } else {
     #  return TECH_UNKNOWN
     # }*/
+
+
+def can_player_build_unit_direct(pplayer, punittype):
+        """
+        Whether player can build given unit somewhere,
+        ignoring whether unit is obsolete and assuming the
+        player has a coastal city.
+        """
+        if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
+            return False
+
+        # FIXME: add support for global advances, check for building reqs etc.*/
+
+        return True

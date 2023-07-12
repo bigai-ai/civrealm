@@ -14,8 +14,7 @@
 
 import urllib
 
-from freeciv_gym.freeciv.research.tech_ctrl import TechCtrl
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, is_tech_prereq_known
+from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, is_tech_prereq_known, can_player_build_unit_direct
 
 from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
@@ -613,7 +612,7 @@ class ActUpgrade(UnitAction):
         if self.focus.pcity is None:
             return False
         return self.focus.ptype != None and self.focus.obsolete_type != None and \
-            TechCtrl.can_player_build_unit_direct(self.focus.pplayer, self.focus.obsolete_type)
+            can_player_build_unit_direct(self.focus.pplayer, self.focus.obsolete_type)
 
     def _action_packet(self):
         target_id = self.focus.pcity['id'] if self.focus.pcity != None else 0

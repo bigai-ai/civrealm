@@ -40,19 +40,20 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
  *    have is also within Alliance range). */
 """
 REQ_RANGE_LOCAL = 0
-REQ_RANGE_CADJACENT = 1
-REQ_RANGE_ADJACENT = 2
-REQ_RANGE_CITY = 3
-REQ_RANGE_TRADEROUTE = 4
-REQ_RANGE_CONTINENT = 5
-REQ_RANGE_PLAYER = 6
-REQ_RANGE_TEAM = 7
-REQ_RANGE_ALLIANCE = 8
-REQ_RANGE_WORLD = 9
-REQ_RANGE_COUNT = 10  # /* keep this last */
+REQ_RANGE_TILE = 1
+REQ_RANGE_CADJACENT = 2
+REQ_RANGE_ADJACENT = 3
+REQ_RANGE_CITY = 4
+REQ_RANGE_TRADEROUTE = 5
+REQ_RANGE_CONTINENT = 6
+REQ_RANGE_PLAYER = 7
+REQ_RANGE_TEAM = 8
+REQ_RANGE_ALLIANCE = 9
+REQ_RANGE_WORLD = 10
+REQ_RANGE_COUNT = 11   #/* Keep this last */
 
 
-class ReqCtrl():
+class ReqInfo():
     def __init__(self):
         pass
 
@@ -81,18 +82,16 @@ class ReqCtrl():
             result = TRI_YES
         elif req['kind'] == VUT_ADVANCE:
             # /* The requirement is filled if the player owns the tech. */
-            result = ReqCtrl.is_tech_in_range(target_player, req['range'], req['value'])
-        elif req['kind'] in [VUT_GOVERNMENT, VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION,
-                             VUT_UTYPE, VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE,
-                             VUT_SPECIALIST, VUT_MINSIZE, VUT_AI_LEVEL, VUT_TERRAINCLASS,
-                             VUT_MINYEAR, VUT_TERRAINALTER, VUT_CITYTILE, VUT_GOOD, VUT_TERRFLAG,
-                             VUT_NATIONALITY, VUT_ROADFLAG, VUT_EXTRA, VUT_TECHFLAG,
-                             VUT_ACHIEVEMENT, VUT_DIPLREL, VUT_MAXTILEUNITS, VUT_STYLE,
-                             VUT_MINCULTURE, VUT_UNITSTATE, VUT_MINMOVES, VUT_MINVETERAN,
-                             VUT_MINHP, VUT_AGE, VUT_NATIONGROUP, VUT_TOPO, VUT_IMPR_GENUS,
-                             VUT_ACTION, VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG,
-                             VUT_SERVERSETTING]:
+            result = ReqInfo.is_tech_in_range(target_player, req['range'], req['value'])
+        elif req['kind'] == VUT_GOVERNMENT:
+            # /* The requirement is filled if the player is using the government. */
+            if target_player == None:
+                result = TRI_MAYBE
+            else:                
+                result = TRI_YES if target_player['government'] == req['value'] else TRI_NO
 
+        elif req['kind'] in [VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION, VUT_UTYPE, VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE, VUT_SPECIALIST, VUT_MINSIZE, VUT_AI_LEVEL, VUT_TERRAINCLASS, VUT_MINYEAR, VUT_TERRAINALTER, VUT_CITYTILE, VUT_GOOD, VUT_TERRFLAG, VUT_NATIONALITY, VUT_ROADFLAG, VUT_EXTRA, VUT_TECHFLAG, VUT_ACHIEVEMENT, VUT_DIPLREL, VUT_MAXTILEUNITS, VUT_STYLE, VUT_MINCULTURE, VUT_UNITSTATE, VUT_MINMOVES, VUT_MINVETERAN, VUT_MINHP, VUT_AGE, VUT_NATIONGROUP, VUT_TOPO, VUT_IMPR_GENUS, VUT_ACTION, VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING]:
+                        
             # //FIXME: implement
             fc_logger.warning("Unimplemented requirement type " + req['kind'])
 
@@ -126,7 +125,7 @@ class ReqCtrl():
         """
 
         for req in reqs:
-            if not ReqCtrl.is_req_active(target_player, req, prob_type):
+            if not ReqInfo.is_req_active(target_player, req, prob_type):
                 return False
         return True
 
@@ -138,17 +137,13 @@ class ReqCtrl():
             target = TRI_YES if is_tech_known(target_player, tech) else TRI_NO
             return target_player != None and target
 
-        # elif trange in [REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE, REQ_RANGE_WORLD]:
-        elif trange in [REQ_RANGE_WORLD]:
+        elif trange in [REQ_RANGE_WORLD, REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE]:
             # /* FIXME: Add support for the above ranges. Freeciv's implementation
             # * currently (25th Jan 2017) lives in common/requirements.c */
-            fc_logger.warning("Unimplemented tech requirement range %s" % trange)
+            fc_logger.warning(f'Unimplemented tech requirement range {trange}')
             return TRI_MAYBE
-        elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT,
-                        REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT,
-                        REQ_RANGE_COUNT]:
-
-            fc_logger.warning("Invalid tech req range %s" % trange)
+        elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_TILE, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT, REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT, REQ_RANGE_COUNT]:
+            fc_logger.warning(f'Invalid tech req range {trange}')
             return TRI_MAYBE
         else:
             return TRI_MAYBE

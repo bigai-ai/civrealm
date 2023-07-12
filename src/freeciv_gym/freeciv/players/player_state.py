@@ -95,11 +95,11 @@ class PlayerState(PlainState):
             self._state[op_id + "plr_type"] = "Human"
 
         if pplayer["real_embassy"][opponent["playerno"]]:
-            self.update_opponent_state_embassy(opponent, op_id)
+            self.show_intelligence_report_embassy(opponent, op_id)            
         else:
-            self.update_opponent_state_hearsay(opponent, op_id)
+            self.show_intelligence_report_hearsay(opponent, op_id)
 
-    def update_opponent_state_hearsay(self, pplayer, op_id):
+    def show_intelligence_report_hearsay(self, pplayer, op_id):
         """ Return opponent intelligence intelligence when there's no embassy."""
 
         if pplayer['government'] > 0:
@@ -113,7 +113,7 @@ class PlayerState(PlainState):
             self._state[op_id + "research"] = pplayer['researching']
             self._state[op_id + "research_name"] = self.rule_ctrl.techs[pplayer['researching']]['name']
 
-    def update_opponent_state_embassy(self, pplayer, op_id):
+    def show_intelligence_report_embassy(self, pplayer, op_id):
         """ Return opponent intelligence intelligence when there's an embassy."""
 
         for a_field in ["gold", "tax", "science", "luxury"]:

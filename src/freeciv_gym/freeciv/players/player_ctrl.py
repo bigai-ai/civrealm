@@ -23,8 +23,6 @@ from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI
 from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 
 from freeciv_gym.freeciv.city.city_state import CityState
-from freeciv_gym.freeciv.research.tech_helpers import TECH_KNOWN
-
 
 class PlayerCtrl(CivPropController):
     def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
@@ -34,6 +32,7 @@ class PlayerCtrl(CivPropController):
         self.rule_ctrl = rule_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.players = {}
+        # Include the data of the Player himself and the other players who have been met.
         self.research_data = {}
         self.endgame_player_info = []
 
@@ -43,8 +42,7 @@ class PlayerCtrl(CivPropController):
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
-        self.register_handler(58, "handle_player_attribute_chunk")
-        self.register_handler(60, "handle_research_info")
+        self.register_handler(58, "handle_player_attribute_chunk")        
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -244,24 +242,6 @@ class PlayerCtrl(CivPropController):
             return play_options, player_list
         else:
             return [], []
-
-    def handle_research_info(self, packet):
-        old_inventions = None
-        if packet['id'] in self.research_data:
-            old_inventions = self.research_data[packet['id']]['inventions']
-
-        self.research_data[packet['id']] = packet
-
-        pplayer = self.players[packet['id']]
-        pplayer.update(packet)
-        del pplayer['id']
-
-        if (not self.clstate.client_is_observer() and old_inventions != None and
-                self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
-            for i, invention in enumerate(packet['inventions']):
-                if invention != old_inventions[i] and invention == TECH_KNOWN:
-                    # queue_tech_gained_dialog(i)
-                    break
 
     def handle_player_info(self, packet):
         """ Interpret player flags."""

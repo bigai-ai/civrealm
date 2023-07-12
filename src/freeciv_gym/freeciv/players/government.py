@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, 
 from freeciv_gym.freeciv.utils import base_action
 from freeciv_gym.freeciv.utils.base_action import ActionList
 from freeciv_gym.freeciv.utils.base_state import PlainState
-from freeciv_gym.freeciv.research.req_info import ReqCtrl
+from freeciv_gym.freeciv.research.req_info import ReqInfo
 
 REPORT_WONDERS_OF_THE_WORLD = 0
 REPORT_TOP_5_CITIES = 1
@@ -123,7 +123,7 @@ class ChangeGovernment(base_action.Action):
 
         pplayer = self.pplayer
         return self.city_ctrl.player_has_wonder(pplayer["playerno"], 63) or \
-            ReqCtrl.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
+            ReqInfo.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
                                     RPT_CERTAIN)
 
     def _action_packet(self):

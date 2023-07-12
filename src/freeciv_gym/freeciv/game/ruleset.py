@@ -434,66 +434,24 @@ class RulesetCtrl(CivPropController):
         return result
 
     def get_improvements_from_tech(self, tech_id):
-        """Returns a list containing improvements which are available from a tech."""
+        """Returns a list containing improvement buildings which are available from a tech."""
         result = []
         for improvement_id in self.improvements:
             pimprovement = self.improvements[improvement_id]
-            reqs = self.get_improvement_requirements(improvement_id)
+            reqs = self.get_improvement_requirements(pimprovement)
             for req in reqs:
                 if req == tech_id:
                     result.append(pimprovement)
         return result
 
-    def get_improvement_requirements(self, improvement_id):
+    def get_improvement_requirements(self, improvement):
         """returns list of tech ids which are a requirement for the given improvement"""
-        result = []
-        improvement = self.improvements[improvement_id]
+        result = []        
         if improvement != None and improvement['reqs'] != None:
             for req in improvement['reqs']:
                 if req['kind'] == 1 and req['present']:
                     result.append(req['value'])
-        return result
-
-    def is_tech_req_for_goal(self, check_tech_id, goal_tech_id):
-        """
-         Determines if the technology 'check_tech_id' is a requirement
-         for reaching the technology 'goal_tech_id'.
-        """
-        if check_tech_id == goal_tech_id:
-            return True
-        if goal_tech_id == 0 or check_tech_id == 0:
-            return False
-
-        if goal_tech_id not in self.techs:
-            return False
-
-        goal_tech = self.techs[goal_tech_id]
-
-        for rid in goal_tech['req']:
-            if rid == check_tech_id:
-                return True
-            elif self.is_tech_req_for_goal(check_tech_id, rid):
-                return True
-        return False
-
-    def is_tech_req_for_tech(self, check_tech_id, next_tech_id):
-        """
-         Determines if the technology 'check_tech_id' is a direct requirement
-         for reaching the technology 'next_tech_id'.
-        """
-        if check_tech_id == next_tech_id:
-            return False
-        if next_tech_id == 0 or check_tech_id == 0:
-            return False
-
-        next_tech = self.techs[next_tech_id]
-        if next_tech is None:
-            return False
-
-        for rid in next_tech['req']:
-            if check_tech_id == rid:
-                return True
-        return False
+        return result    
 
     @staticmethod
     def universal_build_shield_cost(target):

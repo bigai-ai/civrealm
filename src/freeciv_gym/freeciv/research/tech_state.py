@@ -15,35 +15,36 @@
 from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
 from freeciv_gym.freeciv.utils.fc_types import RPT_CERTAIN
 from freeciv_gym.freeciv.research.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
-from freeciv_gym.freeciv.research.req_info import ReqCtrl
+from freeciv_gym.freeciv.research.req_info import ReqInfo
 from freeciv_gym.freeciv.research import tech_helpers
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class TechState(ListState):
-    def __init__(self, rule_ctrl, tech_ctrl):
+    def __init__(self, rule_ctrl, clstate):
         super().__init__()
         self.rule_ctrl = rule_ctrl
-        self.tech_ctrl = tech_ctrl
+        self.clstate = clstate
 
     def _update_state(self, pplayer):
         if self._state == {}:
             self.init_tech_state()
-
+        player = self.clstate.cur_player()
         for tech_id in self._state.keys():
             ptech = self.rule_ctrl.techs[tech_id]
             cur_tech = self._state[tech_id]
-            cur_tech['is_researching'] = pplayer['researching'] == ptech['id']
-            cur_tech['is_tech_goal'] = pplayer['tech_goal'] == ptech['id']
-            cur_tech['inv_state'] = tech_helpers.player_invention_state(pplayer, ptech['id'])
-            cur_tech['is_req_for_goal'] = self.rule_ctrl.is_tech_req_for_goal(ptech['id'],
-                                                                              pplayer['tech_goal'])
+            cur_tech['is_researching'] = player['researching'] == ptech['id']
+            cur_tech['is_tech_goal'] = player['tech_goal'] == ptech['id']
+            # cur_tech in the Player's tech invention state can be TECH_KNOWN/TECH_UNKNOWN/TECH_PREREQS_KNOWN.
+            cur_tech['inv_state'] = tech_helpers.player_invention_state(player, ptech['id'])
+            cur_tech['is_req_for_goal'] = self.is_tech_req_for_goal(ptech['id'], player['tech_goal'])
 
+            # Check whether each req of cur_tech is known or not. The req could be based on the player's research progress or the government ID.
             cur_tech['reqs'] = {}
             for req in ptech['research_reqs']:
-                req_active = ReqCtrl.is_req_active(pplayer, req, RPT_CERTAIN)
-                self._state[tech_id]['reqs'][req['value']] = req_active
+                req_active = ReqInfo.is_req_active(player, req, RPT_CERTAIN)
+                cur_tech['reqs'][req['value']] = req_active
 
     def init_tech_state(self):
         if self.rule_ctrl.ruleset_control['name'] == "Civ2Civ3 ruleset":
@@ -61,7 +62,50 @@ class TechState(ListState):
             str_id = "%i" % tech_id
             if str_id not in self.reqtree or self.reqtree[str_id] is None:
                 continue
-
+            
             self._state[tech_id] = cur_tech = {'name': ptech['name']}
+            # Get the units which are supported by cur_tech
             cur_tech['sup_units'] = self.rule_ctrl.get_units_from_tech(tech_id)
-            cur_tech['sup_improvements'] = self.rule_ctrl.get_improvements_from_tech(tech_id)
+            # Get the improvement buildings which are supported by cur_tech
+            cur_tech['sup_improvements'] = self.rule_ctrl.get_improvements_from_tech(tech_id)            
+
+    def is_tech_req_for_goal(self, check_tech_id, goal_tech_id):
+        """
+         Determines if the technology 'check_tech_id' is a requirement
+         for reaching the technology 'goal_tech_id'.
+        """
+        if check_tech_id == goal_tech_id:
+            return True
+        if goal_tech_id == 0 or check_tech_id == 0:
+            return False
+
+        if goal_tech_id not in self.rule_ctrl.techs:
+            return False
+
+        goal_tech = self.rule_ctrl.techs[goal_tech_id]
+
+        for rid in goal_tech['req']:
+            if rid == check_tech_id:
+                return True
+            elif self.is_tech_req_for_goal(check_tech_id, rid):
+                return True
+        return False
+    
+    def is_tech_req_for_tech(self, check_tech_id, next_tech_id):
+        """
+         Determines if the technology 'check_tech_id' is a direct requirement
+         for reaching the technology 'next_tech_id'.
+        """
+        if check_tech_id == next_tech_id:
+            return False
+        if next_tech_id == 0 or check_tech_id == 0:
+            return False
+
+        next_tech = self.rule_ctrl.techs[next_tech_id]
+        if next_tech is None:
+            return False
+
+        for rid in next_tech['req']:
+            if check_tech_id == rid:
+                return True
+        return False

@@ -131,7 +131,7 @@ class CivController(CivPropController):
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
 
-        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
+        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl, self.clstate)
         self.city_ctrl = CityCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl, self.clstate,
                                   self.game_ctrl, self.map_ctrl)
 

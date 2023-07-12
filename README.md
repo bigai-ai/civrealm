@@ -79,7 +79,7 @@ As a standard, the official docker image from the [official repository](https://
 For an initial start on training models on freeciv-web - see the example installed by running
 
 ```bash
-test_freeciv_web_gym
+test_freeciv_gym
 ```
 
 It will run gym_freeciv_web/random_game with the key class RandomAgent(object). The central function is

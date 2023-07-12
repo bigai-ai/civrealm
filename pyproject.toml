@@ -38,5 +38,5 @@ test_freeciv_gym = "freeciv_gym.random_game:main"
 addopts = [
     "--import-mode=importlib",
     "-s", # show print statements in console 
-    "test_build_city.py", # specify which test file to run
+    "tests/test_move_to.py", # specify which test file to run
 ]

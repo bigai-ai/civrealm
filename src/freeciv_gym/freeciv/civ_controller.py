@@ -171,7 +171,12 @@ class CivController(CivPropController):
         """
         Lock the control of the game. This is a blocking function, should be called when the player is waiting for the server to respond and should not be able to act.
         """
-        self.ws_client.start_ioloop()
+        try:
+            self.ws_client.start_ioloop()
+        except KeyboardInterrupt:
+            self.delete_save_game()
+            self.ws_client.close()
+        
 
     def init_game(self):
         """

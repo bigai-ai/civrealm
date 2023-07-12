@@ -64,7 +64,7 @@ class WebSocketClient(object):
         try:
             ioloop.IOLoop.current().start()
         except KeyboardInterrupt:
-            self.close()
+            raise KeyboardInterrupt            
 
     @final
     def stop_ioloop(self):

@@ -210,8 +210,23 @@ class CityChangeProduction(Action):
             return False
         return self._is_prod_valid()
 
+    @staticmethod
+    def can_city_build_unit_now(pcity, punittype_id):
+        return (pcity != None and pcity['can_build_unit'] != None
+                and punittype_id < len(pcity['can_build_unit'])
+                and pcity['can_build_unit'][punittype_id] > 0)
+
+    @staticmethod
+    def can_city_build_improvement_now(pcity, pimprove_id):
+        return (pcity != None and pcity['can_build_improvement'] != None
+                and pimprove_id < len(pcity['can_build_improvement'])
+                and pcity['can_build_improvement'][pimprove_id] > 0)
+
     def _is_prod_valid(self):
-        raise Exception("To be overwritten")
+        if self.prod_kind == VUT_UTYPE:
+            return self.can_city_build_unit_now(self.pcity, self.prod_value)
+        else:
+            return self.can_city_build_improvement_now(self.pcity, self.prod_value)
 
     @staticmethod
     def worklist_not_empty(pcity):

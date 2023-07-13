@@ -47,6 +47,18 @@ cd /docker/freeciv-web
 sh build.sh
 ```
 
+After that, commit the current `freeciv-web` container into a new image and use that image to build containers from now on.
+
+For example:
+
+```bash
+docker commit freeciv-web freeciv/freeciv-web:v2
+docker compose down
+# manually modify the image in docker-compose.yml to freeciv/freeciv-web:v2
+docker compose up -d
+```
+
+
 ## Installation
 
 ### Installation for gym users

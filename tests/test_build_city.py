@@ -15,7 +15,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.map.map_ctrl import DIR8_SOUTH
+import freeciv_gym.freeciv.map.map_const as map_const
 
 @pytest.fixture
 def controller():
@@ -42,7 +42,7 @@ def test_build_city(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 137:
-            test_action_list.append(valid_actions[f'goto_{DIR8_SOUTH}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTH}'])
             build_action = valid_actions['build']
         else:
             pass

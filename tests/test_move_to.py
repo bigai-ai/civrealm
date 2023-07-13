@@ -15,7 +15,8 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST, DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
+import freeciv_gym.freeciv.map.map_const as map_const
+
 
 @pytest.fixture
 def controller():
@@ -43,23 +44,23 @@ def test_move_to(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140:
-            test_action_list.append(valid_actions[f'goto_{DIR8_EAST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
             # goto_south is not a valid action for this unit.
-            assert(f'goto_{DIR8_SOUTH}' not in valid_actions)        
+            assert(f'goto_{map_const.DIR8_SOUTH}' not in valid_actions)        
         elif unit_id == 166:
-            test_action_list.append(valid_actions[f'goto_{DIR8_NORTHWEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHWEST}'])
         elif unit_id == 185:
-            test_action_list.append(valid_actions[f'goto_{DIR8_SOUTH}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTH}'])
         elif unit_id == 158:
-            test_action_list.append(valid_actions[f'goto_{DIR8_SOUTHWEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTHWEST}'])
         elif unit_id == 156:
-            test_action_list.append(valid_actions[f'goto_{DIR8_WEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
         elif unit_id == 138:
-            test_action_list.append(valid_actions[f'goto_{DIR8_NORTH}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
         elif unit_id == 137:
-            test_action_list.append(valid_actions[f'goto_{DIR8_NORTHEAST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'])
         elif unit_id == 139:
-            test_action_list.append(valid_actions[f'goto_{DIR8_SOUTHEAST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'])
         else:
             pass
     # Perform goto action for each unit

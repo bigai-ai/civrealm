@@ -7,6 +7,7 @@ authors = [
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
     {name = "Shuo Chen", email = "chenshuo@bigai.ai"},
     {name = "Xiangyu Kong", email = "kongxiangyu@bigai.ai"},
+    {name = "Junqi Wang", email = "wangjunqi@bigai.ai"},
     {name = "Zhaowei Zhang", email = "zhangzhaowei@bigai.ai"},
     {name = "Yexin Li", email = "liyexin@bigai.ai"},
 ]
@@ -36,5 +37,5 @@ test_freeciv_gym = "freeciv_gym.random_game:main"
 addopts = [
     "--import-mode=importlib",
     "-s", # show print statements in console 
-    "tests/test_build_road.py", # specify which test file to run
+    "tests/test_move_to.py", # specify which test file to run
 ]

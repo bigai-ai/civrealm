@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, 
 from freeciv_gym.freeciv.utils import base_action
 from freeciv_gym.freeciv.utils.base_action import ActionList
 from freeciv_gym.freeciv.utils.base_state import PlainState
-from freeciv_gym.freeciv.research.req_info import ReqInfo
+from freeciv_gym.freeciv.tech.req_info import ReqInfo
 
 REPORT_WONDERS_OF_THE_WORLD = 0
 REPORT_TOP_5_CITIES = 1

@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE
     CLAUSE_TXT
 
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, player_invention_state,\
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state,\
     TECH_UNKNOWN, TECH_PREREQS_KNOWN
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger

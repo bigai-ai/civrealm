@@ -12,16 +12,18 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ADVANCES
 from freeciv_gym.freeciv.misc.freeciv_wiki import freeciv_wiki_docs
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.research.tech_state import TechState
-from freeciv_gym.freeciv.research.tech_actions import TechActions
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, TECH_KNOWN
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.tech.tech_state import TechState
+from freeciv_gym.freeciv.tech.tech_actions import TechActions
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
+"""
+/* TECH_KNOWN is self-explanatory, TECH_PREREQS_KNOWN are those for which all
+ * requirements are fulfilled all others (including those which can never
+ * be reached) are TECH_UNKNOWN */
+"""
 
 AR_ONE = 0
 AR_TWO = 1
@@ -51,63 +53,22 @@ typedef int Tech_type_id
  * sometimes add and substract these numbers.
  */
 """
-A_NONE = 0
-A_FIRST = 1
-A_LAST = MAX_NUM_ADVANCES + 1
-A_UNSET = A_LAST + 1
-A_FUTURE = A_LAST + 2
-A_UNKNOWN = A_LAST + 3
-A_LAST_REAL = A_UNKNOWN
-
-A_NEVER = None
-U_NOT_OBSOLETED = None
 
 
 class TechCtrl(CivPropController):
-    # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, player_ctrl, clstate):
-    def __init__(self, ws_client, rule_ctrl, player_ctrl, clstate):
+    def __init__(self, ws_client, rule_ctrl: RulesetCtrl, clstate):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
-        self.player_ctrl = player_ctrl
         self.clstate = clstate
         self.reqtree = None
 
         self.prop_state = TechState(rule_ctrl, clstate)
-        self.prop_actions = TechActions(ws_client, rule_ctrl)
+        self.prop_actions = TechActions(ws_client, rule_ctrl, clstate)
         self.is_tech_tree_init = False
         self.wikipedia_url = "http://en.wikipedia.org/wiki/"
 
     def register_all_handlers(self):
-        self.register_handler(60, "handle_research_info")
-
-    def handle_research_info(self, packet):
-        old_inventions = None
-        if packet['id'] in self.player_ctrl.research_data:
-            old_inventions = self.player_ctrl.research_data[packet['id']]['inventions']
-
-        self.player_ctrl.research_data[packet['id']] = packet
-
-        # TODO: implement for "team_pooled_research" setting
-        # if (game_info['team_pooled_research']) {
-        #     for (var player_id in players) {
-        #     var pplayer = players[player_id];
-        #     if (pplayer['team'] == packet['id']) {
-        #         pplayer = $.extend(pplayer, packet);
-        #         delete pplayer['id'];
-        #     }
-        #     }
-        # }
-
-        pplayer = self.player_ctrl.players[packet['id']]
-        pplayer.update(packet)
-        del pplayer['id']
-
-        if (not self.clstate.client_is_observer() and old_inventions != None and
-                self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
-            for i, invention in enumerate(packet['inventions']):
-                if invention != old_inventions[i] and invention == TECH_KNOWN:
-                    fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")                    
-                    break
+        pass
     
     def get_wiki_tech_info(self, tech_name):
         if freeciv_wiki_docs is None or freeciv_wiki_docs[tech_name] is None:

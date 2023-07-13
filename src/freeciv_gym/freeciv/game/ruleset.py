@@ -14,11 +14,11 @@
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import VUT_ADVANCE
-from freeciv_gym.freeciv.research.tech_ctrl import A_NONE
+from freeciv_gym.freeciv.tech.tech_helpers import A_NONE
 import sys
 
 from freeciv_gym.freeciv.game.info_states import RuleState
-from freeciv_gym.freeciv.research.req_info import REQ_RANGE_PLAYER
+from freeciv_gym.freeciv.tech.req_info import REQ_RANGE_PLAYER
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -42,8 +42,6 @@ EXTRA_RIVER = 117 #13
 Freeciv Web Client.
 This file contains the handling-code for packets from the civserver.
 """
-
-U_NOT_OBSOLETED = None
 
 
 class RulesetCtrl(CivPropController):

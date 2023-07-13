@@ -31,7 +31,7 @@ from freeciv_gym.freeciv.game.options_ctrl import OptionCtrl
 from freeciv_gym.freeciv.units.unit_ctrl import UnitCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
-from freeciv_gym.freeciv.research.tech_ctrl import TechCtrl
+from freeciv_gym.freeciv.tech.tech_ctrl import TechCtrl
 
 from freeciv_gym.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
 from freeciv_gym.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
@@ -131,7 +131,7 @@ class CivController(CivPropController):
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
 
-        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl, self.clstate)
+        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.clstate)
         self.city_ctrl = CityCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl, self.clstate,
                                   self.game_ctrl, self.map_ctrl)
 
@@ -561,7 +561,7 @@ class CivController(CivPropController):
             if pplayer == None:
                 return
 
-            # Insert player info into connection info packet. 'playing' means the player is still playing the game
+            # Insert player info into connection info packet. 'playing' means the player is playing the game with this connection.
             packet['playing'] = pplayer
             # If the connection info is about the client itself
             if self.clstate.has_id(packet["id"]):

@@ -17,10 +17,11 @@ from gymnasium.spaces import Box, Dict, Discrete, Tuple
 
 from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
 from freeciv_gym.freeciv.utils.fc_types import RPT_CERTAIN
-from freeciv_gym.freeciv.research.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
-from freeciv_gym.freeciv.research.req_info import ReqInfo
-from freeciv_gym.freeciv.research import tech_helpers
-
+from freeciv_gym.freeciv.tech.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
+from freeciv_gym.freeciv.tech.req_info import ReqInfo
+from freeciv_gym.freeciv.tech import tech_helpers
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
@@ -28,7 +29,7 @@ class TechState(ListState):
     UPPER_TECH_STATUS = 2
     UPPER_BULB_BOUND = 10000
 
-    def __init__(self, rule_ctrl, clstate):
+    def __init__(self, rule_ctrl: RulesetCtrl, clstate: ClientState):
         super().__init__()
         self.rule_ctrl = rule_ctrl
         self.clstate = clstate

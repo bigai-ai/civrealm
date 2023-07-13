@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.base_state import PlainState
-from freeciv_gym.freeciv.research.tech_helpers import TECH_KNOWN
+from freeciv_gym.freeciv.tech.tech_helpers import TECH_KNOWN
 
 MAX_NUM_PLAYERS = 30
 MAX_AI_LOVE = 1000
@@ -34,7 +34,8 @@ class PlayerState(PlainState):
         self.diplstates = diplstates
         self.players = players
 
-    def _update_state(self, pplayer):
+    def _update_state(self, player):
+        pplayer = self.clstate.cur_player()
         player_id = pplayer["playerno"]
         player_fields = ["culture", "current_research_cost", "gold", "government", "is_alive",
                          "luxury", "mood", "nation", "net_income", "revolution_finishes",

@@ -47,10 +47,14 @@ class CityActions(ActionList):
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
                     work_act = CityWorkTile(pcity, dx, dy, self.city_map)
-                    if work_act.output_idx == None:
+                    unwork_act = CityUnworkTile(pcity, dx, dy, self.city_map)
+
+                    if work_act.output_idx == None or (dx == 0 and dy == 0):
                         continue
-                    self.add_action(city_id, work_act)
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
+                    if work_act.is_action_valid():
+                        self.add_action(city_id, work_act)
+                    if unwork_act.is_action_valid():
+                        self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
 
             for specialist_num in range(MAX_SPECIALISTS):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))

@@ -26,7 +26,7 @@ def controller():
     controller.handle_end_turn(None)
     controller.close()
 
-def test_cultivate(controller):
+def test_plant(controller):
     controller.init_network()
     controller.get_observation()
     options= controller.turn_manager.get_available_actions()
@@ -41,7 +41,7 @@ def test_cultivate(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.constDIR8_WEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
         else:
             pass
     print('Move to the west tile which has forest')
@@ -58,22 +58,22 @@ def test_cultivate(controller):
     punit = unit_opt.unit_ctrl.units[worker_id]        
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    cultivate_action = valid_actions['cultivate']
+    plant_action = valid_actions['plant']
     print(f"Unit id: {worker_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")        
-    assert(cultivate_action.is_action_valid())
-    assert(unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
-    cultivate_action.trigger_action(controller.ws_client)
-    print('Begin cultivating, needs a few turns to finish ...')
+    assert(plant_action.is_action_valid())
+    assert(unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] != 'Forest')
+    plant_action.trigger_action(controller.ws_client)
+    print('Begin planting, needs a few turns to finish ...')
     # Wait for 15 turns (until the work is done)
     for turn_i in range(15):
         controller.send_end_turn()
         controller.get_observation()
-    assert(unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] != 'Forest')
+    assert(unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
 
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    test_cultivate(controller)
+    test_plant(controller)
 
 
 if __name__ == '__main__':

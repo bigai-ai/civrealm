@@ -68,6 +68,7 @@ class ControllerAgent(BaseAgent):
                            'irrigation': random.random()*0.2,
                            'mine': random.random()*0.2,
                            'cultivate': random.random()*0.2,
+                           'plant': random.random()*0.2,
                            'fortress': random.random()*0.2,
                            'railroad': random.random()*0.2,
                            'airbase': random.random()*0.2,

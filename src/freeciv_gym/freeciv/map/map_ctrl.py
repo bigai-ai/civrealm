@@ -15,79 +15,17 @@
 from math import floor, sqrt
 import functools
 import numpy as np
-from BitVector import BitVector
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.utils.utility import FC_WRAP, byte_to_bit_array, sign
+from freeciv_gym.freeciv.utils.utility import FC_WRAP, sign
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.map.map_state import MapState
+import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-
-
-DIR8_STAY = -1
-DIR8_NORTHWEST = 0
-DIR8_NORTH = 1
-DIR8_NORTHEAST = 2
-DIR8_WEST = 3
-DIR8_EAST = 4
-DIR8_SOUTHWEST = 5
-DIR8_SOUTH = 6
-DIR8_SOUTHEAST = 7
-DIR8_LAST = 8
-DIR8_COUNT = DIR8_LAST
-
-DIR8_NAMES = ['NW', 'N', 'NE', 'W', 'E', 'SW', 'S', 'SE']
-
-DIR8_ORDER = [DIR8_NORTHWEST, DIR8_NORTH, DIR8_NORTHEAST, DIR8_WEST,
-              DIR8_EAST, DIR8_SOUTHWEST, DIR8_SOUTH, DIR8_SOUTHEAST]
-
-# Dict for the next direction clock-wise
-DIR8_CW = {DIR8_NORTHWEST: DIR8_NORTH,
-           DIR8_NORTH: DIR8_NORTHEAST,
-           DIR8_NORTHEAST: DIR8_EAST,
-           DIR8_EAST: DIR8_SOUTHEAST,
-           DIR8_SOUTHEAST: DIR8_SOUTH,
-           DIR8_SOUTH: DIR8_SOUTHWEST,
-           DIR8_SOUTHWEST: DIR8_WEST,
-           DIR8_WEST: DIR8_NORTHWEST}
-
-# Dict for the next direction counter clock-wise
-DIR8_CCW = {DIR8_NORTHWEST: DIR8_WEST,
-            DIR8_NORTH: DIR8_NORTHWEST,
-            DIR8_NORTHEAST: DIR8_NORTH,
-            DIR8_EAST: DIR8_NORTHEAST,
-            DIR8_SOUTHEAST: DIR8_EAST,
-            DIR8_SOUTH: DIR8_SOUTHEAST,
-            DIR8_SOUTHWEST: DIR8_SOUTH,
-            DIR8_WEST: DIR8_SOUTHWEST}
-
-TF_WRAPX = 1
-TF_WRAPY = 2
-TF_ISO = 4
-TF_HEX = 8
-
-"""used to compute neighboring tiles.
- *
- * using
- *   x1 = x + DIR_DX[dir]
- *   y1 = y + DIR_DY[dir]
- * will give you the tile as shown below.
- *   -------
- *   |0|1|2|
- *   |-+-+-|
- *   |3| |4|
- *   |-+-+-|
- *   |5|6|7|
- *   -------
- * Note that you must normalize x1 and y1 yourself.
-"""
-
-DIR_DX = [-1, 0, 1, -1, 1, -1, 0, 1]
-DIR_DY = [-1, -1, -1, 0, 0, 1, 1, 1]
 
 
 class MapCtrl(CivPropController):
@@ -125,7 +63,7 @@ class MapCtrl(CivPropController):
         self.map_info['num_valid_dirs'] = 0
         self.map_info['num_cardinal_dirs'] = 0
 
-        for dir8 in range(DIR8_COUNT):
+        for dir8 in range(map_const.DIR8_COUNT):
             if self.is_valid_dir(dir8):
                 self.map_info['valid_dirs'][self.map_info['num_valid_dirs']] = dir8
                 self.map_info['num_valid_dirs'] += 1
@@ -138,26 +76,26 @@ class MapCtrl(CivPropController):
             self.prop_state.tiles[packet['tile']]['worked'] = packet['id']
 
     def is_valid_dir(self, dir8):
-        if dir8 in [DIR8_SOUTHEAST, DIR8_NORTHWEST]:
+        if dir8 in [map_const.DIR8_SOUTHEAST, map_const.DIR8_NORTHWEST]:
             # /* These directions are invalid in hex topologies. */
-            return not (self.topo_has_flag(TF_HEX) and not self.topo_has_flag(TF_ISO))
-        elif dir8 in [DIR8_NORTHEAST, DIR8_SOUTHWEST]:
+            return not (self.topo_has_flag(map_const.TF_HEX) and not self.topo_has_flag(map_const.TF_ISO))
+        elif dir8 in [map_const.DIR8_NORTHEAST, map_const.DIR8_SOUTHWEST]:
             # /* These directions are invalid in iso-hex topologies. */
-            return not (self.topo_has_flag(TF_HEX) and self.topo_has_flag(TF_ISO))
-        elif dir8 in [DIR8_NORTH, DIR8_EAST, DIR8_SOUTH, DIR8_WEST]:
+            return not (self.topo_has_flag(map_const.TF_HEX) and self.topo_has_flag(map_const.TF_ISO))
+        elif dir8 in [map_const.DIR8_NORTH, map_const.DIR8_EAST, map_const.DIR8_SOUTH, map_const.DIR8_WEST]:
             return True
         else:
             return False
 
     def is_cardinal_dir(self, dir8):
-        if dir8 in [DIR8_NORTH, DIR8_EAST, DIR8_SOUTH, DIR8_WEST]:
+        if dir8 in [map_const.DIR8_NORTH, map_const.DIR8_EAST, map_const.DIR8_SOUTH, map_const.DIR8_WEST]:
             return True
-        elif dir8 in [DIR8_SOUTHEAST, DIR8_NORTHWEST]:
+        elif dir8 in [map_const.DIR8_SOUTHEAST, map_const.DIR8_NORTHWEST]:
             # /* These directions are cardinal in iso-hex topologies. */
-            return self.topo_has_flag(TF_HEX) and self.topo_has_flag(TF_ISO)
-        elif dir8 in [DIR8_NORTHEAST, DIR8_SOUTHWEST]:
+            return self.topo_has_flag(map_const.TF_HEX) and self.topo_has_flag(map_const.TF_ISO)
+        elif dir8 in [map_const.DIR8_NORTHEAST, map_const.DIR8_SOUTHWEST]:
             # /* These directions are cardinal in hexagonal topologies. */
-            return self.topo_has_flag(TF_HEX) and not self.topo_has_flag(TF_ISO)
+            return self.topo_has_flag(map_const.TF_HEX) and not self.topo_has_flag(map_const.TF_ISO)
         else:
             return False
 
@@ -197,7 +135,7 @@ class MapCtrl(CivPropController):
 
     def map_vector_to_sq_distance(self, dx, dy):
         """Return the squared distance for a map vector"""
-        if self.topo_has_flag(TF_HEX):
+        if self.topo_has_flag(map_const.TF_HEX):
             d = self.map_vector_to_distance(dx, dy)
             return d*d
         else:
@@ -205,9 +143,9 @@ class MapCtrl(CivPropController):
 
     def map_vector_to_distance(self, dx, dy):
         """Return the squared distance for a map vector"""
-        if self.topo_has_flag(TF_HEX):
-            if (self.topo_has_flag(TF_ISO) and (dx*dy < 0)) or \
-                    (not self.topo_has_flag(TF_ISO) and (dx*dy > 0)):
+        if self.topo_has_flag(map_const.TF_HEX):
+            if (self.topo_has_flag(map_const.TF_ISO) and (dx*dy < 0)) or \
+                    (not self.topo_has_flag(map_const.TF_ISO) and (dx*dy > 0)):
                 return abs(dx) + abs(dy)
             else:
                 return max(abs(dx), abs(dy))
@@ -220,22 +158,22 @@ class MapCtrl(CivPropController):
         """
         dx = tile1['x'] - tile0['x']
         xsize = self.map_info['xsize']
-        if self.wrap_has_flag(TF_WRAPX):
+        if self.wrap_has_flag(map_const.TF_WRAPX):
             dx = min((dx + xsize) % xsize, (- dx + xsize) % xsize)
 
         dy = tile1['y'] - tile0['y']
         ysize = self.map_info['ysize']
-        if self.wrap_has_flag(TF_WRAPY):
+        if self.wrap_has_flag(map_const.TF_WRAPY):
             dy = min((dy + ysize) % ysize, (- dy + ysize) % ysize)
 
         return dx, dy
 
     def map_distances(self, dx, dy):
-        if self.wrap_has_flag(TF_WRAPX):
+        if self.wrap_has_flag(map_const.TF_WRAPX):
             half_world = floor(self.map_info['xsize'] / 2)
             dx = FC_WRAP(dx + half_world, self.map_info['xsize']) - half_world
 
-        if self.wrap_has_flag(TF_WRAPY):
+        if self.wrap_has_flag(map_const.TF_WRAPY):
             half_world = floor(self.map_info['ysize'] / 2)
             dx = FC_WRAP(dy + half_world, self.map_info['ysize']) - half_world
 
@@ -249,14 +187,14 @@ class MapCtrl(CivPropController):
         if not self.is_valid_dir(dir8):
             return None
 
-        return self.map_pos_to_tile(DIR_DX[dir8] + ptile['x'], DIR_DY[dir8] + ptile['y'])
+        return self.map_pos_to_tile(map_const.DIR_DX[dir8] + ptile['x'], map_const.DIR_DY[dir8] + ptile['y'])
 
     def get_direction_for_step(self, start_tile, end_tile):
         """
             Return the direction which is needed for a step on the map from
             start_tile to end_tile.
         """
-        for dir8 in range(DIR8_LAST):
+        for dir8 in range(map_const.DIR8_LAST):
             test_tile = self.mapstep(start_tile, dir8)
 
             if test_tile == end_tile:
@@ -268,7 +206,7 @@ class MapCtrl(CivPropController):
     def dir_get_name(dir8):
         """Return the debugging name of the direction."""
         try:
-            return DIR8_NAMES[dir8]
+            return map_const.DIR8_NAMES[dir8]
         except KeyError:
             return '[undef]'
 
@@ -276,7 +214,7 @@ class MapCtrl(CivPropController):
     def dir_cw(dir8):
         """Returns the next direction clock-wise."""
         try:
-            return DIR8_CW[dir8]
+            return map_const.DIR8_CW[dir8]
         except KeyError:
             return -1
 
@@ -284,7 +222,7 @@ class MapCtrl(CivPropController):
     def dir_ccw(dir8):
         """Returns the next direction counter clock-wise."""
         try:
-            return DIR8_CCW[dir8]
+            return map_const.DIR8_CCW[dir8]
         except KeyError:
             return -1
 
@@ -296,26 +234,7 @@ class MapCtrl(CivPropController):
                 self.prop_state.tiles[x + y * self.map_info['xsize']]['goto_dir'] = None
 
     def handle_tile_info(self, packet):
-        packet['extras'] = BitVector(bitlist=byte_to_bit_array(packet['extras']))
-        if self.prop_state.state['extras'] is None:
-            extras_shape = (self.map_info['xsize'], self.map_info['ysize'], len(packet['extras']))
-            self.prop_state.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
-
-        ptile = packet['tile']
-        assert self.prop_state.tiles != None
-        assert self.prop_state.tiles[ptile] != None
-
-        self.prop_state.tiles[ptile].update(packet)
-        self.prop_state.state['status'][
-            self.prop_state.tiles[ptile]['x'],
-            self.prop_state.tiles[ptile]['y']] = packet['known']
-        self.prop_state.state['terrain'][
-            self.prop_state.tiles[ptile]['x'],
-            self.prop_state.tiles[ptile]['y']] = packet['terrain']
-        self.prop_state.state['extras'][
-            self.prop_state.tiles[ptile]['x'],
-            self.prop_state.tiles[ptile]['y'],
-            :] = packet['extras']
+        self.prop_state.update_tile(packet, self.map_info)
 
     def handle_set_topology(self, packet):
         """
@@ -425,17 +344,17 @@ class CityTileMap():
     def get_city_tile_map_for_pos(self, x, y):
         """Returns the map of position from city center to index in city_info."""
         wrap_has_flag = self.map_ctrl.wrap_has_flag
-        if wrap_has_flag(TF_WRAPX) and wrap_has_flag(TF_WRAPY):
+        if wrap_has_flag(map_const.TF_WRAPX) and wrap_has_flag(map_const.TF_WRAPY):
             return self.maps[0]
 
         r = self.radius
-        if wrap_has_flag(TF_WRAPX):  # Cylinder with N-S axis
+        if wrap_has_flag(map_const.TF_WRAPX):  # Cylinder with N-S axis
             d = self.delta_tile_helper(y, r, self.map_ctrl.map_info['ysize'])
             if d[2] not in self.maps:
                 self.maps[d[2]] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
             return self.maps[d[2]]
 
-        if wrap_has_flag(TF_WRAPY):  # Cylinder with E-W axis
+        if wrap_has_flag(map_const.TF_WRAPY):  # Cylinder with E-W axis
             d = self.delta_tile_helper(x, r, self.map_ctrl.map_info['xsize'])
             if d[2] not in self.maps:
                 self.maps[d[2]] = self.build_city_tile_map_with_limits(d[0], d[1], -r, r)

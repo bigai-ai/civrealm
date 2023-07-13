@@ -14,8 +14,10 @@
 
 import gymnasium
 import numpy as np
+from BitVector import BitVector
 
 from freeciv_gym.freeciv.utils.base_state import PlainState
+from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 
@@ -59,8 +61,8 @@ class MapState(PlainState):
                 tile = self.tile_init(tile)
                 self.tiles.append(tile)
 
-
-    def tile_init(self, tile):
+    @staticmethod
+    def tile_init(tile):
         tile['known'] = None  # /* tile_known in C side */
         tile['seen'] = {}  # /* tile_seen in C side */
         tile['specials'] = []
@@ -75,10 +77,30 @@ class MapState(PlainState):
         tile['nuke'] = 0
         return tile
 
+    def update_tile(self, tile_packet, map_info):
+        tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
+        if self.state['extras'] is None:
+            extras_shape = (map_info['xsize'], map_info['ysize'], len(tile_packet['extras']))
+            self.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
+
+        ptile = tile_packet['tile']
+        assert self.tiles != None
+        assert self.tiles[ptile] != None
+
+        self.tiles[ptile].update(tile_packet)
+        self.state['status'][
+            self.tiles[ptile]['x'],
+            self.tiles[ptile]['y']] = tile_packet['known']
+        self.state['terrain'][
+            self.tiles[ptile]['x'],
+            self.tiles[ptile]['y']] = tile_packet['terrain']
+        self.state['extras'][
+            self.tiles[ptile]['x'],
+            self.tiles[ptile]['y'], :] = tile_packet['extras']
+
     def get_observation_space(self):
         map_shape = self._state['status'].shape
-        extras_shape = self._state['status'].shape
-        # FIXME: confirm the range of the observation space
+        extras_shape = self._state['extras'].shape
         self._observation_space = gymnasium.spaces.Dict({
             'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
             'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains), shape=map_shape, dtype=int),
@@ -90,4 +112,4 @@ class MapState(PlainState):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
 
     def _update_state(self, pplayer):
-        return self._state
+        return

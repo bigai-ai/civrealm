@@ -15,7 +15,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH
+import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_build_road(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{DIR8_NORTH}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
             build_action = valid_actions['road']
         else:
             pass

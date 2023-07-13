@@ -44,7 +44,7 @@ from freeciv_gym.freeciv.units.action_dialog import action_prob_possible, encode
 from freeciv_gym.freeciv.map.tile import TileState
 # from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
 #     DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
-from freeciv_gym.freeciv.map.map_ctrl import DIR8_ORDER
+import freeciv_gym.freeciv.map.map_const as map_const
 
 
 class FocusUnit():
@@ -166,7 +166,7 @@ class UnitActions(ActionList):
 
         # for dir8 in [DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST, DIR8_SOUTH,
         #              DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]:
-        for dir8 in DIR8_ORDER:
+        for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
 
     def _can_actor_act(self, unit_id):

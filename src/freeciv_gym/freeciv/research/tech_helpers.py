@@ -12,6 +12,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+"""
+/* TECH_KNOWN is self-explanatory, TECH_PREREQS_KNOWN are those for which all
+ * requirements are fulfilled all others (including those which can never
+ * be reached) are TECH_UNKNOWN */
+"""
 TECH_UNKNOWN = 0
 TECH_PREREQS_KNOWN = 1
 TECH_KNOWN = 2
@@ -54,14 +60,14 @@ def player_invention_state(pplayer, tech_id):
 
 
 def can_player_build_unit_direct(pplayer, punittype):
-        """
-        Whether player can build given unit somewhere,
-        ignoring whether unit is obsolete and assuming the
-        player has a coastal city.
-        """
-        if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
-            return False
+    """
+    Whether player can build given unit somewhere,
+    ignoring whether unit is obsolete and assuming the
+    player has a coastal city.
+    """
+    if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
+        return False
 
-        # FIXME: add support for global advances, check for building reqs etc.*/
+    # FIXME: add support for global advances, check for building reqs etc.*/
 
-        return True
+    return True

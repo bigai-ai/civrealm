@@ -99,6 +99,7 @@ class ActionList(object):
             return act_dict
 
     def get_valid_actions(self, actor_id, act_keys):
+        # FIXME: unsed function. May be useful for creating action masks.
         if self.actor_exists(actor_id):
             act_list = [False for key in self._action_dict[actor_id]]
             if self._can_actor_act(actor_id):
@@ -110,9 +111,10 @@ class ActionList(object):
         raise Exception("To be overwritten with function returning True/False %i" % actor_id)
 
     def trigger_single_action(self, actor_id, action_id):
+        # FIXME: unsed function
         act = self._action_dict[actor_id][action_id]
         if not self._can_actor_act(actor_id):
-            return None
+            return False
         if act.is_action_valid():
             act.trigger_action(self.ws_client)
             return True

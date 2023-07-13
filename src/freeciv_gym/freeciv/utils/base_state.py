@@ -135,7 +135,7 @@ class ListState(PlainState):
                 if np.isnan(vec[0, knum]):
                     raise Exception("No nan allowed for key: %s" % key)
             except:
-                fc_logger.info("Incompatible string/int %s %s" % (key, self._state[item][key]))
+                fc_logger.error("Incompatible string/int %s %s" % (key, self._state[item][key]))
                 err = True
 
         if err:
@@ -146,7 +146,7 @@ class ListState(PlainState):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:
-            fc_logger.info("Strange - Trying to delete unit that is not there: %s" % item_id)
+            fc_logger.warning("Strange - Trying to delete unit that is not there: %s" % item_id)
 
 
 class EmptyState(PlainState):

@@ -22,11 +22,6 @@ from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, TECH_KNOWN
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 # from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
-"""
-/* TECH_KNOWN is self-explanatory, TECH_PREREQS_KNOWN are those for which all
- * requirements are fulfilled all others (including those which can never
- * be reached) are TECH_UNKNOWN */
-"""
 
 AR_ONE = 0
 AR_TWO = 1
@@ -116,7 +111,7 @@ class TechCtrl(CivPropController):
     
     def get_wiki_tech_info(self, tech_name):
         if freeciv_wiki_docs is None or freeciv_wiki_docs[tech_name] is None:
-            return
+            return None, None
 
         tech_info = freeciv_wiki_docs[tech_name]['summary']
         tech_url = self.wikipedia_url + freeciv_wiki_docs[tech_name]['title']

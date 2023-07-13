@@ -54,12 +54,10 @@ class TechState(ListState):
         else:
             self.reqtree = reqtree
 
-        fc_logger.info(self.rule_ctrl.ruleset_control['name'])
-
         self._state = {}
         for tech_id in self.rule_ctrl.techs:
             ptech = self.rule_ctrl.techs[tech_id]
-            str_id = "%i" % tech_id
+            str_id = str(tech_id)
             if str_id not in self.reqtree or self.reqtree[str_id] is None:
                 continue
             

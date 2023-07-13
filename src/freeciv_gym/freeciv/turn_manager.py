@@ -46,7 +46,8 @@ class TurnManager(object):
 
     def log_begin_turn(self):
         fc_logger.info('==============================================')
-        fc_logger.info(f'============== Begin turn: {self._turn:04d} ==============')
+        fc_logger.info(
+            f'============== Begin turn: {self._turn:04d} ==============')
         fc_logger.info('==============================================')
 
     def begin_turn(self, pplayer, info_controls):
@@ -62,14 +63,28 @@ class TurnManager(object):
 
     @property
     def action_space(self):
-        return gymnasium.spaces.Discrete(1)
+        # return gymnasium.spaces.Discrete(1)
+        if self._turn_ctrls is None:
+            return gymnasium.spaces.Discrete(1)
+
+        action_space = dict()
+        fc_logger.debug('Computing action space for: ')
+        for ctrl_type, ctrl in self._turn_ctrls.items():
+            if ctrl_type != 'tech':
+                # TODO: add action spaces for all controllers
+                action_space[ctrl_type] = gymnasium.spaces.Discrete(1)
+                continue
+            fc_logger.debug('....: %s', ctrl_type)
+            action_space[ctrl_type] = ctrl.get_action_space(self._turn_player)
+
+        return gymnasium.spaces.Dict(action_space)
 
     @property
     def observation_space(self):
         # return gymnasium.spaces.Discrete(1)
         if self._turn_ctrls is None:
             return gymnasium.spaces.Discrete(1)
-        
+
         observation_space = dict()
         fc_logger.debug('Computing observation space for: ')
         for ctrl_type, ctrl in self._turn_ctrls.items():
@@ -78,7 +93,8 @@ class TurnManager(object):
                 observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
                 continue
             fc_logger.debug(f'....: {ctrl_type}')
-            observation_space[ctrl_type] = ctrl.get_observation_space(self._turn_player)
+            observation_space[ctrl_type] = ctrl.get_observation_space(
+                self._turn_player)
 
         return gymnasium.spaces.Dict(observation_space)
 
@@ -86,14 +102,16 @@ class TurnManager(object):
         fc_logger.debug("Acquiring state for: ")
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
-            self._turn_state[ctrl_type] = ctrl.get_current_state(self._turn_player)
+            self._turn_state[ctrl_type] = ctrl.get_current_state(
+                self._turn_player)
         return self._turn_state
-    
+
     def get_available_actions(self):
         fc_logger.debug("Acquiring action for: ")
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
-            self._turn_opts[ctrl_type] = ctrl.get_current_options(self._turn_player)
+            self._turn_opts[ctrl_type] = ctrl.get_current_options(
+                self._turn_player)
         return self._turn_opts
 
     def get_reward(self):
@@ -102,7 +120,8 @@ class TurnManager(object):
         return self._turn_state["player"]["my_score"]
 
     def end_turn(self):
-        fc_logger.info(f'============== Finish turn {self._turn:04d} ==============')
+        fc_logger.info(
+            f'============== Finish turn {self._turn:04d} ==============')
         fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
         self._turn_active = False
         self._turn_ctrls = None

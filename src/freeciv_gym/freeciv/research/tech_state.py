@@ -12,6 +12,9 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import numpy as np
+from gymnasium.space import Box, Dict, Discrete, Tuple
+
 from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
 from freeciv_gym.freeciv.utils.fc_types import RPT_CERTAIN
 from freeciv_gym.freeciv.research.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
@@ -22,6 +25,9 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class TechState(ListState):
+    UPPER_TECH_STATUS = 2
+    UPPER_BULB_BOUND = 10000
+
     def __init__(self, rule_ctrl, clstate):
         super().__init__()
         self.rule_ctrl = rule_ctrl
@@ -37,8 +43,10 @@ class TechState(ListState):
             cur_tech['is_researching'] = player['researching'] == ptech['id']
             cur_tech['is_tech_goal'] = player['tech_goal'] == ptech['id']
             # cur_tech in the Player's tech invention state can be TECH_KNOWN/TECH_UNKNOWN/TECH_PREREQS_KNOWN.
-            cur_tech['inv_state'] = tech_helpers.player_invention_state(player, ptech['id'])
-            cur_tech['is_req_for_goal'] = self.is_tech_req_for_goal(ptech['id'], player['tech_goal'])
+            cur_tech['inv_state'] = tech_helpers.player_invention_state(
+                player, ptech['id'])
+            cur_tech['is_req_for_goal'] = self.is_tech_req_for_goal(
+                ptech['id'], player['tech_goal'])
 
             # Check whether each req of cur_tech is known or not. The req could be based on the player's research progress or the government ID.
             cur_tech['reqs'] = {}
@@ -49,11 +57,14 @@ class TechState(ListState):
     def init_tech_state(self):
         if self.rule_ctrl.ruleset_control['name'] == "Civ2Civ3 ruleset":
             self.reqtree = reqtree_civ2civ3
-        elif self.rule_ctrl.ruleset_control['name'] in ["Multiplayer ruleset", "Longturn-Web-X ruleset"]:
+        elif self.rule_ctrl.ruleset_control['name'] in [
+                "Multiplayer ruleset", "Longturn-Web-X ruleset"
+        ]:
             self.reqtree = reqtree_multiplayer
         else:
             self.reqtree = reqtree
 
+        self.reqtree_size = len(self.reqtree)
         fc_logger.info(self.rule_ctrl.ruleset_control['name'])
 
         self._state = {}
@@ -62,12 +73,14 @@ class TechState(ListState):
             str_id = "%i" % tech_id
             if str_id not in self.reqtree or self.reqtree[str_id] is None:
                 continue
-            
+
             self._state[tech_id] = cur_tech = {'name': ptech['name']}
             # Get the units which are supported by cur_tech
             cur_tech['sup_units'] = self.rule_ctrl.get_units_from_tech(tech_id)
             # Get the improvement buildings which are supported by cur_tech
-            cur_tech['sup_improvements'] = self.rule_ctrl.get_improvements_from_tech(tech_id)            
+            cur_tech[
+                'sup_improvements'] = self.rule_ctrl.get_improvements_from_tech(
+                    tech_id)
 
     def is_tech_req_for_goal(self, check_tech_id, goal_tech_id):
         """
@@ -90,7 +103,7 @@ class TechState(ListState):
             elif self.is_tech_req_for_goal(check_tech_id, rid):
                 return True
         return False
-    
+
     def is_tech_req_for_tech(self, check_tech_id, next_tech_id):
         """
          Determines if the technology 'check_tech_id' is a direct requirement
@@ -109,3 +122,50 @@ class TechState(ListState):
             if check_tech_id == rid:
                 return True
         return False
+
+    def get_observation_space(self) -> Dict:
+        """
+        Get observation space.
+
+        Returns
+        -------
+        gymnasium.space.Dict(
+            "tech_status": Box,
+            "current_tech": Box
+        )
+        "tech_status": Box of shape (reqtree_size,)
+                       list status of all techs, with values of each entry:
+                       -1: obtained,
+                        0: under research,
+                        1: can be researched,
+                        2: need other prerequest tech(s),
+        "current_tech": Box(tech_id: Int, current_bulbs_on_it: Int)
+        """
+        return Dict({
+            "tech_status":
+            Box(np.ones(self.reqtree_size) * (-1),
+                np.ones(self.reqtree_size) * self.UPPER_TECH_STATUS,
+                dtype=int),
+            "current_tech":
+            Tuple(Discrete(self.reqtree_size), Discrete(self.UPPER_BULB_BOUND),
+                  Box(0, self.UPPER_BULB_BOUND, dtype=float))
+        })
+
+    # Action space should be a list of available techs though.
+    # Still working on obtaining correct status now.
+    def get_action_space(self) -> Box:
+        """
+        Get action space.
+
+        Returns
+        -------
+        gymnasium.space.Box of shape (reqtree_size,)
+        list status (indicating availability) of each entry:
+            -1: obtained,
+             0: under research,
+             1: can be researched,
+             2: need other prerequest tech(s),
+        """
+        return Box(np.ones(self.reqtree_size) * (-1),
+                   np.ones(self.reqtree_size) * self.UPPER_TECH_STATUS,
+                   dtype=int)

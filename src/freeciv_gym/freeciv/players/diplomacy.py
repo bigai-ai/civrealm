@@ -15,33 +15,8 @@
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.base_action import NoActions
-from freeciv_gym.freeciv.connectivity.client_state import ClientState
-
-CLAUSE_ADVANCE = 0
-CLAUSE_GOLD = 1
-CLAUSE_MAP = 2
-CLAUSE_SEAMAP = 3
-CLAUSE_CITY = 4
-CLAUSE_CEASEFIRE = 5
-CLAUSE_PEACE = 6
-CLAUSE_ALLIANCE = 7
-CLAUSE_VISION = 8
-CLAUSE_EMBASSY = 9
-
-CLAUSE_TXT = ["Advance", "TradeGold", "ShareMap", "ShareSeaMap", "TradeCity",
-              "Ceasefire", "Peace", "Alliance", "Vision", "Embassy"]
-
-DS_ARMISTICE = 0
-DS_WAR = 1
-DS_CEASEFIRE = 2
-DS_PEACE = 3
-DS_ALLIANCE = 4
-DS_NO_CONTACT = 5
-DS_TEAM = 6
-DS_LAST = 7
-
-DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "Team", "Last"]
-
+# from freeciv_gym.freeciv.connectivity.client_state import ClientState
+import freeciv_gym.freeciv.players.player_const as player_const
 
 class DiplomacyState(PlainState):
     def __init__(self, diplstates):
@@ -59,7 +34,8 @@ class DiplomacyState(PlainState):
 
 
 class DiplomacyCtrl(CivPropController):
-    def __init__(self, ws_client, clstate: ClientState, ruleset, dipl_evaluator=None):
+    # def __init__(self, ws_client, clstate: ClientState, ruleset, dipl_evaluator=None):
+    def __init__(self, ws_client, clstate, ruleset, dipl_evaluator=None):
         super().__init__(ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []
@@ -211,7 +187,7 @@ class DiplomacyCtrl(CivPropController):
 
     def check_not_dipl_states(self, player_id, check_list=None):
         if check_list is None:
-            check_list = [DS_WAR, DS_NO_CONTACT]
+            check_list = [player_const.DS_WAR, player_const.DS_NO_CONTACT]
         if player_id in self.diplstates:
             if self.diplstates[player_id] not in check_list:
                 return True
@@ -220,7 +196,7 @@ class DiplomacyCtrl(CivPropController):
 
     def check_in_dipl_states(self, player_id, check_list=None):
         if check_list is None:
-            check_list = [DS_ALLIANCE, DS_TEAM]
+            check_list = [player_const.DS_ALLIANCE, player_const.DS_TEAM]
 
         if player_id in self.diplstates:
             if self.diplstates[player_id] in check_list:
@@ -230,19 +206,19 @@ class DiplomacyCtrl(CivPropController):
 
     @staticmethod
     def get_diplstate_text(state_id):
-        if DS_ARMISTICE == state_id:
+        if player_const.DS_ARMISTICE == state_id:
             return "Armistice"
-        elif (DS_WAR == state_id):
+        elif (player_const.DS_WAR == state_id):
             return "War"
-        elif (DS_CEASEFIRE == state_id):
+        elif (player_const.DS_CEASEFIRE == state_id):
             return "Ceasefire"
-        elif (DS_PEACE == state_id):
+        elif (player_const.DS_PEACE == state_id):
             return "Peace"
-        elif (DS_ALLIANCE == state_id):
+        elif (player_const.DS_ALLIANCE == state_id):
             return "Alliance"
-        elif (DS_NO_CONTACT == state_id):
+        elif (player_const.DS_NO_CONTACT == state_id):
             return "No contact"
-        elif (DS_TEAM == state_id):
+        elif (player_const.DS_TEAM == state_id):
             return "Team"
         else:
             return "Unknown state"

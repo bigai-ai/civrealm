@@ -18,15 +18,18 @@ from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 
-from freeciv_gym.freeciv.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
-from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI
+import freeciv_gym.freeciv.players.player_const as player_const
+from freeciv_gym.freeciv.players.player_state import PlayerState
 from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 
 from freeciv_gym.freeciv.city.city_state import CityState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+# from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 class PlayerCtrl(CivPropController):
+    # def __init__(self, ws_client, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_ctrl: DiplomacyCtrl):
     def __init__(self, ws_client, clstate: ClientState, rule_ctrl, dipl_ctrl):
         super().__init__(ws_client)
 
@@ -132,7 +135,7 @@ class PlayerCtrl(CivPropController):
 
         for player_id in self.players:
             pplayer = self.players[player_id]
-            if pplayer['flags'].isSet(PLRF_AI):
+            if pplayer['flags'].isSet(player_const.PLRF_AI):
                 if ainame == pplayer['name']:
                     return pplayer
             elif pname == pplayer['username']:
@@ -173,18 +176,18 @@ class PlayerCtrl(CivPropController):
         player_options = []
 
         if not self.clstate.client_is_observer() and both_alive_and_different:
-            if self.dipl_ctrl.check_not_dipl_states(player_id, [DS_NO_CONTACT]):
+            if self.dipl_ctrl.check_not_dipl_states(player_id, [player_const.DS_NO_CONTACT]):
                 player_options.append("meet_player")
 
             if self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
                 player_options.append("cancel_treaty")
 
-        if pplayer['flags'].isSet(PLRF_AI) or selected_myself:
+        if pplayer['flags'].isSet(player_const.PLRF_AI) or selected_myself:
             player_options.append("send_msg")
 
         if self.clstate.can_client_control():
             if not selected_myself:
-                if self.dipl_ctrl.check_in_dipl_states(player_id, [DS_CEASEFIRE, DS_ARMISTICE, DS_PEACE]):
+                if self.dipl_ctrl.check_in_dipl_states(player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
                     player_options.append("declare_war")
                 else:
                     player_options.append("cancel_treaty")
@@ -194,7 +197,7 @@ class PlayerCtrl(CivPropController):
                 player_options.append("withdraw_vision")
 
         if self.clstate.client_is_observer() or (both_alive_and_different and
-                                                 self.dipl_ctrl.check_not_dipl_states(player_id, [DS_NO_CONTACT])):
+                                                 self.dipl_ctrl.check_not_dipl_states(player_id, [player_const.DS_NO_CONTACT])):
             player_options.append("intl_report")
 
         player_options.append("toggle_ai")

@@ -13,31 +13,20 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, packet_report_req,\
-    RPT_CERTAIN
+from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, packet_report_req, RPT_CERTAIN
 from freeciv_gym.freeciv.utils import base_action
 from freeciv_gym.freeciv.utils.base_action import ActionList
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.tech.req_info import ReqInfo
+# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+# from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
+import freeciv_gym.freeciv.players.player_const as player_const
 
-REPORT_WONDERS_OF_THE_WORLD = 0
-REPORT_TOP_5_CITIES = 1
-REPORT_DEMOGRAPHIC = 2
-REPORT_ACHIEVEMENTS = 3
 
-GOV_ANARCHY = 0
-GOV_DESPOTISM = 1
-GOV_MONARCHY = 2
-GOV_COMMUNISM = 3
-GOV_REPUBLIC = 4
-GOV_DEMOCRACY = 5
-
-GOV_TXT = {GOV_ANARCHY: "Anarchy", GOV_DESPOTISM: "Despotism",
-           GOV_MONARCHY: "Monarchy", GOV_COMMUNISM: "Communism",
-           GOV_REPUBLIC: "Republic", GOV_DEMOCRACY: "Democracy"}
 
 
 class GovState(PlainState):
+    # def __init__(self, rule_ctrl: RulesetCtrl):
     def __init__(self, rule_ctrl):
         super().__init__()
         self.rule_ctrl = rule_ctrl
@@ -49,6 +38,7 @@ class GovState(PlainState):
 
 
 class GovActions(ActionList):
+    # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, city_ctrl):
     def __init__(self, ws_client, rule_ctrl, city_ctrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
@@ -78,7 +68,7 @@ class GovernmentCtrl(CivPropController):
         pass
 
     def queue_preinfos(self):
-        for rtype in [REPORT_ACHIEVEMENTS, REPORT_DEMOGRAPHIC, REPORT_TOP_5_CITIES, REPORT_WONDERS_OF_THE_WORLD]:
+        for rtype in [player_const.REPORT_ACHIEVEMENTS, player_const.REPORT_DEMOGRAPHIC, player_const.REPORT_TOP_5_CITIES, player_const.REPORT_WONDERS_OF_THE_WORLD]:
             self.request_report(rtype)
 
     @staticmethod
@@ -88,13 +78,13 @@ class GovernmentCtrl(CivPropController):
          FIXME: This shouldn't be hardcoded, but instead fetched
          from the effects.
         """
-        if govt_id in [GOV_ANARCHY, GOV_DEMOCRACY]:
+        if govt_id in [player_const.GOV_ANARCHY, player_const.GOV_DEMOCRACY]:
             return 100
-        elif govt_id == GOV_DESPOTISM:
+        elif govt_id == player_const.GOV_DESPOTISM:
             return 60
-        elif govt_id == GOV_MONARCHY:
+        elif govt_id == player_const.GOV_MONARCHY:
             return 70
-        elif govt_id in [GOV_COMMUNISM, GOV_REPUBLIC]:
+        elif govt_id in [player_const.GOV_COMMUNISM, player_const.GOV_REPUBLIC]:
             return 80
         else:
             return 100  # // this should not happen
@@ -108,13 +98,14 @@ class GovernmentCtrl(CivPropController):
 class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
 
+    # def __init__(self, govt_id, city_ctrl: CityCtrl, rule_ctrl: RulesetCtrl, pplayer):
     def __init__(self, govt_id, city_ctrl, rule_ctrl, pplayer):
         super().__init__()
         self.govt_id = govt_id
         self.city_ctrl = city_ctrl
         self.rule_ctrl = rule_ctrl
         self.pplayer = pplayer
-        self.action_key += "_%s" % GOV_TXT[govt_id]
+        self.action_key += "_%s" % player_const.GOV_TXT[govt_id]
 
     def is_action_valid(self):
         # //hack for statue of liberty

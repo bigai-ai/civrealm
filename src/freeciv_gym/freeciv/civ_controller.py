@@ -20,7 +20,8 @@ from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState, C_S_RUNNING
 
-from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl, PLRF_AI
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
+import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
 
@@ -368,7 +369,7 @@ class CivController(CivPropController):
             return
 
         leader_name = pplayer['name']
-        if pplayer['flags'][PLRF_AI] > 0:
+        if pplayer['flags'][player_const.PLRF_AI] > 0:
             leader_name = pnation['leader_name'][0]
         # China id is 107
         # chosen_nation_name = 107

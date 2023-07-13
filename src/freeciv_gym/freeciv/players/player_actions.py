@@ -18,18 +18,19 @@ from freeciv_gym.freeciv.utils.fc_types import packet_player_rates,\
     packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req,\
     packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
-from freeciv_gym.freeciv.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE,\
-    CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY, CLAUSE_ADVANCE,\
-    CLAUSE_TXT
+import freeciv_gym.freeciv.players.player_const as player_const
 
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
 from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
 import freeciv_gym.freeciv.tech.tech_const as tech_const
+# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+# from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class PlayerOptions(ActionList):
+    # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
     def __init__(self, ws_client, rule_ctrl, players, clstate):
         super().__init__(ws_client)
         self.players = players
@@ -72,18 +73,18 @@ class PlayerOptions(ActionList):
 
     def update_clause_options(self, counter_id, giver, taker):
         cur_p = self.clstate.cur_player()
-        base_clauses = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
-                        CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
+        base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION, player_const.CLAUSE_EMBASSY,
+                        player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
 
         for ctype in base_clauses:
             self.add_action(counter_id, AddClause(ctype, 1, giver, taker, cur_p))
             self.add_action(counter_id, RemoveClause(ctype, 1, giver, taker, cur_p))
 
-        for ctype in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
+        for ctype in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
             self.add_action(counter_id, CancelClause(ctype, 1, giver, taker, cur_p))
 
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(counter_id, AddTradeTechClause(CLAUSE_ADVANCE, tech_id,
+            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
                                                            giver, taker, cur_p, self.rule_ctrl))
         """
         if self.ruleset.game["trading_city"]:
@@ -204,7 +205,7 @@ class RemoveClause(base_action.Action):
         self.giver = giver
         self.taker = taker
         self.cur_player = cur_player
-        self.action_key += "_cl%s_player%i" % (CLAUSE_TXT[clause_type],
+        self.action_key += "_cl%s_player%i" % (player_const.CLAUSE_TXT[clause_type],
                                                self.giver["playerno"])
 
     def is_action_valid(self):
@@ -224,12 +225,12 @@ class AddClause(RemoveClause):
     action_key = "add_clause"
 
     def is_action_valid(self):
-        if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
+        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
             return self.giver == self.cur_player
         return True
 
     def trigger_action(self, ws_client):
-        if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
+        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
             # // eg. creating peace treaty requires removing ceasefire first.
             rem_packet = RemoveClause._action_packet(self)
             ws_client.send_request(rem_packet)
@@ -248,7 +249,7 @@ class CancelClause(AddClause):
     action_key = "cancel_clause"
 
     def is_action_valid(self):
-        if self.clause_type in [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]:
+        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
             return self.giver == self.cur_player
         return False
 

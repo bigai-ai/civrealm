@@ -14,17 +14,15 @@
 
 from freeciv_gym.freeciv.utils.base_state import PlainState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
-
-MAX_NUM_PLAYERS = 30
-MAX_AI_LOVE = 1000
-# /* The plr_flag_id enum. */
-PLRF_AI = 0
-PLRF_SCENARIO_RESERVED = 1
-PLRF_COUNT = 2
-AI_SKILLS = ["Away", "Handicapped", "Novice", "Easy", "Normal", "Hard", "Cheating", "Experimental"]
+import freeciv_gym.freeciv.players.player_const as player_const
+# from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
+# from freeciv_gym.freeciv.players.diplomacy import DiplomacyState
+# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+# from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 
 class PlayerState(PlainState):
+    # def __init__(self, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl, clstate: ClientState, diplstates: DiplomacyState, players):
     def __init__(self, rule_ctrl, player_ctrl, clstate, diplstates, players):
         super().__init__()
         self.rule_ctrl = rule_ctrl
@@ -55,7 +53,7 @@ class PlayerState(PlainState):
                 continue
             self._update_opponent_state(pplayer, opponent, "opponent_%i" % pnum)
             if opponent["is_alive"]:
-                if opponent['flags'][PLRF_AI] != 0:
+                if opponent['flags'][player_const.PLRF_AI] != 0:
                     no_ais += 1
                 elif pplayer['nturns_idle'] <= 4:
                     no_humans += 1
@@ -90,7 +88,7 @@ class PlayerState(PlainState):
 
         self._state[op_id + "col_love"] = self.col_love(opponent)
         self._state[op_id + "plr_score"] = self.get_score_text(opponent)
-        if opponent['flags'][PLRF_AI] != 0:
+        if opponent['flags'][player_const.PLRF_AI] != 0:
             self._state[op_id + "plr_type"] = self.get_ai_level_text(opponent) + " AI"
         else:
             self._state[op_id + "plr_type"] = "Human"
@@ -148,7 +146,7 @@ class PlayerState(PlainState):
 
     def col_love(self, pplayer):
         if (self.clstate.client_is_observer() or self.player_ctrl.player_is_myself(pplayer['playerno'])
-                or not pplayer['flags'][PLRF_AI] > 0):
+                or not pplayer['flags'][player_const.PLRF_AI] > 0):
             return "-"
         else:
             return self.love_text(pplayer['love'][self.clstate.cur_player()['playerno']])
@@ -167,7 +165,7 @@ class PlayerState(PlainState):
                      "Uneasy", "Neutral", "Respectful", "Helpful",
                      "Enthusiastic", "Admiring"]
         for lsize, ltag in zip(love_sizes, love_tags):
-            if love <= MAX_AI_LOVE * lsize / 100:
+            if love <= player_const.MAX_AI_LOVE * lsize / 100:
                 return ltag
         return "Worshipful"
 
@@ -191,6 +189,6 @@ class PlayerState(PlainState):
     def get_ai_level_text(player):
         ai_level = player['ai_skill_level']
         if 7 >= ai_level >= 0:
-            return AI_SKILLS[ai_level]
+            return player_const.AI_SKILLS[ai_level]
         else:
             return "Unknown"

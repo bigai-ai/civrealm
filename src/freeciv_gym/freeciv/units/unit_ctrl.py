@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.units.spacerace import SpaceCtrl
 from freeciv_gym.freeciv.units.action_dialog import action_prob_possible
 
 from freeciv_gym.freeciv.game.game_ctrl import IDENTITY_NUMBER_ZERO
-from freeciv_gym.freeciv.players.diplomacy import DS_ALLIANCE, DS_TEAM
+import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from freeciv_gym.freeciv.units.unit_state import UnitState
 import urllib
@@ -497,7 +497,7 @@ class UnitCtrl(CivPropController):
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']
 
             if (tgt_owner_id != self.unit_owner(actor_unit)['playerno'] and
-                    self.dipl_ctrl.check_not_dipl_states(tgt_owner_id, [DS_ALLIANCE, DS_TEAM])):
+                    self.dipl_ctrl.check_not_dipl_states(tgt_owner_id, [player_const.DS_ALLIANCE, player_const.DS_TEAM])):
                 # /* Can't move to a non allied foreign unit's tile. */
                 return False
 
@@ -508,7 +508,7 @@ class UnitCtrl(CivPropController):
                 # This city isn't foreign. */
                 return True
 
-            if self.dipl_ctrl.check_in_dipl_states(tgt_owner_id, [DS_ALLIANCE, DS_TEAM]):
+            if self.dipl_ctrl.check_in_dipl_states(tgt_owner_id, [player_const.DS_ALLIANCE, player_const.DS_TEAM]):
                 # /* This city belongs to an ally. */
                 return True
 

@@ -14,18 +14,21 @@
 
 from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 from freeciv_gym.freeciv.utils.fc_types import packet_player_research, packet_player_tech_goal
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_unknown, is_tech_prereq_known
-
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_unknown, is_tech_prereq_known
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 class TechActions(ActionList):
-    def __init__(self, ws_client, rule_ctrl):
+    def __init__(self, ws_client, rule_ctrl: RulesetCtrl, clstate: ClientState):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
+        self.clstate = clstate
 
     def _can_actor_act(self, actor_id):
         return True
 
-    def update(self, pplayer):
+    def update(self, player):
+        pplayer = self.clstate.cur_player()
         actor_id = "cur_player"
         if self.actor_exists(actor_id):
             return

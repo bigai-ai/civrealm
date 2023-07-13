@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_AD
     VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING, TRI_MAYBE,\
     RPT_POSSIBLE, VUT_COUNT
 
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 

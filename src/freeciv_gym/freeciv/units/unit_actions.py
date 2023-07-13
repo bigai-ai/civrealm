@@ -14,7 +14,7 @@
 
 import urllib
 
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, is_tech_prereq_known, can_player_build_unit_direct
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, is_tech_prereq_known, can_player_build_unit_direct
 
 from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST

@@ -15,6 +15,7 @@
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.base_action import NoActions
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 CLAUSE_ADVANCE = 0
 CLAUSE_GOLD = 1
@@ -58,7 +59,7 @@ class DiplomacyState(PlainState):
 
 
 class DiplomacyCtrl(CivPropController):
-    def __init__(self, ws_client, clstate, ruleset, dipl_evaluator=None):
+    def __init__(self, ws_client, clstate: ClientState, ruleset, dipl_evaluator=None):
         super().__init__(ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []

@@ -15,7 +15,7 @@
 from BitVector import BitVector
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
-from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING
+from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 
 from freeciv_gym.freeciv.players.diplomacy import DS_NO_CONTACT, DS_CEASEFIRE, DS_PEACE, DS_ARMISTICE
@@ -23,9 +23,11 @@ from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI
 from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 
 from freeciv_gym.freeciv.city.city_state import CityState
+from freeciv_gym.freeciv.tech.tech_helpers import TECH_KNOWN
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class PlayerCtrl(CivPropController):
-    def __init__(self, ws_client, clstate, rule_ctrl, dipl_ctrl):
+    def __init__(self, ws_client, clstate: ClientState, rule_ctrl, dipl_ctrl):
         super().__init__(ws_client)
 
         self.clstate = clstate
@@ -42,7 +44,8 @@ class PlayerCtrl(CivPropController):
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
-        self.register_handler(58, "handle_player_attribute_chunk")        
+        self.register_handler(58, "handle_player_attribute_chunk")
+        self.register_handler(60, "handle_player_research_info")        
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -257,17 +260,44 @@ class PlayerCtrl(CivPropController):
         # TODO: check what the following code is doing
         if self.clstate.is_playing():
             if playerno == self.clstate.cur_player()['playerno']:
-                self.clstate.change_player(self.players[playerno])
+                self.clstate.update_own_player(self.players[playerno])
                 # update_game_status_panel()
                 # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
 
-    # TODO: Currently we receive player_remove packet when we load a game, so we do nothing. Check whether there are other cases that would also lead to player removal, e.g., other players lost connection.
+    def handle_player_research_info(self, packet):
+        old_inventions = None
+        if packet['id'] in self.research_data:
+            old_inventions = self.research_data[packet['id']]['inventions']
+
+        self.research_data[packet['id']] = packet
+
+        #TODO: implement for "team_pooled_research" setting
+        if self.rule_ctrl.game_info['team_pooled_research']:
+            for player_id in self.players:
+                pplayer = self.players[player_id]
+                if pplayer['team'] == packet['id']:
+                    pplayer.update(packet)
+                    del pplayer['id']
+        else:
+            pplayer = self.players[packet['id']]
+            pplayer.update(packet)
+            del pplayer['id']
+
+        if (not self.clstate.client_is_observer() and old_inventions != None and
+                self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
+            for i, invention in enumerate(packet['inventions']):
+                if invention != old_inventions[i] and invention == TECH_KNOWN:
+                    fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")                    
+                    break
+
+    # TODO: Check whether there are other cases that would also lead to player removal, e.g., other players are conquered.
     def handle_player_remove(self, packet):
-        pass
-        # del self.players[packet['playerno']]
-        # update_player_info_pregame()
+        # When we load a game, we will receive player_remove packet. In this case, packet['playerno'] is not in self.players.
+        if packet['playerno'] in self.players:
+            del self.players[packet['playerno']]
+            # update_player_info_pregame()
 
     def handle_player_attribute_chunk(self, packet):
         """

@@ -234,14 +234,14 @@ class ClientState(CivPropController):
         return cid == self.client["conn"]["id"]
 
     def is_playing(self):
-        return "playing" in self.client["conn"].keys()
+        return 'playing' in self.client["conn"].keys()
 
     def cur_player(self):
         if self.is_playing():
-            return self.client["conn"]["playing"]
+            return self.client["conn"]['playing']
 
-    def change_player(self, pplayer):
-        self.client["conn"]["playing"] = pplayer
+    def update_own_player(self, pplayer):
+        self.client["conn"]['playing'] = pplayer
 
     def player_num(self):
         if "player_num" in self.client["conn"]:
@@ -340,7 +340,7 @@ class ClientState(CivPropController):
 
     def can_client_control(self):
         """Returns TRUE if the client can control the player."""
-        return "playing" in self.client["conn"] and not self.client_is_observer()
+        return 'playing' in self.client["conn"] and not self.client_is_observer()
 
     def can_client_issue_orders(self):
         """Returns TRUE if the client can issue orders (giving unit commands, etc)."""
@@ -369,8 +369,8 @@ class ClientState(CivPropController):
         if self.observing:
             return
 
-        if "playing" in self.client["conn"]:
-            pplayer = self.client["conn"]["playing"]
+        if 'playing' in self.client["conn"]:
+            pplayer = self.client["conn"]['playing']
             player_nation_text = "Welcome, " + self.client["conn"]["username"] + " ruler of the "
             player_nation_text += self.rule_ctrl.nations[pplayer['nation']]['adjective']
             player_nation_text += " empire."
@@ -382,8 +382,8 @@ class ClientState(CivPropController):
         """Updates message on the metaserver on gamestart."""
 
         if (not self.observing and not self.metamessage_changed and
-                "playing" in self.client["conn"]):
-            pplayer = self.client["conn"]["playing"]
+                'playing' in self.client["conn"]):
+            pplayer = self.client["conn"]['playing']
             metasuggest = self.client["conn"]["username"] + " ruler of the " + \
                 self.rule_ctrl.nations[pplayer['nation']]['adjective'] + "."
             self.ws_client.send_message("/metamessage " + metasuggest)
@@ -391,8 +391,8 @@ class ClientState(CivPropController):
 
     def update_metamessage_game_running_status(self):
         """Updates message on the metaserver during a game."""
-        if "playing" in self.client["conn"] and not self.metamessage_changed:
-            pplayer = self.client["conn"]["playing"]
+        if 'playing' in self.client["conn"] and not self.metamessage_changed:
+            pplayer = self.client["conn"]['playing']
             metasuggest = self.rule_ctrl.nations[pplayer['nation']]['adjective'] + " | "
             metasuggest += self.rule_ctrl.governments[pplayer['government']
                                                       ]['name'] if self.rule_ctrl.governments[pplayer['government']] != None else "-"

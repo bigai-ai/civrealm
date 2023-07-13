@@ -12,35 +12,20 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ADVANCES
-
-TECH_UNKNOWN = 0
-TECH_PREREQS_KNOWN = 1
-TECH_KNOWN = 2
-
-
-A_NONE = 0
-A_FIRST = 1
-A_LAST = MAX_NUM_ADVANCES + 1
-A_UNSET = A_LAST + 1
-A_FUTURE = A_LAST + 2
-A_UNKNOWN = A_LAST + 3
-A_LAST_REAL = A_UNKNOWN
-
-A_NEVER = None
-U_NOT_OBSOLETED = None
+import freeciv_gym.freeciv.tech.tech_const as tech_const
+from freeciv_gym.freeciv.utils.fc_types import VUT_ADVANCE
 
 
 def is_tech_known(pplayer, tech_id):
-    return player_invention_state(pplayer, tech_id) == TECH_KNOWN
+    return player_invention_state(pplayer, tech_id) == tech_const.TECH_KNOWN
 
 
 def is_tech_unknown(pplayer, tech_id):
-    return player_invention_state(pplayer, tech_id) == TECH_UNKNOWN
+    return player_invention_state(pplayer, tech_id) == tech_const.TECH_UNKNOWN
 
 
 def is_tech_prereq_known(pplayer, tech_id):
-    return player_invention_state(pplayer, tech_id) == TECH_PREREQS_KNOWN
+    return player_invention_state(pplayer, tech_id) == tech_const.TECH_PREREQS_KNOWN
 
 
 def player_invention_state(pplayer, tech_id):
@@ -53,7 +38,7 @@ def player_invention_state(pplayer, tech_id):
       by the client).
     """
     if (pplayer is None) or ('inventions' not in pplayer) or tech_id >= len(pplayer['inventions']):
-        return TECH_UNKNOWN
+        return tech_const.TECH_UNKNOWN
     else:
         # /* Research can be None in client when looking for tech_leakage
         # * from player not yet received. */
@@ -79,3 +64,22 @@ def can_player_build_unit_direct(pplayer, punittype):
     # FIXME: add support for global advances, check for building reqs etc.*/
 
     return True
+
+def recreate_old_tech_req(packet):
+    """
+    Recreate the old req[] field of ruleset_tech packets.
+    This makes it possible to delay research_reqs support.
+    """
+
+    # /* Recreate the field it self. */
+    packet['req'] = []
+
+    # /* Add all techs in research_reqs. */
+    for requirement in packet['research_reqs']:
+        if requirement["kind"] == VUT_ADVANCE and requirement["range"] == tech_const.REQ_RANGE_PLAYER and \
+                requirement["present"]:
+            packet['req'].append(requirement["value"])
+
+    # /* Fill in A_NONE just in case Freeciv-web assumes its size is 2. */
+    while len(packet['req']) < 2:
+        packet['req'].append(tech_const.A_NONE)

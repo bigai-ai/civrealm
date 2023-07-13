@@ -24,34 +24,8 @@ from freeciv_gym.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_AD
     RPT_POSSIBLE, VUT_COUNT
 
 from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known
-
+import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-
-"""
-/* Range of requirements.
- * Used in the network protocol.
- * Order is important -- wider ranges should come later -- some code
- * assumes a total order, or tests for e.g. >= REQ_RANGE_PLAYER.
- * Ranges of similar types should be supersets, for example:
- *  - the set of Adjacent tiles contains the set of CAdjacent tiles,
- *    and both contain the center Local tile (a requirement on the local
- *    tile is also within Adjacent range)
- *  - World contains Alliance contains Player (a requirement we ourselves
- *    have is also within Alliance range). */
-"""
-REQ_RANGE_LOCAL = 0
-REQ_RANGE_TILE = 1
-REQ_RANGE_CADJACENT = 2
-REQ_RANGE_ADJACENT = 3
-REQ_RANGE_CITY = 4
-REQ_RANGE_TRADEROUTE = 5
-REQ_RANGE_CONTINENT = 6
-REQ_RANGE_PLAYER = 7
-REQ_RANGE_TEAM = 8
-REQ_RANGE_ALLIANCE = 9
-REQ_RANGE_WORLD = 10
-REQ_RANGE_COUNT = 11   #/* Keep this last */
-
 
 class ReqInfo():
     def __init__(self):
@@ -133,16 +107,16 @@ class ReqInfo():
     def is_tech_in_range(target_player, trange, tech):
         """Is there a source tech within range of the target?"""
 
-        if trange == REQ_RANGE_PLAYER:
+        if trange == tech_const.REQ_RANGE_PLAYER:
             target = TRI_YES if is_tech_known(target_player, tech) else TRI_NO
             return target_player != None and target
 
-        elif trange in [REQ_RANGE_WORLD, REQ_RANGE_TEAM, REQ_RANGE_ALLIANCE]:
+        elif trange in [tech_const.REQ_RANGE_WORLD, tech_const.REQ_RANGE_TEAM, tech_const.REQ_RANGE_ALLIANCE]:
             # /* FIXME: Add support for the above ranges. Freeciv's implementation
             # * currently (25th Jan 2017) lives in common/requirements.c */
             fc_logger.warning(f'Unimplemented tech requirement range {trange}')
             return TRI_MAYBE
-        elif trange in [REQ_RANGE_LOCAL, REQ_RANGE_TILE, REQ_RANGE_CADJACENT, REQ_RANGE_ADJACENT, REQ_RANGE_CITY, REQ_RANGE_TRADEROUTE, REQ_RANGE_CONTINENT, REQ_RANGE_COUNT]:
+        elif trange in [tech_const.REQ_RANGE_LOCAL, tech_const.REQ_RANGE_TILE, tech_const.REQ_RANGE_CADJACENT, tech_const.REQ_RANGE_ADJACENT, tech_const.REQ_RANGE_CITY, tech_const.REQ_RANGE_TRADEROUTE, tech_const.REQ_RANGE_CONTINENT, tech_const.REQ_RANGE_COUNT]:
             fc_logger.warning(f'Invalid tech req range {trange}')
             return TRI_MAYBE
         else:

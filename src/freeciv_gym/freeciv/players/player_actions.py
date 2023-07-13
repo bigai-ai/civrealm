@@ -23,8 +23,8 @@ from freeciv_gym.freeciv.players.diplomacy import CLAUSE_CEASEFIRE, CLAUSE_PEACE
     CLAUSE_TXT
 
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
-from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state,\
-    TECH_UNKNOWN, TECH_PREREQS_KNOWN
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
+import freeciv_gym.freeciv.tech.tech_const as tech_const
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
@@ -271,5 +271,5 @@ class AddTradeTechClause(AddClause):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
         return is_tech_known(self.giver, self.value) and \
-            player_invention_state(self.taker, self.value) in [TECH_UNKNOWN,
-                                                               TECH_PREREQS_KNOWN]
+            player_invention_state(self.taker, self.value) in [tech_const.TECH_UNKNOWN,
+                                                               tech_const.TECH_PREREQS_KNOWN]

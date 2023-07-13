@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.players.player_state import PlayerState, PLRF_AI
 from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 
 from freeciv_gym.freeciv.city.city_state import CityState
-from freeciv_gym.freeciv.tech.tech_helpers import TECH_KNOWN
+import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class PlayerCtrl(CivPropController):
@@ -288,7 +288,7 @@ class PlayerCtrl(CivPropController):
         if (not self.clstate.client_is_observer() and old_inventions != None and
                 self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
             for i, invention in enumerate(packet['inventions']):
-                if invention != old_inventions[i] and invention == TECH_KNOWN:
+                if invention != old_inventions[i] and invention == tech_const.TECH_KNOWN:
                     fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")                    
                     break
 

@@ -13,12 +13,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.utils.fc_types import VUT_ADVANCE
-from freeciv_gym.freeciv.tech.tech_helpers import A_NONE
+from freeciv_gym.freeciv.tech.tech_helpers import recreate_old_tech_req
+
 import sys
 
 from freeciv_gym.freeciv.game.info_states import RuleState
-from freeciv_gym.freeciv.tech.req_info import REQ_RANGE_PLAYER
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -194,26 +193,7 @@ class RulesetCtrl(CivPropController):
     def handle_ruleset_tech(self, packet):
         packet['name'] = packet['name'].replace("?tech:", "")
         self.techs[packet['id']] = packet
-        self.recreate_old_tech_req(packet)
-
-    def recreate_old_tech_req(self, packet):
-        """
-        Recreate the old req[] field of ruleset_tech packets.
-        This makes it possible to delay research_reqs support.
-        """
-
-        # /* Recreate the field it self. */
-        packet['req'] = []
-
-        # /* Add all techs in research_reqs. */
-        for requirement in packet['research_reqs']:
-            if requirement["kind"] == VUT_ADVANCE and requirement["range"] == REQ_RANGE_PLAYER and \
-                    requirement["present"]:
-                packet['req'].append(requirement["value"])
-
-        # /* Fill in A_NONE just in case Freeciv-web assumes its size is 2. */
-        while len(packet['req']) < 2:
-            packet['req'].append(A_NONE)
+        recreate_old_tech_req(packet)    
 
     def handle_ruleset_tech_class(self, packet):
         pass

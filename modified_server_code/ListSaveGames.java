@@ -81,7 +81,7 @@ public class ListSaveGames extends HttpServlet {
 					for (File file : files) {
 						if (file.isFile()) {
 							for (String suffix : saveSuffix) {
-								if (file.getName().contains(suffix)) {
+								if (file.getName().endsWith(suffix)) {
 									buffer.append(file.getName().replaceAll(suffix, ""));
 									break;
 								}

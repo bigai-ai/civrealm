@@ -20,26 +20,6 @@ from freeciv_gym.freeciv.tech.tech_actions import TechActions
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 """
-/* TECH_KNOWN is self-explanatory, TECH_PREREQS_KNOWN are those for which all
- * requirements are fulfilled all others (including those which can never
- * be reached) are TECH_UNKNOWN */
-"""
-
-AR_ONE = 0
-AR_TWO = 1
-AR_ROOT = 2
-AR_SIZE = 3
-
-
-TF_BONUS_TECH = 0  # /* player gets extra tech if rearched first */
-TF_BRIDGE = 1  # /* "Settler" unit types can build bridges over rivers */
-TF_RAILROAD = 2  # /* "Settler" unit types can build rail roads */
-TF_POPULATION_POLLUTION_INC = 3  # /* Increase the pollution factor created by population by one */
-TF_FARMLAND = 4  # /* "Settler" unit types can build farmland */
-TF_BUILD_AIRBORNE = 5  # /* Player can build air units */
-TF_LAST = 6
-
-"""
 /*
   [kept for amusement and posterity]
 typedef int Tech_type_id

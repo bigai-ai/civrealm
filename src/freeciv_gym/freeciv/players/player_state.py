@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.base_state import PlainState
-from freeciv_gym.freeciv.tech.tech_helpers import TECH_KNOWN
+import freeciv_gym.freeciv.tech.tech_const as tech_const
 
 MAX_NUM_PLAYERS = 30
 MAX_AI_LOVE = 1000
@@ -137,7 +137,7 @@ class PlayerState(PlainState):
                 self._state[op_id + "research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
 
         for tech_id in self.rule_ctrl.techs:
-            self._state[op_id + "invention_%i" % tech_id] = research['inventions'][tech_id] == TECH_KNOWN
+            self._state[op_id + "invention_%i" % tech_id] = research['inventions'][tech_id] == tech_const.TECH_KNOWN
 
     def get_score_text(self, player):
         if (player['score'] > 0 or self.clstate.client_is_observer()

@@ -68,14 +68,14 @@ def player_invention_state(pplayer, tech_id):
 
 
 def can_player_build_unit_direct(pplayer, punittype):
-        """
-        Whether player can build given unit somewhere,
-        ignoring whether unit is obsolete and assuming the
-        player has a coastal city.
-        """
-        if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
-            return False
+    """
+    Whether player can build given unit somewhere,
+    ignoring whether unit is obsolete and assuming the
+    player has a coastal city.
+    """
+    if not is_tech_known(pplayer, punittype['build_reqs'][0]['value']):
+        return False
 
-        # FIXME: add support for global advances, check for building reqs etc.*/
+    # FIXME: add support for global advances, check for building reqs etc.*/
 
-        return True
+    return True

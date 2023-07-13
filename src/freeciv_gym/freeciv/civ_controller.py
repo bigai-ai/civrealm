@@ -241,8 +241,7 @@ class CivController(CivPropController):
         """Ends the current turn."""
         if self.rule_ctrl.game_info == {}:
             return
-        self.begin_logged = False
-        self.turn_manager.end_turn()
+        self.begin_logged = False        
         fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
@@ -497,7 +496,7 @@ class CivController(CivPropController):
 
     def handle_begin_turn(self, packet):
         """Handle signal from server to start turn"""
-        if self.turn_manager.turn < fc_args['max_turns'] and fc_args['debug.autosave']:
+        if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
             # Save the game state in the begining of every turn.
             # Save game command '/save' does not support user-defined save_name.
             self.save_game()
@@ -523,6 +522,7 @@ class CivController(CivPropController):
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
+        self.turn_manager.end_turn()        
 
     def handle_conn_info(self, packet):
         """

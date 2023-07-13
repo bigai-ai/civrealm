@@ -14,7 +14,7 @@
 
 import urllib
 
-from freeciv_gym.freeciv.research.tech_helpers import is_tech_known, is_tech_prereq_known, can_player_build_unit_direct
+from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, is_tech_prereq_known, can_player_build_unit_direct
 
 from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
@@ -28,6 +28,7 @@ from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_
     ACTION_DISBAND_UNIT, ACTION_DISBAND_UNIT_RECOVER, packet_city_name_suggestion_req,\
     ACTION_JOIN_CITY, ACTIVITY_FALLOUT, ACTIVITY_POLLUTION,\
     packet_unit_change_activity, ACTIVITY_IRRIGATE, ACTIVITY_BASE, ACTIVITY_MINE,\
+    ACTIVITY_CULTIVATE,\
     ACTIVITY_TRANSFORM, ACTIVITY_SENTRY, ACTIVITY_EXPLORE, ACTIVITY_PILLAGE,\
     ACTIVITY_FORTIFYING, ACTION_FOUND_CITY, packet_unit_orders, ORDER_MOVE,\
     ACTIVITY_LAST, ACTION_COUNT, ACTION_SPY_STEAL_TECH_ESC,\
@@ -155,7 +156,7 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActForest, ActFortress,
+        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActFortress,
                           ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
                           ActExplore, ActParadrop, ActBuild, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade,
@@ -353,18 +354,16 @@ class ActOnExtra(EngineerAction):
             raise Exception("Extra type should be set")
         return TileState.tile_has_extra(self.focus.ptile, self.extra_type)
 
-
-class ActForest(EngineerAction):
-    """Action to create forest"""
-    action_key = "forest"
-
+class ActCultivate(EngineerAction):
+    """Action to deforest"""
+    action_key = "cultivate"
+    
     def is_eng_action_valid(self):
         terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         return terr_name == "Forest"
 
     def _action_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
-
+        return self._request_new_unit_activity(ACTIVITY_CULTIVATE, EXTRA_NONE)
 
 class ActFortress(EngineerAction):
     """Action to create a fortress"""

@@ -88,7 +88,7 @@ class TurnManager(object):
         observation_space = dict()
         fc_logger.debug('Computing observation space for: ')
         for ctrl_type, ctrl in self._turn_ctrls.items():
-            if ctrl_type not in ['map', 'tech']:
+            if ctrl_type not in ['map']:
                 # TODO: add observation spaces for all controllers
                 observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
                 continue

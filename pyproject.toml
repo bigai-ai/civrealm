@@ -41,6 +41,7 @@ addopts = [
     # "tests/test_build_city.py", 
     # "tests/test_build_road.py",
     "tests/test_city_change_unit_prod.py",
+    # "tests/test_city_work.py",
     # "tests/test_city_unwork.py",
     # "tests/test_cultivate.py",
     # "tests/test_irrigation.py",

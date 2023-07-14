@@ -88,6 +88,8 @@ class CityWorkTile(Action):
 
     def __init__(self, pcity, dx, dy, city_map):
         super().__init__()
+        self.dx = dx
+        self.dy = dy
         self.pcity = pcity
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])

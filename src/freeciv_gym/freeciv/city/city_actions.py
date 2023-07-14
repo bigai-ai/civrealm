@@ -56,7 +56,7 @@ class CityActions(ActionList):
                     if unwork_act.is_action_valid():
                         self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
 
-            for specialist_num in range(MAX_SPECIALISTS):
+            for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
             self.add_action(city_id, CityBuyProduction(pcity, pplayer))
@@ -160,7 +160,12 @@ class CityChangeSpecialist(Action):
                   "city_id": self.pcity["id"],
                   "from": self.specialist_num,
                   "to": (self.specialist_num + 1) % 3}
+        self.wait_for_pid = 31
         return packet
+
+    def _refresh_state_packet(self):
+        return {"pid": packet_city_refresh,
+                "city_id": self.pcity['id']}
 
 
 class CityBuyProduction(Action):

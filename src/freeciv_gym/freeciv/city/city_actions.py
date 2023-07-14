@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 from freeciv_gym.freeciv.utils.fc_types import packet_city_make_specialist,\
     packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
     packet_city_sell, packet_city_change, VUT_UTYPE,\
-    VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist
+    VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist, packet_city_refresh
 from freeciv_gym.freeciv.map.map_ctrl import CityTileMap
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -119,6 +119,10 @@ class CityWorkTile(Action):
                   "tile_id": self.ptile['index']}
         self.wait_for_pid = 31
         return packet
+
+    def _refresh_state_packet(self):
+        return {"pid": packet_city_refresh,
+                "city_id": self.pcity['id']}
 
 
 class CityUnworkTile(CityWorkTile):
@@ -252,6 +256,10 @@ class CityChangeProduction(Action):
                   "production_kind": self.prod_kind, "production_value": self.prod_value}
         self.wait_for_pid = 31
         return packet
+
+    def _refresh_state_packet(self):
+        return {"pid": packet_city_refresh,
+                "city_id": self.pcity['id']}
 
 
 class CityChangeUnitProduction(CityChangeProduction):

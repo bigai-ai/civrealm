@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from _collections import defaultdict
+from collections import defaultdict
 import urllib
 from BitVector import BitVector
 
@@ -81,10 +81,7 @@ class CityCtrl(CivPropController):
 
     def remove_city(self, pcity_id):
         """Removes a city from the game"""
-        if pcity_id is None or self.clstate.cur_player is None:
-            return
-
-        if pcity_id not in self.cities:
+        if pcity_id is None or pcity_id not in self.cities:
             return
 
         del self.cities[pcity_id]

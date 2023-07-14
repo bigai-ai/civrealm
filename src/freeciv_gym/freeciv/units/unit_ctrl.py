@@ -324,7 +324,7 @@ class UnitCtrl(CivPropController):
             return
 
         if not 'action_decision_want' in pdiplomat or \
-           pdiplomat['owner'] != self.player_ctrl.clstate.cur_player()['playerno']:
+           pdiplomat['owner'] != self.player_ctrl.my_player_id:
             # /* No authority to decide for this unit. */
             return
 

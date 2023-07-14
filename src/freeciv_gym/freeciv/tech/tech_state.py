@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.tech.reqtree import reqtree, reqtree_multiplayer, reqtr
 from freeciv_gym.freeciv.tech.req_info import ReqInfo
 from freeciv_gym.freeciv.tech import tech_helpers
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-from freeciv_gym.freeciv.connectivity.client_state import ClientState
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
@@ -29,31 +29,31 @@ class TechState(ListState):
     UPPER_TECH_STATUS = 2
     UPPER_BULB_BOUND = 10000
 
-    def __init__(self, rule_ctrl: RulesetCtrl, clstate: ClientState):
+    def __init__(self, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
         super().__init__()
         self.rule_ctrl = rule_ctrl
-        self.clstate = clstate
+        self.player_ctrl = player_ctrl
         self.reqtree_size = 0
 
     def _update_state(self, pplayer):
         if self._state == {}:
             self.init_tech_state()
-        player = self.clstate.cur_player()
+        my_player = self.player_ctrl.my_player
         for tech_id in self._state.keys():
             ptech = self.rule_ctrl.techs[tech_id]
             cur_tech = self._state[tech_id]
-            cur_tech['is_researching'] = player['researching'] == ptech['id']
-            cur_tech['is_tech_goal'] = player['tech_goal'] == ptech['id']
+            cur_tech['is_researching'] = my_player['researching'] == ptech['id']
+            cur_tech['is_tech_goal'] = my_player['tech_goal'] == ptech['id']
             # cur_tech in the Player's tech invention state can be TECH_KNOWN/TECH_UNKNOWN/TECH_PREREQS_KNOWN.
             cur_tech['inv_state'] = tech_helpers.player_invention_state(
-                player, ptech['id'])
+                my_player, ptech['id'])
             cur_tech['is_req_for_goal'] = self.is_tech_req_for_goal(
-                ptech['id'], player['tech_goal'])
+                ptech['id'], my_player['tech_goal'])
 
             # Check whether each req of cur_tech is known or not. The req could be based on the player's research progress or the government ID.
             cur_tech['reqs'] = {}
             for req in ptech['research_reqs']:
-                req_active = ReqInfo.is_req_active(player, req, RPT_CERTAIN)
+                req_active = ReqInfo.is_req_active(my_player, req, RPT_CERTAIN)
                 cur_tech['reqs'][req['value']] = req_active
 
     def init_tech_state(self):

@@ -93,9 +93,7 @@ class DiplomacyCtrl(CivPropController):
         """
 
     def handle_player_diplstate(self, packet):
-        if not self.clstate.is_playing():
-            return
-        cur_playerno = self.clstate.cur_player()["playerno"]
+        cur_playerno = self.clstate.player_num()
         opposite_player = None
         if packet['plr1'] == cur_playerno:
             opposite_player = 'plr2'

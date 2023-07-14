@@ -32,9 +32,15 @@ class PlayerState(PlainState):
         self.diplstates = diplstates
         self.players = players
 
+    @property
+    def my_player_id(self):
+        return self.clstate.player_num()
+    
+    @property
+    def my_player(self):
+        return self.players[self.my_player_id]
+    
     def _update_state(self, player):
-        pplayer = self.clstate.cur_player()
-        player_id = pplayer["playerno"]
         player_fields = ["culture", "current_research_cost", "gold", "government", "is_alive",
                          "luxury", "mood", "nation", "net_income", "revolution_finishes",
                          "science", "science_cost", "score", "target_government", "tax",
@@ -43,19 +49,19 @@ class PlayerState(PlainState):
         if self._state == {}:
             self._state.update(dict([("my_"+key, None) for key in player_fields]))
 
-        self._state.update(dict([("my_"+key, value) for key, value in pplayer.items() if key in player_fields]))
+        self._state.update(dict([("my_"+key, value) for key, value in self.my_player.items() if key in player_fields]))
         no_humans = 0
         no_ais = 0
 
         for pnum, opp_id in enumerate(self.players):
             opponent = self.players[opp_id]
-            if opponent == pplayer:
+            if opponent == self.my_player:
                 continue
-            self._update_opponent_state(pplayer, opponent, "opponent_%i" % pnum)
+            self._update_opponent_state(self.my_player, opponent, "opponent_%i" % pnum)
             if opponent["is_alive"]:
                 if opponent['flags'][player_const.PLRF_AI] != 0:
                     no_ais += 1
-                elif pplayer['nturns_idle'] <= 4:
+                elif self.my_player['nturns_idle'] <= 4:
                     no_humans += 1
 
         self._state["no_humans"] = no_humans
@@ -63,16 +69,16 @@ class PlayerState(PlainState):
 
         # cbo = get_current_bulbs_output()
         # bulbs = cbo.self_bulbs - cbo.self_upkeep
-        researched = pplayer['bulbs_researched']
-        if 'current_research_cost' in pplayer:
-            research_cost = pplayer['current_research_cost']
+        researched = self.my_player['bulbs_researched']
+        if 'current_research_cost' in self.my_player:
+            research_cost = self.my_player['current_research_cost']
         else:
             research_cost = 0
 
         self._state["research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
 
-        self._state["team_no"] = pplayer['team']
-        self._state["embassy_txt"] = self.get_embassy_text(player_id)
+        self._state["team_no"] = self.my_player['team']
+        self._state["embassy_txt"] = self.get_embassy_text(self.my_player_id)
 
     def _update_opponent_state(self, pplayer, opponent, op_id):
         """
@@ -100,7 +106,6 @@ class PlayerState(PlainState):
 
     def show_intelligence_report_hearsay(self, pplayer, op_id):
         """ Return opponent intelligence intelligence when there's no embassy."""
-
         if pplayer['government'] > 0:
             self._state[op_id + "gov"] = pplayer['government']
             self._state[op_id + "gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
@@ -114,7 +119,6 @@ class PlayerState(PlainState):
 
     def show_intelligence_report_embassy(self, pplayer, op_id):
         """ Return opponent intelligence intelligence when there's an embassy."""
-
         for a_field in ["gold", "tax", "science", "luxury"]:
             self._state[op_id + a_field] = pplayer[a_field]
 
@@ -139,7 +143,7 @@ class PlayerState(PlainState):
 
     def get_score_text(self, player):
         if (player['score'] > 0 or self.clstate.client_is_observer()
-                or (self.clstate.is_playing() and player['playerno'] == self.clstate.cur_player()['playerno'])):
+                or player['playerno'] == self.my_player_id):
             return player['score']
         else:
             return "?"
@@ -149,7 +153,7 @@ class PlayerState(PlainState):
                 or not pplayer['flags'][player_const.PLRF_AI] > 0):
             return "-"
         else:
-            return self.love_text(pplayer['love'][self.clstate.cur_player()['playerno']])
+            return self.love_text(pplayer['love'][self.my_player_id])
 
     @staticmethod
     def love_text(love):
@@ -170,17 +174,16 @@ class PlayerState(PlainState):
         return "Worshipful"
 
     def get_embassy_text(self, player_id):
-        if self.clstate.client_is_observer() and not self.clstate.is_playing():
+        if self.clstate.client_is_observer():
             return "-"
 
         pplayer = self.players[player_id]
 
-        cur_player = self.clstate.cur_player()
-        if player_id == cur_player['playerno']:
+        if player_id == self.my_player_id:
             return "-"
-        elif cur_player["real_embassy"][player_id]:
+        elif self.my_player["real_embassy"][player_id]:
             return "We have embassy"
-        elif pplayer.real_embassy[cur_player['playerno']]:
+        elif pplayer['real_embassy'][self.my_player_id]:
             return "They have embassy"
         else:
             return "No embassy"

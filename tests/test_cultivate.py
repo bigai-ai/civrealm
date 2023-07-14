@@ -41,7 +41,7 @@ def test_cultivate(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.constDIR8_WEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
         else:
             pass
     print('Move to the west tile which has forest')

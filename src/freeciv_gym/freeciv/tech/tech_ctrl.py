@@ -18,6 +18,7 @@ from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.tech.tech_state import TechState
 from freeciv_gym.freeciv.tech.tech_actions import TechActions
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 
 """
 /*
@@ -36,14 +37,14 @@ typedef int Tech_type_id
 
 
 class TechCtrl(CivPropController):
-    def __init__(self, ws_client, rule_ctrl: RulesetCtrl, clstate):
+    def __init__(self, ws_client, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
-        self.clstate = clstate
+        self.player_ctrl = player_ctrl
         self.reqtree = None
 
-        self.prop_state = TechState(rule_ctrl, clstate)
-        self.prop_actions = TechActions(ws_client, rule_ctrl, clstate)
+        self.prop_state = TechState(rule_ctrl, player_ctrl)
+        self.prop_actions = TechActions(ws_client, rule_ctrl, player_ctrl)
         self.is_tech_tree_init = False
         self.wikipedia_url = "http://en.wikipedia.org/wiki/"
 

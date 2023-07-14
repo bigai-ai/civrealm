@@ -25,8 +25,10 @@ from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 from freeciv_gym.freeciv.city.city_state import CityState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
 # from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
 # from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+
 
 class PlayerCtrl(CivPropController):
     # def __init__(self, ws_client, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_ctrl: DiplomacyCtrl):
@@ -48,7 +50,8 @@ class PlayerCtrl(CivPropController):
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
         self.register_handler(58, "handle_player_attribute_chunk")
-        self.register_handler(60, "handle_player_research_info")        
+        self.register_handler(60, "handle_player_research_info")
+        self.register_handler(259, "handle_web_player_addition_info")
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -66,43 +69,35 @@ class PlayerCtrl(CivPropController):
         else:
             return "moving"
 
+    @property
+    def my_player_id(self):
+        return self.prop_state.my_player_id
+
+    @property
+    def my_player(self):
+        return self.prop_state.my_player
+
     # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
     def others_finished(self) -> bool:
-        cur_player_id = self.clstate.cur_player()["playerno"]
-        finished = True
         for playerno in self.players:
-            if playerno < cur_player_id and not self.players[playerno]['phase_done']:
-                finished = False
-        return finished
+            if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
+                return False
+        return True
 
     def player_is_myself(self, player_id):
-        cur_player = self.clstate.cur_player()
-        if cur_player != None:
-            return player_id == cur_player["playerno"]
-        else:
-            return False
+        return player_id == self.my_player_id
 
     def player_not_myself(self, player_id):
         return not self.player_is_myself(player_id)
 
     def players_alive(self, pplayer):
-        cur_player = self.clstate.cur_player()
-        if cur_player != None:
-            return pplayer['is_alive'] and cur_player['is_alive']
-        else:
-            return False
+        return pplayer['is_alive'] and self.my_player['is_alive']
 
     def players_not_same_team(self, pplayer):
-        cur_player = self.clstate.cur_player()
-        if cur_player != None:
-            return pplayer['team'] != cur_player['team']
-        else:
-            return False
-        # self_upkeep = self.player_ctrl.cur_player.tech_upkeep
+        return pplayer['team'] != self.my_player['team']
 
     def is_player_ready(self):
-        player_num = self.clstate.player_num()
-        return player_num != None and player_num in self.players.keys() and self.players[player_num]["is_ready"]
+        return self.my_player_id != None and self.my_player_id in self.players.keys() and self.my_player["is_ready"]
 
     def get_player(self, player_num):
         return self.players[player_num]
@@ -187,17 +182,19 @@ class PlayerCtrl(CivPropController):
 
         if self.clstate.can_client_control():
             if not selected_myself:
-                if self.dipl_ctrl.check_in_dipl_states(player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
+                if self.dipl_ctrl.check_in_dipl_states(
+                        player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
                     player_options.append("declare_war")
                 else:
                     player_options.append("cancel_treaty")
 
             if both_alive_and_different and self.players_not_same_team(pplayer) and \
-                    self.clstate.cur_player()['gives_shared_vision'].isSet(player_id):
+                    self.my_player['gives_shared_vision'].isSet(player_id):
                 player_options.append("withdraw_vision")
 
-        if self.clstate.client_is_observer() or (both_alive_and_different and
-                                                 self.dipl_ctrl.check_not_dipl_states(player_id, [player_const.DS_NO_CONTACT])):
+        if self.clstate.client_is_observer() or (
+            both_alive_and_different and self.dipl_ctrl.check_not_dipl_states(
+                player_id, [player_const.DS_NO_CONTACT])):
             player_options.append("intl_report")
 
         player_options.append("toggle_ai")
@@ -260,14 +257,16 @@ class PlayerCtrl(CivPropController):
         else:
             self.players[playerno].update(packet)
 
-        # TODO: check what the following code is doing
-        if self.clstate.is_playing():
-            if playerno == self.clstate.cur_player()['playerno']:
-                self.clstate.update_own_player(self.players[playerno])
-                # update_game_status_panel()
-                # update_net_income()
+        if self.player_is_myself(playerno):
+            pass
+            # TODO: check what the following code is doing
+            # update_game_status_panel()
+            # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
+
+    def handle_web_player_addition_info(self, packet):
+        fc_logger.debug(packet)
 
     def handle_player_research_info(self, packet):
         old_inventions = None
@@ -276,7 +275,7 @@ class PlayerCtrl(CivPropController):
 
         self.research_data[packet['id']] = packet
 
-        #TODO: implement for "team_pooled_research" setting
+        # TODO: implement for "team_pooled_research" setting
         if self.rule_ctrl.game_info['team_pooled_research']:
             for player_id in self.players:
                 pplayer = self.players[player_id]
@@ -288,11 +287,10 @@ class PlayerCtrl(CivPropController):
             pplayer.update(packet)
             del pplayer['id']
 
-        if (not self.clstate.client_is_observer() and old_inventions != None and
-                self.clstate.is_playing() and self.clstate.cur_player()['playerno'] == packet['id']):
+        if (not self.clstate.client_is_observer() and old_inventions != None and self.player_is_myself(packet['id'])):
             for i, invention in enumerate(packet['inventions']):
                 if invention != old_inventions[i] and invention == tech_const.TECH_KNOWN:
-                    fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")                    
+                    fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")
                     break
 
     # TODO: Check whether there are other cases that would also lead to player removal, e.g., other players are conquered.

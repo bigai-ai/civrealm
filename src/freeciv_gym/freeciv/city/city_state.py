@@ -43,7 +43,7 @@ class CityState(ListState):
                 self._state[city_id] = self._get_city_state(pcity)
                 # player_cities[city_id].update(self.get_city_traderoutes(pcity))
 
-        # player_cities["civ_pop"] = self.civ_population(self.clstate.cur_player()["playerno"])
+        # player_cities["civ_pop"] = self.civ_population(self.clstate.player_num())
 
     def _get_city_state(self, pcity):
         cur_state = {}

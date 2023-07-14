@@ -72,7 +72,7 @@ class PlayerOptions(ActionList):
         self.update_clause_options(counter_id, counterpart, cur_player)
 
     def update_clause_options(self, counter_id, giver, taker):
-        cur_p = self.clstate.cur_player()
+        cur_p = self.players[self.clstate.player_num()]
         base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION, player_const.CLAUSE_EMBASSY,
                         player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
 
@@ -94,7 +94,7 @@ class PlayerOptions(ActionList):
                     all_clauses.append({"type": CLAUSE_CITY, "value": city_id})
 
         if self.ruleset.game["trading_gold"]:
-            if giver == self.player_ctrl.clstate.cur_player()['playerno']:
+            if giver == self.clstate.player_num():
                 all_clauses.append({"type": CLAUSE_GOLD, "value": ("#self_gold").val(value)})
             else:
                 all_clauses.append({"type": CLAUSE_GOLD, "value": ("#counterpart_gold").val(value)})

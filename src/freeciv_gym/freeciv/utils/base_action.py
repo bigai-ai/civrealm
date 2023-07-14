@@ -35,7 +35,14 @@ class Action(ABC):
         """Trigger validated action"""
         packet = self._action_packet()
         fc_logger.info("trigger_action. ", packet)
-        return ws_client.send_request(packet, self.wait_for_pid)
+        ws_client.send_request(packet, self.wait_for_pid)
+        return self.refresh_state_after_action(ws_client)
+
+    def refresh_state_after_action(self, ws_client):
+        """Refresh state after action"""
+        packet = self._refresh_state_packet()
+        if packet:
+            return ws_client.send_request(packet)
 
     @abstractmethod
     def is_action_valid(self):
@@ -47,6 +54,9 @@ class Action(ABC):
         """returns the packet that should be sent to the server to carry out action -
         abstract function should be overwritten"""
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+
+    def _refresh_state_packet(self):
+        return None
 
 
 class ActionList(object):

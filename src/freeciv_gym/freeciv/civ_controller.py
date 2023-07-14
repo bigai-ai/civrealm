@@ -114,7 +114,6 @@ class CivController(CivPropController):
         # The received messages may need to be handled for different modes
         self.register_handler(512, "handle_ruleset_clause_msg")
         self.register_handler(20, "handle_ruleset_impr_flag_msg")
-        self.register_handler(259, "handle_web_player_addition_info")
         self.register_handler(66, "handle_unknown_research_msg")
 
     def init_controllers(self, username):
@@ -132,7 +131,7 @@ class CivController(CivPropController):
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.rule_ctrl, self.dipl_ctrl)
 
-        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.clstate)
+        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
         self.city_ctrl = CityCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl, self.clstate,
                                   self.game_ctrl, self.map_ctrl)
 
@@ -242,7 +241,7 @@ class CivController(CivPropController):
         """Ends the current turn."""
         if self.rule_ctrl.game_info == {}:
             return
-        self.begin_logged = False        
+        self.begin_logged = False
         fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
@@ -489,9 +488,6 @@ class CivController(CivPropController):
     def handle_ruleset_impr_flag_msg(self, packet):
         fc_logger.debug(packet)
 
-    def handle_web_player_addition_info(self, packet):
-        fc_logger.debug(packet)
-
     def handle_unknown_research_msg(self, packet):
         fc_logger.debug(packet)
 
@@ -507,11 +503,11 @@ class CivController(CivPropController):
                 if self.monitor.start_observe:
                     break
 
-        if self.clstate.client_is_observer() or not self.clstate.is_playing():
+        if self.clstate.client_is_observer():
             self.send_end_turn()
             return
 
-        pplayer = self.clstate.cur_player()
+        pplayer = self.player_ctrl.my_player
         fc_logger.debug(f'Receiving begin turn packets: {packet}')
         self.turn_manager.begin_turn(pplayer, self.controller_list)
 
@@ -523,7 +519,7 @@ class CivController(CivPropController):
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
-        self.turn_manager.end_turn()        
+        self.turn_manager.end_turn()
 
     def handle_conn_info(self, packet):
         """
@@ -539,7 +535,7 @@ class CivController(CivPropController):
         if not packet['used']:
             # Forget the connection
             if pconn is None:
-                fc_logger.warning("Server removed unknown connection " + str(packet['id']))
+                fc_logger.warning(f"Server removed unknown connection {packet['id']}")
                 return
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
@@ -563,9 +559,6 @@ class CivController(CivPropController):
             if pplayer == None:
                 return
 
-            # Insert player info into connection info packet. 'playing' means the player is playing the game with this connection.
-            # TODO: Delete this unnecessary code. To get the current player, only need to use player_ctrl.players[clstate.player_num()].
-            packet['playing'] = pplayer
             # If the connection info is about the client itself
             if self.clstate.has_id(packet["id"]):
                 # Update connection info and player info
@@ -573,11 +566,6 @@ class CivController(CivPropController):
 
             # Store connection info
             self.clstate.conn_list_append(packet)
-
-        if self.clstate.has_id(packet["id"]) and self.clstate.cur_player() != packet['playing']:
-            # It seems impossible to get here
-            assert (False)
-            self.clstate.set_client_state(C_S_PREPARING)
 
         # /* FIXME: not implemented yet.
         # update_players_dialog()

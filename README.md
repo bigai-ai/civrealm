@@ -24,6 +24,26 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 In order to test the overall bot on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
+### Set the command level of client to hack to allow running all commands for debugging
+
+Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`:
+
+```bash
+cd modified_server_code
+docker cp pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv
+docker cp pubscript_singleplayer.serv freeciv-web:/docker/publite2/pubscript_singleplayer.serv
+```
+
+Commit the current container to save the change to image.
+
+```bash
+docker commit freeciv-web freeciv/freeciv-web
+# Restart the docker container so that the change takes effect
+docker compose down
+docker compose up -d
+```
+
+
 ### Custom freeciv-web to save game files for debugging
 
 Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:

@@ -45,7 +45,7 @@ class ClientState(CivPropController):
         self.username_original = username
         self.username = username
         self.client = {}
-        # Store the client connection state, e.g., conn_id, established
+        # Store the client connection state, e.g., conn_id, established. First initialized during handle_server_join_reply.
         self.client["conn"] = {}
         self.client_frozen = False
 
@@ -243,6 +243,7 @@ class ClientState(CivPropController):
     def update_own_player(self, pplayer):
         self.client["conn"]['playing'] = pplayer
 
+    # Return the player_num to which this connection attaches.
     def player_num(self):
         if "player_num" in self.client["conn"]:
             return self.client["conn"]['player_num']

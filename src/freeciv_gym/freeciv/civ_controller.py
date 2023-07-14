@@ -544,25 +544,27 @@ class CivController(CivPropController):
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
         else:
-            # TODO: ensure 'player_num' in packet-115 is equivalent to 'playerno' in packet-51
             pplayer = self.player_ctrl.valid_player_by_number(packet['player_num'])
             # Receive the first conn_info
             if self.first_conn_info_received == False:
+                # When first conn_info comes, the connections in clstate is empty.
+                assert(pconn == None)
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
                 assert (pplayer != None)
                 # The client is a host. Specify the game setting below.
-                # TODO: Is incorrect when loading a game which is saved by follower
-                if packet['player_num'] == 0 and packet['username'] == self.clstate.username:
+                # Assume the connection id of a host is 1. 
+                if packet['id'] == 1 and packet['username'] == self.clstate.username:
                     self.clstate.init_game_setting()
                 else:
                     # Set the follower property in clstate
                     self.clstate.set_follower_property()
                 self.first_conn_info_received = True
-            # Unknown player
+            # This connection is not attached to any players, just return.
             if pplayer == None:
                 return
 
             # Insert player info into connection info packet. 'playing' means the player is playing the game with this connection.
+            # TODO: Delete this unnecessary code. To get the current player, only need to use player_ctrl.players[clstate.player_num()].
             packet['playing'] = pplayer
             # If the connection info is about the client itself
             if self.clstate.has_id(packet["id"]):

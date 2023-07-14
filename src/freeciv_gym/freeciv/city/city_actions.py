@@ -67,7 +67,9 @@ class CityActions(ActionList):
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
-                self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
+                change_unit_prod_act = CityChangeUnitProduction(pcity, punit_type)
+                if change_unit_prod_act.is_action_valid():
+                    self.add_action(city_id, change_unit_prod_act)
 
             # logger.info("self.rulectrl.improvements:")
             # for improvement_id in self.rulectrl.improvements:
@@ -246,6 +248,7 @@ class CityChangeProduction(Action):
     def _action_packet(self):
         packet = {"pid": packet_city_change, "city_id": self.pcity["id"],
                   "production_kind": self.prod_kind, "production_value": self.prod_value}
+        self.wait_for_pid = 31
         return packet
 
 

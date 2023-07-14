@@ -88,6 +88,7 @@ def test_get_first_obs_fail_with_underscore_in_name():
     controller.init_network()   
     with pytest.raises(Exception):
         controller.get_observation()
+        controller.end_game()
         # controller.lock_control()
 
     

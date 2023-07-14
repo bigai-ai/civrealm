@@ -41,8 +41,9 @@ class TurnManager(object):
     def turn_active(self):
         return self._turn_active
 
-    def set_turn(self, turn):
-        self._turn = turn
+    @turn.setter
+    def turn(self, value):
+        self._turn = value
 
     def log_begin_turn(self):
         fc_logger.info('==============================================')
@@ -121,8 +122,7 @@ class TurnManager(object):
     def end_turn(self):
         fc_logger.info(
             f'============== Finish turn {self._turn:04d} ==============')
-        fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
-        self._turn += 1
+        fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')        
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None

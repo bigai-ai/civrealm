@@ -24,6 +24,7 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
+    controller.end_game()
     controller.close()
 
 

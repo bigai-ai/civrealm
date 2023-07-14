@@ -16,6 +16,14 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.configs import fc_args
+
+# def is_port_in_use(port: int) -> bool:
+#     import socket
+#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+#         return s.connect_ex(('localhost', port)) == 0
+        
 
 @pytest.fixture
 def controller():
@@ -24,9 +32,16 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
+    controller.end_game()
     controller.close()
+    # fc_logger.info(f'Port 8080 in use: {is_port_in_use(8080)}')
+    # fc_logger.info(f"Port {fc_args['client_port']} in use: {is_port_in_use(fc_args['client_port'])}")
 
+@pytest.mark.order(2)
 def test_build_city(controller):
+    import time
+    time.sleep(10)
+    fc_logger.info("test_build_city")
     controller.init_network()
     controller.get_observation()
     options= controller.turn_manager.get_available_actions()

@@ -17,6 +17,8 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
 import freeciv_gym.freeciv.map.map_const as map_const
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.configs import fc_args
 
 
 @pytest.fixture
@@ -26,10 +28,14 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
+    controller.end_game()    
     controller.close()
 
-
+@pytest.mark.order(3)
 def test_build_road(controller):
+    import time
+    time.sleep(10)
+    fc_logger.info("test_build_road")
     controller.init_network()
     controller.get_observation()
     options = controller.turn_manager.get_available_actions()

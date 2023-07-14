@@ -175,6 +175,7 @@ class CivController(CivPropController):
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
             self.delete_save_game()
+            self.end_game()
             self.ws_client.close()
 
     def init_game(self):
@@ -245,6 +246,7 @@ class CivController(CivPropController):
         fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
+        self.turn_manager.end_turn()
 
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
@@ -283,6 +285,9 @@ class CivController(CivPropController):
             self.maybe_grant_control_to_player()
         except Exception:
             raise
+    
+    def end_game(self):
+        self.ws_client.send_message(f"/endgame")    
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name
@@ -329,9 +334,8 @@ class CivController(CivPropController):
         if load_username != self.clstate.username:
             raise RuntimeError(
                 f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
-        self.ws_client.send_message(f"/load {save_name}")
-        turn = int(save_name.split('_')[1][1:])
-        self.turn_manager.set_turn(turn)
+        self.ws_client.send_message(f"/load {save_name}")            
+        self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):
         names, opts = self.player_ctrl.pregame_getplayer_options()
@@ -519,8 +523,8 @@ class CivController(CivPropController):
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
-        self.turn_manager.end_turn()
-
+        self.turn_manager.turn += 1        
+    
     def handle_conn_info(self, packet):
         """
             Remove, add, or update dummy connection struct representing some

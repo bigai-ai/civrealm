@@ -16,7 +16,7 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
-
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 @pytest.fixture
 def controller():
@@ -25,9 +25,14 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
+    controller.end_game()
     controller.close()
 
+@pytest.mark.order(1)
 def test_move_to(controller):
+    import time
+    time.sleep(10)
+    fc_logger.info("test_move_to")
     controller.init_network()
     controller.get_observation()
     options= controller.turn_manager.get_available_actions()

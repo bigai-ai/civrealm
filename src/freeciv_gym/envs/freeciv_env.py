@@ -108,6 +108,9 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
 
         return observation, info
 
+    def end_game(self):
+        self.civ_controller.end_game()
+
     def render(self):
         """Render the environment based on freeciv-web.
         """

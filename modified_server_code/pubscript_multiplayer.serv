@@ -1,0 +1,22 @@
+read web.serv
+
+cmdlevel hack
+set topology ""
+set wrap WRAPX
+set nationset all
+set maxplayers 32
+set allowtake H1Ah1adOo
+set autotoggle enabled
+set timeout 60
+set netwait 15
+set nettimeout 120
+set pingtime 30
+set pingtimeout 120
+set threaded_save enabled
+set scorelog enabled
+set size 4
+set landm 50
+set minp 2
+set generator FAIR
+metaconnection persistent
+metamessage New Freeciv-web Multiplayer Game

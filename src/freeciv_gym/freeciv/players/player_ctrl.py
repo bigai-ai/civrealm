@@ -53,6 +53,7 @@ class PlayerCtrl(CivPropController):
         self.register_handler(60, "handle_player_research_info")
         self.register_handler(259, "handle_web_player_addition_info")
 
+
     @staticmethod
     def get_player_connection_status(pplayer):
         """Status text for short connection info"""
@@ -150,7 +151,7 @@ class PlayerCtrl(CivPropController):
     def player_number(player):
         """Return the player index/number/id."""
         return player['playerno']
-
+    
     def research_get(self, pplayer):
         """Returns the research object related to the given player."""
         if pplayer is None:

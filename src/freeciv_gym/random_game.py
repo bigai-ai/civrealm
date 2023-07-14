@@ -21,6 +21,7 @@ import freeciv_gym
 
 from freeciv_gym.configs import fc_args
 from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 def main():
@@ -30,9 +31,13 @@ def main():
     observations, info = env.reset()
     done = False
     while not done:
-        action = agent.act(observations, info)
-        observations, reward, terminated, truncated, info = env.step(action)
-        done = terminated or truncated
+        try:
+            action = agent.act(observations, info)
+            observations, reward, terminated, truncated, info = env.step(action)
+            done = terminated or truncated
+        except Exception as e:
+            fc_logger.warning(repr(e))
+            env.end_game()
     env.close()
 
 

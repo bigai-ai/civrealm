@@ -22,7 +22,7 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 ## Prerequisites
 
-In order to test the overall bot on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
+In order to test the freeciv-gym on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
 ### Set the command level of client to hack to allow running all commands for debugging
 
@@ -81,52 +81,37 @@ docker compose up -d
 
 ## Installation
 
-### Installation for gym users
+Installation for freeciv-gym developers
 
 ```bash
-pip -m venv ./venv
-
-source ./venv/bin/activate
-
-pip install git+https://github.com:chris1869/freeciv-bot.git
-
-civ_prep_selenium.sh
-```
-
-### Installation for freeciv-bot developers
-
-```bash
-git clone https://github.com/chris1869/freeciv-bot && cd freeciv-bot
+cd freeciv-gym
 
 pip install -e .
+```
 
-civ_prep_selenium.sh
+To test if the installation is successful, run
+
+```bash
+test_freeciv_gym 
+```
+
+To test with multiple players, run
+
+```bash
+test_freeciv_gym --minp=2 --username=myagent
+```
+
+Then in another terminal, run
+
+```bash
+test_freeciv_gym --username=myagent1
 ```
 
 <!-- ### Using a different freeciv version
 
 As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py -->
 
-## Example Gym
-
-For an initial start on training models on freeciv-web - see the example installed by running
-
-```bash
-test_freeciv_gym
-```
-
-It will run gym_freeciv_web/random_game with the key class RandomAgent(object). The central function is
-
-```python
- def act(self, observation, reward, done):
-```
-
-It uses the current observation, reward of the last actions to calculate the next actions (in this case purely randomly).
-
-```python
-        state = observation[0]
-        action_opts = observation[1]
-```
+## Observations and actions
 
 Observation is a tuple of the current state of the game and the action_options. Both state and action_opt are themselves dictionaries describing different aspects of the game, namely:
 
@@ -142,120 +127,6 @@ Observation is a tuple of the current state of the game and the action_options. 
 * tech - Overview on currently active technologies as well as ability to change research goals or researching specific technologies
 * unit - Overview on current unit status (health, moves left, etc.) and ability for moving/activity of units
 
-A detailed description can be found in two json files (example_observation_turn15_state, example_observation_turn15_actions).
-
-The main routine for applying a model will require iterating over all actors and select a certain action based on the given state.
-
-```python
-     for actor_id in action_opts["unit"].get_actors():
-         logger.info("Trying Moving units or build city: %s" % actor_id)
-```
-
-Then one needs to check if the unit/city etc. can actually perform an action anymore and check which actions are actually possible.
-
-```python
-         if action_opts["unit"]._can_actor_act(actor_id):
-             pos_acts = action_opts["unit"].get_actions(actor_id, valid_only=True)
-```
-
-Then, one can apply the model, i.e., there is a 50% chance for a settler to build a city rather than move in a random direction
-
-```python
-             if "build" in pos_acts.keys() and random.random() > 0.5:
-                 return action_opts["unit"], pos_acts["build"]
-             move_action = random.choice([key for key in pos_acts.keys() if "goto" in key])
-             logger.info("in direction %s" % move_action)
-             return action_opts["unit"], pos_acts[move_action]
-```
-
-### Example Bot
-
-A simple bot can move units randomly, create cities and auto-explores territory.
-
-Just run
-
-```bash
-python template.py
-```
-
-On the bottom of the file you will see, the key interface on how to connect to the server and
-to link the bot to the server.
-
-Create the SimpleBot instance - which is a simple bot that randomly moves units and builds cities
-
-```python
-my_bot = SimpleBot()
-```
-
-Create the CivController instance - which handles all controllers (i.e., state, potential actions and processing server messages)
-
-```python
-my_civ_controller = CivController(my_bot, "chrisrocks", client_port=6000)
-```
-
-Create the CivConnection - which establishes a handshake to the freeciv server on <http://localhost> and hands over control to CivController my_civ_controller and its controllers once handshake is complete
-
-```python
-CivConnection(my_civ_controller, 'http://localhost')
-```
-
-### Building your own bot
-
-The file template.py gives an initial example on how a bot should work. The basic idea is that a bot is only responsible for calculating the "action_want" of a certain action given the full state of the board. In SimpleBot, only unit_actions have been defined.
-
-```python
-class SimpleBot(BaseBot):
-    def calculate_unit_actions(self, turn_no, full_state, a_options):
-        action_wants = {}
-```
-
-The overwritten function needs to return a dictionary with the "action_want" for each action of each unit (or more general an actor - see utils.base_action.ActionList as reference). Hence, one needs to iterate over all units punit and all action_optoins a_option.
-
-```python
-        for unit_id in a_options.get_actors(): 
-            action_wants[unit_id] = {}
-            actions =  a_options.get_actions(unit_id)
-            for action_key in actions:
-```
-
-First one needs to ensure that the action is actually valid.
-
-```python
-        if actions[action_key] is None:
-            continue
-```
-
-Than likelihood/wantedness of moves needs to be set.
-
-Example 1: Enable Auto-explore -
-
-action_key refers to the type of action the unit can do. Example: if explore is available - exploring is "WANTED"
-
-```python
-                if action_key == "explore":
-                    action_wants[unit_id][action_key] = ACTION_WANTED
-```
-
-Example 2: Move randomly in all directions, i.e., set random likelihood for moves that are not DIR8_STAY
-
-```python
-    elif "goto" in action_key:
-                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.25
-```
-
-Example 3: Build city with high likelihood
-
-```python
-                elif action_key == "build":
-                    action_wants[unit_id][action_key] = ACTION_WANTED*random()*0.75
-```
-
-Example 4: Set all other actions to ACTION_UNWANTED
-
-```python
-    else:
-                    action_wants[unit_id][action_key] = ACTION_UNWANTED
-```
 
 ## Trouble shooting
 

@@ -31,7 +31,7 @@ def parse_args():
 
     default_config_file = os.path.normpath(
         os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                     '../../../default_settings.yml'))
+                     '../../../default_settings.yaml'))
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', help="configuration file *.yml", type=str,
                         required=False, default=default_config_file)

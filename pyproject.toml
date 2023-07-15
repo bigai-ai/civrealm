@@ -30,7 +30,7 @@ dependencies = [
 
 
 [project.scripts]
-build_freeciv_server = "freeciv.build_server:build_docker_img"
+update_freeciv_web_docker = "freeciv_gym.freeciv.build_server:update_docker_image"
 test_freeciv_gym = "freeciv_gym.random_game:main"
 
 [tool.pytest.ini_options]

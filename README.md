@@ -24,35 +24,13 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 In order to test the freeciv-gym on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
-### Set the command level of client to hack to allow running all commands for debugging
-
-Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`:
+### Update the freeciv-web image
 
 ```bash
-cd modified_server_code
-docker cp pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv
-docker cp pubscript_singleplayer.serv freeciv-web:/docker/publite2/pubscript_singleplayer.serv
+update_freeciv_web_docker
 ```
 
-Commit the current container to save the change to image.
-
-```bash
-docker commit freeciv-web freeciv/freeciv-web
-# Restart the docker container so that the change takes effect
-docker compose down
-docker compose up -d
-```
-
-
-### Custom freeciv-web to save game files for debugging
-
-Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
-
-```bash
-cd modified_server_code
-docker cp DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java
-docker cp ListSaveGames.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/ListSaveGames.java
-```
+### Compile the updated files
 
 Enter the freeciv-web docker:
 
@@ -67,9 +45,17 @@ cd /docker/freeciv-web
 sh build.sh
 ```
 
-After that, commit the current `freeciv-web` container into a new image and use that image to build containers from now on.
+### Commit the current container to save the change to the image
 
-For example:
+```bash
+cd freeciv-web
+docker commit freeciv-web freeciv/freeciv-web
+# Restart the docker container so that the change takes effect
+docker compose down
+docker compose up -d
+```
+
+Alternatively, you can commit the current `freeciv-web` container into a new image and use that image to build containers from now on. For example:
 
 ```bash
 docker commit freeciv-web freeciv/freeciv-web:v2

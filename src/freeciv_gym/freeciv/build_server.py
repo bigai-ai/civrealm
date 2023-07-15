@@ -12,10 +12,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-""" Build freeciv-web from latest repo """
 import docker
 import os
+import subprocess
 
+def run_bash_command(cmd):
+    subprocess.call(cmd, shell=True, executable='/bin/bash')
 
 def build_docker_img():
     client = docker.from_env()
@@ -24,3 +26,18 @@ def build_docker_img():
     for line in cli.build(path="https://github.com/freeciv/freeciv-web.git#develop", tag="freeciv-web"):
         if not "Downloading" in line.decode('utf-8'):
             print(line)
+
+def update_docker_image():
+    print('Updating docker image...')
+    freeciv_dir = os.path.dirname(__file__)
+    modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_server_code')
+
+    # Set the command level of client to hack to allow running all commands for debugging
+    # Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`
+    run_bash_command(f'docker cp {modified_code_dir}/pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv')
+    run_bash_command(f'docker cp {modified_code_dir}/pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv')
+
+    # # Custom freeciv-web to save game files for debugging
+    # Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
+    run_bash_command(f'docker cp {modified_code_dir}/DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java')
+    run_bash_command(f'docker cp {modified_code_dir}/ListSaveGames.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/ListSaveGames.java')

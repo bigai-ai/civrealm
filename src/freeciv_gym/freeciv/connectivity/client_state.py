@@ -76,6 +76,14 @@ class ClientState(CivPropController):
         # whether to wait for observer before start game in multiplayer mode
         self.wait_for_observer = fc_args['wait_for_observer']
 
+        # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
+        self.load_game_tried = False
+        self.load_complete = False
+        self.begin_logged = False
+
+        # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
+        self.first_conn_info_received = False
+
     def register_all_handlers(self):
         self.register_handler(0, "handle_processing_started")
         self.register_handler(1, "handle_processing_finished")

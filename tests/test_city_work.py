@@ -16,6 +16,8 @@ import pytest
 import random
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.test_helper import get_first_observation
 
 @pytest.fixture
 def controller():
@@ -24,6 +26,7 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
+    controller.end_game()
     controller.close()
 
 
@@ -38,8 +41,8 @@ def find_keys_with_keyword(dictionary, keyword):
 def test_city_work(controller):
 
     # ============================== ensure at least 1 specialist ==============================
-    controller.init_network()
-    controller.get_observation()
+    fc_logger.info("test_city_work")
+    get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
 
     city_opt = options['city']

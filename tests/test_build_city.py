@@ -17,6 +17,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.test_helper import get_first_observation
 from freeciv_gym.configs import fc_args
 
 # def is_port_in_use(port: int) -> bool:
@@ -37,13 +38,9 @@ def controller():
     # fc_logger.info(f'Port 8080 in use: {is_port_in_use(8080)}')
     # fc_logger.info(f"Port {fc_args['client_port']} in use: {is_port_in_use(fc_args['client_port'])}")
 
-@pytest.mark.order(2)
 def test_build_city(controller):
-    import time
-    time.sleep(10)
     fc_logger.info("test_build_city")
-    controller.init_network()
-    controller.get_observation()
+    get_first_observation(controller)
     options= controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']    

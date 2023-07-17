@@ -17,6 +17,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.test_helper import get_first_observation
 
 @pytest.fixture
 def controller():
@@ -28,13 +29,9 @@ def controller():
     controller.end_game()
     controller.close()
 
-@pytest.mark.order(1)
 def test_move_to(controller):
-    import time
-    time.sleep(10)
-    fc_logger.info("test_move_to")
-    controller.init_network()
-    controller.get_observation()
+    fc_logger.info("test_move_to") 
+    get_first_observation(controller)
     options= controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']

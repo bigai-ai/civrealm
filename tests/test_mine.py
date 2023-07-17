@@ -17,6 +17,8 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.game.ruleset import EXTRA_MINE
 import freeciv_gym.freeciv.map.map_const as map_const
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.test_helper import get_first_observation
 
 
 @pytest.fixture
@@ -31,8 +33,8 @@ def controller():
 
 
 def test_mine(controller):
-    controller.init_network()
-    controller.get_observation()
+    fc_logger.info("test_mine")
+    get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']

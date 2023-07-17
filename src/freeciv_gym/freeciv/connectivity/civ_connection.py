@@ -113,8 +113,9 @@ class CivWSClient(WebSocketClient):
 
 class CivConnection(CivWSClient):
     def __init__(
-            self, host, client_port, restart_server_if_down=True, wait_for_server=120,
-            retry_interval=5):
+            self, host, client_port, restart_server_if_down=False, wait_for_server=120,
+            retry_interval=5,
+            retry_connection=False):
         '''
             restart_server_if_down - True if server should be restarted if down
             wait_for_server - Overall time waiting for server being up
@@ -133,6 +134,7 @@ class CivConnection(CivWSClient):
 
         self._restarting_server = False
         self._cur_retry = 0
+        self._retry_connection = retry_connection
 
     def _retry(self):
         self._cur_retry += 1
@@ -151,7 +153,7 @@ class CivConnection(CivWSClient):
                 self._restart_server()
                 return self._detect_server_up()
 
-            if self._cur_retry < self._num_retries:
+            if self._cur_retry < self._num_retries and self._retry_connection:
                 return self._retry()
 
             raise Exception('Connection could not be established!') from err

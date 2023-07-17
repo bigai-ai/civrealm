@@ -40,6 +40,7 @@ from freeciv_gym.freeciv.utils.civ_monitor import CivMonitor
 
 from freeciv_gym.freeciv.turn_manager import TurnManager
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
 
 
@@ -63,9 +64,8 @@ class CivController(CivPropController):
             The host of the Freeciv server. The default is 'localhost'.
         client_port : int, optional
             The port of the Freeciv server. The default is 6000.
-            6000, 6004 and 6005 are for single player game.
-            6001 and 6002 are for multiplayer game.
-            6003 and 6006 are for longturn game (one turn per day).
+            6000 is for single player game.
+            6001 is for multiplayer game.            
         visualize : bool, optional
             Whether to visualize the game. The default is False.
         """
@@ -78,25 +78,34 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager()
 
         if fc_args['multiplayer_game']:
-            assert client_port == 6001, 'Multiplayer game must use port 6001'
+            assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
 
         self.visualize = visualize
         self.monitor = None
         if self.visualize:
             self.monitor = CivMonitor(host, username)
 
+        # Host address
         self.host = host
-
-        # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
-        self.first_conn_info_received = False
+        self.client_port = client_port
+        self.username = username
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
-        # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
-        self.load_game_tried = False
-        self.load_complete = False
-        self.begin_logged = False
+        
         self.init_controllers(username)
+
+    def reset(self):
+        self.ws_client = CivConnection(self.host, self.client_port)
+        self.ws_client.set_on_connection_success_callback(self.init_game)
+        self.ws_client.set_packets_callback(self.assign_packets)
+        self.hdict = {}
+        # Register key in hdict
+        self.register_all_handlers()
+        self.turn_manager = TurnManager()
+        self.delete_save = True
+        self.game_saving_time_range = []        
+        self.init_controllers(self.username)
 
     def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")
@@ -208,9 +217,9 @@ class CivController(CivPropController):
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
-            if not self.begin_logged:
+            if not self.clstate.begin_logged:
                 self.turn_manager.log_begin_turn()
-                self.begin_logged = True
+                self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
 
     @property
@@ -242,7 +251,7 @@ class CivController(CivPropController):
         """Ends the current turn."""
         if self.rule_ctrl.game_info == {}:
             return
-        self.begin_logged = False
+        self.clstate.begin_logged = False
         fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
@@ -410,16 +419,16 @@ class CivController(CivPropController):
 
     def handle_load_game(self, message):
         # To observe a load game, you can first sign in and then send /observe PLAYER_NAME message by console or chatbox. If there is a space in the PLAYER_NAME, use "" to specify.
-        if 'You are logged in as' in message and not self.load_game_tried:
+        if 'You are logged in as' in message and not self.clstate.load_game_tried:
             self.load_game(fc_args['debug.load_game'])
-            self.load_game_tried = True
+            self.clstate.load_game_tried = True
 
         if 'load: Cannot find savegame or scenario with the name' in message:
             fc_logger.error(f"Load game unsuccessfully. Message: {message}")
             raise RuntimeError(f"Load game unsuccessfully. Message: {message}")
 
         if 'Load complete' in message:
-            self.load_complete = True
+            self.clstate.load_complete = True
 
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""
@@ -454,7 +463,7 @@ class CivController(CivPropController):
 
         if self.clstate.should_prepare_game_base_on_message(message):
             if fc_args['debug.load_game'] != "":
-                if self.load_complete:
+                if self.clstate.load_complete:
                     # Already load game, start without choosing nation
                     self.clstate.pregame_start_game()
             else:
@@ -546,7 +555,7 @@ class CivController(CivPropController):
         else:
             pplayer = self.player_ctrl.valid_player_by_number(packet['player_num'])
             # Receive the first conn_info
-            if self.first_conn_info_received == False:
+            if self.clstate.first_conn_info_received == False:
                 # When first conn_info comes, the connections in clstate is empty.
                 assert(pconn == None)
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
@@ -558,7 +567,7 @@ class CivController(CivPropController):
                 else:
                     # Set the follower property in clstate
                     self.clstate.set_follower_property()
-                self.first_conn_info_received = True
+                self.clstate.first_conn_info_received = True
             # This connection is not attached to any players, just return.
             if pplayer == None:
                 return

@@ -961,9 +961,10 @@ class ActAttack(UnitAction):
         return action_prob_possible(self.focus.action_probabilities[ACTION_ATTACK])
 
     def _action_packet(self):
-        return self.unit_do_action(self.focus.punit['id'],
+        packet = self.unit_do_action(self.focus.punit['id'],
                                    self.focus.ptile['index'],
-                                   ACTION_ATTACK)
+                                   ACTION_ATTACK)        
+        return packet
 
 
 def order_wants_direction(order, act_id, ptile):

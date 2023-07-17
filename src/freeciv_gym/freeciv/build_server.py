@@ -32,11 +32,16 @@ def update_docker_image():
     freeciv_dir = os.path.dirname(__file__)
     modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_server_code')
 
+    # Add more ports for multiplayer mode to enable parallel training and testing.
+    # Replace the `settings.ini` and `publite2.py` file in `/docker/publite2/`
+    run_bash_command(f'docker cp {modified_code_dir}/settings.ini freeciv-web:/docker/publite2/settings.ini')
+    run_bash_command(f'docker cp {modified_code_dir}/publite2.py freeciv-web:/docker/publite2/publite2.py')
+
     # Set the command level of client to hack to allow running all commands for debugging
     # Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`
     run_bash_command(f'docker cp {modified_code_dir}/pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv')
     run_bash_command(f'docker cp {modified_code_dir}/pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv')
-
+    
     # # Custom freeciv-web to save game files for debugging
     # Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
     run_bash_command(f'docker cp {modified_code_dir}/DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java')

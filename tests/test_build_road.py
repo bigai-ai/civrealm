@@ -18,6 +18,7 @@ from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.test_helper import get_first_observation
 from freeciv_gym.configs import fc_args
 
 
@@ -31,13 +32,9 @@ def controller():
     controller.end_game()    
     controller.close()
 
-@pytest.mark.order(3)
-def test_build_road(controller):
-    import time
-    time.sleep(10)
+def test_build_road(controller):    
     fc_logger.info("test_build_road")
-    controller.init_network()
-    controller.get_observation()
+    get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']

@@ -77,10 +77,11 @@ class MapState(PlainState):
         tile['nuke'] = 0
         return tile
 
-    def update_tile(self, tile_packet, map_info):
+    def update_tile(self, tile_packet):
         tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
         if self.state['extras'] is None:
-            extras_shape = (map_info['xsize'], map_info['ysize'], len(tile_packet['extras']))
+            x_size, y_size = self._state['status'].shape
+            extras_shape = (x_size, y_size, len(tile_packet['extras']))
             self.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
 
         ptile = tile_packet['tile']

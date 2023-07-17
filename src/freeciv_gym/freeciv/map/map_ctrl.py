@@ -234,7 +234,7 @@ class MapCtrl(CivPropController):
                 self.prop_state.tiles[x + y * self.map_info['xsize']]['goto_dir'] = None
 
     def handle_tile_info(self, packet):
-        self.prop_state.update_tile(packet, self.map_info)
+        self.prop_state.update_tile(packet)
 
     def handle_set_topology(self, packet):
         """

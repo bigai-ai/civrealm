@@ -15,15 +15,16 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_MINE
 import freeciv_gym.freeciv.map.map_const as map_const
+from freeciv_gym.freeciv.game.ruleset import EXTRA_IRRIGATION
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.freeciv.utils.test_helper import get_first_observation
+from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation
 
 
 @pytest.fixture
 def controller():
-    controller = CivController('testcontroller')
+    controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
@@ -32,15 +33,15 @@ def controller():
     controller.close()
 
 
-def test_mine(controller):
-    fc_logger.info("test_mine")
+def test_irrigation(controller):
+    fc_logger.info("test_build_city")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
     build_action = None
-    worker_id = 139
+    worker_id = 138
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -50,10 +51,10 @@ def test_mine(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-            build_action = valid_actions['mine']
+            build_action = valid_actions['irrigation']
         else:
             pass
-    print('Move to the north tile which has a hill (mine is allowed)')
+    print('Move to the north tile which is near a river (irrigation is allowed)')
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
@@ -67,26 +68,26 @@ def test_mine(controller):
     controller.send_end_turn()
     controller.get_observation()
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     # The unit has move in new turn, the build should be valid
-    assert (not (build_tile['extras'][EXTRA_MINE] == 1))
+    assert (not (build_tile['extras'][EXTRA_IRRIGATION] == 1))
     assert (build_action.is_action_valid())
     build_action.trigger_action(controller.ws_client)
-    print('Begin building a mine, needs a few turns to finish ...')
+    print('Begin building a irrigation, needs a few turns to finish ...')
     # Wait for 15 turns (until the work is done)
-    for turn_i in range(15):
+    for turn_i in range(5):
         controller.send_end_turn()
         controller.get_observation()
     # Get updated state
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    assert (build_tile['extras'][EXTRA_MINE] == 1)
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+    assert (build_tile['extras'][EXTRA_IRRIGATION] == 1)
 
 
 def main():
-    controller = CivController('testcontroller')
+    controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    test_mine(controller)
+    test_irrigation(controller)
 
 
 if __name__ == '__main__':

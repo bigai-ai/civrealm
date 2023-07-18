@@ -17,11 +17,13 @@ import random
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.freeciv.utils.test_helper import get_first_observation
+from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation
+
 
 @pytest.fixture
 def controller():
-    controller = CivController('testcontroller')
+    controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
@@ -87,4 +89,3 @@ def test_city_change_specialist(controller):
 
     assert (specialists_1[0] == 1 and specialists_1[1] == 0 and specialists_1[2] == 0 and
             specialists_2[0] == 0 and specialists_2[1] == 1 and specialists_2[2] == 0)
-

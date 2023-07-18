@@ -42,7 +42,7 @@ import tornado.ioloop
 
 
 # def callback():
-#     print('aaa')    
+#     print('aaa')
 #     tornado.ioloop.IOLoop.current().stop()
 #     raise RuntimeError(f"Log in rejected")
 
@@ -59,16 +59,16 @@ import tornado.ioloop
 # @pytest.mark.asyncio
 # async def test_login_fail_with_underscore_in_name(event_loop):
 #     event = asyncio.Event()
-#     controller = CivController('testcontroller')
+#     controller = CivController(fc_args['username'])
 #     controller.init_network()
-#     with pytest.raises(Exception):        
+#     with pytest.raises(Exception):
 #         await event.wait()
 
 # from tornado import httpclient
 # from tornado import httputil
 # from tornado import websocket
 # @pytest.mark.asyncio
-# async def test_login_fail_with_underscore_in_name():    
+# async def test_login_fail_with_underscore_in_name():
 #     event = asyncio.Event()
 #     controller = CivController('test_controller')
 #     controller.ws_client.ws_address
@@ -76,22 +76,21 @@ import tornado.ioloop
 #     request = httpclient.HTTPRequest(url=controller.ws_client.ws_address,
 #                                          connect_timeout=300,
 #                                          request_timeout=300,
-#                                          headers=headers)    
+#                                          headers=headers)
 #     with pytest.raises(Exception):
 #         websocket.websocket_connect(request, callback=controller.ws_client._connect_callback, on_message_callback=controller.ws_client._on_message)
 #         await event.wait()
-        # controller.lock_control()
+# controller.lock_control()
 
 
-def test_get_first_obs_fail_with_underscore_in_name():    
+def test_get_first_obs_fail_with_underscore_in_name():
     controller = CivController('test_controller')
-    controller.init_network()   
+    controller.init_network()
     with pytest.raises(Exception):
         controller.get_observation()
         controller.end_game()
         # controller.lock_control()
 
-    
 
 # def main():
 #     test_login_fail_with_underscore_in_name()
@@ -103,7 +102,7 @@ def test_get_first_obs_fail_with_underscore_in_name():
 
 # @pytest.fixture
 # def controller():
-#     controller = CivController('testcontroller')    
+#     controller = CivController(fc_args['username'])
 #     yield controller
 #     controller.close()
 
@@ -116,4 +115,3 @@ def test_get_first_obs_fail_with_underscore_in_name():
 # def test_login_success(controller):
 #     controller.init_network()
 #     controller.lock_control()
-

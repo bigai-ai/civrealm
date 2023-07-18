@@ -84,6 +84,8 @@ class CivWSClient(WebSocketClient):
         self.send_queue.append(packet_payload)
         if wait_for_pid is not None:
             self.wait_for_packs.append(wait_for_pid)
+        # fc_logger.info(f'read_packs: {self.read_packs}')
+        # fc_logger.info(f'wait_for_packs: {self.wait_for_packs}')
         if self.read_packs == []:
             return self.clear_send_queue()
         else:
@@ -102,6 +104,7 @@ class CivWSClient(WebSocketClient):
         return msges
 
     def is_waiting_for_responses(self):
+        fc_logger.info(f'wait_for_packs: {self.wait_for_packs}')
         return len(self.wait_for_packs) > 0
 
     def stop_waiting(self, pid):

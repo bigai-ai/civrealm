@@ -175,7 +175,9 @@ class UnitActions(ActionList):
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
         
-        worker = self.rule_ctrl.unit_types[unit_focus.punit['type']]['worker']        
+        unit_type = self.rule_ctrl.unit_types[unit_focus.punit['type']]
+        worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
+        # print(self.rule_ctrl.unit_types[unit_focus.punit['type']])
 
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGetAttack(unit_focus, dir8, self.enemy_units, worker))

@@ -8,11 +8,12 @@ def get_first_observation(controller):
     port = random.choice(DEV_PORT_LIST)
     controller.client_port = port
     # Reset controller. Otherwise, the states (clstate, conn info, etc.) changed in the previous login will cause errors.
-    controller.reset()
+    controller.reset()    
     # Handle port conflict if exist
     try:
-        controller.init_network()
+        controller.init_network()        
         controller.get_observation()
+        # controller.clstate.set_multiplayer_game()
     except Exception as e:
         fc_logger.error(repr(e))
         # Sleep for a random time and try again

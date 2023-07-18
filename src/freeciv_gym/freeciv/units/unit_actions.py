@@ -129,12 +129,16 @@ class UnitActions(ActionList):
         self.map_ctrl = map_ctrl
         self.city_ctrl = city_ctrl
         self.unit_data = {}
+        self.enemy_units = None
 
     def update(self, pplayer):
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
             if punit["owner"] == pplayer["playerno"]:
-                self._update_unit_data(punit, pplayer, unit_id)
+                self._update_unit_data(punit, pplayer, unit_id)                
+                unit_tile = self.map_ctrl.index_to_tile(punit['tile'])
+                # TODO: update GetAttack action based on updated enemy_units
+                self.enemy_units = self.get_adjacent_enemy_units(unit_tile)
                 if self.actor_exists(unit_id):
                     continue
 
@@ -150,6 +154,7 @@ class UnitActions(ActionList):
         pcity = self.city_ctrl.tile_city(ptile)
 
         self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, pplayer)
+
 
     def add_unit_order_commands(self, unit_id):
         """Enables and disables the correct units commands for the unit in focus."""
@@ -169,11 +174,50 @@ class UnitActions(ActionList):
         #              DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]:
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
+        
+        worker = self.rule_ctrl.unit_types[unit_focus.punit['type']]['worker']        
+
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActGetAttack(unit_focus, dir8, self.enemy_units, worker))
 
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
             punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
+
+     # Return the adjacent units of the given tile
+    def get_adjacent_units(self, tile):
+        tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
+        unit_dict = {}
+        for tile in tile_dict:    
+            if len(tile_dict[tile]['units']) > 0:
+                unit_dict[tile] = tile_dict[tile]['units']
+        return unit_dict    
+
+    # Return the adjacent own units of the given tile 
+    def get_adjacent_own_units(self, tile):
+        tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
+        unit_dict = {}
+        for tile in tile_dict:
+            for unit in tile_dict[tile]['units']:
+                # TODO: check whether it is possible that units from other players (e.g., ally) are in the same tile as own units
+                # If one unit is own unit, then other units are also own units.
+                if unit['owner'] == self.player_ctrl.my_player_id:
+                    unit_dict[tile] = tile_dict[tile]['units']
+                    break
+        return unit_dict
+    
+    # TODO: Need to consider the ally's player id
+    # Return the adjacent enemy units of the given tile 
+    def get_adjacent_enemy_units(self, tile):
+        tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
+        unit_dict = {}
+        for tile in tile_dict:
+            for unit in tile_dict[tile]['units']:
+                if unit['owner'] != self.player_ctrl.my_player_id:
+                    unit_dict[tile] = tile_dict[tile]['units']
+                    break
+        return unit_dict
 
 
 class UnitAction(Action):
@@ -940,6 +984,39 @@ class ActGoto(StdAction):
 
         return packet
 
+class ActGetAttack(UnitAction):
+    """Attack unit on target tile"""
+    action_key = "get_attack"
+
+    def __init__(self, focus, dir8, enemy_units, worker):
+        super().__init__(focus)        
+        self.worker = worker
+        # The dir8 direction has an enemy unit
+        # TODO: we assume only one unit in the tile for now
+        if dir8 in enemy_units:
+            self.target_unit_id = enemy_units[dir8][0]['id']            
+            self.target_tile_id = enemy_units[dir8][0]['tile']            
+        else:
+            self.target_unit_id = None
+            self.target_tile_id = None
+                
+        self.action_key += "_%i" % dir8
+
+    def is_action_valid(self):
+        return self.target_unit_id != None and not self.worker
+
+    def _action_packet(self):
+        actor_unit = self.focus.punit 
+        packet = {"pid": packet_unit_get_actions,
+                "actor_unit_id": actor_unit['id'],
+                "target_tile_id": self.target_tile_id,
+                "target_unit_id": self.target_unit_id,
+                "target_extra_id": -1,                   
+                "request_kind": 0
+                }
+        self.wait_for_pid = 90
+
+        return packet    
 
 class ActNuke(UnitAction):
     """Start a goto that will end in the unit(s) detonating in a nuclear explosion."""

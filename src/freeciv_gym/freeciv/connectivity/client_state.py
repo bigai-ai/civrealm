@@ -231,7 +231,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/set minp {fc_args['minp']}")
         self.ws_client.send_message("/set generator FAIR")
         # self.ws_client.send_message("/metaconnection persistent")
-        self.ws_client.send_message("/metamessage Multiplayer Game hosted by " + self.username)
+        self.ws_client.send_message(f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
 
     def update_state(self, packet):
         self.client["conn"] = packet

@@ -50,6 +50,7 @@ class RulesetCtrl(CivPropController):
         self.terrains = {}
         self.resources = {}
         self.unit_types = {}
+        self.unit_classes = {}
 
         self.specialists = {}
         self.techs = {}
@@ -226,8 +227,7 @@ class RulesetCtrl(CivPropController):
         self.improvements[packet['id']] = packet
 
     def handle_ruleset_unit_class(self, packet):
-        pass
-        # /* TODO: implement*/
+        self.unit_classes[packet['id']] = packet
 
     def handle_ruleset_disaster(self, packet):
         pass

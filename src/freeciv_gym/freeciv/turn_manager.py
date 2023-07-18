@@ -111,7 +111,8 @@ class TurnManager(object):
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
             self._turn_opts[ctrl_type] = ctrl.get_current_options(
-                self._turn_player)
+                self._turn_player)        
+
         return self._turn_opts
 
     def get_reward(self):

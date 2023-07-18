@@ -51,6 +51,13 @@ class MapCtrl(CivPropController):
     def wrap_has_flag(self, flag):
         return ((self.map_info['wrap_id'] & (flag)) != 0)
 
+    # Return the adjacent tiles of the given tile
+    def get_adjacent_tiles(self, tile):
+        tile_dict = {}
+        for dir8 in map_const.DIR8_ORDER:
+            tile_dict[dir8] = self.mapstep(tile, dir8)
+        return tile_dict    
+
     def city_tile(self, pcity):
         if pcity == None:
             return None

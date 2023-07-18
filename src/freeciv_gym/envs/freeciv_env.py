@@ -95,7 +95,8 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
         terminated = self._get_terminated()
         truncated = self._get_truncated()
         info = self._get_info()
-
+        # Call lock_control again to get the packets about probablity
+        self._get_observation()
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
 

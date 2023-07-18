@@ -79,8 +79,13 @@ class CityActions(ActionList):
 
             for improvement_id in self.rulectrl.improvements:
                 pimprovement = self.rulectrl.improvements[improvement_id]
-                self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
-                self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
+                change_improve_prod_act = CityChangeImprovementProduction(pcity, pimprovement)
+                if change_improve_prod_act.is_action_valid():
+                    self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
+
+                city_sell_improve_act = CitySellImprovement(pcity, improvement_id, pimprovement["name"])
+                if city_sell_improve_act.is_action_valid():
+                    self.add_action(city_id, city_sell_improve_act)
 
 
 class CityWorkTile(Action):

@@ -82,6 +82,8 @@ def test_mine(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (build_tile['extras'][EXTRA_MINE] == 1)
+    import time
+    time.sleep(2)
 
 
 def main():

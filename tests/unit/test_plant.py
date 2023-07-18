@@ -77,6 +77,8 @@ def test_plant(controller):
         controller.send_end_turn()
         controller.get_observation()
     assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
+    import time
+    time.sleep(2)
 
 
 def main():

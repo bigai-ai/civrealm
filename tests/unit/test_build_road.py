@@ -74,7 +74,7 @@ def test_build_road(controller):
     assert (build_action.is_action_valid())
     build_action.trigger_action(controller.ws_client)
     print('Begin building a road, needs a few turns to finish ...')
-    # Wait for 15 turns (until the work is done)
+    # Wait for 5 turns (until the work is done)
     for turn_i in range(5):
         controller.send_end_turn()
         controller.get_observation()
@@ -82,13 +82,6 @@ def test_build_road(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (build_tile['extras'][EXTRA_ROAD] == 1)
+    import time
+    time.sleep(2)
 
-
-def main():
-    controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    test_build_road(controller)
-
-
-if __name__ == '__main__':
-    main()

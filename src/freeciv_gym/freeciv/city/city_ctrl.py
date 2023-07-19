@@ -176,6 +176,10 @@ class CityCtrl(CivPropController):
           their own. It is used when the player has full information about a city,
           including it's internals.
         """
+
+        packet['can_build_unit'] = byte_to_bit_array(packet['can_build_unit'])
+        packet['can_build_improvement'] = byte_to_bit_array(packet['can_build_improvement'])
+        
         # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:
             # /* The city should have been sent before the additional info. */

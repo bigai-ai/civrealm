@@ -20,7 +20,7 @@ from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
 from freeciv_gym.freeciv.game import ruleset
 from freeciv_gym.freeciv.game.game_ctrl import EXTRA_NONE
-from freeciv_gym.freeciv.game.ruleset import EXTRA_RIVER, EXTRA_ROAD, EXTRA_RAILROAD
+from freeciv_gym.freeciv.game.ruleset import EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_RIVER
 
 from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
@@ -621,12 +621,24 @@ class ActBuildRailRoad(EngineerAction):
 
 
 class ActPillage(UnitAction):
+    """Pillages Irrigation, Mine, Oil Mine, Farmland, Fortress, Airbase, Buoy, Ruins, Road and Railroad from tiles."""
     action_key = "pillage"
 
     def is_action_valid(self):
-        tile_valid = self.focus.pcity is None or (self.focus.pcity != None and CityState.city_owner_player_id(
-            self.focus.pcity) != self.focus.pplayer["playerno"])
-        return self.focus.pplayer != None and self.focus.ptype['attack_strength'] > 0 and tile_valid
+        # tile_valid = self.focus.pcity is None or (self.focus.pcity != None and CityState.city_owner_player_id(
+        #     self.focus.pcity) != self.focus.pplayer["playerno"])
+        # return self.focus.pplayer != None and self.focus.ptype['attack_strength'] > 0 and tile_valid
+        can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_FARMLAND) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
+                            TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+        return can_pillage_extra
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_PILLAGE, EXTRA_NONE)

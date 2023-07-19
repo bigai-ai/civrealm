@@ -15,6 +15,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
+from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -24,7 +25,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T54_2023-07-19-11_58')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -32,14 +33,14 @@ def controller():
     controller.close()
 
 
-def test_cultivate(controller):
-    fc_logger.info("test_cultivate")
+def test_pillage(controller):
+    fc_logger.info("test_pillage")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    worker_id = 139
+    worker_id = 138
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -48,10 +49,10 @@ def test_cultivate(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
         else:
             pass
-    print('Move to the west tile which has forest')
+    print('Move to the east tile which has road & irrigation')
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
@@ -65,26 +66,26 @@ def test_cultivate(controller):
     punit = unit_opt.unit_ctrl.units[worker_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    cultivate_action = valid_actions['cultivate']
+    cultivate_action = valid_actions['pillage']
     print(
         f"Unit id: {worker_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (cultivate_action.is_action_valid())
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
+    assert (unit_tile['extras'][EXTRA_ROAD] == 1)
     cultivate_action.trigger_action(controller.ws_client)
-    print('Begin cultivating, needs a few turns to finish ...')
+    print('Begin pillaging, needs a few turns to finish ...')
     # Wait for 15 turns (until the work is done)
-    for turn_i in range(15):
+    for turn_i in range(3):
         controller.send_end_turn()
         controller.get_observation()
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] != 'Forest')
+    assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
     import time
     time.sleep(2)
 
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    test_cultivate(controller)
+    controller.set_parameter('debug.load_game', 'testcontroller_T54_2023-07-19-11_58')
+    test_pillage(controller)
 
 
 if __name__ == '__main__':

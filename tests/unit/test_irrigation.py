@@ -34,7 +34,7 @@ def controller():
 
 
 def test_irrigation(controller):
-    fc_logger.info("test_build_city")
+    fc_logger.info("test_irrigation")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions

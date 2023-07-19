@@ -33,7 +33,7 @@ def controller():
 
 
 def test_plant(controller):
-    fc_logger.info("test_build_city")
+    fc_logger.info("test_plant")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions

@@ -51,4 +51,5 @@ addopts = [
     # "tests/unit/test_mine.py",
     # "tests/unit/test_move_to.py",
     # "tests/unit/test_plant.py",
+    # "tests/unit/test_pillage.py",
 ]

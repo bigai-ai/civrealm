@@ -84,6 +84,7 @@ class CityCtrl(CivPropController):
         if pcity_id is None or pcity_id not in self.cities:
             return
 
+        self.prop_actions.remove_actor(pcity_id)
         del self.cities[pcity_id]
 
     def get_city_traderoutes(self, pcity):

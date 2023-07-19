@@ -38,12 +38,15 @@ class CityActions(ActionList):
         return True
 
     def update(self, pplayer):
+        self._action_dict = {}
+
         for city_id in self.cities:
             pcity = self.cities[city_id]
-            if pcity["owner"] != pplayer["playerno"] or self.actor_exists(city_id):
+            if pcity["owner"] != pplayer["playerno"]:
                 continue
-            r_city = int(floor(sqrt(pcity["city_radius_sq"])))
             self.add_actor(city_id)
+
+            r_city = int(floor(sqrt(pcity["city_radius_sq"])))
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
                     work_act = CityWorkTile(pcity, dx, dy, self.city_map)

@@ -63,7 +63,9 @@ class CityActions(ActionList):
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
-            self.add_action(city_id, CityBuyProduction(pcity, pplayer))
+            city_buy_prod_act = CityBuyProduction(pcity, pplayer)
+            if city_buy_prod_act.is_action_valid():
+                self.add_action(city_id, city_buy_prod_act)
 
             # for unit_type_id in self.rulectrl.unit_types:
             #     punit_type = self.rulectrl.unit_types[unit_type_id]
@@ -186,10 +188,10 @@ class CityBuyProduction(Action):
         self.pplayer = pplayer
 
     def is_action_valid(self):
-        if "buy_gold_cost" not in self.pcity:
+        if "buy_cost" not in self.pcity:
             return False
 
-        return self.pplayer['gold'] >= self.pcity['buy_gold_cost']
+        return self.pplayer['gold'] >= self.pcity['buy_cost']
 
     def _action_packet(self):
         """Buy whatever is being built in the city."""

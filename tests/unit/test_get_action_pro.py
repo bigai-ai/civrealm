@@ -35,7 +35,7 @@ def controller():
     controller.close()
 
 
-def test_attack(controller):
+def test_get_action_pro(controller):
     fc_logger.info("test_get_action_pro")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions

@@ -245,19 +245,8 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward()
 
     def get_info(self):
-        info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
-        
-        # Get action probablity process here
-        # unit_opt = info['available_actions']['unit']
-        # for unit_id in unit_opt.unit_data.keys():
-        #     punit = unit_opt.unit_data[unit_id].punit        
-        #     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        #     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)            
-        #     for action in valid_actions:
-        #         if 'get_attack' in action:
-        #             # fc_logger.info(f"Unit position: ({unit_tile['x']}, {unit_tile['y']})")
-        #             valid_actions[action].trigger_action(self.ws_client)
-                    
+        self.lock_control()
+        info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}        
         return info
 
     def send_end_turn(self):

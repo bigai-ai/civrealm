@@ -70,13 +70,15 @@ class FocusUnit():
 
         self.action_probabilities = None
 
-    def set_focus(self, punit, ptype, ptile, pcity, pplayer):
+    def set_focus(self, punit, ptype, ptile, pcity, enemy_units, pplayer):
         """Sets the focus to unit punit having type ptype acting on ptile, pcity owned by pplayer"""
         self.punit = punit
         self.ptype = ptype
         self.ptile = ptile
         self.pcity = pcity
+        self.enemy_units = enemy_units
         self.pplayer = pplayer
+        # Get all units on the current tile
         self.units_on_tile = self.tile_units(ptile)
 
         if ptype['obsoleted_by'] in self.rule_ctrl.unit_types:
@@ -129,22 +131,21 @@ class UnitActions(ActionList):
         self.map_ctrl = map_ctrl
         self.city_ctrl = city_ctrl
         self.unit_data = {}
-        self.enemy_units = None
 
     def update(self, pplayer):
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
-            if punit["owner"] == pplayer["playerno"]:
-                self._update_unit_data(punit, pplayer, unit_id)                
-                unit_tile = self.map_ctrl.index_to_tile(punit['tile'])
-                # TODO: update GetAttack action based on updated enemy_units
-                self.enemy_units = self.get_adjacent_enemy_units(unit_tile)
+            if punit["owner"] == self.player_ctrl.my_player_id:
+                self._update_unit_data(punit, pplayer, unit_id)
                 if self.actor_exists(unit_id):
                     continue
 
                 self.add_actor(unit_id)
                 self.add_unit_order_commands(unit_id)
-
+                # Add actions that query action probability
+                self.add_unit_get_pro_order_commands(unit_id)
+        self.query_action_probablity()
+        
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
             self.unit_data[unit_id] = FocusUnit(self.rule_ctrl, self.map_ctrl, self.unit_ctrl)
@@ -152,8 +153,10 @@ class UnitActions(ActionList):
         ptype = self.rule_ctrl.unit_type(punit)
         ptile = self.map_ctrl.index_to_tile(punit['tile'])
         pcity = self.city_ctrl.tile_city(ptile)
-
-        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, pplayer)
+        # TODO: may add ally_units, all neighbor units for other actions.
+        # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
+        enemy_units = self.get_adjacent_enemy_units(ptile)
+        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, enemy_units, pplayer)
 
 
     def add_unit_order_commands(self, unit_id):
@@ -174,13 +177,27 @@ class UnitActions(ActionList):
         #              DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]:
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
-        
-        unit_type = self.rule_ctrl.unit_types[unit_focus.punit['type']]
-        worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
-        # print(self.rule_ctrl.unit_types[unit_focus.punit['type']])
 
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActGetAttack(unit_focus, dir8, self.enemy_units, worker))
+    def add_unit_get_pro_order_commands(self, unit_id):
+        unit_focus = self.unit_data[unit_id]
+
+        for act_class in [ActGetAttackPro]:
+            for dir8 in map_const.DIR8_ORDER:
+                self.add_get_pro_action(unit_id, act_class(unit_focus, dir8))
+
+    # Query action probablity from server
+    def query_action_probablity(self):
+        has_query = False
+        for unit_id in self.unit_data.keys():
+            valid_actions = self.get_get_pro_actions(unit_id, valid_only=True)
+            if len(valid_actions) > 0:
+                has_query = True
+            for action in valid_actions:
+                valid_actions[action].trigger_action(self.ws_client)
+
+        # In case we do not have actions needed to query the probability, we need to seed a message to trigger the server return a message. Otherwise, the lock_control() in get_observation will keep waiting for the server message which would be a ping packet that arrives every several seconds. This will make the running very slow.
+        if not has_query:
+            self.ws_client.send_message(f'No action probability query needed.')
 
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
@@ -211,8 +228,8 @@ class UnitActions(ActionList):
     
     # TODO: Need to consider the ally's player id
     # Return the adjacent enemy units of the given tile 
-    def get_adjacent_enemy_units(self, tile):
-        tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
+    def get_adjacent_enemy_units(self, ptile):
+        tile_dict = self.map_ctrl.get_adjacent_tiles(ptile)
         unit_dict = {}
         for tile in tile_dict:
             for unit in tile_dict[tile]['units']:
@@ -998,26 +1015,30 @@ class ActGoto(StdAction):
 
         return packet
 
-class ActGetAttack(UnitAction):
+class ActGetAttackPro(UnitAction):
     """Attack unit on target tile"""
     action_key = "get_attack"
 
-    def __init__(self, focus, dir8, enemy_units, worker):
+    def __init__(self, focus, dir8):
         super().__init__(focus)        
-        self.worker = worker
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
         # The dir8 direction has an enemy unit
         # TODO: we assume only one unit in the tile for now
-        if dir8 in enemy_units:
-            self.target_unit_id = enemy_units[dir8][0]['id']            
-            self.target_tile_id = enemy_units[dir8][0]['tile']            
+        if self.dir8 in self.focus.enemy_units:
+            # It seems that the target_unit_id in the _action_packet does not matter for now. The target_tile_id is required.
+            self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']            
+            self.target_tile_id = self.focus.enemy_units[self.dir8][0]['tile']
         else:
             self.target_unit_id = None
             self.target_tile_id = None
-                
-        self.action_key += "_%i" % dir8
 
-    def is_action_valid(self):
-        return self.target_unit_id != None and not self.worker
+        unit_type = self.focus.ptype
+        # TODO: check which unit types cannot perform the attack action.
+        worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
+        return self.target_unit_id != None and not worker
 
     def _action_packet(self):
         actor_unit = self.focus.punit 

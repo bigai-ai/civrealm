@@ -89,25 +89,22 @@ class FreecivEnv(gymnasium.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-
-        observation = self._get_observation()
+        # We put _get_info() before _get_observation() because the actions of new units will be initialized in _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        info = self._get_info()
+        observation = self._get_observation()        
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
-        info = self._get_info()
-        # Call lock_control again to get the packets about probablity
-        # self._get_observation()
-        # assert(False)
+        
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
 
         return observation, reward, terminated, truncated, info
 
     def reset(self):
-        self.civ_controller.init_network()
-        observation = self._get_observation()
+        self.civ_controller.init_network()        
         info = self._get_info()
-
+        observation = self._get_observation()        
         return observation, info
 
     def end_game(self):

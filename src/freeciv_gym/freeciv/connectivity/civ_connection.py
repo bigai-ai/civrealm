@@ -52,8 +52,7 @@ class CivWSClient(WebSocketClient):
             fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
             self.packets_callback(self.read_packs)
             self.read_packs = []
-            self.clear_send_queue()
-            fc_logger.info(('Wait_for_packs: ', self.wait_for_packs))        
+            self.clear_send_queue()            
         except Exception as e:
             self.close()            
             fc_logger.error(f"{str(e)}")            
@@ -104,7 +103,6 @@ class CivWSClient(WebSocketClient):
         return msges
 
     def is_waiting_for_responses(self):
-        fc_logger.info(f'wait_for_packs: {self.wait_for_packs}')
         return len(self.wait_for_packs) > 0
 
     def stop_waiting(self, pid):

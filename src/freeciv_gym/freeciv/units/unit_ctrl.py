@@ -37,6 +37,9 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 LAND_UNIT = ['Warriors', 'Explorer', 'Workers', 'Settlers']
 LAND_UNIT_INACCESS_TERRAIN = [0, 2, 3]
 
+REQEST_PLAYER_INITIATED = 0
+REQEST_BACKGROUND_REFRESH = 1
+REQEST_BACKGROUND_FAST_AUTO_ATTACK = 2
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
@@ -217,11 +220,14 @@ class UnitCtrl(CivPropController):
         self._clear_tile_unit(punit)
         self._client_remove_unit(punit)
 
+
     def _client_remove_unit(self, punit):
         # if self.unit_action_ctrl.unit_is_in_focus(punit):
         #    self.unit_action_ctrl.clear_focus()
-        self.prop_state.remove_list_item(punit["id"])
-        self.prop_actions.remove_actor(punit["id"])
+        if punit['owner'] == self.player_ctrl.my_player_id:
+            self.prop_state.remove_list_item(punit["id"])
+            self.prop_actions.remove_actor(punit["id"])
+            del self.prop_actions.unit_data[punit['id']]
         del self.units[punit['id']]
 
     def _clear_tile_unit(self, punit):
@@ -424,50 +430,56 @@ class UnitCtrl(CivPropController):
         """Handle server reply about what actions an unit can do."""
 
         actor_unit_id = packet['actor_unit_id']
-        target_unit_id = packet['target_unit_id']
-        target_city_id = packet['target_city_id']
         target_tile_id = packet['target_tile_id']
+        # The unit_id, city_id, and extra_id in packet are meaningless.
+        # target_unit_id = packet['target_unit_id']
+        # target_city_id = packet['target_city_id']
+        # target_extra_id = packet['target_extra_id']
         action_probabilities = packet['action_probabilities']
-        disturb_player = packet['disturb_player']
-
         pdiplomat = self.find_unit_by_number(actor_unit_id)
-        target_unit = self.find_unit_by_number(target_unit_id)
-        target_city = self.city_ctrl.find_city_by_number(target_city_id)
         ptile = self.map_ctrl.index_to_tile(target_tile_id)
+        # target_unit = self.find_unit_by_number(target_unit_id)
+        # target_city = self.city_ctrl.find_city_by_number(target_city_id)
+        # target_extra = self.rule_ctrl.extras[target_extra_id]
 
         hasActions = False
 
-        # /* The dead can't act. */
+        # The dead can't act
         if pdiplomat != None and ptile != None:
             for prob in action_probabilities:
                 if action_prob_possible(prob):
                     hasActions = True
+                    break
+        
+        # Update action probability for this unit
+        self.units[actor_unit_id]['action_prob'] =  action_probabilities
 
-        if disturb_player:
-            """
-            /* Clear the unit's action_decision_want. This was the reply to a
-             * foreground request caused by it. Freeciv-web doesn't save open
-             * action selection dialogs. It doesn't even wait for any other action
-             * selection dialog to be answered before requesting data for the next
-             * one. This lack of a queue allows it to be cleared here. */
-            """
-            unqueue = {
-                "pid": packet_unit_sscs_set,
-                "unit_id": actor_unit_id,
-                "type": USSDT_UNQUEUE,
-                "value": IDENTITY_NUMBER_ZERO
-            }
-            self.ws_client.send_request(unqueue)
+        # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')
+        # fc_logger.info(f'hasActions: {hasActions}')
 
-        if hasActions and disturb_player:
-
-            action_options = self.unit_action_ctrl.get_disturbed_action_options(
-                pdiplomat, action_probabilities,
-                ptile, target_unit, target_city)
-        elif hasActions:
-            # /* This was a background request. */
-            # /* No background requests are currently made. */
-            fc_logger.info("Received the reply to a background request I didn't do.")
+        # Below is doing some dialog pop and selection in web and gtk gui. We comment out for our client.
+        # TODO: ensure the action selection/confirm operation is implemented in other parts of our client.
+        # request_kind = packet['request_kind']
+        # if request_kind == REQEST_PLAYER_INITIATED:            
+        #     if hasActions:
+        #         popup_action_selection(pdiplomat, action_probabilities,
+        #                      ptile, target_extra, target_unit, target_city)
+        #     else:
+        #     # Nothing to do
+        #         action_selection_no_longer_in_progress(actor_unit_id)
+        #         action_decision_clear_want(actor_unit_id)
+        #         action_selection_next_in_focus(actor_unit_id)
+        # else if request_kind == REQEST_BACKGROUND_REFRESH:
+        #         action_selection_refresh(pdiplomat,
+        #                      target_city, target_unit, ptile,
+        #                      target_extra,
+        #                      action_probabilities)
+        # else if request_kind == REQEST_BACKGROUND_FAST_AUTO_ATTACK:
+        #         action_decision_maybe_auto(pdiplomat, action_probabilities,
+        #                        ptile, target_extra,
+        #                        target_unit, target_city)
+        # else:
+        #     raise RuntimeError("handle_unit_actions(): unrecognized request_kind %d", packet['request_kind'])
 
     def handle_worker_task(self, packet):
         # TODO: Implement */

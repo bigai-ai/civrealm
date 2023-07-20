@@ -63,6 +63,8 @@ class ActionList(object):
     def __init__(self, ws_client):
         self._action_dict = {}
         self.ws_client = ws_client
+        # This dict only stores the actions which query action probability from the server.
+        self._get_pro_action_dict = {}
 
     def encode_to_json(self):
         return dict(
@@ -74,10 +76,17 @@ class ActionList(object):
     def add_actor(self, actor_id):
         if actor_id not in self._action_dict:
             self._action_dict[actor_id] = {}
+        if actor_id not in self._get_pro_action_dict:
+            self._get_pro_action_dict[actor_id] = {}
 
     def remove_actor(self, actor_id):
         if actor_id in self._action_dict:
             del self._action_dict[actor_id]
+        else:
+            fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
+
+        if actor_id in self._get_pro_action_dict:
+            del self._get_pro_action_dict[actor_id]
         else:
             fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
 
@@ -88,6 +97,14 @@ class ActionList(object):
             raise Exception("action_key %s should be unique for each actor" % a_action.action_key)
 
         self._action_dict[actor_id][a_action.action_key] = a_action
+    
+    def add_get_pro_action(self, actor_id, a_action):
+        if actor_id not in self._get_pro_action_dict:
+            raise Exception("Add actor %s first!!!" % actor_id)
+        if a_action.action_key in self._get_pro_action_dict[actor_id]:
+            raise Exception("action_key %s should be unique for each actor" % a_action.action_key)
+
+        self._get_pro_action_dict[actor_id][a_action.action_key] = a_action
 
     def actor_exists(self, actor_id):
         return actor_id in self._action_dict
@@ -104,6 +121,19 @@ class ActionList(object):
             if self._can_actor_act(actor_id):
                 for action_key in self._action_dict[actor_id]:
                     action = self._action_dict[actor_id][action_key]
+                    if action.is_action_valid():
+                        act_dict[action_key] = action
+            return act_dict
+        
+    def get_get_pro_actions(self, actor_id, valid_only=False):
+        if self.actor_exists(actor_id):
+            if valid_only:
+                act_dict = {}
+            else:
+                act_dict = dict([(key, None) for key in self._get_pro_action_dict[actor_id]])
+            if self._can_actor_act(actor_id):
+                for action_key in self._get_pro_action_dict[actor_id]:
+                    action = self._get_pro_action_dict[actor_id][action_key]
                     if action.is_action_valid():
                         act_dict[action_key] = action
             return act_dict
@@ -154,9 +184,17 @@ class ActionList(object):
     def get_num_actions(self):
         a_actor = self._action_dict[self._action_dict.keys()[0]]
         return len(a_actor.keys())
-
+    
     def get_action_list(self):
         a_actor = self._action_dict[self._action_dict.keys()[0]]
+        return a_actor.keys()
+
+    def get_num_get_pro_actions(self):
+        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
+        return len(a_actor.keys())
+    
+    def get_get_pro_action_list(self):
+        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
         return a_actor.keys()
 
 

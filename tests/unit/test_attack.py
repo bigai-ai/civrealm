@@ -16,6 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
+from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -38,53 +39,27 @@ def test_attack(controller):
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
-    # print(unit_opt.unit_ctrl.units.keys())
     test_action_list = []
-    origin_position = {}
-    # Get all units (including those controlled by other players)
-    # for unit_id in unit_opt.unit_ctrl.units.keys():
-    # Get all unit type information
-    # for type in unit_opt.rule_ctrl.unit_types:
-    #     name = unit_opt.rule_ctrl.unit_types[type]['name']
-    #     if name == 'Nuclear' or name == 'Helicopter' or name == 'Horsemen':
-    #         print(unit_opt.rule_ctrl.unit_types[type])
-    #         print('===============')
-    # Get all units controlled by the current player
-    for unit_id in unit_opt.unit_data.keys():
-        punit = unit_opt.unit_data[unit_id].punit        
+    horseman_id = 250
+    for unit_id in unit_opt.unit_ctrl.units.keys():
+        punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        # print(
-        #     f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")        
-        if punit['id'] == 250:        
-            # adjacent_tiles = unit_opt.map_ctrl.get_adjacent_tiles(unit_tile)
-            # for tile in adjacent_tiles:                
-            #     print(f"({tile['x']}, {tile['y']}), Units: {tile['units']}")
-            #     print('=============')
-            adjacent_units = unit_opt.get_adjacent_enemy_units(unit_tile)
-            print(adjacent_units)
-            # for unit in adjacent_units:                
-            #     print(adjacent_units[unit])
-            #     print('=============')
-
-
-
-        # Get valid actions
-        # valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        
-    # Perform goto action for each unit
+        if unit_id == horseman_id:
+            print(
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            # Get valid actions
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            test_action_list.append(valid_actions[f'attack_{map_const.DIR8_NORTHWEST}'])
+        else:
+            pass
+    print('Attack the northwest tile')
+    # Perform attack action for the horseman
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
+    controller.send_end_turn()
     controller.get_observation()
-    options = controller.turn_manager.get_available_actions()
-    unit_opt = options['unit']
-   
-        
-def main():
-    controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
-    test_attack(controller)
-
-
-if __name__ == '__main__':
-    main()
+    unit_opt = controller.get_info()['available_actions']['unit']
+    assert (389 not in unit_opt.unit_ctrl.units.keys())
+    import time
+    time.sleep(2)

@@ -183,6 +183,9 @@ class UnitActions(ActionList):
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
 
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActAttack(unit_focus, dir8))
+
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
 
@@ -1107,12 +1110,20 @@ class ActAttack(UnitAction):
     """Attack unit on target tile"""
     action_key = "attack"
 
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
     def is_action_valid(self):
-        return action_prob_possible(self.focus.action_probabilities[ACTION_ATTACK])
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
+        return action_prob_possible(self.focus.punit['action_prob'][self.dir8][ACTION_ATTACK])
+        # return action_prob_possible(self.focus.action_probabilities[ACTION_ATTACK])
 
     def _action_packet(self):
         packet = self.unit_do_action(self.focus.punit['id'],
-                                     self.focus.ptile['index'],
+                                     self.target_tile_id,
                                      ACTION_ATTACK)
         return packet
 

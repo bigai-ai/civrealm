@@ -27,6 +27,7 @@ dependencies = [
     "websocket-client",
     "pytest",
     "pytest-xdist",
+    "filelock",
 ]
 
 

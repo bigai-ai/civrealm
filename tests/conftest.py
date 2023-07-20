@@ -2,6 +2,7 @@ import os
 import subprocess
 import logging
 import pytest
+import filelock
 from freeciv_gym.configs import fc_args
 fc_args['username'] = 'testcontroller'
 
@@ -25,7 +26,13 @@ def configure_test_logger(item):
     from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
     logger_filename = LOGGING_CONFIG['handlers']['freecivFileHandler']['filename']
-    logger_filename = '{0}_{2}{1}'.format(*(os.path.splitext(logger_filename) + (item.name,)))
+    log_dir = os.path.join(os.path.dirname(logger_filename), 'tests')
+    with filelock.FileLock('/tmp/freeciv-gym_test_logger_setup.lock'):
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+    basename, ext = os.path.splitext(os.path.basename(logger_filename))
+    logger_filename = os.path.join(log_dir, f'{basename}_{item.name}{ext}')
     file_handler_with_id = logging.FileHandler(logger_filename, 'w')
     formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
     file_handler_with_id.setFormatter(formatter)

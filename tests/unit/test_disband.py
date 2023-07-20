@@ -16,8 +16,6 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD
-import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation
@@ -26,7 +24,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T54_2023-07-19-11_58')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -34,59 +32,40 @@ def controller():
     controller.close()
 
 
-def test_pillage(controller):
-    fc_logger.info("test_pillage")
+def test_disband(controller):
+    fc_logger.info("test_disband")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
     # Class: UnitActions
     unit_opt = options['unit']
-    test_action_list = []
-    worker_id = 138
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-        # Get valid actions
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
-        else:
-            pass
-    print('Move to the east tile which has road & irrigation')
-    # Perform goto action for the worker
-    for action in test_action_list:
-        action.trigger_action(controller.ws_client)
-    # Get unit new state
-    controller.send_end_turn()
-    controller.get_observation()
-
+    unit_id = 138
     # Tile info won't update unless options get assigned here
     options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
-    punit = unit_opt.unit_ctrl.units[worker_id]
+    assert (unit_id in unit_opt.unit_ctrl.units.keys())
+    punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    unit_action = valid_actions['pillage']
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    unit_action = valid_actions['disband']
     print(
-        f"Unit id: {worker_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (unit_action.is_action_valid())
-    assert (unit_tile['extras'][EXTRA_ROAD] == 1)
     unit_action.trigger_action(controller.ws_client)
-    print('Begin pillaging, needs a few turns to finish ...')
-    # Wait for 15 turns (until the work is done)
-    for turn_i in range(3):
+    print(f"Disband unit {unit_id}")
+    for turn_i in range(1):
         controller.send_end_turn()
         controller.get_observation()
-    assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
+    options = controller.turn_manager.get_available_actions()
+    unit_opt = options['unit']
+    assert not (unit_id in unit_opt.unit_ctrl.units.keys())
     import time
     time.sleep(2)
 
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T54_2023-07-19-11_58')
-    test_pillage(controller)
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    test_disband(controller)
 
 
 if __name__ == '__main__':

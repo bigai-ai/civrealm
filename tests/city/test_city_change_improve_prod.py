@@ -41,7 +41,7 @@ def find_keys_with_keyword(dictionary, keyword):
 
 
 def test_city_change_improve_prod(controller):
-    fc_logger.info("test_city_change_unit_prod")
+    fc_logger.info("test_city_change_improvement_prod")
     get_first_observation(controller)
     options = controller.turn_manager.get_available_actions()
 

@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
 
-class FreecivEnv(gymnasium.Env, utils.EzPickle):
+class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render_modes': ['human']}
 

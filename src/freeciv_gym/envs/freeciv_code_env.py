@@ -13,18 +13,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 
-from gymnasium.envs.registration import register
 
-register(
-    id='freeciv/FreecivBase-v0',
-    entry_point='freeciv_gym.envs:FreecivBaseEnv',
-)
-register(
-    id='freeciv/FreecivTensor-v0',
-    entry_point='freeciv_gym.envs:FreecivTensorEnv',
-)
-register(
-    id='freeciv/FreecivCode-v0',
-    entry_point='freeciv_gym.envs:FreecivCodeEnv',
-)
+class FreecivCodeEnv(FreecivBaseEnv):
+    """ Freeciv gym environment with code actions """
+
+    def __init__(self):
+        super().__init__()

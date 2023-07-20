@@ -1,5 +1,3 @@
-gym_env: Freeciv-v0
-
 username: myagent
 # Max number of turns per game
 max_turns: 100

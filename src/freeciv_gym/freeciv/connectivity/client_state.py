@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -231,7 +232,8 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/set minp {fc_args['minp']}")
         self.ws_client.send_message("/set generator FAIR")
         # self.ws_client.send_message("/metaconnection persistent")
-        self.ws_client.send_message(f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
+        self.ws_client.send_message(
+            f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
 
     def update_state(self, packet):
         self.client["conn"] = packet

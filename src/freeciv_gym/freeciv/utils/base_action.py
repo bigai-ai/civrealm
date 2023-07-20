@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -97,7 +98,7 @@ class ActionList(object):
             raise Exception("action_key %s should be unique for each actor" % a_action.action_key)
 
         self._action_dict[actor_id][a_action.action_key] = a_action
-    
+
     def add_get_pro_action(self, actor_id, a_action):
         if actor_id not in self._get_pro_action_dict:
             raise Exception("Add actor %s first!!!" % actor_id)
@@ -124,7 +125,7 @@ class ActionList(object):
                     if action.is_action_valid():
                         act_dict[action_key] = action
             return act_dict
-        
+
     def get_get_pro_actions(self, actor_id, valid_only=False):
         if self.actor_exists(actor_id):
             if valid_only:
@@ -184,7 +185,7 @@ class ActionList(object):
     def get_num_actions(self):
         a_actor = self._action_dict[self._action_dict.keys()[0]]
         return len(a_actor.keys())
-    
+
     def get_action_list(self):
         a_actor = self._action_dict[self._action_dict.keys()[0]]
         return a_actor.keys()
@@ -192,7 +193,7 @@ class ActionList(object):
     def get_num_get_pro_actions(self):
         a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
         return len(a_actor.keys())
-    
+
     def get_get_pro_action_list(self):
         a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
         return a_actor.keys()

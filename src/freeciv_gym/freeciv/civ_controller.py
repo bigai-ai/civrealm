@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -92,7 +93,7 @@ class CivController(CivPropController):
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
-        
+
         self.init_controllers(username)
 
     def reset(self):
@@ -104,7 +105,7 @@ class CivController(CivPropController):
         self.register_all_handlers()
         self.turn_manager = TurnManager()
         self.delete_save = True
-        self.game_saving_time_range = []        
+        self.game_saving_time_range = []
         self.init_controllers(self.username)
 
     def register_all_handlers(self):
@@ -246,7 +247,7 @@ class CivController(CivPropController):
 
     def get_info(self):
         self.lock_control()
-        info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}        
+        info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
         return info
 
     def send_end_turn(self):
@@ -296,9 +297,9 @@ class CivController(CivPropController):
             self.maybe_grant_control_to_player()
         except Exception:
             raise
-    
+
     def end_game(self):
-        self.ws_client.send_message(f"/endgame")    
+        self.ws_client.send_message(f"/endgame")
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name
@@ -333,7 +334,7 @@ class CivController(CivPropController):
                 possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
                 fc_logger.warning(f'Possible save name: {possible_saved_name}')
             for saved_name in save_list:
-                fc_logger.warning(f'Save name in List: {saved_name}')                    
+                fc_logger.warning(f'Save name in List: {saved_name}')
             return
 
         # If use savegame=ALL, it will delete all saves under the given username.
@@ -350,7 +351,7 @@ class CivController(CivPropController):
         if load_username != self.clstate.username:
             raise RuntimeError(
                 f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
-        self.ws_client.send_message(f"/load {save_name}")            
+        self.ws_client.send_message(f"/load {save_name}")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):
@@ -539,8 +540,8 @@ class CivController(CivPropController):
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
-        self.turn_manager.turn += 1        
-    
+        self.turn_manager.turn += 1
+
     def handle_conn_info(self, packet):
         """
             Remove, add, or update dummy connection struct representing some
@@ -564,11 +565,11 @@ class CivController(CivPropController):
             # Receive the first conn_info
             if self.clstate.first_conn_info_received == False:
                 # When first conn_info comes, the connections in clstate is empty.
-                assert(pconn == None)
+                assert (pconn == None)
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
                 assert (pplayer != None)
                 # The client is a host. Specify the game setting below.
-                # Assume the connection id of a host is 1. 
+                # Assume the connection id of a host is 1.
                 if packet['id'] == 1 and packet['username'] == self.clstate.username:
                     self.clstate.init_game_setting()
                 else:

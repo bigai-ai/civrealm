@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -43,7 +44,7 @@ class CivWSClient(WebSocketClient):
         self.packets_callback = callback_func
 
     @override
-    def _on_message(self, message):        
+    def _on_message(self, message):
         try:
             if message is None:
                 # fc_logger.warning('Received empty message from server. Closing connection')
@@ -52,10 +53,10 @@ class CivWSClient(WebSocketClient):
             fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
             self.packets_callback(self.read_packs)
             self.read_packs = []
-            self.clear_send_queue()            
+            self.clear_send_queue()
         except Exception as e:
-            self.close()            
-            fc_logger.error(f"{str(e)}")            
+            self.close()
+            fc_logger.error(f"{str(e)}")
             # assert False, f"{str(e)}"
             raise Exception("Exception occurred in on_message_callback")
 

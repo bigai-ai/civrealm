@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -145,7 +146,7 @@ class UnitActions(ActionList):
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
         self.query_action_probablity()
-        
+
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
             self.unit_data[unit_id] = FocusUnit(self.rule_ctrl, self.map_ctrl, self.unit_ctrl)
@@ -157,7 +158,6 @@ class UnitActions(ActionList):
         # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
         enemy_units = self.get_adjacent_enemy_units(ptile)
         self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, enemy_units, pplayer)
-
 
     def add_unit_order_commands(self, unit_id):
         """Enables and disables the correct units commands for the unit in focus."""
@@ -208,12 +208,12 @@ class UnitActions(ActionList):
     def get_adjacent_units(self, tile):
         tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
         unit_dict = {}
-        for tile in tile_dict:    
+        for tile in tile_dict:
             if len(tile_dict[tile]['units']) > 0:
                 unit_dict[tile] = tile_dict[tile]['units']
-        return unit_dict    
+        return unit_dict
 
-    # Return the adjacent own units of the given tile 
+    # Return the adjacent own units of the given tile
     def get_adjacent_own_units(self, tile):
         tile_dict = self.map_ctrl.get_adjacent_tiles(tile)
         unit_dict = {}
@@ -225,9 +225,9 @@ class UnitActions(ActionList):
                     unit_dict[tile] = tile_dict[tile]['units']
                     break
         return unit_dict
-    
+
     # TODO: Need to consider the ally's player id
-    # Return the adjacent enemy units of the given tile 
+    # Return the adjacent enemy units of the given tile
     def get_adjacent_enemy_units(self, ptile):
         tile_dict = self.map_ctrl.get_adjacent_tiles(ptile)
         unit_dict = {}
@@ -371,7 +371,7 @@ class EngineerAction(UnitAction):
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
             return False  # raise Exception("Unit has no moves left to build city")
-        
+
         if self.focus.ptype['name'] in ["Workers", "Engineers"]:
             return self.is_eng_action_valid()
         return False
@@ -407,7 +407,7 @@ class ActOnExtra(EngineerAction):
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
         self.extra_type = None
-    
+
     # Temporarily block other actions on extra
     def is_action_valid(self):
         return False
@@ -417,10 +417,11 @@ class ActOnExtra(EngineerAction):
             raise Exception("Extra type should be set")
         return TileState.tile_has_extra(self.focus.ptile, self.extra_type)
 
+
 class ActCultivate(EngineerAction):
     """Action to deforest"""
     action_key = "cultivate"
-    
+
     def is_eng_action_valid(self):
         terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         return terr_name == "Forest"
@@ -428,10 +429,11 @@ class ActCultivate(EngineerAction):
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_CULTIVATE, EXTRA_NONE)
 
+
 class ActPlant(EngineerAction):
     """Action to create forest"""
     action_key = "plant"
-    
+
     def is_eng_action_valid(self):
         terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         # Forest can only be planted on grassland or plains
@@ -439,6 +441,7 @@ class ActPlant(EngineerAction):
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_PLANT, EXTRA_NONE)
+
 
 class ActFortress(EngineerAction):
     """Action to create a fortress"""
@@ -646,15 +649,15 @@ class ActPillage(UnitAction):
         #     self.focus.pcity) != self.focus.pplayer["playerno"])
         # return self.focus.pplayer != None and self.focus.ptype['attack_strength'] > 0 and tile_valid
         can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_FARMLAND) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
-                            TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_FARMLAND) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
+            TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
         return can_pillage_extra
 
     def _action_packet(self):
@@ -1015,12 +1018,13 @@ class ActGoto(StdAction):
 
         return packet
 
+
 class ActGetAttackPro(UnitAction):
     """Attack unit on target tile"""
     action_key = "get_attack"
 
     def __init__(self, focus, dir8):
-        super().__init__(focus)        
+        super().__init__(focus)
         self.action_key += "_%i" % dir8
         self.dir8 = dir8
 
@@ -1029,7 +1033,7 @@ class ActGetAttackPro(UnitAction):
         # TODO: we assume only one unit in the tile for now
         if self.dir8 in self.focus.enemy_units:
             # It seems that the target_unit_id in the _action_packet does not matter for now. The target_tile_id is required.
-            self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']            
+            self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']
             self.target_tile_id = self.focus.enemy_units[self.dir8][0]['tile']
         else:
             self.target_unit_id = None
@@ -1041,17 +1045,18 @@ class ActGetAttackPro(UnitAction):
         return self.target_unit_id != None and not worker
 
     def _action_packet(self):
-        actor_unit = self.focus.punit 
+        actor_unit = self.focus.punit
         packet = {"pid": packet_unit_get_actions,
-                "actor_unit_id": actor_unit['id'],
-                "target_tile_id": self.target_tile_id,
-                "target_unit_id": self.target_unit_id,
-                "target_extra_id": -1,                   
-                "request_kind": 0
-                }
+                  "actor_unit_id": actor_unit['id'],
+                  "target_tile_id": self.target_tile_id,
+                  "target_unit_id": self.target_unit_id,
+                  "target_extra_id": -1,
+                  "request_kind": 0
+                  }
         self.wait_for_pid = 90
 
-        return packet    
+        return packet
+
 
 class ActNuke(UnitAction):
     """Start a goto that will end in the unit(s) detonating in a nuclear explosion."""
@@ -1074,8 +1079,8 @@ class ActAttack(UnitAction):
 
     def _action_packet(self):
         packet = self.unit_do_action(self.focus.punit['id'],
-                                   self.focus.ptile['index'],
-                                   ACTION_ATTACK)        
+                                     self.focus.ptile['index'],
+                                     ACTION_ATTACK)
         return packet
 
 

@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -111,7 +112,7 @@ class TurnManager(object):
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
             self._turn_opts[ctrl_type] = ctrl.get_current_options(
-                self._turn_player)        
+                self._turn_player)
 
         return self._turn_opts
 
@@ -123,7 +124,7 @@ class TurnManager(object):
     def end_turn(self):
         fc_logger.info(
             f'============== Finish turn {self._turn:04d} ==============')
-        fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')        
+        fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
         self._turn_active = False
         self._turn_ctrls = None
         self._turn_player = None

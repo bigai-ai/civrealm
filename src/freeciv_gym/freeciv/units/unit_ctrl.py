@@ -2,12 +2,13 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-#  Software Foundation, either version 3 of the License, or (at your option)
+# Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -40,6 +41,7 @@ LAND_UNIT_INACCESS_TERRAIN = [0, 2, 3]
 REQEST_PLAYER_INITIATED = 0
 REQEST_BACKGROUND_REFRESH = 1
 REQEST_BACKGROUND_FAST_AUTO_ATTACK = 2
+
 
 class UnitCtrl(CivPropController):
     def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
@@ -150,14 +152,14 @@ class UnitCtrl(CivPropController):
             return 0
         else:
             return len(unit_list)
-    
+
     def get_unit_moves_left(self, punit):
         """Returns a string saying how many moves a unit has left."""
         if punit is None:
             return 0
 
         return self.move_points_text(punit['movesleft'])
-    
+
     def move_points_text(self, moves):
         result = ""
         SINGLE_MOVE = self.rule_ctrl.SINGLE_MOVE
@@ -219,7 +221,6 @@ class UnitCtrl(CivPropController):
         # /* TODO: Notify agents. */
         self._clear_tile_unit(punit)
         self._client_remove_unit(punit)
-
 
     def _client_remove_unit(self, punit):
         # if self.unit_action_ctrl.unit_is_in_focus(punit):
@@ -450,9 +451,9 @@ class UnitCtrl(CivPropController):
                 if action_prob_possible(prob):
                     hasActions = True
                     break
-        
+
         # Update action probability for this unit
-        self.units[actor_unit_id]['action_prob'] =  action_probabilities
+        self.units[actor_unit_id]['action_prob'] = action_probabilities
 
         # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')
         # fc_logger.info(f'hasActions: {hasActions}')
@@ -460,7 +461,7 @@ class UnitCtrl(CivPropController):
         # Below is doing some dialog pop and selection in web and gtk gui. We comment out for our client.
         # TODO: ensure the action selection/confirm operation is implemented in other parts of our client.
         # request_kind = packet['request_kind']
-        # if request_kind == REQEST_PLAYER_INITIATED:            
+        # if request_kind == REQEST_PLAYER_INITIATED:
         #     if hasActions:
         #         popup_action_selection(pdiplomat, action_probabilities,
         #                      ptile, target_extra, target_unit, target_city)
@@ -501,10 +502,10 @@ class UnitCtrl(CivPropController):
             # /* The target tile is too far away for one-step move. */
             return False
 
-        # If the unit cannot access the terrain, return False               
+        # If the unit cannot access the terrain, return False
         if self.rule_ctrl.unit_type(actor_unit)['name'] in LAND_UNIT and target_tile['terrain'] in LAND_UNIT_INACCESS_TERRAIN:
             return False
-        
+
         for tile_unit in target_tile['units']:
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']
 

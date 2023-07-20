@@ -137,6 +137,7 @@ class UnitActions(ActionList):
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
             if punit["owner"] == self.player_ctrl.my_player_id:
+                self.reset_action_pro(unit_id)
                 self._update_unit_data(punit, pplayer, unit_id)
                 if self.actor_exists(unit_id):
                     continue
@@ -146,6 +147,10 @@ class UnitActions(ActionList):
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
         self.query_action_probablity()
+
+    # Use this to delete old probability before query the new pro.
+    def reset_action_pro(self, unit_id):
+        self.unit_ctrl.units[unit_id]['action_prob'] = {}
 
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
@@ -181,7 +186,8 @@ class UnitActions(ActionList):
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActGetAttackPro]:
+        # for act_class in [ActGetAttackPro, ActGetActionPro]:
+        for act_class in [ActGetActionPro]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_get_pro_action(unit_id, act_class(unit_focus, dir8))
 
@@ -189,6 +195,7 @@ class UnitActions(ActionList):
     def query_action_probablity(self):
         has_query = False
         for unit_id in self.unit_data.keys():
+            # If a unit has no move left, it will not send get_pro action. Its corresponding action_prob will be {}.
             valid_actions = self.get_get_pro_actions(unit_id, valid_only=True)
             if len(valid_actions) > 0:
                 has_query = True
@@ -1056,7 +1063,33 @@ class ActGetAttackPro(UnitAction):
         self.wait_for_pid = 90
 
         return packet
+    
+class ActGetActionPro(UnitAction):
+    """Attack unit on target tile"""
+    action_key = "get_action_pro"
 
+    def __init__(self, focus, dir8):
+        super().__init__(focus)        
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
+        return True
+
+    def _action_packet(self):
+        actor_unit = self.focus.punit 
+        packet = {"pid": packet_unit_get_actions,
+                "actor_unit_id": actor_unit['id'],
+                "target_tile_id": self.target_tile_id,
+                "target_unit_id": -1,
+                "target_extra_id": -1,                   
+                "request_kind": 0
+                }
+        self.wait_for_pid = 90
+
+        return packet
 
 class ActNuke(UnitAction):
     """Start a goto that will end in the unit(s) detonating in a nuclear explosion."""

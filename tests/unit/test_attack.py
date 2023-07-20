@@ -19,13 +19,13 @@ from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -35,8 +35,7 @@ def controller():
 
 def test_attack(controller):
     fc_logger.info("test_attack")
-    get_first_observation(controller)
-    options = controller.turn_manager.get_available_actions()
+    _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
     # print(unit_opt.unit_ctrl.units.keys())

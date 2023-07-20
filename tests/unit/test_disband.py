@@ -18,7 +18,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -34,8 +34,7 @@ def controller():
 
 def test_disband(controller):
     fc_logger.info("test_disband")
-    get_first_observation(controller)
-    options = controller.turn_manager.get_available_actions()
+    _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
     unit_id = 138

@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -35,8 +35,7 @@ def controller():
 
 def test_move_to(controller):
     fc_logger.info("test_move_to")
-    get_first_observation(controller)
-    options = controller.turn_manager.get_available_actions()
+    _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
     # print(unit_opt.unit_ctrl.units.keys())

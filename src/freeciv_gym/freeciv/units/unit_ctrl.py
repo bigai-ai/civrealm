@@ -452,8 +452,12 @@ class UnitCtrl(CivPropController):
                     hasActions = True
                     break
 
-        # Update action probability for this unit
-        self.units[actor_unit_id]['action_prob'] = action_probabilities
+        # Update action probability for this unit        
+        target_tile = self.map_ctrl.index_to_tile(target_tile_id)
+        unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
+        move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
+        assert (move_dir != -1)
+        self.units[actor_unit_id]['action_prob'][move_dir] = action_probabilities
 
         # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')
         # fc_logger.info(f'hasActions: {hasActions}')

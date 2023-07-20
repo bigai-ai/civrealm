@@ -18,7 +18,7 @@ from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation
+from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
 @pytest.fixture
 def controller():
@@ -41,8 +41,7 @@ def find_keys_with_keyword(dictionary, keyword):
 
 def test_city_sell_improvement(controller):
     fc_logger.info("test_city_sell_improvement_prod")
-    get_first_observation(controller)
-    options = controller.turn_manager.get_available_actions()
+    _, options = get_first_observation_option(controller)
 
     city_opt = options['city']
 

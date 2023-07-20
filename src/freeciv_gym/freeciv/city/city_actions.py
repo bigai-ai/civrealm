@@ -213,6 +213,7 @@ class CitySellImprovement(Action):
     def _action_packet(self):
         packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],
                   "build_id": self.improvement_id}
+        self.wait_for_pid = 31
         return packet
 
 

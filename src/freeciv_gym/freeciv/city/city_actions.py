@@ -208,7 +208,7 @@ class CitySellImprovement(Action):
         self.action_key += "_%s" % improvement_name
 
     def is_action_valid(self):
-        return self.pcity['improvements'][self.improvement_id] == 1
+        return self.pcity['improvements'][self.improvement_id] == 1 and self.improvement_id != 21
 
     def _action_packet(self):
         packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],

@@ -37,5 +37,15 @@ def byte_to_bit_array(abyte_array):
     return bit_array
 
 
+def find_set_bits(bit_vector):
+    set_bits = []
+    index = bit_vector.next_set_bit(0)
+    
+    while index != -1:
+        set_bits.append(index)
+        index = bit_vector.next_set_bit(index + 1)
+    
+    return set_bits
+
 def sign(x):
     return (x > 0) - (x < 0)

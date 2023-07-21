@@ -22,7 +22,8 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 import freeciv_gym.freeciv.map.map_const as map_const
-
+from freeciv_gym.freeciv.utils.utility import byte_to_bit_array, find_set_bits
+from BitVector import BitVector
 
 @pytest.fixture
 def controller():
@@ -50,39 +51,69 @@ def test_get_action_pro(controller):
     #         print('===============')
     # Get all units controlled by the current player
     for unit_id in unit_opt.unit_data.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]        
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        unit_focus = unit_opt.unit_data[unit_id]        
+        ptile = unit_focus.ptile
         # print(
-        #     f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
         if unit_id == 396:
             # 396 unit has not move left. It can do nothing.
-            assert (len(punit['action_prob']) == 0)
+            assert (len(unit_focus.action_prob) == 0)
         if unit_id == 250:
-            assert(punit['action_prob'][map_const.DIR8_NORTHEAST][fc_types.ACTION_UNIT_MOVE] == {'min': 200, 'max': 200})
+            assert(unit_focus.action_prob[map_const.DIR8_NORTHEAST][fc_types.ACTION_UNIT_MOVE] == {'min': 200, 'max': 200})
             # Attack pros are different given different targets.
-            assert(punit['action_prob'][map_const.DIR8_NORTHWEST][fc_types.ACTION_ATTACK] == {'min': 200, 'max': 200})
-            assert(punit['action_prob'][map_const.DIR8_SOUTHEAST][fc_types.ACTION_ATTACK] == {'min': 1, 'max': 2})
+            assert(unit_focus.action_prob[map_const.DIR8_NORTHWEST][fc_types.ACTION_ATTACK] == {'min': 200, 'max': 200})
+            assert(unit_focus.action_prob[map_const.DIR8_SOUTHEAST][fc_types.ACTION_ATTACK] == {'min': 1, 'max': 2})
             # Cannot move to sea (north and west).
-            assert(punit['action_prob'][map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert(punit['action_prob'][map_const.DIR8_WEST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert(unit_focus.action_prob[map_const.DIR8_WEST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
             # Cannot move to east. TODO: figure out why. Maybe because an enemy unit is doing fortify.
-            assert(punit['action_prob'][map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert(unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
             # Can move to own units.
-            assert(punit['action_prob'][map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE])
+            assert(unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE])
         if unit_id == 126:
             # Cannot move to enemy unit. Explorer also cannot attack enemy.
-            assert(punit['action_prob'][map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert(punit['action_prob'][map_const.DIR8_EAST][fc_types.ACTION_ATTACK] == {'min': 0, 'max': 0})
-        
+            assert(unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert(unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_ATTACK] == {'min': 0, 'max': 0})
+        if unit_id == 207:
+            print(unit_focus.punit)
+        if unit_id == 346:
+            print(unit_focus.punit)
+        #     ptile = unit_focus.ptile
+        #     tile = unit_opt.map_ctrl.mapstep(ptile, map_const.DIR8_NORTH)
+        #     extra = tile['extras']
+        #     extra[16] = 1
+        #     print(extra)
+        #     print(extra.count_bits_sparse())
+        #     extra_id = find_set_bits(extra)
+        #     print(find_set_bits(extra))
+        #     # print((unit_opt.rule_ctrl.extras))
+        #     for id in extra_id:
+        #         print(unit_opt.rule_ctrl.extras[id]['name'])
+            
     # controller.send_end_turn()
+    # print('end turn')
     # options = controller.get_info()['available_actions']
+    # for unit_id in unit_opt.unit_data.keys():
+    #     print(unit_id)
     # controller.get_observation()
     # unit_opt = options['unit']
     # for unit_id in unit_opt.unit_data.keys():
-    #     punit = unit_opt.unit_ctrl.units[unit_id]        
-    #     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    #     unit_focus = unit_opt.unit_data[unit_id]        
+    #     ptile = unit_focus.ptile
     #     # print(
-    #     #     f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    #     if unit_id == 207:            
-    #         print(punit['action_prob'][map_const.DIR8_NORTHEAST][fc_types.ACTION_UNIT_MOVE])
-    #         print(punit['action_prob'][map_const.DIR8_NORTHEAST][fc_types.ACTION_ATTACK])
+    #     #     f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+    #     if unit_id == 207:
+    #         print(unit_focus.action_prob)
+            # print(unit_focus.action_prob[map_const.DIR8_NORTH])
+            # print(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE])
+            # print(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_ATTACK])
+
+
+def main():
+    controller = CivController(fc_args['username'])
+    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    test_get_action_pro(controller)
+
+
+if __name__ == '__main__':
+    main()

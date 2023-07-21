@@ -35,9 +35,15 @@ class Action(ABC):
     def trigger_action(self, ws_client):
         """Trigger validated action"""
         packet = self._action_packet()
-        fc_logger.info("trigger_action. ", packet)
-        ws_client.send_request(packet, self.wait_for_pid)
-        return self.refresh_state_after_action(ws_client)
+        if type(packet) == list:
+            for pac in packet:
+                fc_logger.info("trigger_action. ", pac)
+                ws_client.send_request(pac, self.wait_for_pid)
+            return self.refresh_state_after_action(ws_client)
+        else:
+            fc_logger.info("trigger_action. ", packet)
+            ws_client.send_request(packet, self.wait_for_pid)
+            return self.refresh_state_after_action(ws_client)
 
     def refresh_state_after_action(self, ws_client):
         """Refresh state after action"""
@@ -122,19 +128,6 @@ class ActionList(object):
             if self._can_actor_act(actor_id):
                 for action_key in self._action_dict[actor_id]:
                     action = self._action_dict[actor_id][action_key]
-                    if action.is_action_valid():
-                        act_dict[action_key] = action
-            return act_dict
-
-    def get_get_pro_actions(self, actor_id, valid_only=False):
-        if self.actor_exists(actor_id):
-            if valid_only:
-                act_dict = {}
-            else:
-                act_dict = dict([(key, None) for key in self._get_pro_action_dict[actor_id]])
-            if self._can_actor_act(actor_id):
-                for action_key in self._get_pro_action_dict[actor_id]:
-                    action = self._get_pro_action_dict[actor_id][action_key]
                     if action.is_action_valid():
                         act_dict[action_key] = action
             return act_dict

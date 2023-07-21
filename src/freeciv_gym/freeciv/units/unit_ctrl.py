@@ -432,10 +432,10 @@ class UnitCtrl(CivPropController):
 
         actor_unit_id = packet['actor_unit_id']
         target_tile_id = packet['target_tile_id']
-        # The unit_id, city_id, and extra_id in packet are meaningless.
+        # The unit_id and city_id in packet are meaningless.
         # target_unit_id = packet['target_unit_id']
         # target_city_id = packet['target_city_id']
-        # target_extra_id = packet['target_extra_id']
+        target_extra_id = packet['target_extra_id']
         action_probabilities = packet['action_probabilities']
         pdiplomat = self.find_unit_by_number(actor_unit_id)
         ptile = self.map_ctrl.index_to_tile(target_tile_id)
@@ -457,8 +457,10 @@ class UnitCtrl(CivPropController):
         unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
         assert (move_dir != -1)
-        self.units[actor_unit_id]['action_prob'][move_dir] = action_probabilities
+        self.prop_actions.update_unit_action_pro(actor_unit_id, move_dir, action_probabilities)
 
+        # print(f"unit_id: {actor_unit_id}, target_position: ({target_tile['x']}, {target_tile['y']}), extra: {self.rule_ctrl.extras[target_extra_id]['name'] if target_extra_id != -1 else None}.")
+        
         # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')
         # fc_logger.info(f'hasActions: {hasActions}')
 
@@ -474,12 +476,12 @@ class UnitCtrl(CivPropController):
         #         action_selection_no_longer_in_progress(actor_unit_id)
         #         action_decision_clear_want(actor_unit_id)
         #         action_selection_next_in_focus(actor_unit_id)
-        # else if request_kind == REQEST_BACKGROUND_REFRESH:
+        # elif request_kind == REQEST_BACKGROUND_REFRESH:
         #         action_selection_refresh(pdiplomat,
         #                      target_city, target_unit, ptile,
         #                      target_extra,
         #                      action_probabilities)
-        # else if request_kind == REQEST_BACKGROUND_FAST_AUTO_ATTACK:
+        # elif request_kind == REQEST_BACKGROUND_FAST_AUTO_ATTACK:
         #         action_decision_maybe_auto(pdiplomat, action_probabilities,
         #                        ptile, target_extra,
         #                        target_unit, target_city)

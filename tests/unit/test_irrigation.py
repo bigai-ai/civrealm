@@ -59,6 +59,7 @@ def test_irrigation(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
+    controller.get_info()
     controller.get_observation()
     punit = unit_opt.unit_ctrl.units[worker_id]
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -66,6 +67,7 @@ def test_irrigation(controller):
     assert (not build_action.is_action_valid())
     # End turn
     controller.send_end_turn()
+    controller.get_info()
     controller.get_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
@@ -77,6 +79,7 @@ def test_irrigation(controller):
     # Wait for 15 turns (until the work is done)
     for turn_i in range(5):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
     # Get updated state
     print(

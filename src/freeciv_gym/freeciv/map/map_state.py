@@ -79,6 +79,7 @@ class MapState(PlainState):
         return tile
 
     def update_tile(self, tile_packet):
+        # Transform 16-bytes extra data to 128-bits data
         tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
         if self.state['extras'] is None:
             x_size, y_size = self._state['status'].shape

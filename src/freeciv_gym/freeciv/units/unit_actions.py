@@ -47,7 +47,8 @@ from freeciv_gym.freeciv.map.tile import TileState
 # from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
 #     DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
 import freeciv_gym.freeciv.map.map_const as map_const
-
+from freeciv_gym.freeciv.utils.utility import find_set_bits
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class FocusUnit():
     """Stores all relevant information for deciding on valid actions for the
@@ -69,15 +70,14 @@ class FocusUnit():
         self.transporter = None
         self.trans_capacity = None
 
-        self.action_probabilities = None
+        self.action_prob = {}
 
-    def set_focus(self, punit, ptype, ptile, pcity, enemy_units, pplayer):
+    def set_focus(self, punit, ptype, ptile, pcity, pplayer):
         """Sets the focus to unit punit having type ptype acting on ptile, pcity owned by pplayer"""
         self.punit = punit
         self.ptype = ptype
         self.ptile = ptile
         self.pcity = pcity
-        self.enemy_units = enemy_units
         self.pplayer = pplayer
         # Get all units on the current tile
         self.units_on_tile = self.tile_units(ptile)
@@ -136,9 +136,12 @@ class UnitActions(ActionList):
     def update(self, pplayer):
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
+            # An unit is no longer own unit, need to remove it from unit_data.
+            if punit["owner"] != self.player_ctrl.my_player_id and unit_id in self.unit_data:
+                del self.unit_data[unit_id]
             if punit["owner"] == self.player_ctrl.my_player_id:
-                self.reset_action_pro(unit_id)
                 self._update_unit_data(punit, pplayer, unit_id)
+                self.reset_action_pro(unit_id)
                 if self.actor_exists(unit_id):
                     continue
 
@@ -150,7 +153,7 @@ class UnitActions(ActionList):
 
     # Use this to delete old probability before query the new pro.
     def reset_action_pro(self, unit_id):
-        self.unit_ctrl.units[unit_id]['action_prob'] = {}
+        self.unit_data[unit_id].action_prob = {}        
 
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
@@ -159,18 +162,20 @@ class UnitActions(ActionList):
         ptype = self.rule_ctrl.unit_type(punit)
         ptile = self.map_ctrl.index_to_tile(punit['tile'])
         pcity = self.city_ctrl.tile_city(ptile)
-        # TODO: may add ally_units, all neighbor units for other actions.
-        # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
-        enemy_units = self.get_adjacent_enemy_units(ptile)
-        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, enemy_units, pplayer)
+        # May add ally_units, all neighbor units for other actions.
+        # # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
+        # enemy_units = self.get_adjacent_enemy_units(ptile)
+        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, pplayer)
+
+    def update_unit_action_pro(self, unit_id, dir, prob):
+        self.unit_data[unit_id].action_prob[dir] = prob
 
     def add_unit_order_commands(self, unit_id):
         """Enables and disables the correct units commands for the unit in focus."""
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress,
-                          ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
+        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
                           ActExplore, ActParadrop, ActBuild, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade,
                           ActLoadUnit, ActUnloadUnit, ActNoorders,
@@ -183,8 +188,8 @@ class UnitActions(ActionList):
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
 
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActAttack(unit_focus, dir8))
+        # for dir8 in map_const.DIR8_ORDER:
+        #     self.add_action(unit_id, ActAttack(unit_focus, dir8))
 
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -213,6 +218,25 @@ class UnitActions(ActionList):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
             punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
+    
+    def _can_query_action_pro(self, unit_id):
+        punit = self.unit_data[unit_id].punit
+        # If an unit has orders, no need to query action pro for it
+        return punit['movesleft'] > 0 and not punit['done_moving'] and \
+            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] 
+
+    def get_get_pro_actions(self, actor_id, valid_only=False):
+        if self.actor_exists(actor_id):
+            if valid_only:
+                act_dict = {}
+            else:
+                act_dict = dict([(key, None) for key in self._get_pro_action_dict[actor_id]])
+            if self._can_query_action_pro(actor_id):
+                for action_key in self._get_pro_action_dict[actor_id]:
+                    action = self._get_pro_action_dict[actor_id][action_key]
+                    if action.is_action_valid():
+                        act_dict[action_key] = action
+            return act_dict
 
      # Return the adjacent units of the given tile
     def get_adjacent_units(self, tile):
@@ -1028,44 +1052,44 @@ class ActGoto(StdAction):
 
         return packet
 
+# Use ActGetActionPro to replace this action
+# class ActGetAttackPro(UnitAction):
+#     """Attack unit on target tile"""
+#     action_key = "get_attack"
 
-class ActGetAttackPro(UnitAction):
-    """Attack unit on target tile"""
-    action_key = "get_attack"
+#     def __init__(self, focus, dir8):
+#         super().__init__(focus)
+#         self.action_key += "_%i" % dir8
+#         self.dir8 = dir8
 
-    def __init__(self, focus, dir8):
-        super().__init__(focus)
-        self.action_key += "_%i" % dir8
-        self.dir8 = dir8
+#     def is_action_valid(self):
+#         # The dir8 direction has an enemy unit
+#         # TODO: we assume only one unit in the tile for now
+#         if self.dir8 in self.focus.enemy_units:
+#             # It seems that the target_unit_id in the _action_packet does not matter for now. The target_tile_id is required.
+#             self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']
+#             self.target_tile_id = self.focus.enemy_units[self.dir8][0]['tile']
+#         else:
+#             self.target_unit_id = None
+#             self.target_tile_id = None
 
-    def is_action_valid(self):
-        # The dir8 direction has an enemy unit
-        # TODO: we assume only one unit in the tile for now
-        if self.dir8 in self.focus.enemy_units:
-            # It seems that the target_unit_id in the _action_packet does not matter for now. The target_tile_id is required.
-            self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']
-            self.target_tile_id = self.focus.enemy_units[self.dir8][0]['tile']
-        else:
-            self.target_unit_id = None
-            self.target_tile_id = None
+#         unit_type = self.focus.ptype
+#         # TODO: check which unit types cannot perform the attack action.
+#         worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
+#         return self.target_unit_id != None and not worker
 
-        unit_type = self.focus.ptype
-        # TODO: check which unit types cannot perform the attack action.
-        worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
-        return self.target_unit_id != None and not worker
+#     def _action_packet(self):
+#         actor_unit = self.focus.punit
+#         packet = {"pid": packet_unit_get_actions,
+#                   "actor_unit_id": actor_unit['id'],
+#                   "target_tile_id": self.target_tile_id,
+#                   "target_unit_id": self.target_unit_id,
+#                   "target_extra_id": -1,
+#                   "request_kind": 0
+#                   }
+#         self.wait_for_pid = 90
 
-    def _action_packet(self):
-        actor_unit = self.focus.punit
-        packet = {"pid": packet_unit_get_actions,
-                  "actor_unit_id": actor_unit['id'],
-                  "target_tile_id": self.target_tile_id,
-                  "target_unit_id": self.target_unit_id,
-                  "target_extra_id": -1,
-                  "request_kind": 0
-                  }
-        self.wait_for_pid = 90
-
-        return packet
+#         return packet
     
 class ActGetActionPro(UnitAction):
     """Attack unit on target tile"""
@@ -1079,21 +1103,49 @@ class ActGetActionPro(UnitAction):
     def is_action_valid(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
+        if len(newtile['units'])>0:
+            self.target_unit_id = newtile['units'][0]['id']
+        else:
+            self.target_unit_id = -1
+        extra = newtile['extras']
+        set_bits = find_set_bits(extra)
+        if len(set_bits) == 0:
+            self.target_extra_id = -1
+        elif len(set_bits) == 1:
+            self.target_extra_id = set_bits[0]
+        else:
+            self.target_extra_id = set_bits
         return True
 
     def _action_packet(self):
-        actor_unit = self.focus.punit 
-        packet = {"pid": packet_unit_get_actions,
-                "actor_unit_id": actor_unit['id'],
-                "target_tile_id": self.target_tile_id,
-                "target_unit_id": -1,
-                "target_extra_id": -1,                   
-                "request_kind": 0
+        if type(self.target_extra_id) == int:
+            actor_unit = self.focus.punit 
+            packet = {"pid": packet_unit_get_actions,
+                    "actor_unit_id": actor_unit['id'],
+                    "target_tile_id": self.target_tile_id,
+                    "target_unit_id": self.target_unit_id,
+                    "target_extra_id": self.target_extra_id,                   
+                    "request_kind": 1
                 }
-        self.wait_for_pid = 90
-
-        return packet
-
+            self.wait_for_pid = 90
+            fc_logger.info(packet)
+            return packet
+        else:
+            packets = []
+            self.wait_for_pid = 90
+            for extra_id in self.target_extra_id:
+                actor_unit = self.focus.punit 
+                packet = {"pid": packet_unit_get_actions,
+                        "actor_unit_id": actor_unit['id'],
+                        "target_tile_id": self.target_tile_id,
+                        "target_unit_id": self.target_unit_id,
+                        "target_extra_id": extra_id,                   
+                        "request_kind": 1
+                    }
+                packets.append(packet)
+                fc_logger.info(packet)
+            return packets
+        
 class ActNuke(UnitAction):
     """Start a goto that will end in the unit(s) detonating in a nuclear explosion."""
     action_key = "nuke"
@@ -1118,7 +1170,8 @@ class ActAttack(UnitAction):
     def is_action_valid(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
-        return action_prob_possible(self.focus.punit['action_prob'][self.dir8][ACTION_ATTACK])
+        # print(self.focus.action_prob)
+        return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
         # return action_prob_possible(self.focus.action_probabilities[ACTION_ATTACK])
 
     def _action_packet(self):

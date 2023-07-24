@@ -141,11 +141,15 @@ class IncreaseSci(base_action.Action):
         if self.lux > 0:
             self.lux -= 10
         else:
-            self.tax = self.max_rate - self.sci - self.lux
+            self.tax -= 10
 
     def _action_packet(self):
+        self._change_rate()
         packet = {"pid": packet_player_rates,
-                  "tax": self.tax, "luxury": self.lux, "science": self.sci}
+                  "tax": self.tax,
+                  "luxury": self.lux,
+                  "science": self.sci}
+        self.wait_for_pid = 51
         return packet
 
 
@@ -160,7 +164,7 @@ class DecreaseSci(IncreaseSci):
         if self.lux < self.max_rate:
             self.lux += 10
         else:
-            self.tax = self.max_rate - self.sci - self.lux
+            self.tax += 10
 
 
 class IncreaseLux(IncreaseSci):
@@ -174,7 +178,7 @@ class IncreaseLux(IncreaseSci):
         if self.tax > 0:
             self.tax -= 10
         else:
-            self.sci = self.max_rate - self.lux - self.tax
+            self.sci -= 10
 
 
 class DecreaseLux(IncreaseSci):
@@ -188,7 +192,7 @@ class DecreaseLux(IncreaseSci):
         if self.tax < self.max_rate:
             self.tax += 10
         else:
-            self.sci = self.max_rate - self.lux - self.tax
+            self.sci += 10
 
 
 class IncreaseTax(IncreaseSci):
@@ -202,7 +206,7 @@ class IncreaseTax(IncreaseSci):
         if self.lux > 0:
             self.lux -= 10
         else:
-            self.sci = self.max_rate - self.tax - self.lux
+            self.sci -= 10
 
 
 class DecreaseTax(IncreaseSci):
@@ -216,7 +220,7 @@ class DecreaseTax(IncreaseSci):
         if self.lux < self.max_rate:
             self.lux += 10
         else:
-            self.sci = self.max_rate - self.tax - self.lux
+            self.sci += 10
 
 
 class StartNegotiate(base_action.Action):

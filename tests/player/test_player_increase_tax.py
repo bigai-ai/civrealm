@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,23 +39,22 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_change_government(controller):
-    fc_logger.info("test_change_government")
+def test_player_increase_tax(controller):
+    fc_logger.info("test_player_increase_tax")
     _, options = get_first_observation_option(controller)
 
-    pplayer = options['player'].players[0]
-    gov_opt = options['gov']
+    player_opt = options['player']
+    pplayer = player_opt.players[0]
 
-    change_gov_action = find_keys_with_keyword(gov_opt._action_dict[0], 'change_gov_Anarchy')[0]
+    increase_tax_action = find_keys_with_keyword(player_opt._action_dict[0], 'increase_tax')[0]
+    assert (increase_tax_action.is_action_valid())
 
-    assert (change_gov_action.is_action_valid())
+    tax_1 = pplayer['tax']
 
-    gov_1 = pplayer['government']
-
-    change_gov_action.trigger_action(controller.ws_client)
+    increase_tax_action.trigger_action(controller.ws_client)
     controller.get_observation()
-    gov_2 = pplayer['government']
+    tax_2 = pplayer['tax']
 
-    assert (gov_1 == 1 and gov_2 == 0)
+    assert (tax_2 - tax_1 == 10)
 
 

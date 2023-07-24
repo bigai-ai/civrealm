@@ -19,14 +19,12 @@ from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_FORTIFIED
 
 
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T53_2023-07-24-13_02_homecity')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -34,40 +32,38 @@ def controller():
     controller.close()
 
 
-def test_fortify(controller):
-    fc_logger.info("test_fortify")
+def test_homecity(controller):
+    fc_logger.info("test_homecity")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
-    unit_opt = options['unit']
-    unit_id = 185 #250 #
-    # Tile info won't update unless options get assigned here
+    unit_id = 158
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert ('fortify' in valid_actions.keys() and not punit['activity'] == ACTIVITY_FORTIFIED)
-    unit_action = valid_actions['fortify']
+    assert ('homecity' in valid_actions.keys())
+    unit_action = valid_actions['homecity']
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
-    print(f"Fortify unit {unit_id}")
+    print(f"Change the homecity of unit {unit_id} to the current garissoned city")
     controller.send_end_turn()
-    options = controller.get_info()['available_actions']
     controller.get_observation()
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert (not ('fortify' in valid_actions.keys()) and punit['activity'] == ACTIVITY_FORTIFIED)
+    print(
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
     import time
     time.sleep(2)
 
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
-    test_fortify(controller)
+    controller.set_parameter('debug.load_game', 'testcontroller_T53_2023-07-24-13_02_homecity')
+    test_homecity(controller)
 
 
 if __name__ == '__main__':

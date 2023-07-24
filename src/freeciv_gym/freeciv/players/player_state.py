@@ -2,13 +2,12 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option)
+#  Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
-# for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -16,6 +15,8 @@
 from freeciv_gym.freeciv.utils.base_state import PlainState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 import freeciv_gym.freeciv.players.player_const as player_const
+
+
 # from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 # from freeciv_gym.freeciv.players.diplomacy import DiplomacyState
 # from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
@@ -36,21 +37,22 @@ class PlayerState(PlainState):
     @property
     def my_player_id(self):
         return self.clstate.player_num()
-    
+
     @property
     def my_player(self):
         return self.players[self.my_player_id]
-    
+
     def _update_state(self, player):
-        player_fields = ["culture", "current_research_cost", "gold", "government", "is_alive",
+        player_fields = ["culture", "researching_cost", "gold", "government", "is_alive",
                          "luxury", "mood", "nation", "net_income", "revolution_finishes",
                          "science", "science_cost", "score", "target_government", "tax",
                          "tech_goal", "tech_upkeep", "techs_researched", "total_bulbs_prod",
                          "turns_alive"]
         if self._state == {}:
-            self._state.update(dict([("my_"+key, None) for key in player_fields]))
+            self._state.update(dict([("my_" + key, None) for key in player_fields]))
 
-        self._state.update(dict([("my_"+key, value) for key, value in self.my_player.items() if key in player_fields]))
+        self._state.update(
+            dict([("my_" + key, value) for key, value in self.my_player.items() if key in player_fields]))
         no_humans = 0
         no_ais = 0
 
@@ -71,8 +73,8 @@ class PlayerState(PlainState):
         # cbo = get_current_bulbs_output()
         # bulbs = cbo.self_bulbs - cbo.self_upkeep
         researched = self.my_player['bulbs_researched']
-        if 'current_research_cost' in self.my_player:
-            research_cost = self.my_player['current_research_cost']
+        if 'researching_cost' in self.my_player:
+            research_cost = self.my_player['researching_cost']
         else:
             research_cost = 0
 
@@ -101,7 +103,7 @@ class PlayerState(PlainState):
             self._state[op_id + "plr_type"] = "Human"
 
         if pplayer["real_embassy"][opponent["playerno"]]:
-            self.show_intelligence_report_embassy(opponent, op_id)            
+            self.show_intelligence_report_embassy(opponent, op_id)
         else:
             self.show_intelligence_report_hearsay(opponent, op_id)
 
@@ -136,7 +138,7 @@ class PlayerState(PlainState):
                 self._state[op_id + "bulbs_researched"] = research['bulbs_researched']
                 self._state[op_id + "researching_cost"] = research['researching_cost']
                 researched = research['bulbs_researched']
-                research_cost = research['current_research_cost']
+                research_cost = research['researching_cost']
                 self._state[op_id + "research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
 
         for tech_id in self.rule_ctrl.techs:

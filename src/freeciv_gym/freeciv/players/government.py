@@ -54,7 +54,8 @@ class GovActions(ActionList):
             self.add_actor(player_id)
             for govt_id in self.rule_ctrl.governments:
                 act = ChangeGovernment(govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
-                self.add_action(player_id, act)
+                if act.is_action_valid():
+                    self.add_action(player_id, act)
 
 
 class GovernmentCtrl(CivPropController):

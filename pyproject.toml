@@ -53,6 +53,7 @@ addopts = [
     # "tests/city/test_city_sell_improvement.py",
     # "tests/tech/test_choose_research_tech.py",
     # "tests/tech/test_choose_research_goal.py",
+    # "tests/test_change_government.py",
     # "tests/unit/test_cultivate.py",
     # "tests/unit/test_irrigation.py",
     # "tests/unit/test_mine.py",

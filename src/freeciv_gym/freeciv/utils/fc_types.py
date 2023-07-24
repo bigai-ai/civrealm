@@ -311,7 +311,7 @@ ACTION_USER_ACTION3 = 114
 ACTION_USER_ACTION4 = 115
 ACTION_COUNT = 116  # The index needs to be updated if new actions are added in the future
 
-# /* The action_decision enum */
+# /* The action_decision enum. Denote the value of action_decision_want. */
 # /* Doesn't need the player to decide what action to take. */
 ACT_DEC_NOTHING = 0
 # /* Wants a decision because of something done to the actor. */

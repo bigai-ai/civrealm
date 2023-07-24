@@ -72,7 +72,8 @@ class OptionCtrl(CivPropController):
         self.auto_turn_done = FALSE
         self.meta_accelerators = TRUE
         self.ask_city_name = TRUE
-        self.popup_new_cities = TRUE
+        self.popup_new_cities = True
+        # The player is interested in getting a pop up for a mere arrival.
         self.popup_actor_arrival = True
         self.keyboardless_goto = TRUE
         self.enable_cursor_changes = TRUE

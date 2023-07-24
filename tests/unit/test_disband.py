@@ -39,7 +39,7 @@ def test_disband(controller):
     unit_opt = options['unit']
     unit_id = 138
     # Tile info won't update unless options get assigned here
-    options = controller.turn_manager.get_available_actions()
+    # options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     assert (unit_id in unit_opt.unit_ctrl.units.keys())
     punit = unit_opt.unit_ctrl.units[unit_id]
@@ -53,8 +53,8 @@ def test_disband(controller):
     print(f"Disband unit {unit_id}")
     for turn_i in range(1):
         controller.send_end_turn()
+        options = controller.get_info()['available_actions']
         controller.get_observation()
-    options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     assert not (unit_id in unit_opt.unit_ctrl.units.keys())
     import time

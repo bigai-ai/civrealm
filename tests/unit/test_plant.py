@@ -57,10 +57,10 @@ def test_plant(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
+    # Tile info won't update unless options get assigned here
+    options = controller.get_info()['available_actions']
     controller.get_observation()
 
-    # Tile info won't update unless options get assigned here
-    options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[worker_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])

@@ -18,7 +18,7 @@ def get_first_observation_option(controller):
         obs = controller.get_observation()
         # controller.clstate.set_multiplayer_game()
     except Exception as e:
-        fc_logger.error(repr(e))
+        fc_logger.error(f'get_first_observation_option error: {repr(e)}')
         # Sleep for a random time and try again
         time.sleep(random.uniform(3, 10))
         obs, opt = get_first_observation_option(controller)

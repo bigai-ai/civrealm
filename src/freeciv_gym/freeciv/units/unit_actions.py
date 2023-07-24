@@ -38,7 +38,7 @@ from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_
     packet_unit_action_query, packet_unit_get_actions, ACTION_SPY_INCITE_CITY,\
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
     ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
-    ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE
+    ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE, ACT_DEC_NOTHING
 from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 
 from freeciv_gym.freeciv.units.action_dialog import action_prob_possible, encode_building_id
@@ -188,8 +188,8 @@ class UnitActions(ActionList):
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActGoto(unit_focus, dir8))
 
-        # for dir8 in map_const.DIR8_ORDER:
-        #     self.add_action(unit_id, ActAttack(unit_focus, dir8))
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActAttack(unit_focus, dir8))
 
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -221,9 +221,9 @@ class UnitActions(ActionList):
     
     def _can_query_action_pro(self, unit_id):
         punit = self.unit_data[unit_id].punit
-        # If an unit has orders, no need to query action pro for it
+        # If an unit has orders or action_decision_want, we don't query its action pro here.
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] 
+            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
 
     def get_get_pro_actions(self, actor_id, valid_only=False):
         if self.actor_exists(actor_id):
@@ -1129,7 +1129,6 @@ class ActGetActionPro(UnitAction):
                     "request_kind": 1
                 }
             self.wait_for_pid = 90
-            fc_logger.info(packet)
             return packet
         else:
             packets = []
@@ -1144,7 +1143,6 @@ class ActGetActionPro(UnitAction):
                         "request_kind": 1
                     }
                 packets.append(packet)
-                fc_logger.info(packet)
             return packets
         
 class ActNuke(UnitAction):
@@ -1171,9 +1169,7 @@ class ActAttack(UnitAction):
     def is_action_valid(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
-        # print(self.focus.action_prob)
         return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
-        # return action_prob_possible(self.focus.action_probabilities[ACTION_ATTACK])
 
     def _action_packet(self):
         packet = self.unit_do_action(self.focus.punit['id'],

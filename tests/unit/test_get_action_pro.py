@@ -74,10 +74,6 @@ def test_get_action_pro(controller):
             # Cannot move to enemy unit. Explorer also cannot attack enemy.
             assert(unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
             assert(unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_ATTACK] == {'min': 0, 'max': 0})
-        if unit_id == 207:
-            print(unit_focus.punit)
-        if unit_id == 346:
-            print(unit_focus.punit)
         #     ptile = unit_focus.ptile
         #     tile = unit_opt.map_ctrl.mapstep(ptile, map_const.DIR8_NORTH)
         #     extra = tile['extras']
@@ -89,25 +85,31 @@ def test_get_action_pro(controller):
         #     # print((unit_opt.rule_ctrl.extras))
         #     for id in extra_id:
         #         print(unit_opt.rule_ctrl.extras[id]['name'])
-            
-    # controller.send_end_turn()
-    # print('end turn')
-    # options = controller.get_info()['available_actions']
-    # for unit_id in unit_opt.unit_data.keys():
-    #     print(unit_id)
-    # controller.get_observation()
-    # unit_opt = options['unit']
-    # for unit_id in unit_opt.unit_data.keys():
-    #     unit_focus = unit_opt.unit_data[unit_id]        
-    #     ptile = unit_focus.ptile
-    #     # print(
-    #     #     f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
-    #     if unit_id == 207:
-    #         print(unit_focus.action_prob)
-            # print(unit_focus.action_prob[map_const.DIR8_NORTH])
-            # print(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE])
-            # print(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_ATTACK])
-
+    
+    controller.send_end_turn()
+    print('end turn')
+    options = controller.get_info()['available_actions']
+    controller.get_observation()
+    unit_opt = options['unit']
+    for unit_id in unit_opt.unit_data.keys():
+        unit_focus = unit_opt.unit_data[unit_id]
+        ptile = unit_focus.ptile
+        # In last turn, Unit 207 has a goal. Afer end turn, it reaches the goal and its action_decision_want becomes non_zero. We do not query its action pro in this case. 
+        if unit_id == 207:
+            assert(len(unit_focus.action_prob) == 0)
+    
+    controller.send_end_turn()
+    print('end turn')
+    options = controller.get_info()['available_actions']
+    controller.get_observation()
+    unit_opt = options['unit']
+    for unit_id in unit_opt.unit_data.keys():
+        unit_focus = unit_opt.unit_data[unit_id]
+        ptile = unit_focus.ptile
+        # In last turn, we clear unit 207's action_decision_want by action_decision_clear_want() and we query its action pro in this turn.
+        if unit_id == 207:
+            assert(len(unit_focus.action_prob) > 0)
+            assert(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_CONQUER_CITY] == {'min': 200, 'max': 200})
 
 def main():
     controller = CivController(fc_args['username'])

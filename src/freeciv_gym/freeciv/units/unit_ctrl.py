@@ -17,7 +17,7 @@ from BitVector.BitVector import BitVector
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
-    ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_NOTHING,\
+    ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_ACTIVE, ACT_DEC_NOTHING,\
     ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\
     USSDT_UNQUEUE, USSDT_QUEUE, ACTION_FOUND_CITY
 
@@ -44,7 +44,7 @@ REQEST_BACKGROUND_FAST_AUTO_ATTACK = 2
 
 
 class UnitCtrl(CivPropController):
-    def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl):
+    def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl, option_ctrl):
         super().__init__(ws_client)
         self.units = {}
         self.rule_ctrl = rule_ctrl
@@ -52,6 +52,7 @@ class UnitCtrl(CivPropController):
         self.player_ctrl = player_ctrl
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
+        self.option_ctrl = option_ctrl
 
         self.base_action = UnitAction(None)
 
@@ -118,8 +119,9 @@ class UnitCtrl(CivPropController):
 
         if punit is None:
             return None
-
-        if pplayer != None or self.unit_owner(punit) == pplayer:
+        # TODO: make sure the fix from "or" to "and" is correct.
+        # The implementation with "or" is the same as that of freeciv-web while it seems incorrect based on the function description. 
+        if pplayer != None and self.unit_owner(punit) == pplayer:
             return punit
 
         return None
@@ -139,10 +141,13 @@ class UnitCtrl(CivPropController):
         if tile_units is None:
             return
 
+        found = False
         for tile_unit in tile_units:
             if tile_unit['id'] == punit['id']:
+                found = True
                 break
-        else:
+
+        if not found:
             ptile['units'].append(punit)
 
     @staticmethod
@@ -267,7 +272,7 @@ class UnitCtrl(CivPropController):
         """
         Called to do basic handling for a unit_info or short_unit_info packet.
 
-        Both owned and foreign units are handled you may need to check unit
+        Both owned and foreign units are handled; you may need to check unit
         owner, or if unit equals focus unit, depending on what you are doing.
 
         Note: Normally the server informs client about a new "activity" here.
@@ -277,7 +282,7 @@ class UnitCtrl(CivPropController):
         - An enemy encounter caused a sentry to idle. (See "Wakeup Focus").
 
         Depending on what caused the change, different actions may be taken.
-        Therefore, this def is a bit of a jungle, and it is advisable
+        Therefore, this function is a bit of a jungle, and it is advisable
         to read thoroughly before changing.
 
         Exception: When the client puts a unit in focus, it's status is set to
@@ -302,18 +307,24 @@ class UnitCtrl(CivPropController):
 
         if not packet_unit['id'] in self.units:
             # This is a new unit. */
-            self.unit_actor_wants_input(packet_unit)
+            # self.unit_actor_wants_input(packet_unit)
+            # The info of units from other players does not contain the action_decision_want key.
+            if 'action_decision_want' in packet_unit:
+                if self.should_ask_server_for_actions(packet_unit):
+                    self.action_decision_handle(packet_unit)
             packet_unit['anim_list'] = []
             self.units[packet_unit['id']] = packet_unit
             self.units[packet_unit['id']]['facing'] = 6
-        elif not ('action_decision_want' in self.units[packet_unit['id']]) or \
-                self.units[packet_unit['id']]['action_decision_want'] != packet_unit['action_decision_want']:
-            # The unit's action_decision_want has changed. */
-            self.unit_actor_wants_input(packet_unit)
-
+        else:
+            if punit != None:
+                if 'action_decision_want' in packet_unit:
+                    if (punit['action_decision_want'] != packet_unit['action_decision_want'] or punit['action_decision_tile'] != packet_unit['action_decision_tile']) and self.should_ask_server_for_actions(packet_unit):
+                        self.action_decision_handle(packet_unit)
         self.units[packet_unit['id']].update(packet_unit)
-
         self._update_tile_unit(self.units[packet_unit['id']])
+        # Clear action_decision_want (resulting from the saved human operation) if exist. 
+        if 'action_decision_want' in packet_unit:
+            self.action_decision_clear_want(packet_unit['id'])
         """
         if current_focus.length > 0 and current_focus[0]['id'] == packet_unit['id']:
             update_active_units_dialog()
@@ -324,57 +335,76 @@ class UnitCtrl(CivPropController):
         """
         # TODO: update various dialogs and mapview. */
 
-    def unit_actor_wants_input(self, pdiplomat):
-        """Handle server request for user input about diplomat action to do."""
+    def should_ask_server_for_actions(self, punit):
+        return (punit['action_decision_want'] == ACT_DEC_ACTIVE) or (punit['action_decision_want'] == ACT_DEC_PASSIVE and self.option_ctrl.popup_actor_arrival)
 
-        if not self.player_ctrl.clstate.can_client_control():
-            return
+    def action_decision_handle(self, punit):
+        # In freeciv-web implementation, there are codes for auto_attack query and action_decision_tile query, we omit them here because our client would not issue auto-attack or goal command.
+        pass
 
-        if not 'action_decision_want' in pdiplomat or \
-           pdiplomat['owner'] != self.player_ctrl.my_player_id:
-            # /* No authority to decide for this unit. */
-            return
+    # Have the server record that a decision no longer is wanted for the specified unit.
+    def action_decision_clear_want(self, old_actor_id):
+        old = self.find_unit_by_number(old_actor_id)
+        if old != None and old['action_decision_want'] != ACT_DEC_NOTHING:
+            unqueue_packet = {
+                "pid"     : packet_unit_sscs_set,
+                "unit_id" : old_actor_id,
+                "type"    : USSDT_UNQUEUE,
+                "value"   : IDENTITY_NUMBER_ZERO
+            }
+            self.ws_client.send_request(unqueue_packet)
 
-        if pdiplomat['action_decision_want'] == ACT_DEC_NOTHING:
-            # /* The unit doesn't want a decision. */
-            return
+    # def unit_actor_wants_input(self, pdiplomat):
+    #     """Handle server request for user input about diplomat action to do."""
 
-        if pdiplomat['action_decision_want'] == ACT_DEC_PASSIVE:
-            # /* The player isn't interested in getting a pop up for a mere
-            # * arrival. */
-            return
+    #     if not self.player_ctrl.clstate.can_client_control():
+    #         return
 
-        self.process_diplomat_arrival(pdiplomat, pdiplomat['action_decision_tile'])
+    #     if not 'action_decision_want' in pdiplomat or \
+    #        pdiplomat['owner'] != self.player_ctrl.my_player_id:
+    #         # /* No authority to decide for this unit. */
+    #         return
 
-    def process_diplomat_arrival(self, pdiplomat, target_tile_id):
-        """
-          /* No queue. An action selection dialog is opened at once. If multiple
-           * action selection dialogs are open at once one will hide all others.
-           * The hidden dialogs are based on information from the time they
-           * were opened. It is therefore more outdated than it would have been if
-           * the server was asked the moment before the action selection dialog
-           * was shown.
-           *
-           * The C client's bundled with Freeciv asks right before showing the
-           * action selection dialog. They used to have a custom queue for it.
-           * Freeciv patch #6601 (SVN r30682) made the desire for an action
-           * decision a part of a unit's data. They used it to drop their custom
-           * queue and move unit action decisions to the unit focus queue.
-        """
+    #     if pdiplomat['action_decision_want'] == ACT_DEC_NOTHING:
+    #         # /* The unit doesn't want a decision. */
+    #         return
 
-        ptile = self.map_ctrl.index_to_tile(target_tile_id)
-        if pdiplomat != None and ptile != None:
-            """Ask the server about what actions pdiplomat can do. The server's
-             * reply will pop up an action selection dialog for it.
-            """
-        packet = {
-            "pid": packet_unit_get_actions,
-            "actor_unit_id": pdiplomat['id'],
-            "target_unit_id": IDENTITY_NUMBER_ZERO,
-            "target_tile_id": target_tile_id,
-            "disturb_player": True
-        }
-        self.ws_client.send_request(packet)
+    #     if pdiplomat['action_decision_want'] == ACT_DEC_PASSIVE:
+    #         # /* The player isn't interested in getting a pop up for a mere
+    #         # * arrival. */
+    #         return
+
+    #     self.process_diplomat_arrival(pdiplomat, pdiplomat['action_decision_tile'])
+
+    # def process_diplomat_arrival(self, pdiplomat, target_tile_id):
+    #     """
+    #       /* No queue. An action selection dialog is opened at once. If multiple
+    #        * action selection dialogs are open at once one will hide all others.
+    #        * The hidden dialogs are based on information from the time they
+    #        * were opened. It is therefore more outdated than it would have been if
+    #        * the server was asked the moment before the action selection dialog
+    #        * was shown.
+    #        *
+    #        * The C client's bundled with Freeciv asks right before showing the
+    #        * action selection dialog. They used to have a custom queue for it.
+    #        * Freeciv patch #6601 (SVN r30682) made the desire for an action
+    #        * decision a part of a unit's data. They used it to drop their custom
+    #        * queue and move unit action decisions to the unit focus queue.
+    #     """
+
+    #     ptile = self.map_ctrl.index_to_tile(target_tile_id)
+    #     if pdiplomat != None and ptile != None:
+    #         """Ask the server about what actions pdiplomat can do. The server's
+    #          * reply will pop up an action selection dialog for it.
+    #         """
+    #     packet = {
+    #         "pid": packet_unit_get_actions,
+    #         "actor_unit_id": pdiplomat['id'],
+    #         "target_unit_id": IDENTITY_NUMBER_ZERO,
+    #         "target_tile_id": target_tile_id,
+    #         "disturb_player": True
+    #     }
+    #     self.ws_client.send_request(packet)
 
     def handle_unit_combat_info(self, packet):
         attacker = self.units[packet['attacker_unit_id']]

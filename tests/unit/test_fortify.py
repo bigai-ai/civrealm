@@ -40,7 +40,6 @@ def test_fortify(controller):
     unit_opt = options['unit']
     unit_id = 185 #250 #
     # Tile info won't update unless options get assigned here
-    options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -53,8 +52,8 @@ def test_fortify(controller):
     unit_action.trigger_action(controller.ws_client)
     print(f"Fortify unit {unit_id}")
     controller.send_end_turn()
+    options = controller.get_info()['available_actions']
     controller.get_observation()
-    options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert (not ('fortify' in valid_actions.keys()))

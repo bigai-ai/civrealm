@@ -42,8 +42,6 @@ addopts = [
     "-s", # show print statements in console 
     # "-n 16", # specify the number of processes for parallel test
     # specify which test file to run by setting test file name
-    # "tests/unit/test_build_city.py", 
-    # "tests/unit/test_build_road.py",
     # "tests/city/test_city_change_unit_prod.py",
     # "tests/city/test_city_change_improve_prod.py",
     # "tests/city/test_city_change_specialist.py",
@@ -55,13 +53,13 @@ addopts = [
     # "tests/tech/test_choose_research_goal.py",
     # "tests/player/test_change_government.py",
     # "tests/player/test_player_increase_tax.py",
-    "tests/player/test_player_decrease_tax.py",
+    # "tests/player/test_player_decrease_tax.py",
     # "tests/unit/test_cultivate.py",
     # "tests/unit/test_irrigation.py",
     # "tests/unit/test_mine.py",
-    # "tests/unit/test_move_to.py",
     # "tests/unit/test_plant.py",
     # "tests/unit/test_pillage.py",
+    "tests/unit/test_fortress.py",
     # "tests/unit/test_disband.py",
     # "tests/unit/test_get_action_pro.py",
     # "tests/unit/test_attack.py",

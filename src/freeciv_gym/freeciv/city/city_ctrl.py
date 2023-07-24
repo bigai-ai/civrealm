@@ -128,7 +128,8 @@ class CityCtrl(CivPropController):
 
     def handle_traderoute_info(self, packet):
         """  A traderoute-info packet contains information about one end of a traderoute"""
-        if self.city_trade_routes[packet['city']] is None:
+        # if self.city_trade_routes[packet['city']] is None:
+        if packet['city'] not in self.city_trade_routes:
             # This is the first trade route received for this city.
             self.city_trade_routes[packet['city']] = {}
 

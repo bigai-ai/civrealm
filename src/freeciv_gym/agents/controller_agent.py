@@ -84,7 +84,6 @@ class ControllerAgent(BaseAgent):
                            'change_unit_prod': random.random() * 0.2,
                            'city_buy_production': random.random() * 0.2,
                            'city_sell_improvement': random.random() * 0.2,
-                           'change_production': random.random() * 0.2,
                            'city_change_specialist': random.random() * 0.2, }
         return self.sample_desired_actions(action_dict, desired_actions)
 

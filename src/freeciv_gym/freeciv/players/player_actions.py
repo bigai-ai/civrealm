@@ -2,13 +2,12 @@
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
-# Software Foundation, either version 3 of the License, or (at your option)
+#  Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
-# for more details.
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
@@ -60,10 +59,26 @@ class PlayerOptions(ActionList):
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 
         fc_logger.info(cur_state)
-        self.add_action(counter_id, IncreaseLux(**cur_state))
-        self.add_action(counter_id, DecreaseLux(**cur_state))
-        self.add_action(counter_id, DecreaseSci(**cur_state))
-        self.add_action(counter_id, IncreaseSci(**cur_state))
+
+        increase_lux = IncreaseLux(**cur_state)
+        if increase_lux.is_action_valid():
+            self.add_action(counter_id, increase_lux)
+        decrease_lux = DecreaseLux(**cur_state)
+        if decrease_lux.is_action_valid():
+            self.add_action(counter_id, decrease_lux )
+        increase_sci = IncreaseSci(**cur_state)
+        if increase_sci.is_action_valid():
+            self.add_action(counter_id, increase_sci)
+        decrease_sci = DecreaseSci(**cur_state)
+        if decrease_sci.is_action_valid():
+            self.add_action(counter_id, decrease_sci)
+        increase_tax = IncreaseTax(**cur_state)
+        if increase_tax.is_action_valid():
+            self.add_action(counter_id, increase_tax)
+        decrease_tax = DecreaseTax(**cur_state)
+        if decrease_tax.is_action_valid():
+            self.add_action(counter_id, decrease_tax)
+
 
     def update_counterpart_options(self, counter_id, cur_player, counterpart):
         self.add_action(counter_id, StartNegotiate(counterpart))
@@ -119,16 +134,18 @@ class IncreaseSci(base_action.Action):
             return num
 
     def is_action_valid(self):
-        return 0 <= self.sci+10 <= 100
+        return 0 <= self.sci+10 <= self.max_rate
 
     def _change_rate(self):
         self.sci += 10
+        if self.lux > 0:
+            self.lux -= 10
+        else:
+            self.tax = self.max_rate - self.sci - self.lux
 
     def _action_packet(self):
-        self.tax = self.max_rate - self.sci - self.lux
         packet = {"pid": packet_player_rates,
                   "tax": self.tax, "luxury": self.lux, "science": self.sci}
-
         return packet
 
 
@@ -136,30 +153,70 @@ class DecreaseSci(IncreaseSci):
     action_key = "decrease_sci"
 
     def is_action_valid(self):
-        return 0 <= self.sci - 10 <= 100
+        return 0 <= self.sci - 10 <= self.max_rate
 
     def _change_rate(self):
         self.sci -= 10
+        if self.lux < self.max_rate:
+            self.lux += 10
+        else:
+            self.tax = self.max_rate - self.sci - self.lux
 
 
 class IncreaseLux(IncreaseSci):
     action_key = "increase_lux"
 
     def is_action_valid(self):
-        return 0 <= self.lux + 10 <= 100
+        return 0 <= self.lux + 10 <= self.max_rate
 
     def _change_rate(self):
         self.lux += 10
+        if self.tax > 0:
+            self.tax -= 10
+        else:
+            self.sci = self.max_rate - self.lux - self.tax
 
 
 class DecreaseLux(IncreaseSci):
     action_key = "decrease_lux"
 
     def is_action_valid(self):
-        return 0 <= self.lux - 10 <= 100
+        return 0 <= self.lux - 10 <= self.max_rate
 
     def _change_rate(self):
         self.lux -= 10
+        if self.tax < self.max_rate:
+            self.tax += 10
+        else:
+            self.sci = self.max_rate - self.lux - self.tax
+
+
+class IncreaseTax(IncreaseSci):
+    action_key = "increase_tax"
+
+    def is_action_valid(self):
+        return 0 <= self.tax + 10 <= self.max_rate
+
+    def _change_rate(self):
+        self.tax += 10
+        if self.lux > 0:
+            self.lux -= 10
+        else:
+            self.sci = self.max_rate - self.tax - self.lux
+
+
+class DecreaseTax(IncreaseSci):
+    action_key = "decrease_tax"
+
+    def is_action_valid(self):
+        return 0 <= self.tax - 10 <= self.max_rate
+
+    def _change_rate(self):
+        self.tax -= 10
+        if self.lux < self.max_rate:
+            self.lux += 10
+        else:
+            self.sci = self.max_rate - self.tax - self.lux
 
 
 class StartNegotiate(base_action.Action):

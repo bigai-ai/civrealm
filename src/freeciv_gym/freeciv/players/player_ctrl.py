@@ -46,7 +46,7 @@ class PlayerCtrl(CivPropController):
         self.endgame_player_info = []
 
         self.prop_state = PlayerState(rule_ctrl, self, clstate, dipl_ctrl.diplstates, self.players)
-        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, self.players, clstate)
+        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, dipl_ctrl, self.players, clstate)
 
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")
@@ -184,8 +184,9 @@ class PlayerCtrl(CivPropController):
                 if self.dipl_ctrl.check_in_dipl_states(
                         player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
                     player_options.append("declare_war")
-                elif self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
-                    player_options.append("cancel_treaty")
+                elif not self.players_not_same_team(pplayer) and not self.dipl_ctrl.check_not_dipl_states(player_id):
+                    if self.players_alive(pplayer):
+                        player_options.append("cancel_treaty")
 
             if both_alive_and_different and self.players_not_same_team(pplayer) and \
                     self.my_player['gives_shared_vision'][player_id]:
@@ -197,8 +198,6 @@ class PlayerCtrl(CivPropController):
             player_options.append("intl_report")
 
         player_options.append("toggle_ai")
-        print(player_options)
-
         return player_options
 
     def handle_endgame_player(self, packet):

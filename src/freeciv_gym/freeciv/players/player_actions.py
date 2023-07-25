@@ -31,11 +31,12 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class PlayerOptions(ActionList):
     # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
-    def __init__(self, ws_client, rule_ctrl, players, clstate):
+    def __init__(self, ws_client, rule_ctrl, dipl_ctrl, players, clstate):
         super().__init__(ws_client)
         self.players = players
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
+        self.dipl_ctrl = dipl_ctrl
 
     def _can_actor_act(self, actor_id):
         return True
@@ -50,7 +51,7 @@ class PlayerOptions(ActionList):
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
             else:
-                self.update_counterpart_options(counter_id, pplayer, counterpart)
+                self.update_counterpart_options(self.clstate, self.dipl_ctrl, counter_id, pplayer, counterpart)
 
     def update_player_options(self, counter_id, pplayer):
         maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
@@ -79,11 +80,19 @@ class PlayerOptions(ActionList):
         if decrease_tax.is_action_valid():
             self.add_action(counter_id, decrease_tax)
 
+    def update_counterpart_options(self, clstate, dipl_ctrl, counter_id, cur_player, counterpart):
+        start_negotiate = StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart)
+        if start_negotiate.is_action_valid():
+            self.add_action(counter_id, start_negotiate)
 
-    def update_counterpart_options(self, counter_id, cur_player, counterpart):
-        self.add_action(counter_id, StartNegotiate(counterpart))
-        self.add_action(counter_id, StopNegotiate(counterpart))
-        self.add_action(counter_id, AcceptTreaty(counterpart))
+        stop_negotiate = StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart)
+        if stop_negotiate.is_action_valid():
+            self.add_action(counter_id, stop_negotiate)
+
+        accept_treaty = AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart)
+        if accept_treaty.is_action_valid():
+            self.add_action(counter_id, accept_treaty)
+
         self.update_clause_options(counter_id, cur_player, counterpart)
         self.update_clause_options(counter_id, counterpart, cur_player)
 
@@ -226,12 +235,19 @@ class DecreaseTax(IncreaseSci):
 class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
 
-    def __init__(self, counterpart):
+    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart):
         super().__init__()
+        self.clstate = clstate
+        self.dipl_ctrl = dipl_ctrl
+        self.cur_player = cur_player
         self.counterpart = counterpart
 
     def is_action_valid(self):
-        return True
+        if (not self.clstate.client_is_observer() and self.counterpart != self.cur_player
+                and self.counterpart['is_alive'] and self.cur_player['is_alive']):
+            if self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], [player_const.DS_NO_CONTACT]):
+                return True
+        return False
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_init_meeting_req,
@@ -242,6 +258,11 @@ class StartNegotiate(base_action.Action):
 class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
 
+    def is_action_valid(self):
+        if self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']:
+            return True
+        return False
+
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
                   "counterpart": self.counterpart["playerno"]}
@@ -250,6 +271,11 @@ class AcceptTreaty(StartNegotiate):
 
 class StopNegotiate(StartNegotiate):
     action_key = "stop_negotiation"
+
+    def is_action_valid(self):
+        if self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']:
+            return True
+        return False
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,

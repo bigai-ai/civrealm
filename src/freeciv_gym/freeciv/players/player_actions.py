@@ -102,8 +102,13 @@ class PlayerOptions(ActionList):
                         player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
 
         for ctype in base_clauses:
-            self.add_action(counter_id, AddClause(ctype, 1, giver, taker, cur_p))
-            self.add_action(counter_id, RemoveClause(ctype, 1, giver, taker, cur_p))
+            add_clause = AddClause(ctype, 1, giver, taker, cur_p)
+            if add_clause.is_action_valid():
+                self.add_action(counter_id, add_clause)
+
+            remove_clause = RemoveClause(ctype, 1, giver, taker, cur_p)
+            if remove_clause.is_action_valid():
+                self.add_action(counter_id, remove_clause)
 
         for ctype in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
             self.add_action(counter_id, CancelClause(ctype, 1, giver, taker, cur_p))
@@ -259,9 +264,7 @@ class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
 
     def is_action_valid(self):
-        if self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']:
-            return True
-        return False
+        return self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
@@ -273,9 +276,7 @@ class StopNegotiate(StartNegotiate):
     action_key = "stop_negotiation"
 
     def is_action_valid(self):
-        if self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']:
-            return True
-        return False
+        return self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,

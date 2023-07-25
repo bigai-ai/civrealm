@@ -738,7 +738,6 @@ class ActUpgrade(UnitAction):
             return False
         return self.focus.ptype != None and self.focus.obsolete_type != None and \
             can_player_build_unit_direct(self.focus.pplayer, self.focus.obsolete_type)
-        # need to add the money requirement here
 
     def _action_packet(self):
         target_id = self.focus.pcity['id'] if self.focus.pcity != None else 0

@@ -25,8 +25,7 @@ from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_FORTIFIED
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -34,38 +33,37 @@ def controller():
     controller.close()
 
 
-def test_fortify(controller):
-    fc_logger.info("test_fortify")
+def test_upgrade(controller):
+    fc_logger.info("test_upgrade")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
-    unit_id = 185
+    unit_id = 739
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert ('fortify' in valid_actions.keys() and not punit['activity'] == ACTIVITY_FORTIFIED)
-    unit_action = valid_actions['fortify']
+    assert (punit['type'] == 6 and 'upgrade' in valid_actions.keys())
+    unit_action = valid_actions['upgrade']
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
-    print(f"Fortify unit {unit_id}")
+    print(f"Upgrade unit {unit_id} from Legion to Musketeers")
     controller.send_end_turn()
     options = controller.get_info()['available_actions']
     controller.get_observation()
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert (not ('fortify' in valid_actions.keys()) and punit['activity'] == ACTIVITY_FORTIFIED)
+    assert (punit['type'] == 8 and not ('upgrade' in valid_actions.keys()))
     import time
     time.sleep(2)
 
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
-    test_fortify(controller)
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
+    test_upgrade(controller)
 
 
 if __name__ == '__main__':

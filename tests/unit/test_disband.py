@@ -36,10 +36,7 @@ def test_disband(controller):
     fc_logger.info("test_disband")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
-    unit_opt = options['unit']
     unit_id = 138
-    # Tile info won't update unless options get assigned here
-    # options = controller.turn_manager.get_available_actions()
     unit_opt = options['unit']
     assert (unit_id in unit_opt.unit_ctrl.units.keys())
     punit = unit_opt.unit_ctrl.units[unit_id]

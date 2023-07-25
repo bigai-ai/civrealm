@@ -13,14 +13,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import sys
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.tech.tech_helpers import recreate_old_tech_req
-
-import sys
-
+from BitVector import BitVector
+from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.game.info_states import RuleState
 from freeciv_gym.freeciv.utils.base_action import NoActions
-
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 EXTRA_IRRIGATION = 0
@@ -131,6 +130,7 @@ class RulesetCtrl(CivPropController):
 
         self.register_handler(16, "handle_game_info")
         self.register_handler(127, "handle_new_year")
+        self.register_handler(260, "handle_web_ruleset_unit_addition")
 
     def handle_ruleset_terrain(self, packet):
         # These two hacks are there since Freeciv-web doesn't support rendering Lake and Glacier correctly.
@@ -447,3 +447,7 @@ class RulesetCtrl(CivPropController):
         # /* TODO: Support calender fragments. */
         self.game_info['fragments'] = packet['fragments']
         self.game_info['turn'] = packet['turn']
+
+    def handle_web_ruleset_unit_addition(self, packet):
+        utype_actions = BitVector(bitlist=byte_to_bit_array(packet['utype_actions']))
+        self.unit_types[packet['id']]['utype_actions'] = utype_actions

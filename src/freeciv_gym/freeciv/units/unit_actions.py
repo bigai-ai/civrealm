@@ -215,6 +215,20 @@ class UnitActions(ActionList):
         # In case we do not have actions needed to query the probability, we need to seed a message to trigger the server return a message. Otherwise, the lock_control() in get_observation will keep waiting for the server message which would be a ping packet that arrives every several seconds. This will make the running very slow.
         if not has_query:
             self.ws_client.send_message(f'No action probability query needed.')
+    
+    def utype_can_do_action(self, unit, action_id):
+        if not unit['type'] in self.rule_ctrl.unit_types:
+            fc_logger.error('Nonexist unit type.')
+            return False
+        putype = self.rule_ctrl.unit_types[unit['type']]
+        if not 'utype_actions' in putype:
+            fc_logger.error('utype_can_do_action(): bad unit type.')
+            return False
+        if action_id >= ACTION_COUNT or action_id < 0:
+            fc_logger.error(f'utype_can_do_action(): invalid action id: {action_id}')
+            return False
+       
+        return putype['utype_actions'][action_id]
 
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit

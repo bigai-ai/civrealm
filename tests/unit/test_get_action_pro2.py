@@ -39,6 +39,14 @@ def controller():
 def test_get_action_pro2(controller):
     fc_logger.info("test_get_action_pro2")
     _, options = get_first_observation_option(controller)
+    # for type_id in controller.rule_ctrl.unit_types:
+    for type_id in range(0,2):
+        type = controller.rule_ctrl.unit_types[type_id]
+        print(type['name'])
+        print(type['utype_actions'])
+        for i in range(len(type['utype_actions'])):
+            if type['utype_actions'][i]:
+                print(i)
     # Class: UnitActions
     unit_opt = options['unit']
     # Get all units (including those controlled by other players)

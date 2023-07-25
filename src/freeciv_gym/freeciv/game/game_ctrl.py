@@ -60,7 +60,6 @@ class GameCtrl(CivPropController):
         self.register_handler(223, "handle_endgame_player")
         self.register_handler(238, "handle_achievement_info")
         self.register_handler(245, "handle_play_music")
-        self.register_handler(260, "handle_info_text_message")
 
     def handle_scenario_info(self, packet):
         """
@@ -147,9 +146,5 @@ class GameCtrl(CivPropController):
         pass
 
     def handle_edit_object_created(self, packet):
-        # /* TODO: implement */
-        pass
-
-    def handle_info_text_message(self, packet):
         # /* TODO: implement */
         pass

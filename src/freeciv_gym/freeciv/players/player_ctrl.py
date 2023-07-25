@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 from freeciv_gym.freeciv.city.city_state import CityState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
 
 # from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
 # from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
@@ -53,7 +54,6 @@ class PlayerCtrl(CivPropController):
         self.register_handler(58, "handle_player_attribute_chunk")
         self.register_handler(60, "handle_player_research_info")
         self.register_handler(259, "handle_web_player_addition_info")
-
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -132,7 +132,7 @@ class PlayerCtrl(CivPropController):
 
         for player_id in self.players:
             pplayer = self.players[player_id]
-            if pplayer['flags'].isSet(player_const.PLRF_AI):
+            if pplayer['flags'][player_const.PLRF_AI]:
                 if ainame == pplayer['name']:
                     return pplayer
             elif pname == pplayer['username']:
@@ -152,7 +152,7 @@ class PlayerCtrl(CivPropController):
     def player_number(player):
         """Return the player index/number/id."""
         return player['playerno']
-    
+
     def research_get(self, pplayer):
         """Returns the research object related to the given player."""
         if pplayer is None:
@@ -167,7 +167,7 @@ class PlayerCtrl(CivPropController):
         if pplayer is None:
             return
 
-        selected_myself = self.player_is_myself(self)
+        selected_myself = self.player_is_myself(selected_player)
         both_alive_and_different = self.player_not_myself(self) and self.players_alive(pplayer)
 
         player_options = []
@@ -176,10 +176,7 @@ class PlayerCtrl(CivPropController):
             if self.dipl_ctrl.check_not_dipl_states(player_id, [player_const.DS_NO_CONTACT]):
                 player_options.append("meet_player")
 
-            if self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
-                player_options.append("cancel_treaty")
-
-        if pplayer['flags'].isSet(player_const.PLRF_AI) or selected_myself:
+        if not pplayer['flags'][player_const.PLRF_AI] and not selected_myself:
             player_options.append("send_msg")
 
         if self.clstate.can_client_control():
@@ -187,19 +184,22 @@ class PlayerCtrl(CivPropController):
                 if self.dipl_ctrl.check_in_dipl_states(
                         player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
                     player_options.append("declare_war")
-                else:
+                elif self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
                     player_options.append("cancel_treaty")
 
             if both_alive_and_different and self.players_not_same_team(pplayer) and \
-                    self.my_player['gives_shared_vision'].isSet(player_id):
+                    self.my_player['gives_shared_vision'][player_id]:
                 player_options.append("withdraw_vision")
 
         if self.clstate.client_is_observer() or (
-            both_alive_and_different and self.dipl_ctrl.check_not_dipl_states(
-                player_id, [player_const.DS_NO_CONTACT])):
+                both_alive_and_different and self.dipl_ctrl.check_not_dipl_states(
+            player_id, [player_const.DS_NO_CONTACT])):
             player_options.append("intl_report")
 
         player_options.append("toggle_ai")
+        print(player_options)
+
+        return player_options
 
     def handle_endgame_player(self, packet):
         self.endgame_player_info.append(packet)
@@ -250,8 +250,8 @@ class PlayerCtrl(CivPropController):
 
     def handle_player_info(self, packet):
         """ Interpret player flags."""
-        packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
-        packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
+        packet['flags'] = byte_to_bit_array(packet['flags'])
+        packet['gives_shared_vision'] = byte_to_bit_array(packet['gives_shared_vision'])
         playerno = packet["playerno"]
         # Update player information
         if not playerno in self.players.keys() or self.players[playerno] is None:

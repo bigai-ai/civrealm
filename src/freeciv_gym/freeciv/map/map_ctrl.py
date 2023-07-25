@@ -207,8 +207,8 @@ class MapCtrl(CivPropController):
 
             if test_tile == end_tile:
                 return dir8
-
-        return -1
+        # DIR8_STAY is -1
+        return map_const.DIR8_STAY
 
     @staticmethod
     def dir_get_name(dir8):

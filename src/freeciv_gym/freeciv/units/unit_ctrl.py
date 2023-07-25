@@ -486,7 +486,6 @@ class UnitCtrl(CivPropController):
         target_tile = self.map_ctrl.index_to_tile(target_tile_id)
         unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
-        assert (move_dir != -1)
         self.prop_actions.update_unit_action_pro(actor_unit_id, move_dir, action_probabilities)
 
         # print(f"unit_id: {actor_unit_id}, target_position: ({target_tile['x']}, {target_tile['y']}), extra: {self.rule_ctrl.extras[target_extra_id]['name'] if target_extra_id != -1 else None}.")
@@ -538,9 +537,9 @@ class UnitCtrl(CivPropController):
             # /* The target tile is too far away for one-step move. */
             return False
 
-        # If the unit cannot access the terrain, return False
-        if self.rule_ctrl.unit_type(actor_unit)['name'] in LAND_UNIT and target_tile['terrain'] in LAND_UNIT_INACCESS_TERRAIN:
-            return False
+        # # If the unit cannot access the terrain, return False
+        # if self.rule_ctrl.unit_type(actor_unit)['name'] in LAND_UNIT and target_tile['terrain'] in LAND_UNIT_INACCESS_TERRAIN:
+        #     return False
 
         for tile_unit in target_tile['units']:
             tgt_owner_id = self.unit_owner(tile_unit)['playerno']

@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.game.ruleset import EXTRA_IRRIGATION, EXTRA_MINE, EXTRA
 
 from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
-    ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, packet_unit_autosettlers,\
+    ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, ACTION_UNIT_MOVE, packet_unit_autosettlers,\
     ACTION_DISBAND_UNIT, ACTION_DISBAND_UNIT_RECOVER, packet_city_name_suggestion_req,\
     ACTION_JOIN_CITY, ACTIVITY_FALLOUT, ACTIVITY_POLLUTION,\
     packet_unit_change_activity, ACTIVITY_IRRIGATE, ACTIVITY_BASE, ACTIVITY_MINE,\
@@ -198,6 +198,8 @@ class UnitActions(ActionList):
         for act_class in [ActGetActionPro]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_get_pro_action(unit_id, act_class(unit_focus, dir8))
+            # Also query the action pro for the current tile.
+            self.add_get_pro_action(unit_id, act_class(unit_focus, map_const.DIR8_STAY))
 
     # Query action probablity from server
     def query_action_probablity(self):
@@ -1007,6 +1009,8 @@ class ActGoto(StdAction):
         self.move_dir = None
 
     def is_action_valid(self):
+        if not action_prob_possible(self.focus.action_prob[self.dir8][ACTION_UNIT_MOVE]):
+            return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
             return False
@@ -1102,20 +1106,27 @@ class ActGetActionPro(UnitAction):
         self.dir8 = dir8
 
     def is_action_valid(self):
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        self.target_tile_id = newtile['index']
-        if len(newtile['units'])>0:
-            self.target_unit_id = newtile['units'][0]['id']
-        else:
+        if self.dir8 == map_const.DIR8_STAY:
+            newtile = self.focus.ptile
+            self.target_tile_id = newtile['index']
             self.target_unit_id = -1
-        extra = newtile['extras']
-        set_bits = find_set_bits(extra)
-        if len(set_bits) == 0:
             self.target_extra_id = -1
-        elif len(set_bits) == 1:
-            self.target_extra_id = set_bits[0]
         else:
-            self.target_extra_id = set_bits
+            newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+            self.target_tile_id = newtile['index']
+            # if len(newtile['units'])>0:
+            #     self.target_unit_id = newtile['units'][0]['id']
+            # else:
+            self.target_unit_id = -1
+            # extra = newtile['extras']
+            # set_bits = find_set_bits(extra)
+            # if len(set_bits) == 0:
+            #     self.target_extra_id = -1
+            # elif len(set_bits) == 1:
+            #     self.target_extra_id = set_bits[0]
+            # else:
+            #     self.target_extra_id = set_bits
+            self.target_extra_id = -1
         return True
 
     def _action_packet(self):

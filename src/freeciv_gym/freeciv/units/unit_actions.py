@@ -191,6 +191,9 @@ class UnitActions(ActionList):
 
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActAttack(unit_focus, dir8))
+            
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActSpyBribeUnit(unit_focus, dir8))
 
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -964,9 +967,16 @@ class ActSpyInciteCityESC(ActSpyCityAction):
 class ActSpyUnitAction(DiplomaticAction):
     """Base class for spy actions against units"""
     action_id = None
+    action_key = None
+    
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
 
     def is_dipl_action_valid(self):
-        return self.focus.target_unit != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
+        # return self.focus.target_unit != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
+        return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
 
     def _action_packet(self):
         packet = {"pid": packet_unit_action_query,
@@ -980,6 +990,7 @@ class ActSpyUnitAction(DiplomaticAction):
 class ActSpyBribeUnit(ActSpyUnitAction):
     """ Bribe Unit"""
     action_id = ACTION_SPY_BRIBE_UNIT
+    action_key = "spy_bribe_unit"
 
 
 class ActSpyUpgradeUnit(ActSpyUnitAction):

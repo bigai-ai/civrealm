@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -33,32 +33,43 @@ def controller():
     controller.close()
 
 
-def test_attack(controller):
-    fc_logger.info("test_attack")
+def test_spy_bribe_unit(controller):
+    fc_logger.info("test_spy_bribe_unit")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    horseman_id = 250
+    diplomat_id = 1164
+    target_id = 853
+    assert (unit_opt.unit_ctrl.units[target_id]['owner'] != 0)
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == horseman_id:
+        if unit_id == diplomat_id:
             print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'attack_{map_const.DIR8_NORTHWEST}'])
+            test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
         else:
             pass
-    print('Attack the northwest tile')
-    # Perform attack action for the horseman
+    print('Bribe the enemy unit on southwest tile')
+    # Perform spy_bribe_unit action for the diplomat
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
     controller.get_observation()
     unit_opt = controller.get_info()['available_actions']['unit']
-    assert (389 not in unit_opt.unit_ctrl.units.keys())
+    assert (unit_opt.unit_ctrl.units[target_id]['owner'] == 0)
     import time
     time.sleep(2)
+    
+def main():
+    controller = CivController('testcontroller')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52')
+    test_spy_bribe_unit(controller)
+
+
+if __name__ == '__main__':
+    main()

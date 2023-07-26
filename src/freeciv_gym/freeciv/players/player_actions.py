@@ -97,6 +97,11 @@ class PlayerOptions(ActionList):
         if cancel_treaty.is_action_valid():
             self.add_action(counter_id, cancel_treaty)
 
+        cancel_vision = CancelVision(clstate, dipl_ctrl, cur_player, counterpart)
+        if cancel_vision.is_action_valid():
+            self.add_action(counter_id, cancel_vision)
+
+
         if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
             clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
             for clause in clauses:
@@ -308,6 +313,20 @@ class StopNegotiate(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
+        return packet
+
+
+class CancelVision(StartNegotiate):
+    action_key = "cancel_vision"
+
+    def is_action_valid(self):
+        return (self.counterpart['team'] != self.cur_player['team']
+                and self.cur_player['gives_shared_vision'][self.counterpart['playerno']])
+
+    def _action_packet(self):
+        packet = {"pid": packet_diplomacy_cancel_pact,
+                  "other_player_id": self.counterpart["playerno"],
+                  "clause": player_const.CLAUSE_VISION}
         return packet
 
 

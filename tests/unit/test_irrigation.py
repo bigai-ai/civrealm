@@ -40,7 +40,6 @@ def test_irrigation(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    build_action = None
     worker_id = 138
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
@@ -48,12 +47,12 @@ def test_irrigation(controller):
         print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
         # Get valid actions
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-            build_action = valid_actions['irrigation']
-        else:
-            pass
+            # There is no river nearby, the irrigation action is invalid.
+            assert('irrigation' not in valid_actions)
+  
     print('Move to the north tile which is near a river (irrigation is allowed)')
     # Perform goto action for the worker
     for action in test_action_list:
@@ -63,8 +62,10 @@ def test_irrigation(controller):
     controller.get_observation()
     punit = unit_opt.unit_ctrl.units[worker_id]
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    assert (not (build_tile['extras'][EXTRA_IRRIGATION] == 1))
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # The unit has no move left, the build should be invalid
-    assert (not build_action.is_action_valid())
+    assert('irrigation' not in valid_actions)
     # End turn
     controller.send_end_turn()
     controller.get_info()
@@ -72,9 +73,10 @@ def test_irrigation(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     # The unit has move in new turn, the build should be valid
-    assert (not (build_tile['extras'][EXTRA_IRRIGATION] == 1))
-    assert (build_action.is_action_valid())
-    build_action.trigger_action(controller.ws_client)
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    irrigation_action = valid_actions['irrigation']
+    assert (irrigation_action.is_action_valid())
+    irrigation_action.trigger_action(controller.ws_client)
     print('Begin building a irrigation, needs a few turns to finish ...')
     # Wait for 15 turns (until the work is done)
     for turn_i in range(5):

@@ -423,9 +423,9 @@ class EngineerAction(UnitAction):
         if self.focus.punit['movesleft'] == 0:
             return False  # raise Exception("Unit has no moves left to build city")
 
-        if self.focus.ptype['name'] in ["Workers", "Engineers"]:
-            return self.is_eng_action_valid()
-        return False
+        # if self.focus.ptype['name'] in ["Workers", "Engineers"]:
+        return self.is_eng_action_valid()
+        # return False
 
     def is_eng_action_valid(self):
         raise Exception("Not implemented")
@@ -435,6 +435,8 @@ class ActTransform(EngineerAction):
     action_key = "transform"
 
     def is_eng_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSFORM_TERRAIN):
+            return False
         return True
 
     def _action_packet(self):
@@ -445,7 +447,9 @@ class ActMine(EngineerAction):
     action_key = "mine"
 
     def is_eng_action_valid(self):
-        return True
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_MINE):
+            return False
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_MINE, EXTRA_NONE)
@@ -474,8 +478,11 @@ class ActCultivate(EngineerAction):
     action_key = "cultivate"
 
     def is_eng_action_valid(self):
-        terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
-        return terr_name == "Forest"
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CULTIVATE):
+            return False
+        # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
+        # return terr_name == "Forest"
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_CULTIVATE, EXTRA_NONE)
@@ -486,9 +493,12 @@ class ActPlant(EngineerAction):
     action_key = "plant"
 
     def is_eng_action_valid(self):
-        terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
-        # Forest can only be planted on grassland or plains
-        return terr_name == "Grassland" or terr_name == "Plains"
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_PLANT):
+            return False
+        # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
+        # # Forest can only be planted on grassland or plains
+        # return terr_name == "Grassland" or terr_name == "Plains"
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PLANT])
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_PLANT, EXTRA_NONE)
@@ -519,15 +529,16 @@ class ActAirbase(EngineerAction):
 # class ActIrrigation(ActOnExtra):
 class ActIrrigation(EngineerAction):
     """Action to create an irrigation"""
-    action_key = "irrigation"
+    action_key = 'irrigation'
 
     # def __init__(self, cur_focus):
     #     self.extra_type = ruleset.EXTRA_IRRIGATION
     #     super().__init__(cur_focus)
 
     def is_eng_action_valid(self):
-        # trust server returned actions for now
-        return True
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_IRRIGATE):
+            return False
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_IRRIGATE])
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
@@ -598,7 +609,6 @@ class ActParadrop(UnitAction):
 class ActBuild(UnitAction):
     """Request that a city is built."""
     action_key = "build"
-    action_id = ACTION_FOUND_CITY
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -656,7 +666,6 @@ class ActBuild(UnitAction):
 class ActJoin(UnitAction):
     """Join an existing city."""
     action_key = "join"
-    action_id = ACTION_JOIN_CITY
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -666,7 +675,7 @@ class ActJoin(UnitAction):
             return False  # raise Exception("Unit has no moves left to build city")
 
         # Check whether the unit type can do the given action
-        if not self.utype_can_do_action(self.focus.punit, ACTION_FOUND_CITY):
+        if not self.utype_can_do_action(self.focus.punit, ACTION_JOIN_CITY):
             return False
     
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY])
@@ -1222,6 +1231,8 @@ class ActAttack(UnitAction):
         self.dir8 = dir8
 
     def is_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ATTACK):
+            return False
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
         return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])

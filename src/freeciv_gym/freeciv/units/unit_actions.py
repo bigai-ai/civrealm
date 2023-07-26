@@ -653,6 +653,33 @@ class ActBuild(UnitAction):
         self.wait_for_pid = 31
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
+class ActJoin(UnitAction):
+    """Join an existing city."""
+    action_key = "join"
+    action_id = ACTION_JOIN_CITY
+
+    def __init__(self, cur_focus):
+        super().__init__(cur_focus)
+
+    def is_action_valid(self):
+        if self.focus.punit['movesleft'] == 0:
+            return False  # raise Exception("Unit has no moves left to build city")
+
+        # Check whether the unit type can do the given action
+        if not self.utype_can_do_action(self.focus.punit, ACTION_FOUND_CITY):
+            return False
+    
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY])
+
+    def _action_packet(self):
+        target_city = self.focus.pcity
+        if target_city == None:
+            fc_logger.error('The unit does not locate inside a city, should not call _action_packet() for ActJoin')
+            assert(False)
+        unit_id = self.focus.punit["id"]
+        self.wait_for_pid = 62
+        return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
+
 class ActFortify(UnitAction):
     action_key = "fortify"
 

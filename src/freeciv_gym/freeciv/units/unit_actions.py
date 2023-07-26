@@ -677,6 +677,7 @@ class ActJoin(UnitAction):
             fc_logger.error('The unit does not locate inside a city, should not call _action_packet() for ActJoin')
             assert(False)
         unit_id = self.focus.punit["id"]
+        # Join city will cause the removal of unit. Wait for the unit remove packet.
         self.wait_for_pid = 62
         return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
 

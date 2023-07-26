@@ -21,10 +21,6 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
-# def is_port_in_use(port: int) -> bool:
-#     import socket
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#         return s.connect_ex(('localhost', port)) == 0
 
 
 @pytest.fixture
@@ -47,8 +43,8 @@ def test_build_city2(controller):
     unit_opt = options['unit']
     build_action = None
 
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        unit_focus = unit_opt.unit_data[unit_id]        
+    for unit_id in unit_opt.unit_data.keys():
+        unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         print(
             f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
@@ -65,7 +61,7 @@ def test_build_city2(controller):
     # Get unit new state
     options = controller.get_info()['available_actions']
     controller.get_observation()
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]        
         ptile = unit_focus.ptile
         print(

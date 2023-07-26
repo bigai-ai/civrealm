@@ -20,6 +20,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.utils.fc_types as fc_types
 
 # def is_port_in_use(port: int) -> bool:
 #     import socket
@@ -30,7 +31,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T91_2023-07-26-04_25')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -45,36 +46,42 @@ def test_build_city(controller):
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
-    test_action_list = []
     build_action = None
 
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-        # Get valid actions
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        if unit_id == 137:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTH}'])
-            build_action = valid_actions['build']
-        else:
-            pass
-    # Perform goto action for each unit
-    for action in test_action_list:
-        action.trigger_action(controller.ws_client)
-    # Get unit new state
-    controller.get_observation()
-    # The unit has no move left, the build should be invalid
-    assert (not build_action.is_action_valid())
-    # End turn
+    for unit_id in unit_opt.unit_data.keys():
+        unit_focus = unit_opt.unit_data[unit_id]        
+        ptile = unit_focus.ptile
+        # print(
+        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+        if unit_id == 436:
+            # The settler is in foreign tile, cannot build.
+            assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 0, 'max': 0})
+            print(ptile)
+            # Get valid actions
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            assert('build' not in valid_actions)
+            valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(controller.ws_client)
+    
     controller.send_end_turn()
+    # Get unit new state
+    options = controller.get_info()['available_actions']
     controller.get_observation()
+    for unit_id in unit_opt.unit_data.keys():
+        unit_focus = unit_opt.unit_data[unit_id]        
+        ptile = unit_focus.ptile
+        # print(
+        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+        if unit_id == 436:
+            # The settler can build city now.
+            assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 200, 'max': 200})
+            print(ptile)
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            build_action = valid_actions['build']
     # The unit has move in new turn, the build should be valid
     assert (build_action.is_action_valid())
     city_num = len(controller.city_ctrl.cities)
     build_action.trigger_action(controller.ws_client)
-    # Get unit new state
+    # # Get unit new state
     controller.get_observation()
     # Building a new city increases the city number
     assert (len(controller.city_ctrl.cities) == city_num+1)

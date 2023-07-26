@@ -93,42 +93,18 @@ class PlayerOptions(ActionList):
         if accept_treaty.is_action_valid():
             self.add_action(counter_id, accept_treaty)
 
-        self.update_clause_options(counter_id, cur_player, counterpart)
-        self.update_clause_options(counter_id, counterpart, cur_player)
-
-    def update_clause_options(self, counter_id, giver, taker):
-        cur_p = self.players[self.clstate.player_num()]
-        base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION, player_const.CLAUSE_EMBASSY,
-                        player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
-
-        for ctype in base_clauses:
-            add_clause = AddClause(ctype, 1, giver, taker, cur_p)
-            if add_clause.is_action_valid():
-                self.add_action(counter_id, add_clause)
-
-            remove_clause = RemoveClause(ctype, 1, giver, taker, cur_p)
-            if remove_clause.is_action_valid():
-                self.add_action(counter_id, remove_clause)
-
-        for ctype in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
-            self.add_action(counter_id, CancelClause(ctype, 1, giver, taker, cur_p))
-
-        for tech_id in self.rule_ctrl.techs:
-            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                           giver, taker, cur_p, self.rule_ctrl))
-        """
-        if self.ruleset.game["trading_city"]:
-            for city_id in cities:
-                pcity = cities[city_id]
-                if city_owner(pcity) == giver and not does_city_have_improvement(pcity, "Palace"):
-                    all_clauses.append({"type": CLAUSE_CITY, "value": city_id})
-
-        if self.ruleset.game["trading_gold"]:
-            if giver == self.clstate.player_num():
-                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#self_gold").val(value)})
-            else:
-                all_clauses.append({"type": CLAUSE_GOLD, "value": ("#counterpart_gold").val(value)})
-        """
+        if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
+            print(clauses)
+            for clause in clauses:
+                print(clause)
+                counterpart_id = clause['counterpart']
+                giver = clause['giver']
+                type = clause['type']
+                value = clause['value']
+                remove_clause = RemoveClause(type, value, giver, counterpart_id)
+                if remove_clause.is_action_valid():
+                    self.add_action(counter_id, remove_clause)
 
 
 class IncreaseSci(base_action.Action):
@@ -287,79 +263,38 @@ class StopNegotiate(StartNegotiate):
 class RemoveClause(base_action.Action):
     action_key = "remove_clause"
 
-    def __init__(self, clause_type, value, giver, taker, cur_player):
+    def __init__(self, clause_type, value, giver, counterpart):
         super().__init__()
         self.clause_type = clause_type
         self.value = value
         self.giver = giver
-        self.taker = taker
-        self.cur_player = cur_player
-        self.action_key += "_cl%s_player%i" % (player_const.CLAUSE_TXT[clause_type],
-                                               self.giver["playerno"])
+        self.counterpart = counterpart
+        self.action_key += "_%s_player_%i" % (player_const.CLAUSE_TXT[clause_type], counterpart)
 
     def is_action_valid(self):
         return True
-        # TODO: To be investigated
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_remove_clause_req,
-                  "counterpart": self.taker["playerno"],
-                  "giver": self.giver["playerno"],
+                  "counterpart": self.counterpart,
+                  "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
         return packet
-
 
 class AddClause(RemoveClause):
     action_key = "add_clause"
 
     def is_action_valid(self):
-        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
-            return self.giver == self.cur_player
         return True
-
-    def trigger_action(self, ws_client):
-        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
-            # // eg. creating peace treaty requires removing ceasefire first.
-            rem_packet = RemoveClause._action_packet(self)
-            ws_client.send_request(rem_packet)
-        RemoveClause.trigger_action(self, ws_client)
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_create_clause_req,
-                  "counterpart": self.taker["playerno"],
-                  "giver": self.giver["playerno"],
+                  "counterpart": self.counterpart,
+                  "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
         return packet
 
 
-class CancelClause(AddClause):
-    action_key = "cancel_clause"
 
-    def is_action_valid(self):
-        if self.clause_type in [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]:
-            return self.giver == self.cur_player
-        return False
-
-    def _action_packet(self):
-        packet = {"pid": packet_diplomacy_cancel_pact,
-                  "other_player_id": self.taker["playerno"],
-                  "clause": self.clause_type}
-        return packet
-
-
-class AddTradeTechClause(AddClause):
-    action_key = "trade_tech_clause"
-
-    def __init__(self, clause_type, value, giver, taker, cur_player, rule_ctrl):
-        super().__init__(clause_type, value, giver, taker, cur_player)
-        self.rule_ctrl = rule_ctrl
-        self.action_key += "_%i_%s" % (value, rule_ctrl.techs[value]["name"])
-
-    def is_action_valid(self):
-        if not self.rule_ctrl.game_info["trading_tech"]:
-            return False
-        return is_tech_known(self.giver, self.value) and \
-            player_invention_state(self.taker, self.value) in [tech_const.TECH_UNKNOWN,
-                                                               tech_const.TECH_PREREQS_KNOWN]

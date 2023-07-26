@@ -19,11 +19,12 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-26-09_04')
+    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,22 +40,21 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_stop_negotiate(controller):
-    fc_logger.info("test_player_stop_negotiate")
+def test_player_cancel_vision(controller):
+    fc_logger.info("test_player_cancel_vision")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    stop_negotiate_act = find_keys_with_keyword(player_opt._action_dict[4], 'stop_negotiation')[0]
+    cancel_vision_act = find_keys_with_keyword(player_opt._action_dict[4], 'cancel_vision')[0]
 
-    assert (stop_negotiate_act.is_action_valid())
-    meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    assert (cancel_vision_act.is_action_valid())
+    vs_1 = player_opt.players[0]['gives_shared_vision'][4]
 
-    stop_negotiate_act.trigger_action(controller.ws_client)
+    cancel_vision_act.trigger_action(controller.ws_client)
     controller.get_observation()
-    meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    vs_2 = player_opt.players[0]['gives_shared_vision'][4]
 
-    assert (meeting_id_1 == 4 and meeting_id_2 is None)
-
+    assert (vs_1 == 1 and vs_2 == 0)
 
 
 

@@ -19,11 +19,12 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-26-09_04')
+    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-26-10_28')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,22 +40,20 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_stop_negotiate(controller):
-    fc_logger.info("test_player_stop_negotiate")
+def test_player_accept_treaty(controller):
+    fc_logger.info("test_player_accept_treaty")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    stop_negotiate_act = find_keys_with_keyword(player_opt._action_dict[4], 'stop_negotiation')[0]
+    accept_treaty_act = find_keys_with_keyword(player_opt._action_dict[3], 'accept_treaty')[0]
 
-    assert (stop_negotiate_act.is_action_valid())
-    meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    assert (accept_treaty_act.is_action_valid())
+    emb_1 = player_opt.players[3]['real_embassy'][0]
 
-    stop_negotiate_act.trigger_action(controller.ws_client)
+    accept_treaty_act.trigger_action(controller.ws_client)
     controller.get_observation()
-    meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    emb_2 = player_opt.players[3]['real_embassy'][0]
 
-    assert (meeting_id_1 == 4 and meeting_id_2 is None)
-
-
+    assert (emb_1 == 0 and emb_2 == 1)
 
 

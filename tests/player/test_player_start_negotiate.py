@@ -40,7 +40,7 @@ def find_keys_with_keyword(dictionary, keyword):
 
 
 def test_player_start_negotiate(controller):
-    fc_logger.info("test_player_increase_tax")
+    fc_logger.info("test_player_start_negotiate")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']

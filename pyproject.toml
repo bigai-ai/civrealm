@@ -56,6 +56,7 @@ addopts = [
     # "tests/player/test_player_decrease_tax.py",
     # "tests/unit/test_move_to.py",
     # "tests/unit/test_build_city.py",
+    # "tests/unit/test_build_city2.py",
     # "tests/unit/test_build_road.py",
     # "tests/unit/test_irrigation.py",
     # "tests/unit/test_mine.py",

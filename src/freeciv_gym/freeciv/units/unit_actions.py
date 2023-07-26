@@ -49,6 +49,7 @@ from freeciv_gym.freeciv.map.tile import TileState
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.utility import find_set_bits
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+import freeciv_gym.freeciv.utils.fc_types as fc_types
 
 class FocusUnit():
     """Stores all relevant information for deciding on valid actions for the
@@ -176,7 +177,7 @@ class UnitActions(ActionList):
         unit_focus = self.unit_data[unit_id]
 
         for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
-                          ActExplore, ActParadrop, ActBuild, ActFortify, ActBuildRoad,
+                          ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade,
                           ActLoadUnit, ActUnloadUnit, ActNoorders,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
@@ -215,20 +216,6 @@ class UnitActions(ActionList):
         # In case we do not have actions needed to query the probability, we need to seed a message to trigger the server return a message. Otherwise, the lock_control() in get_observation will keep waiting for the server message which would be a ping packet that arrives every several seconds. This will make the running very slow.
         if not has_query:
             self.ws_client.send_message(f'No action probability query needed.')
-    
-    def utype_can_do_action(self, unit, action_id):
-        if not unit['type'] in self.rule_ctrl.unit_types:
-            fc_logger.error('Nonexist unit type.')
-            return False
-        putype = self.rule_ctrl.unit_types[unit['type']]
-        if not 'utype_actions' in putype:
-            fc_logger.error('utype_can_do_action(): bad unit type.')
-            return False
-        if action_id >= ACTION_COUNT or action_id < 0:
-            fc_logger.error(f'utype_can_do_action(): invalid action id: {action_id}')
-            return False
-       
-        return putype['utype_actions'][action_id]
 
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
@@ -298,6 +285,20 @@ class UnitAction(Action):
 
     def _action_packet(self):
         raise Exception("Not implemented - To be implemented by specific Action classes")
+
+    def utype_can_do_action(self, unit, action_id):
+        if not unit['type'] in self.focus.rule_ctrl.unit_types:
+            fc_logger.error('Nonexist unit type.')
+            return False
+        putype = self.focus.rule_ctrl.unit_types[unit['type']]
+        if not 'utype_actions' in putype:
+            fc_logger.error('utype_can_do_action(): bad unit type.')
+            return False
+        if action_id >= ACTION_COUNT or action_id < 0:
+            fc_logger.error(f'utype_can_do_action(): invalid action id: {action_id}')
+            return False
+       
+        return putype['utype_actions'][action_id]
 
     def unit_do_action(self, actor_id, target_id, action_type, value=0, name=""):
         """Tell server action of actor_id towards unit target_id with the respective
@@ -597,6 +598,7 @@ class ActParadrop(UnitAction):
 class ActBuild(UnitAction):
     """Request that a city is built."""
     action_key = "build"
+    action_id = ACTION_FOUND_CITY
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -605,40 +607,42 @@ class ActBuild(UnitAction):
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
             return False  # raise Exception("Unit has no moves left to build city")
-
-        if self.focus.ptype["name"] not in ["Settlers", "Engineers"]:
+        
+        # Check whether the unit type can do the given action
+        if not self.utype_can_do_action(self.focus.punit, ACTION_FOUND_CITY):
             return False
-        else:
-            _map = self.focus.map_ctrl
-            unit_tile = _map.index_to_tile(self.focus.punit["tile"])
-            unit_owner = self.focus.punit['owner']
-            for city_id in self.focus.unit_ctrl.city_ctrl.cities.keys():
-                pcity = self.focus.unit_ctrl.city_ctrl.cities[city_id]
-                city_tile = _map.index_to_tile(pcity["tile"])
-                if city_tile['owner'] != unit_owner:
-                    # If settler is on a foreign territory
-                    return False
-                dx, dy = _map.map_distance_vector(unit_tile, city_tile)
-                dist = _map.map_vector_to_sq_distance(dx, dy)
-                if dist < pcity["city_radius_sq"]:
-                    return False
-            return True
+        # if self.focus.ptype["name"] not in ["Settlers", "Engineers"]:
+            # return False
+        # target_city = self.focus.pcity
+        # # Already has a city, cannot build
+        # if target_city != None:
+        #     return False
+    
+        # _map = self.focus.map_ctrl
+        # unit_tile = _map.index_to_tile(self.focus.punit["tile"])
+        # unit_owner = self.focus.punit['owner']
+        # for city_id in self.focus.unit_ctrl.city_ctrl.cities.keys():
+        #     pcity = self.focus.unit_ctrl.city_ctrl.cities[city_id]
+        #     city_tile = _map.index_to_tile(pcity["tile"])
+        #     if city_tile['owner'] != unit_owner:
+        #         # If settler is on a foreign territory
+        #         return False
+        #     dx, dy = _map.map_distance_vector(unit_tile, city_tile)
+        #     dist = _map.map_vector_to_sq_distance(dx, dy)
+        #     if dist < pcity["city_radius_sq"]:
+        #         return False
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY])
 
     def _action_packet(self):
-        target_city = self.focus.pcity
         unit_id = self.focus.punit["id"]
-        # Do Join City if located inside a city.
         self.wait_for_pid = None
-        if target_city is None:
-            if self.next_city_name is None:
-                packet = {"pid": packet_city_name_suggestion_req,
-                          "unit_id": unit_id}
-                self.wait_for_pid = 44
-                return packet
-            else:
-                return self.found_new_city(unit_id)
+        if self.next_city_name is None:
+            packet = {"pid": packet_city_name_suggestion_req,
+                        "unit_id": unit_id}
+            self.wait_for_pid = 44
+            return packet
         else:
-            return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
+            return self.found_new_city(unit_id)
 
     def set_next_city_name(self, suggested_name):
         self.next_city_name = suggested_name
@@ -646,9 +650,8 @@ class ActBuild(UnitAction):
     def found_new_city(self, unit_id):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
-        return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
-                                   name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
-
+        self.wait_for_pid = 31
+        return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 class ActFortify(UnitAction):
     action_key = "fortify"

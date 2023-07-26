@@ -616,6 +616,5 @@ class UnitCtrl(CivPropController):
             suggested_name = '{}_{}'.format(suggested_name, duplicate_name_num)
         self.city_name_list.append(suggested_name)
 
-        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY,
-                                                 name=suggested_name)
+        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=suggested_name)
         self.ws_client.send_request(packet, wait_for_pid=31)

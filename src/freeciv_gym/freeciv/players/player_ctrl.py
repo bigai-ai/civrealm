@@ -184,7 +184,7 @@ class PlayerCtrl(CivPropController):
                 if self.dipl_ctrl.check_in_dipl_states(
                         player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
                     player_options.append("declare_war")
-                elif not self.players_not_same_team(pplayer) and not self.dipl_ctrl.check_not_dipl_states(player_id):
+                elif self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
                     if self.players_alive(pplayer):
                         player_options.append("cancel_treaty")
 

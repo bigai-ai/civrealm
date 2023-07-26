@@ -93,6 +93,10 @@ class PlayerOptions(ActionList):
         if accept_treaty.is_action_valid():
             self.add_action(counter_id, accept_treaty)
 
+        cancel_treaty = CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart)
+        if cancel_treaty.is_action_valid():
+            self.add_action(counter_id, cancel_treaty)
+
         if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
             clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
             for clause in clauses:
@@ -111,7 +115,6 @@ class PlayerOptions(ActionList):
             add_clause_1 = AddClause(ctype, 1, cur_player['playerno'], counter_id)
             if add_clause_1.is_action_valid():
                 self.add_action(counter_id, add_clause_1)
-
             add_clause_2 = AddClause(ctype, 1, counter_id, cur_player['playerno'])
             if add_clause_2.is_action_valid():
                 self.add_action(counter_id, add_clause_2)
@@ -122,12 +125,20 @@ class PlayerOptions(ActionList):
                                                   self.rule_ctrl, self.players)
             if add_trade_tech_1.is_action_valid():
                 self.add_action(counter_id, add_trade_tech_1)
-
             add_trade_tech_2 = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
                                                   counter_id, cur_player['playerno'],
                                                   self.rule_ctrl, self.players)
             if add_trade_tech_2.is_action_valid():
                 self.add_action(counter_id, add_trade_tech_2)
+
+        add_trade_gold_1 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, cur_player['playerno'],
+                                              counter_id, self.rule_ctrl, self.players)
+        if add_trade_gold_1.is_action_valid():
+            self.add_action(counter_id, add_trade_gold_1)
+        add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, counter_id,
+                                              cur_player['playerno'], self.rule_ctrl, self.players)
+        if add_trade_gold_2.is_action_valid():
+            self.add_action(counter_id, add_trade_gold_2)
 
 
 class IncreaseSci(base_action.Action):
@@ -271,6 +282,23 @@ class AcceptTreaty(StartNegotiate):
         return packet
 
 
+class CancelTreaty(StartNegotiate):
+    action_key = "cancel_treaty"
+
+    def is_action_valid(self):
+        ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR,
+                  player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]
+        return (not self.clstate.client_is_observer()
+                and self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
+                and self.counterpart['team'] != self.cur_player['team'])
+
+    def _action_packet(self):
+        packet = {"pid": packet_diplomacy_cancel_pact,
+                  "other_player_id": self.counterpart["playerno"],
+                  "clause": player_const.DS_ALLIANCE}
+        return packet
+
+
 class StopNegotiate(StartNegotiate):
     action_key = "stop_negotiation"
 
@@ -340,3 +368,18 @@ class AddTradeTechClause(AddClause):
                 in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
 
 
+class AddTradeGoldClause(AddClause):
+    action_key = "trade_gold_clause"
+
+    def __init__(self, clause_type, value, giver, counterpart, rule_ctrl, players):
+        super().__init__(clause_type, value, giver, counterpart)
+        self.rule_ctrl = rule_ctrl
+        self.counterpart = counterpart
+        self.giver = giver
+        self.players = players
+        self.action_key += "_gold_%i" % value
+
+    def is_action_valid(self):
+        if not self.rule_ctrl.game_info["trading_gold"]:
+            return False
+        return not self.value > self.players[self.giver]['gold']

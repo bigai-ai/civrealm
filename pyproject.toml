@@ -70,5 +70,6 @@ addopts = [
     # "tests/unit/test_homecity.py",
     # "tests/unit/test_get_action_pro.py",
     # "tests/unit/test_get_action_pro2.py",
+    # "tests/unit/test_get_action_pro3.py",
     # "tests/unit/test_attack.py",
 ]

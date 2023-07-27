@@ -764,7 +764,11 @@ class ActHomecity(UnitAction):
     def is_action_valid(self):
         if self.focus.pcity is None:
             return False
-        return self.focus.punit['homecity'] not in [0, self.focus.pcity['id']]
+        if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
+            return False
+        if self.focus.punit['homecity'] != self.focus.pcity['id']:
+            return True
+        return False
 
     def _action_packet(self):
         return self.unit_do_action(self.focus.punit['id'],
@@ -1160,6 +1164,7 @@ class ActGoto(StdAction):
 
 #         return packet
     
+# TODO: the pro from the current server is inaccurate for build_road and pillage action. Add more notes if find other inaccurate action pro. Fix those actions if the server is updated to provide accurate pro in the future.
 class ActGetActionPro(UnitAction):
     """Attack unit on target tile"""
     action_key = "get_action_pro"

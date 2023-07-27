@@ -24,8 +24,6 @@ from freeciv_gym.freeciv.tech.req_info import ReqInfo
 import freeciv_gym.freeciv.players.player_const as player_const
 
 
-
-
 class GovState(PlainState):
     # def __init__(self, rule_ctrl: RulesetCtrl):
     def __init__(self, rule_ctrl):
@@ -39,11 +37,10 @@ class GovState(PlainState):
 
 
 class GovActions(ActionList):
-    # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, city_ctrl):
-    def __init__(self, ws_client, rule_ctrl, city_ctrl):
+    def __init__(self, ws_client, rule_ctrl, player_ctrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
-        self.city_ctrl = city_ctrl
+        self.player_ctrl = player_ctrl
 
     def _can_actor_act(self, actor_id):
         return True
@@ -53,18 +50,18 @@ class GovActions(ActionList):
         if not self.actor_exists(player_id):
             self.add_actor(player_id)
             for govt_id in self.rule_ctrl.governments:
-                act = ChangeGovernment(govt_id, self.city_ctrl, self.rule_ctrl, pplayer)
+                act = ChangeGovernment(govt_id, self.player_ctrl, self.rule_ctrl, pplayer)
                 if act.is_action_valid():
                     self.add_action(player_id, act)
 
 
 class GovernmentCtrl(CivPropController):
-    def __init__(self, ws_client, city_ctrl, rule_ctrl):
+    def __init__(self, ws_client, player_ctrl, rule_ctrl):
         super().__init__(ws_client)
-        self.city_ctrl = city_ctrl
+        self.player_ctrl = player_ctrl
         self.rule_ctrl = rule_ctrl
         self.prop_state = GovState(rule_ctrl)
-        self.prop_actions = GovActions(ws_client, rule_ctrl, city_ctrl)
+        self.prop_actions = GovActions(ws_client, rule_ctrl, player_ctrl)
 
     def register_all_handlers(self):
         pass
@@ -100,11 +97,10 @@ class GovernmentCtrl(CivPropController):
 class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
 
-    # def __init__(self, govt_id, city_ctrl: CityCtrl, rule_ctrl: RulesetCtrl, pplayer):
-    def __init__(self, govt_id, city_ctrl, rule_ctrl, pplayer):
+    def __init__(self, govt_id, player_ctrl, rule_ctrl, pplayer):
         super().__init__()
         self.govt_id = govt_id
-        self.city_ctrl = city_ctrl
+        self.player_ctrl = player_ctrl
         self.rule_ctrl = rule_ctrl
         self.pplayer = pplayer
         self.action_key += "_%s" % player_const.GOV_TXT[govt_id]
@@ -115,9 +111,8 @@ class ChangeGovernment(base_action.Action):
             return False
 
         pplayer = self.pplayer
-        return self.city_ctrl.player_has_wonder(pplayer["playerno"], 63) or \
-            ReqInfo.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"],
-                                    RPT_CERTAIN)
+        return (self.player_ctrl.player_has_wonder(pplayer["playerno"], 63)
+                or ReqInfo.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
 
     def _action_packet(self):
         packet = {"pid": packet_player_change_government,

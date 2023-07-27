@@ -34,11 +34,12 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class PlayerCtrl(CivPropController):
     # def __init__(self, ws_client, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_ctrl: DiplomacyCtrl):
-    def __init__(self, ws_client, clstate: ClientState, rule_ctrl, dipl_ctrl):
+    def __init__(self, ws_client, clstate: ClientState, city_ctrl, rule_ctrl, dipl_ctrl):
         super().__init__(ws_client)
 
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
+        self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.players = {}
         # Include the data of the Player himself and the other players who have been met.
@@ -106,6 +107,15 @@ class PlayerCtrl(CivPropController):
 
     def city_owner(self, pcity):
         return self.players[CityState.city_owner_player_id(pcity)]
+
+    def player_has_wonder(self, playerno, improvement_id):
+        """returns true if the given player has the given wonder (improvement)"""
+        for city_id in self.city_ctrl.cities:
+            pcity = self.city_ctrl.cities[city_id]
+            if (self.city_owner(pcity)["playerno"] == playerno
+                    and self.rule_ctrl.city_has_building(pcity, improvement_id)):
+                return True
+        return False
 
     def valid_player_by_number(self, playerno):
         if playerno in self.players:

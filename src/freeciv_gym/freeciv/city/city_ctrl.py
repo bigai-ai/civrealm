@@ -37,14 +37,13 @@ INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
 
 
 class CityCtrl(CivPropController):
-    def __init__(self, ws_client=None, ruleset=None, player_ctrl=None, clstate=None, game_ctrl=None,
+    def __init__(self, ws_client=None, ruleset=None, clstate=None, game_ctrl=None,
                  map_ctrl=None):
         super().__init__(ws_client)
 
         # self.register_handler(13, "handle_scenario_description")
         self.cities = {}
         self.city_trade_routes = {}
-        self.player_ctrl = player_ctrl
         self.game_ctrl = game_ctrl
         self.rulectrl = ruleset
         self.map_ctrl = map_ctrl
@@ -128,8 +127,7 @@ class CityCtrl(CivPropController):
 
     def handle_traderoute_info(self, packet):
         """  A traderoute-info packet contains information about one end of a traderoute"""
-        # if self.city_trade_routes[packet['city']] is None:
-        if packet['city'] not in self.city_trade_routes:
+        if self.city_trade_routes[packet['city']] is None:
             # This is the first trade route received for this city.
             self.city_trade_routes[packet['city']] = {}
 
@@ -230,6 +228,7 @@ class CityCtrl(CivPropController):
                 population += CityState.city_population(pcity)
         return population * 1000
 
+    '''
     def player_has_wonder(self, playerno, improvement_id):
         """returns true if the given player has the given wonder (improvement)"""
         for city_id in self.cities:
@@ -238,3 +237,4 @@ class CityCtrl(CivPropController):
                     self.rulectrl.city_has_building(pcity, improvement_id)):
                 return True
         return False
+    '''

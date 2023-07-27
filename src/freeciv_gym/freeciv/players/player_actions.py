@@ -128,22 +128,22 @@ class PlayerOptions(ActionList):
 
         for tech_id in self.rule_ctrl.techs:
             add_trade_tech_1 = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                  cur_player['playerno'], counter_id,
+                                                  cur_player['playerno'], counter_id, dipl_ctrl, counter_id,
                                                   self.rule_ctrl, self.players)
             if add_trade_tech_1.is_action_valid():
                 self.add_action(counter_id, add_trade_tech_1)
             add_trade_tech_2 = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                  counter_id, cur_player['playerno'],
+                                                  counter_id, cur_player['playerno'], dipl_ctrl, counter_id,
                                                   self.rule_ctrl, self.players)
             if add_trade_tech_2.is_action_valid():
                 self.add_action(counter_id, add_trade_tech_2)
 
         add_trade_gold_1 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, cur_player['playerno'],
-                                              counter_id, self.rule_ctrl, self.players)
+                                              counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
         if add_trade_gold_1.is_action_valid():
             self.add_action(counter_id, add_trade_gold_1)
         add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, counter_id,
-                                              cur_player['playerno'], self.rule_ctrl, self.players)
+                                              cur_player['playerno'], dipl_ctrl, counter_id, self.rule_ctrl, self.players)
         if add_trade_gold_2.is_action_valid():
             self.add_action(counter_id, add_trade_gold_2)
 
@@ -377,33 +377,37 @@ class AddClause(RemoveClause):
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
+
         return packet
 
 
-class AddTradeTechClause(RemoveClause):
+class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counterpart)
+    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, players):
+        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
-        self.counterpart = counterpart
-        self.giver = giver
         self.players = players
         self.action_key += "_%s_%i" % (rule_ctrl.techs[value]["name"], value)
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
+        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                    return False
         return (is_tech_known(self.players[self.giver], self.value)
                 and player_invention_state(self.players[self.counterpart], self.value)
                 in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
 
 
-class AddTradeGoldClause(RemoveClause):
+class AddTradeGoldClause(AddClause):
     action_key = "trade_gold_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counterpart)
+    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, players):
+        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
         self.counterpart = counterpart
         self.giver = giver

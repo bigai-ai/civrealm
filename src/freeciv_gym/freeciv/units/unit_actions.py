@@ -195,6 +195,9 @@ class UnitActions(ActionList):
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActSpyBribeUnit(unit_focus, dir8))
 
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActHutEnter(unit_focus, dir8))
+        
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
 
@@ -1124,6 +1127,56 @@ class ActGoto(StdAction):
                   }
 
         return packet
+    
+class ActHutEnter(StdAction):
+    """Moved the unit in focus in the specified direction."""
+    action_key = "hut_enter"
+
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.dir8 = dir8
+        self.action_key += "_%i" % dir8
+        self.newtile = None
+        self.move_dir = None
+
+    def is_action_valid(self):
+        if not action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_HUT_ENTER]):
+            return False
+        self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
+            return False
+        target_idx = self.focus.map_ctrl.index_to_tile(self.focus.punit["tile"])
+        self.move_dir = self.focus.map_ctrl.get_direction_for_step(target_idx, self.newtile)
+
+        return not (self.move_dir is None or self.move_dir == -1)
+
+    def _action_packet(self):
+        self.wait_for_pid = 63
+        return self.unit_do_action(self.focus.punit['id'],
+                                   self.newtile['index'],
+                                   fc_types.ACTION_HUT_ENTER)
+        actor_unit = self.focus.punit
+        dir8 = self.move_dir
+        target_tile = self.newtile
+        self.wait_for_pid = 63
+        packet = {"pid": packet_unit_orders,
+                  "unit_id": actor_unit['id'],
+                  "src_tile": actor_unit['tile'],
+                  "length": 1,
+                  "repeat": False,
+                  "vigilant": False,
+                  "orders": [{"order": ORDER_MOVE,
+                              "activity": ACTIVITY_LAST,
+                              "target": EXTRA_NONE,
+                              "sub_target": 0,
+                              "action": ACTION_COUNT,
+                              "dir": dir8
+                              }],
+                  #   "extra"     : [EXTRA_NONE]
+                  "dest_tile": target_tile['index']
+                  }
+
+        return packet
 
 # Use ActGetActionPro to replace this action
 # class ActGetAttackPro(UnitAction):
@@ -1179,14 +1232,22 @@ class ActGetActionPro(UnitAction):
             newtile = self.focus.ptile
             self.target_tile_id = newtile['index']
             self.target_unit_id = -1
+            # extra = newtile['extras']
+            # set_bits = find_set_bits(extra)
+            # if len(set_bits) == 0:
+            #     self.target_extra_id = -1
+            # elif len(set_bits) == 1:
+            #     self.target_extra_id = set_bits[0]
+            # else:
+            #     self.target_extra_id = set_bits
             self.target_extra_id = -1
         else:
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
             self.target_tile_id = newtile['index']
-            # if len(newtile['units'])>0:
-            #     self.target_unit_id = newtile['units'][0]['id']
-            # else:
-            self.target_unit_id = -1
+            if len(newtile['units'])>0:
+                self.target_unit_id = newtile['units'][0]['id']
+            else:
+                self.target_unit_id = -1
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:

@@ -46,7 +46,7 @@ class CivPropController(ABC):
         server_setting_packets = {165, 166, 167, 168, 169, 170}
         ruleset_packets = {148, 246, 143, 229, 140, 260, 144, 235, 226, 152,
                            175, 232, 151, 150, 149, 240, 512, 145, 230, 227, 252, 228, 177}
-        info_packets = {15, 51}
+        info_packets = {15, 51, 90}
         # info_packets = {15}
         self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
         # self.unlogged_packets = set()

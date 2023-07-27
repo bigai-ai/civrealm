@@ -60,6 +60,7 @@ addopts = [
     # "tests/player/test_player_cancel_treaty.py",
     # "tests/player/test_player_cancel_vision.py",
     # "tests/unit/test_move_to.py",
+    # "tests/unit/test_hut_enter.py",
     # "tests/unit/test_build_city.py",
     # "tests/unit/test_build_city2.py",
     # "tests/unit/test_join_city.py",

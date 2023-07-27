@@ -142,8 +142,8 @@ class PlayerOptions(ActionList):
                                               counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
         if add_trade_gold_1.is_action_valid():
             self.add_action(counter_id, add_trade_gold_1)
-        add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, counter_id,
-                                              cur_player['playerno'], dipl_ctrl, counter_id, self.rule_ctrl, self.players)
+        add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, counter_id, cur_player['playerno'],
+                                              dipl_ctrl, counter_id, self.rule_ctrl, self.players)
         if add_trade_gold_2.is_action_valid():
             self.add_action(counter_id, add_trade_gold_2)
 
@@ -417,4 +417,9 @@ class AddTradeGoldClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_gold"]:
             return False
+        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                    return False
         return not self.value > self.players[self.giver]['gold']

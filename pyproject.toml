@@ -62,6 +62,7 @@ addopts = [
     # "tests/player/test_player_remove_clause.py",
     # "tests/player/test_player_add_clause.py",
     # "tests/player/test_player_trade_tech.py",
+    # "tests/player/test_player_trade_gold.py",
     # "tests/unit/test_move_to.py",
     # "tests/unit/test_hut_enter.py",
     # "tests/unit/test_build_city.py",

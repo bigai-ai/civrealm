@@ -47,7 +47,7 @@ class PlayerCtrl(CivPropController):
         self.endgame_player_info = []
 
         self.prop_state = PlayerState(rule_ctrl, self, clstate, dipl_ctrl.diplstates, self.players)
-        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, dipl_ctrl, self.players, clstate)
+        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, dipl_ctrl, city_ctrl, self.players, clstate)
 
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")

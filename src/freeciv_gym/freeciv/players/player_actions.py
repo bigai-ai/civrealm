@@ -31,12 +31,13 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class PlayerOptions(ActionList):
     # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
-    def __init__(self, ws_client, rule_ctrl, dipl_ctrl, players, clstate):
+    def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players, clstate):
         super().__init__(ws_client)
         self.players = players
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
         self.dipl_ctrl = dipl_ctrl
+        self.city_ctrl = city_ctrl
 
     def _can_actor_act(self, actor_id):
         return True
@@ -146,6 +147,17 @@ class PlayerOptions(ActionList):
                                               dipl_ctrl, counter_id, self.rule_ctrl, self.players)
         if add_trade_gold_2.is_action_valid():
             self.add_action(counter_id, add_trade_gold_2)
+
+        for pcity in self.city_ctrl.cities.keys():
+            add_trade_city_1 = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, cur_player['playerno'], counter_id,
+                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
+            if add_trade_city_1.is_action_valid():
+                self.add_action(counter_id, add_trade_city_1)
+
+            add_trade_city_2 = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player['playerno'],
+                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
+            if add_trade_city_2.is_action_valid():
+                self.add_action(counter_id, add_trade_city_2)
 
 
 class IncreaseSci(base_action.Action):
@@ -396,7 +408,8 @@ class AddTradeTechClause(AddClause):
         if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
             clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
             for clause in clauses:
-                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
+                        and clause['value'] == self.value):
                     return False
         return (is_tech_known(self.players[self.giver], self.value)
                 and player_invention_state(self.players[self.counterpart], self.value)
@@ -423,3 +436,28 @@ class AddTradeGoldClause(AddClause):
                 if clause['giver'] == self.giver and clause['type'] == self.clause_type:
                     return False
         return not self.value > self.players[self.giver]['gold']
+
+
+class AddTradeCityClause(AddClause):
+    action_key = "trade_city_clause"
+
+    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, city_ctrl, players):
+        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
+        self.rule_ctrl = rule_ctrl
+        self.city_ctrl = city_ctrl
+        self.players = players
+        self.action_key += "_%s_%i" % (city_ctrl.cities[value]["name"], value)
+
+    def is_action_valid(self):
+        if not self.rule_ctrl.game_info["trading_city"]:
+            return False
+        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
+                        and clause['value'] == self.value):
+                    return False
+        if self.city_ctrl.cities[self.value]['capital']:
+            return False
+        return self.city_ctrl.cities[self.value]['owner'] == self.giver
+

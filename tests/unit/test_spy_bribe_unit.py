@@ -40,8 +40,7 @@ def test_spy_bribe_unit(controller):
     unit_opt = options['unit']
     test_action_list = []
     diplomat_id = 1164
-    target_id = 853
-    assert (unit_opt.unit_ctrl.units[target_id]['owner'] != 0)
+    
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -51,9 +50,16 @@ def test_spy_bribe_unit(controller):
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
+            break
         else:
             pass
     print('Bribe the enemy unit on southwest tile')
+    newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
+    if len(newtile['units']) > 0:
+        target_id = newtile['units'][0]['id']
+    else:
+        target_id = -1
+    assert (unit_opt.unit_ctrl.units[target_id]['owner'] != unit_opt.player_ctrl.my_player_id)
     # Perform spy_bribe_unit action for the diplomat
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
@@ -61,7 +67,12 @@ def test_spy_bribe_unit(controller):
     controller.send_end_turn()
     controller.get_observation()
     unit_opt = controller.get_info()['available_actions']['unit']
-    assert (unit_opt.unit_ctrl.units[target_id]['owner'] == 0)
+    newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
+    if len(newtile['units']) > 0:
+        target_id = newtile['units'][0]['id']
+    else:
+        target_id = -1
+    assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
     import time
     time.sleep(2)
     

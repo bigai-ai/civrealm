@@ -79,4 +79,6 @@ addopts = [
     # "tests/unit/test_get_action_pro2.py",
     # "tests/unit/test_get_action_pro3.py",
     # "tests/unit/test_attack.py",
+    # "tests/unit/test_get_action_pro_spy.py",
+    # "tests/unit/test_spy_bribe_unit.py",
 ]

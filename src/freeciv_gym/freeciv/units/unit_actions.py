@@ -982,15 +982,23 @@ class ActSpyUnitAction(DiplomaticAction):
         self.dir8 = dir8
 
     def is_dipl_action_valid(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        if len(newtile['units']) > 0:
+            self.target_unit_id = newtile['units'][0]['id']
+        else:
+            self.target_unit_id = -1
         # return self.focus.target_unit != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
         return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
 
     def _action_packet(self):
-        packet = {"pid": packet_unit_action_query,
-                  "diplomat_id": self.focus.punit['id'],
-                  "target_id": self.focus.target_unit['id'],
-                  "action_type": self.action_id
-                  }
+        # packet = {"pid": packet_unit_action_query,
+        #           "diplomat_id": self.focus.punit['id'],
+        #           "target_id": self.target_unit_id,
+        #           "action_type": self.action_id
+        #           }
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_unit_id,
+                                     self.action_id)
         return packet
 
 
@@ -1244,7 +1252,7 @@ class ActGetActionPro(UnitAction):
         else:
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
             self.target_tile_id = newtile['index']
-            if len(newtile['units'])>0:
+            if len(newtile['units']) > 0:
                 self.target_unit_id = newtile['units'][0]['id']
             else:
                 self.target_unit_id = -1

@@ -1,0 +1,7 @@
+2023-07-12 09:51:31,620 INFO [civ_connection.py:162] Connecting to server at localhost ...
+2023-07-12 09:51:31,620 INFO [civ_connection.py:149] Connect not successful: [Errno 111] Connection refused retrying in 5 seconds.
+2023-07-12 09:51:31,905 INFO [civ_connection.py:149] Connect not successful: [Errno 104] Connection reset by peer retrying in 5 seconds.
+2023-07-12 09:51:36,911 INFO [civ_connection.py:149] Connect not successful: [Errno 104] Connection reset by peer retrying in 5 seconds.
+2023-07-12 09:51:41,917 INFO [civ_connection.py:149] Connect not successful: [Errno 104] Connection reset by peer retrying in 5 seconds.
+2023-07-12 09:51:46,921 INFO [civ_connection.py:149] Connect not successful: [Errno 104] Connection reset by peer retrying in 5 seconds.
+2023-07-12 09:51:51,928 INFO [civ_connection.py:149] Connect not successful: [Errno 104] Connection reset by peer retrying in 5 seconds.

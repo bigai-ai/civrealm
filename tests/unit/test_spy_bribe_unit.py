@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -78,7 +78,7 @@ def test_spy_bribe_unit(controller):
     
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')
     test_spy_bribe_unit(controller)
 
 

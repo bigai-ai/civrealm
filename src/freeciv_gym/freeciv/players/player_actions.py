@@ -101,12 +101,14 @@ class PlayerOptions(ActionList):
         if cancel_vision.is_action_valid():
             self.add_action(counter_id, cancel_vision)
 
-
         if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
             clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
             for clause in clauses:
-                counterpart_id = clause['counterpart']
                 giver = clause['giver']
+                if giver == counter_id:
+                    counterpart_id = cur_player['playerno']
+                else:
+                    counterpart_id = counter_id
                 type = clause['type']
                 value = clause['value']
                 remove_clause = RemoveClause(type, value, giver, counterpart_id)
@@ -117,10 +119,10 @@ class PlayerOptions(ActionList):
                         player_const.CLAUSE_EMBASSY, player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE,
                         player_const.CLAUSE_ALLIANCE]
         for ctype in base_clauses:
-            add_clause_1 = AddClause(ctype, 1, cur_player['playerno'], counter_id)
+            add_clause_1 = AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id)
             if add_clause_1.is_action_valid():
                 self.add_action(counter_id, add_clause_1)
-            add_clause_2 = AddClause(ctype, 1, counter_id, cur_player['playerno'])
+            add_clause_2 = AddClause(ctype, 1, counter_id, cur_player['playerno'], dipl_ctrl, counter_id)
             if add_clause_2.is_action_valid():
                 self.add_action(counter_id, add_clause_2)
 
@@ -356,7 +358,17 @@ class RemoveClause(base_action.Action):
 class AddClause(RemoveClause):
     action_key = "add_clause"
 
+    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id):
+        super().__init__(clause_type, value, giver, counterpart)
+        self.dipl_ctrl = dipl_ctrl
+        self.counter_id = counter_id
+
     def is_action_valid(self):
+        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                    return False
         return True
 
     def _action_packet(self):
@@ -368,7 +380,7 @@ class AddClause(RemoveClause):
         return packet
 
 
-class AddTradeTechClause(AddClause):
+class AddTradeTechClause(RemoveClause):
     action_key = "trade_tech_clause"
 
     def __init__(self, clause_type, value, giver, counterpart, rule_ctrl, players):
@@ -387,7 +399,7 @@ class AddTradeTechClause(AddClause):
                 in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
 
 
-class AddTradeGoldClause(AddClause):
+class AddTradeGoldClause(RemoveClause):
     action_key = "trade_gold_clause"
 
     def __init__(self, clause_type, value, giver, counterpart, rule_ctrl, players):

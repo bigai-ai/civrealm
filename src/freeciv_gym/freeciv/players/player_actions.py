@@ -353,7 +353,7 @@ class RemoveClause(base_action.Action):
         self.value = value
         self.giver = giver
         self.counterpart = counterpart
-        self.action_key += "_%s_player_%i" % (player_const.CLAUSE_TXT[clause_type], counterpart)
+        self.action_key += "_%s_player_%i_%i" % (player_const.CLAUSE_TXT[clause_type], counterpart, value)
 
     def is_action_valid(self):
         return True
@@ -400,7 +400,7 @@ class AddTradeTechClause(AddClause):
         super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
         self.players = players
-        self.action_key += "_%s_%i" % (rule_ctrl.techs[value]["name"], value)
+        self.action_key += "_%s_" % rule_ctrl.techs[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
@@ -425,7 +425,6 @@ class AddTradeGoldClause(AddClause):
         self.counterpart = counterpart
         self.giver = giver
         self.players = players
-        self.action_key += "_gold_%i" % value
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_gold"]:
@@ -446,7 +445,7 @@ class AddTradeCityClause(AddClause):
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.players = players
-        self.action_key += "_%s_%i" % (city_ctrl.cities[value]["name"], value)
+        self.action_key += "_%s_" % city_ctrl.cities[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_city"]:
@@ -460,4 +459,5 @@ class AddTradeCityClause(AddClause):
         if self.city_ctrl.cities[self.value]['capital']:
             return False
         return self.city_ctrl.cities[self.value]['owner'] == self.giver
+
 

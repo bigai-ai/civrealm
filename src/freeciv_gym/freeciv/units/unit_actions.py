@@ -194,6 +194,9 @@ class UnitActions(ActionList):
             
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActSpyBribeUnit(unit_focus, dir8))
+            
+        for dir8 in map_const.DIR8_ORDER:
+            self.add_action(unit_id, ActSpyStealTech(unit_focus, dir8))
 
         for dir8 in map_const.DIR8_ORDER:
             self.add_action(unit_id, ActHutEnter(unit_focus, dir8))
@@ -859,37 +862,50 @@ class DiplomaticAction(UnitAction):
         raise Exception("Not implemented - should be overwritten by %s" % self.__class__)
 
 
-class ActSpySteal(DiplomaticAction):
+# class ActSpySteal(DiplomaticAction):
+class ActSpyStealTech(DiplomaticAction):
     """ The player may change his mind after selecting targeted tech theft and
         * go for the untargeted version after concluding that no listed tech is
         * worth the extra risk. """
+    action_key = 'spy_steal_tech'
     action_id = ACTION_SPY_STEAL_TECH
 
-    def __init__(self, cur_focus):
+    def __init__(self, cur_focus, dir8):
         super().__init__(cur_focus)
-        self.tech_id = None
+        # self.tech_id = None
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+        if target_city is not None:
+            self.target_city_id = target_city['id']
+        else:
+            self.target_city_id = -1
 
     def is_dipl_action_valid(self):
-        if self.focus.pcity is None or self.focus.action_probabilities is None:
-            return False
-        return action_prob_possible(self.focus.action_probabilities[self.action_id])
+        # if self.focus.pcity is None or self.focus.action_probabilities is None:
+        #     return False
+        # return action_prob_possible(self.focus.action_probabilities[self.action_id])
+        return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
 
-    def set_target_tech(self, tech_id):
-        """Select technology that should be targeted by spy"""
-        self.tech_id = tech_id
+    # def set_target_tech(self, tech_id):
+    #     """Select technology that should be targeted by spy"""
+    #     self.tech_id = tech_id
 
     def _action_packet(self):
-        packet = self.unit_do_action(self.focus.punit["id"], self.focus.pcity['id'],
+        # packet = self.unit_do_action(self.focus.punit["id"], self.focus.pcity['id'],
+        #                              self.action_id)
+        packet = self.unit_do_action(self.focus.punit["id"], self.target_city_id,
                                      self.action_id)
         return packet
 
 
-class ActSpyStealESC(ActSpySteal):
+class ActSpyStealESC(ActSpyStealTech):
     """Action to steal technology - unspecific"""
     action_id = ACTION_SPY_STEAL_TECH_ESC
 
 
-class ActSpyStealTargeted(ActSpySteal):
+class ActSpyStealTargeted(ActSpyStealTech):
     """Action to steal specific technology"""
     action_id = ACTION_SPY_TARGETED_STEAL_TECH
 
@@ -902,7 +918,7 @@ class ActSpyStealTargeted(ActSpySteal):
 
     def is_dipl_action_valid(self):
         self._prep_tech_tree()
-        if not ActSpySteal.is_dipl_action_valid():
+        if not ActSpyStealTech.is_dipl_action_valid():
             return self.tech_valid
 
         for tech_id in self.focus.rule_ctrl.techs:
@@ -980,13 +996,13 @@ class ActSpyUnitAction(DiplomaticAction):
         super().__init__(focus)
         self.action_key += "_%i" % dir8
         self.dir8 = dir8
-
-    def is_dipl_action_valid(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         if len(newtile['units']) > 0:
             self.target_unit_id = newtile['units'][0]['id']
         else:
             self.target_unit_id = -1
+
+    def is_dipl_action_valid(self):
         # return self.focus.target_unit != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
         return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
 
@@ -1240,6 +1256,7 @@ class ActGetActionPro(UnitAction):
             newtile = self.focus.ptile
             self.target_tile_id = newtile['index']
             self.target_unit_id = -1
+            self.target_city_id = -1
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:
@@ -1256,6 +1273,7 @@ class ActGetActionPro(UnitAction):
                 self.target_unit_id = newtile['units'][0]['id']
             else:
                 self.target_unit_id = -1
+            self.target_city_id = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:
@@ -1273,6 +1291,7 @@ class ActGetActionPro(UnitAction):
             packet = {"pid": packet_unit_get_actions,
                     "actor_unit_id": actor_unit['id'],
                     "target_tile_id": self.target_tile_id,
+                    # "target_city_id": self.target_city_id,
                     "target_unit_id": self.target_unit_id,
                     "target_extra_id": self.target_extra_id,                   
                     "request_kind": 1
@@ -1287,6 +1306,7 @@ class ActGetActionPro(UnitAction):
                 packet = {"pid": packet_unit_get_actions,
                         "actor_unit_id": actor_unit['id'],
                         "target_tile_id": self.target_tile_id,
+                        # "target_city_id": self.target_city_id,
                         "target_unit_id": self.target_unit_id,
                         "target_extra_id": extra_id,                   
                         "request_kind": 1

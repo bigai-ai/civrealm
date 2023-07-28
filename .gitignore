@@ -12,3 +12,4 @@ __pycache__/
 .sonar/
 .idea
 .VSCodeCounter/
+*.log

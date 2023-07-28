@@ -89,16 +89,21 @@ class ControllerAgent(BaseAgent):
 
     def calculate_player_actions(self, action_dict):
         desired_actions = {'increase_sci': 1.0,
-                           'decrease_sci': random.random() * 0.2,
-                           'increase_lux': random.random() * 0.2,
-                           'decrease_lux': random.random() * 0.2,
-                           'start_negotiation': random.random() * 0.2,
-                           'accept_treaty': random.random() * 0.2,
-                           'stop_negotiation': random.random() * 0.2,
-                           'remove_clause': random.random() * 0.2,
-                           'add_clause': random.random() * 0.2,
-                           'cancel_clause': random.random() * 0.2,
-                           'trade_tech_clause': random.random() * 0.2, }
+                           'decrease_sci': random.random(),
+                           'increase_lux': random.random(),
+                           'decrease_lux': random.random(),
+                           'increase_tax': random.random(),
+                           'decrease_tax': random.random(),
+                           'start_negotiation': random.random(),
+                           'accept_treaty': random.random(),
+                           'cancel_treaty': random.random(),
+                           'cancel_vision': random.random(),
+                           'stop_negotiation': random.random(),
+                           'remove_clause': random.random(),
+                           'add_clause': random.random(),
+                           'trade_tech_clause': random.random(),
+                           'trade_gold_clause': random.random(),
+                           'trade_city_clause': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_dipl_actions(self, action_dict):
@@ -106,9 +111,10 @@ class ControllerAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_tech_actions(self, action_dict):
-        desired_actions = {'set_tech_goal_Rocketry': 1.0}
+        desired_actions = {'research_tech': random.random(),
+                           'set_tech_goal': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_gov_actions(self, action_dict):
-        desired_actions = {}
+        desired_actions = {'change_gov': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)

@@ -304,9 +304,13 @@ class AcceptTreaty(StartNegotiate):
 class CancelTreaty(StartNegotiate):
     action_key = "cancel_treaty"
 
+    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart):
+        super().__init__(clstate, dipl_ctrl, cur_player, counterpart)
+        self.dipl_state = self.dipl_ctrl.diplstates[self.counterpart['playerno']]
+        self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
+
     def is_action_valid(self):
-        ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR,
-                  player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]
+        ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR]
         return (not self.clstate.client_is_observer()
                 and self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
                 and self.counterpart['team'] != self.cur_player['team'])
@@ -314,7 +318,7 @@ class CancelTreaty(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
-                  "clause": player_const.DS_ALLIANCE}
+                  "clause": self.dipl_state}
         return packet
 
 

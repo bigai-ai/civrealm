@@ -29,7 +29,7 @@ from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD, EXTRA_MINE
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T42_2023-07-25-05_54')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -52,11 +52,12 @@ def test_get_action_pro3(controller):
     #         print(unit_opt.rule_ctrl.unit_types[type])
     #         print('===============')
     # Get all units controlled by the current player
+    
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         # print(
-            # f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
         if unit_id == 138:
             punit = unit_opt.unit_ctrl.units[unit_id]
             unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -65,15 +66,16 @@ def test_get_action_pro3(controller):
                     print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             valid_actions['plant'].trigger_action(controller.ws_client)
-        if unit_id == 137:
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(controller.ws_client)
+        # if unit_id == 137:
+        #     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        #     valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(controller.ws_client)
 
     for turn_i in range(10):
         controller.send_end_turn()
         controller.get_info()
         controller.get_observation()
     print('Plant')
+
     unit_focus = unit_opt.unit_data[138]
     ptile = unit_focus.ptile
     print(f"({ptile['x']}, {ptile['y']})")
@@ -88,6 +90,7 @@ def test_get_action_pro3(controller):
     controller.get_info()
     controller.get_observation()
     print("Move south")
+
     ptile = unit_focus.ptile
     print(f"({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -98,11 +101,12 @@ def test_get_action_pro3(controller):
     # TODO: current server does not return correct probability for build_road action in the hill. If this assert fails in the future, we can update the action_valid() for build_road action.
     assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_ROAD] == {'min': 0, 'max': 0})
     valid_actions['mine'].trigger_action(controller.ws_client)
-    for turn_i in range(10):
+    for turn_i in range(11):
         controller.send_end_turn()
         controller.get_info()
         controller.get_observation()
     print('Mine')
+
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
@@ -114,8 +118,10 @@ def test_get_action_pro3(controller):
     valid_actions['pillage'].trigger_action(controller.ws_client)
     for turn_i in range(1):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
     print('Pillage')
+
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
@@ -127,6 +133,7 @@ def test_get_action_pro3(controller):
     controller.get_info()
     controller.get_observation()
     print("Move south")
+
     ptile = unit_focus.ptile
     print(f"({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -140,6 +147,7 @@ def test_get_action_pro3(controller):
         controller.get_info()
         controller.get_observation()
     print('Mine')
+
     build_tile = unit_opt.map_ctrl.index_to_tile(unit_focus.punit['tile'])
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
@@ -154,6 +162,7 @@ def test_get_action_pro3(controller):
         controller.get_info()
         controller.get_observation()
     print('Road')
+
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -162,11 +171,12 @@ def test_get_action_pro3(controller):
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions['pillage'].trigger_action(controller.ws_client)
-    # Wait for 15 turns (until the work is done)
     for turn_i in range(1):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
     print('Pillage')
+
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -178,38 +188,59 @@ def test_get_action_pro3(controller):
     # Wait for 15 turns (until the work is done)
     for turn_i in range(1):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
     print('Pillage')
+
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
-    # TODO: The pillage pro is also incorrect from current server. There is only a Gold extra in the tile and the pillage action should be invalid.
-    assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 200, 'max': 200})
-    # valid_actions = unit_opt.get_actions(138, valid_only=True)
-    # valid_actions['pillage'].trigger_action(controller.ws_client)
-    # # Wait for 15 turns (until the work is done)
-    # for turn_i in range(1):
-    #     controller.send_end_turn()
-    #     controller.get_observation()
-    # print('Pillage')
-    # for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
-    #     if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-    #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-    # print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
+    # There is only a Gold extra in the tile and the pillage action should be invalid.
+    assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 0, 'max': 0})
 
-    # unit_focus = unit_opt.unit_data[137]
-    # ptile = unit_focus.ptile
-    # print(f"({ptile['x']}, {ptile['y']})")
-    # for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
-    #     if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-    #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+    valid_actions = unit_opt.get_actions(138, valid_only=True)
+    assert ('pillage' not in valid_actions)
+
+    unit_focus = unit_opt.unit_data[137]
+    ptile = unit_focus.ptile
+    print(f"({ptile['x']}, {ptile['y']})")
+    for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
+        if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
+            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+
+
+    # NOTE: The following case shows that Mine pro is also inaccurate when the irrigation action is valid.
+    unit_id = 139
+    unit_focus = unit_opt.unit_data[unit_id]
+    ptile = unit_focus.ptile
+    print(f"Location: ({ptile['x']}, {ptile['y']})")
+    for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
+        if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
+            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+    # punit = unit_opt.unit_ctrl.units[unit_id]
+    # unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+    print('Move north')
+
+    controller.send_end_turn()
+    controller.get_info()
+    print(unit_focus.action_prob)
+    controller.get_observation()
+
+    ptile = unit_focus.ptile
+    print(f"Location: ({ptile['x']}, {ptile['y']})")
+    print(ptile['extras'])
+    for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
+        if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
+            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T42_2023-07-25-05_54')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_get_action_pro3(controller)
 
 

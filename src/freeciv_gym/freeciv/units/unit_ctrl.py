@@ -30,7 +30,7 @@ from freeciv_gym.freeciv.units.unit_actions import UnitActions, UnitAction, Focu
 from freeciv_gym.freeciv.units.unit_state import UnitState
 import urllib
 import re
-
+import freeciv_gym.freeciv.utils.fc_types as fc_types
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 # TODO: update the below list after meets more unit type and terrain.
@@ -487,6 +487,11 @@ class UnitCtrl(CivPropController):
         unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
         self.prop_actions.update_unit_action_pro(actor_unit_id, move_dir, action_probabilities)
+        # if (target_tile['x'] == 55 and target_tile['y'] == 39) or (target_tile['x'] == 55 and target_tile['y'] == 40):
+        #     fc_logger.info(f'actor_unit_id: {actor_unit_id}, target_tile_id: {target_tile_id}, target_extra_id: {target_extra_id}, action_probabilities: {action_probabilities}')
+        #     for i in range(len(action_probabilities)):
+        #         if action_probabilities[i] != {'min': 0, 'max': 0}:
+        #             fc_logger.info(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {action_probabilities[i]}')
 
         # print(f"unit_id: {actor_unit_id}, target_position: ({target_tile['x']}, {target_tile['y']}), extra: {self.rule_ctrl.extras[target_extra_id]['name'] if target_extra_id != -1 else None}.")
         

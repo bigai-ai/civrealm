@@ -63,6 +63,7 @@ class FocusUnit():
         self.punit = None
         self.ptype = None
         self.ptile = None
+        self.pterrain = None
         self.pcity = None
         self.pplayer = None
         self.units_on_tile = None
@@ -73,11 +74,12 @@ class FocusUnit():
 
         self.action_prob = {}
 
-    def set_focus(self, punit, ptype, ptile, pcity, pplayer):
+    def set_focus(self, punit, ptype, ptile, pterrain, pcity, pplayer):
         """Sets the focus to unit punit having type ptype acting on ptile, pcity owned by pplayer"""
         self.punit = punit
         self.ptype = ptype
         self.ptile = ptile
+        self.pterrain = pterrain
         self.pcity = pcity
         self.pplayer = pplayer
         # Get all units on the current tile
@@ -162,13 +164,16 @@ class UnitActions(ActionList):
 
         ptype = self.rule_ctrl.unit_type(punit)
         ptile = self.map_ctrl.index_to_tile(punit['tile'])
+        # ptile['terrain'] = self.rule_ctrl.tile_terrain(ptile)
+        pterrain = self.rule_ctrl.tile_terrain(ptile)
         pcity = self.city_ctrl.tile_city(ptile)
         # May add ally_units, all neighbor units for other actions.
         # # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
         # enemy_units = self.get_adjacent_enemy_units(ptile)
-        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pcity, pplayer)
+        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pterrain, pcity, pplayer)
 
     def update_unit_action_pro(self, unit_id, dir, prob):
+
         self.unit_data[unit_id].action_prob[dir] = prob
 
     def add_unit_order_commands(self, unit_id):
@@ -229,13 +234,17 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
+        punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
+            # punit['ssa_controller'] == SSA_NONE
+            
     
     def _can_query_action_pro(self, unit_id):
         punit = self.unit_data[unit_id].punit
         # If an unit has orders or action_decision_want, we don't query its action pro here.
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+            # punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+            
 
     def get_get_pro_actions(self, actor_id, valid_only=False):
         if self.actor_exists(actor_id):
@@ -458,7 +467,28 @@ class ActMine(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_MINE):
             return False
-        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
+        
+        # If the tile already has MINE extra, we cannot do mine again.
+        if TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or  TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE):
+            return False
+
+        # Mine on hill and mountain terrain is alway valid.
+        if self.focus.pterrain['name'] == 'Hills' or self.focus.pterrain['name'] == 'Mountains':
+            return True
+        
+        # Mine Desert needs Construction
+        if self.focus.pterrain['name'] == 'Desert' and is_tech_known(self.focus.pplayer, 19):
+            return True
+        
+        # Mine Glacier needs refining
+        if self.focus.pterrain['name'] == 'Glacier' and is_tech_known(self.focus.pplayer, 68):
+            return True
+        
+        # mining_time > 0 only means it is possible to mine. But whether can mine also depends on the technology, e.g., desert needs construction and glacier needs refining.
+        # and self.focus.ptile['terrain']['mining_time'] > 0:
+            # return True
+        return False
+        # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_MINE, EXTRA_NONE)
@@ -1260,11 +1290,15 @@ class ActGetActionPro(UnitAction):
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:
-            #     self.target_extra_id = -1
-            # elif len(set_bits) == 1:
-            #     self.target_extra_id = set_bits[0]
+            #     self.target_extra_id = [-1]
             # else:
-            #     self.target_extra_id = set_bits
+            #     self.target_extra_id = set_bits+[-1]
+            # fc_logger.info(f"self.focus.punit['id']: {self.focus.punit['id']}, extras: {set_bits}, self.target_extra_id: {self.target_extra_id}")
+            # # elif len(set_bits) == 1:
+            # #     self.target_extra_id = set_bits[0]
+            # # else:
+            # #     self.target_extra_id = set_bits
+                
             self.target_extra_id = -1
         else:
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)

@@ -37,7 +37,7 @@ class Action(ABC):
         packet = self._action_packet()
         if type(packet) == list:
             for pac in packet:
-                fc_logger.info("trigger_action. ", pac)
+                fc_logger.info(f"trigger_action. {pac}. Packet in list.")
                 ws_client.send_request(pac, self.wait_for_pid)
             return self.refresh_state_after_action(ws_client)
         else:

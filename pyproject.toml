@@ -72,6 +72,7 @@ addopts = [
     # "tests/unit/test_build_road.py",
     # "tests/unit/test_irrigation.py",
     # "tests/unit/test_mine.py",
+    # "tests/unit/test_mine_desert.py",
     # "tests/unit/test_cultivate.py",
     # "tests/unit/test_plant.py",
     # "tests/unit/test_pillage.py",
@@ -87,4 +88,5 @@ addopts = [
     # "tests/unit/test_get_action_pro_spy_bribe.py",
     # "tests/unit/test_get_action_pro_spy_steal.py",
     # "tests/unit/test_spy_bribe_unit.py",
+
 ]

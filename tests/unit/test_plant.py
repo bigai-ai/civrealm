@@ -39,44 +39,113 @@ def test_plant(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    worker_id = 139
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    worker_ids = [137, 138, 139]
+    for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        print(
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        # print(terrain)
+        if unit_id == 137 or unit_id == 139:
+            # Desert and Mountains's plant_time is 0.
+            assert (terrain['plant_time'] == 0)
+        # Get valid actions
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        if unit_id == 137:
+            assert('plant' not in valid_actions)
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
+        elif unit_id == 139:
+            assert('plant' not in valid_actions)
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHWEST}'])
+    # Perform goto action for the worker
+    for action in test_action_list:
+        action.trigger_action(controller.ws_client)
+    
+    # Get unit new state
+    controller.send_end_turn()
+    # # Tile info won't update unless options get assigned here
+    controller.get_info()
+    controller.get_observation()
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        print(
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        
+        if unit_id == 137 or unit_id == 139:
+            # Desert and Mountains's plant_time is 0.
+            assert (terrain['plant_time'] > 0)
+        # Get valid actions
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        if unit_id == 139:
+            assert('plant' in valid_actions)
+            valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+
+    test_action_list = []
+    # Get unit new state
+    controller.send_end_turn()
+    # # Tile info won't update unless options get assigned here
+    controller.get_info()
+    controller.get_observation()
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
         print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
-        else:
-            pass
-    print('Move to the west tile which has forest')
-    # Perform goto action for the worker
+        test_action_list.append(valid_actions[f'plant'])
+    # Perform plant action
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
-    # Get unit new state
-    controller.send_end_turn()
-    # Tile info won't update unless options get assigned here
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
 
-    unit_opt = options['unit']
-    punit = unit_opt.unit_ctrl.units[worker_id]
-    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    plant_action = valid_actions['plant']
-    print(
-        f"Unit id: {worker_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    assert (plant_action.is_action_valid())
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] != 'Forest')
-    plant_action.trigger_action(controller.ws_client)
-    print('Begin planting, needs a few turns to finish ...')
-    # Wait for 15 turns (until the work is done)
-    for turn_i in range(15):
+    # One terrain needs 10 turns to finish plant.
+    for _ in range(10):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
+    
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        if unit_id == 138:
+            assert (terrain['name'] == 'Forest')
+            # Forest's plant_time is 15.
+            assert (terrain['plant_time'] == 15)
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            assert('plant' in valid_actions)
+        # The other two terrains needs 15 turns to finish plant.
+        if unit_id == 137:
+            assert (terrain['name'] != 'Forest')
+    
+    # Wait for another 5 turns.
+    for _ in range(5):
+        controller.send_end_turn()
+        controller.get_info()
+        controller.get_observation()
+
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        if unit_id == 137:
+            assert (terrain['name'] == 'Forest')
+            # Forest's plant_time is 15.
+            assert (terrain['plant_time'] == 15)
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            assert('plant' in valid_actions)
+        # The other two terrains needs 15 turns to finish plant.
+        if unit_id == 139:
+            assert (terrain['name'] == 'Swamp')
+            # Swamp's plant_time is 15.
+            assert (terrain['plant_time'] == 15)
+            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+            assert('plant' in valid_actions)
+
     import time
     time.sleep(2)
 

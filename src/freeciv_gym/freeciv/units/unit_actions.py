@@ -537,7 +537,8 @@ class ActPlant(EngineerAction):
         # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         # # Forest can only be planted on grassland or plains
         # return terr_name == "Grassland" or terr_name == "Plains"
-        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PLANT])
+        # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PLANT])
+        return self.focus.pterrain['plant_time'] > 0
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_PLANT, EXTRA_NONE)

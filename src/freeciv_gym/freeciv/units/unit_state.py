@@ -55,3 +55,5 @@ class UnitState(ListState):
         unit_state["upkeep_gold"] = aunit['upkeep'][O_GOLD] if "upkeep" in aunit else -1
 
         return unit_state
+
+# TODO: add plant time, mining time etc. to the unit state. This information is useful for plant/mine/irrigate/... action.

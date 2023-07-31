@@ -184,7 +184,7 @@ class UnitActions(ActionList):
         for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade,
-                          ActLoadUnit, ActUnloadUnit, ActNoorders,
+                          ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
@@ -361,6 +361,18 @@ class ActSEntry(StdAction):
         return self._request_new_unit_activity(ACTIVITY_SENTRY, EXTRA_NONE)
 
 
+class ActCancelOrder(UnitAction):
+    """Cancle the existing activity of a unit."""
+    action_key = "cancel_order"
+    def is_action_valid(self):
+        # Only when the unit has a non-idle activity, we can cancel its order.
+        return self.focus.punit['activity'] != ACTIVITY_IDLE
+
+    def _action_packet(self):
+        packet = self._request_new_unit_activity(ACTIVITY_IDLE, EXTRA_NONE)
+        return packet
+
+
 class ActWait(StdAction):
     """Tell the unit to wait (focus to next unit with moves left)"""
     action_key = "wait"
@@ -474,6 +486,14 @@ class ActMine(EngineerAction):
         if TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or  TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE):
             return False
 
+        # Is already performing mine, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
+            return False
+        
+        # FIXME: This is server bug. When under irrigation, cannot change to mine activity.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
+            return False
+
         # Mine on hill and mountain terrain is alway valid.
         if self.focus.pterrain['name'] == 'Hills' or self.focus.pterrain['name'] == 'Mountains':
             return True
@@ -493,7 +513,8 @@ class ActMine(EngineerAction):
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
 
     def _action_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_MINE, EXTRA_NONE)
+        packet = self._request_new_unit_activity(fc_types.ACTIVITY_MINE, EXTRA_NONE)
+        return packet
 
 
 class ActOnExtra(EngineerAction):
@@ -521,6 +542,11 @@ class ActCultivate(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CULTIVATE):
             return False
+        
+        # Is already performing cultivate, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_CULTIVATE:
+            return False
+        
         # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         # return terr_name == "Forest"
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
@@ -537,6 +563,11 @@ class ActPlant(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_PLANT):
             return False
+        
+        # Is already performing plant, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_PLANT:
+            return False
+
         # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
         # # Forest can only be planted on grassland or plains
         # return terr_name == "Grassland" or terr_name == "Plains"
@@ -581,10 +612,19 @@ class ActIrrigation(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_IRRIGATE):
             return False
+        
+        # Is already performing irrigation, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
+            return False
+        
+        # FIXME: This is server bug. When under mine, cannot change to irrigation activity.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
+            return False
+        
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_IRRIGATE])
 
     def _action_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_IRRIGATE, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_IRRIGATE, EXTRA_NONE)
 
 
 class ActFallout(ActOnExtra):
@@ -630,6 +670,9 @@ class ActExplore(UnitAction):
     action_key = "explore"
 
     def is_action_valid(self):
+        # Is already performing explore, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_EXPLORE:
+            return False
         return self.focus.ptype["name"] == "Explorer"
 
     def _action_packet(self):
@@ -744,7 +787,7 @@ class ActFortify(UnitAction):
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_FORTIFYING, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_FORTIFYING, EXTRA_NONE)
 
 
 class ActBuildRoad(EngineerAction):
@@ -754,6 +797,11 @@ class ActBuildRoad(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
             return False
+        
+        # Is already performing road building, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_GEN_ROAD:
+            return False
+
         bridge_known = is_tech_known(self.focus.pplayer, 8)
         tile_no_river = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RIVER)
         no_road_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
@@ -761,7 +809,7 @@ class ActBuildRoad(EngineerAction):
 
     def _action_packet(self):
         extra_id = self.focus.rule_ctrl.extras['Road']['id']
-        return self._request_new_unit_activity(ACTIVITY_GEN_ROAD, extra_id)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_GEN_ROAD, extra_id)
 
 
 class ActBuildRailRoad(EngineerAction):
@@ -787,6 +835,12 @@ class ActPillage(UnitAction):
         # tile_valid = self.focus.pcity is None or (self.focus.pcity != None and CityState.city_owner_player_id(
         #     self.focus.pcity) != self.focus.pplayer["playerno"])
         # return self.focus.pplayer != None and self.focus.ptype['attack_strength'] > 0 and tile_valid
+        
+        # Is already performing pillage, no need to show this action again.
+        # TODO: if we support the choosing of pillage target in the future, we need to refine this logic.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_PILLAGE:
+            return False
+        
         can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \
             TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
             TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \

@@ -19,11 +19,12 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T170_2023-07-27-02_09')
+    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-26-10_28')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,22 +40,20 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_add_clause(controller):
-    fc_logger.info("test_player_add_clause")
+def test_dipl_accept_treaty(controller):
+    fc_logger.info("test_dipl_accept_treaty")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    add_clause_act = find_keys_with_keyword(player_opt._action_dict[4], 'add_clause')[0]
+    accept_treaty_act = find_keys_with_keyword(player_opt._action_dict[3], 'accept_treaty')[0]
 
-    assert (add_clause_act.is_action_valid())
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
-    len_1 = len(clauses)
+    assert (accept_treaty_act.is_action_valid())
+    emb_1 = player_opt.players[3]['real_embassy'][0]
 
-    add_clause_act.trigger_action(controller.ws_client)
-    controller.send_end_turn()
+    accept_treaty_act.trigger_action(controller.ws_client)
     controller.get_observation()
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
-    len_2 = len(clauses)
+    emb_2 = player_opt.players[3]['real_embassy'][0]
 
-    assert (len_1 + 1 == len_2)
+    assert (emb_1 == 0 and emb_2 == 1)
+
 

@@ -196,6 +196,7 @@ class CityBuyProduction(Action):
     def _action_packet(self):
         """Buy whatever is being built in the city."""
         packet = {"pid": packet_city_buy, "city_id": self.pcity['id']}
+        self.wait_for_pid = 31
         return packet
 
 

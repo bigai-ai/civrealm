@@ -19,11 +19,12 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-05_01')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,22 +40,21 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_decrease_tax(controller):
-    fc_logger.info("test_player_decrease_tax")
+def test_dipl_trade_city(controller):
+    fc_logger.info("test_dipl_trade_city")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    pplayer = player_opt.players[0]
+    trade_city_act = find_keys_with_keyword(player_opt._action_dict[3], 'trade_city_clause')[1]
 
-    increase_tax_action = find_keys_with_keyword(player_opt._action_dict[0], 'decrease_tax')[0]
-    assert (increase_tax_action.is_action_valid())
+    assert (trade_city_act.is_action_valid())
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
+    len_1 = len(clauses)
 
-    tax_1 = pplayer['tax']
-
-    increase_tax_action.trigger_action(controller.ws_client)
+    trade_city_act.trigger_action(controller.ws_client)
+    controller.send_end_turn()
     controller.get_observation()
-    tax_2 = pplayer['tax']
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
+    len_2 = len(clauses)
 
-    assert (tax_1 - tax_2 == 10)
-
-
+    assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_CITY)

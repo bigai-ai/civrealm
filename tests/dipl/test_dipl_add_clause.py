@@ -23,7 +23,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-26-09_04')
+    controller.set_parameter('debug.load_game', 'testcontroller_T170_2023-07-27-02_09')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,22 +39,22 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_stop_negotiate(controller):
-    fc_logger.info("test_player_stop_negotiate")
+def test_dipl_add_clause(controller):
+    fc_logger.info("test_dipl_add_clause")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    stop_negotiate_act = find_keys_with_keyword(player_opt._action_dict[4], 'stop_negotiation')[0]
+    add_clause_act = find_keys_with_keyword(player_opt._action_dict[4], 'add_clause')[0]
 
-    assert (stop_negotiate_act.is_action_valid())
-    meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    assert (add_clause_act.is_action_valid())
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
+    len_1 = len(clauses)
 
-    stop_negotiate_act.trigger_action(controller.ws_client)
+    add_clause_act.trigger_action(controller.ws_client)
+    controller.send_end_turn()
     controller.get_observation()
-    meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
+    len_2 = len(clauses)
 
-    assert (meeting_id_1 == 4 and meeting_id_2 is None)
-
-
-
+    assert (len_1 + 1 == len_2)
 

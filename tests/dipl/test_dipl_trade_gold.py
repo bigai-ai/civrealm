@@ -19,11 +19,12 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-01_24')
+    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-05_01')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,21 +40,21 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_remove_clause(controller):
-    fc_logger.info("test_player_remove_clause")
+def test_dipl_trade_gold(controller):
+    fc_logger.info("test_dipl_trade_gold")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    remove_clause_act = find_keys_with_keyword(player_opt._action_dict[4], 'remove_clause')[0]
+    trade_gold_act = find_keys_with_keyword(player_opt._action_dict[3], 'trade_gold_clause')[0]
 
-    assert (remove_clause_act.is_action_valid())
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
+    assert (trade_gold_act.is_action_valid())
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
     len_1 = len(clauses)
 
-    remove_clause_act.trigger_action(controller.ws_client)
+    trade_gold_act.trigger_action(controller.ws_client)
+    controller.send_end_turn()
     controller.get_observation()
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
+    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
     len_2 = len(clauses)
 
-    assert (len_1 - 1 == len_2)
-
+    assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_GOLD)

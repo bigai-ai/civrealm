@@ -19,12 +19,11 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.players.player_const as player_const
 
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-05_01')
+    controller.set_parameter('debug.load_game', 'testcontroller_T30_2023-07-31-09_09')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -40,21 +39,22 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_player_trade_gold(controller):
-    fc_logger.info("test_player_trade_gold")
+def test_gov_increase_sci(controller):
+    fc_logger.info("test_gov_increase_sci")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    trade_gold_act = find_keys_with_keyword(player_opt._action_dict[3], 'trade_gold_clause')[0]
+    pplayer = player_opt.players[0]
 
-    assert (trade_gold_act.is_action_valid())
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
-    len_1 = len(clauses)
+    increase_sci_action = find_keys_with_keyword(player_opt._action_dict[0], 'increase_sci')[0]
+    assert (increase_sci_action.is_action_valid())
 
-    trade_gold_act.trigger_action(controller.ws_client)
-    controller.send_end_turn()
+    sci_1 = pplayer['science']
+
+    increase_sci_action.trigger_action(controller.ws_client)
     controller.get_observation()
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
-    len_2 = len(clauses)
+    sci_2 = pplayer['science']
 
-    assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_GOLD)
+    assert (sci_2 - sci_1 == 10)
+
+

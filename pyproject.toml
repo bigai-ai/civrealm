@@ -56,6 +56,8 @@ addopts = [
     # "tests/gov/test_gov_decrease_tax.py",
     # "tests/gov/test_gov_increase_sci.py",
     # "tests/gov/test_gov_decrease_sci.py",
+    # "tests/gov/test_gov_increase_lux.py",
+    # "tests/gov/test_gov_decrease_lux.py",
     # "tests/dipl/test_dipl_start_negotiate.py",
     # "tests/dipl/test_dipl_stop_negotiate.py",
     # "tests/dipl/test_dipl_accept_treaty.py",

@@ -39,44 +39,83 @@ def test_cultivate(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    worker_id = 139
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    worker_ids = [137, 138, 139]
+    for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
         print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        # print(terrain)
+        assert (terrain['cultivate_time'] == 0)
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        if unit_id == worker_id:
+        if unit_id == 137:
+            assert('cultivate' not in valid_actions)
+            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
+        elif unit_id == 139:
+            assert('cultivate' not in valid_actions)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
-        else:
-            pass
-    print('Move to the west tile which has forest')
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
+    
     # Get unit new state
     controller.send_end_turn()
-    # Tile info won't update unless options get assigned here
-    options = controller.get_info()['available_actions']
+    # # Tile info won't update unless options get assigned here
+    controller.get_info()
     controller.get_observation()
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        print(
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        if unit_id == 139:
+            # Forest's cultivate is larger than 0.
+            assert (terrain['cultivate_time'] > 0)
+        # Get valid actions
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        if unit_id == 137 or unit_id == 138:
+            # Plant forest
+            valid_actions[f'plant'].trigger_action(controller.ws_client)
+        if unit_id == 139:
+            assert ('cultivate' in valid_actions)
 
-    unit_opt = options['unit']
-    punit = unit_opt.unit_ctrl.units[worker_id]
-    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    cultivate_action = valid_actions['cultivate']
-    print(
-        f"Unit id: {worker_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    assert (cultivate_action.is_action_valid())
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
-    cultivate_action.trigger_action(controller.ws_client)
-    print('Begin cultivating, needs a few turns to finish ...')
-    # Wait for 15 turns (until the work is done)
-    for turn_i in range(15):
+    # Wait for 15 turns to finish plant
+    for _ in range(15):
         controller.send_end_turn()
+        controller.get_info()
         controller.get_observation()
-    assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] != 'Forest')
+    
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        assert (terrain['cultivate_time'] > 0)
+        assert (terrain['name'] == 'Forest')
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        assert('cultivate' in valid_actions)
+        # Perform cultivate action
+        valid_actions[f'cultivate'].trigger_action(controller.ws_client)
+    
+    # Wait for 5 turns to finish cultivate.
+    for _ in range(5):
+        controller.send_end_turn()
+        controller.get_info()
+        controller.get_observation()
+
+    for unit_id in worker_ids:
+        punit = unit_opt.unit_ctrl.units[unit_id]
+        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+        terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
+        # Forest has been removed.
+        assert (terrain['name'] != 'Forest')
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        assert('cultivate' not in valid_actions)
+        # The terrain which had forest before should allow plant action.
+        assert('plant' in valid_actions)
+       
     import time
     time.sleep(2)
 

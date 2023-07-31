@@ -235,7 +235,9 @@ class UnitActions(ActionList):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
         punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
-            # punit['ssa_controller'] == SSA_NONE
+        # punit['ssa_controller'] == SSA_NONE
+        
+        
             
     
     def _can_query_action_pro(self, unit_id):
@@ -243,7 +245,8 @@ class UnitActions(ActionList):
         # If an unit has orders or action_decision_want, we don't query its action pro here.
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
         punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
-            # punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        # punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        
             
 
     def get_get_pro_actions(self, actor_id, valid_only=False):
@@ -735,7 +738,11 @@ class ActFortify(UnitAction):
     action_key = "fortify"
 
     def is_action_valid(self):
-        return not self.focus.ptype['name'] in ["Settlers", "Workers"]
+        # return not self.focus.ptype['name'] in ["Settlers", "Workers"]
+        # Check whether the unit type can do the given action
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FORTIFY):
+            return False
+        return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):
         return self._request_new_unit_activity(ACTIVITY_FORTIFYING, EXTRA_NONE)
@@ -746,6 +753,8 @@ class ActBuildRoad(EngineerAction):
     action_key = "road"
 
     def is_eng_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
+            return False
         bridge_known = is_tech_known(self.focus.pplayer, 8)
         tile_no_river = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RIVER)
         no_road_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)

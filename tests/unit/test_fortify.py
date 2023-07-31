@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_FORTIFIED
+from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_FORTIFIED, ACTIVITY_FORTIFYING, ACTION_UNIT_MOVE
 
 
 @pytest.fixture
@@ -42,21 +42,38 @@ def test_fortify(controller):
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('fortify' in valid_actions.keys() and not punit['activity'] == ACTIVITY_FORTIFIED)
     unit_action = valid_actions['fortify']
-    print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (unit_action.is_action_valid())
+    # Perform fortify action
     unit_action.trigger_action(controller.ws_client)
     print(f"Fortify unit {unit_id}")
-    controller.send_end_turn()
-    options = controller.get_info()['available_actions']
+    # Get unit info after the performed action
+    controller.get_info()
     controller.get_observation()
-    unit_opt = options['unit']
-    punit = unit_opt.unit_ctrl.units[unit_id]
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert (not ('fortify' in valid_actions.keys()) and punit['activity'] == ACTIVITY_FORTIFIED)
+    print(valid_actions.keys())
+    punit = unit_opt.unit_ctrl.units[unit_id]
+    print(punit)
+    # Unit activity is FORTIFYING in the same turn
+    assert (punit['activity'] == ACTIVITY_FORTIFYING)
+
+    # End the turn
+    controller.send_end_turn()
+    controller.get_info()
+    controller.get_observation()
+    punit = unit_opt.unit_ctrl.units[unit_id]
+    # Unit activity becomes to FORTIFIED in the next turn
+    assert (punit['activity'] == ACTIVITY_FORTIFIED)
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    assert ('fortify' not in valid_actions.keys())
+    print(valid_actions.keys())
+    print(punit)
+    # When a unit has activity, the move pro get from server is 0 even the unit still has move.
+    # print(unit_opt.unit_data[unit_id].action_prob[4][ACTION_UNIT_MOVE])
     import time
     time.sleep(2)
 

@@ -232,43 +232,7 @@ class CityChangeProduction(Action):
         self.action_key += "_%s_%i" % (prod_name, prod_value)
 
     def is_action_valid(self):
-        if not self.worklist_not_empty(self.pcity):
-            return False
-        cur_item = self.pcity["worklist"][0]
-        if not self.workitem_is_valid(cur_item):
-            return False
-        if cur_item["kind"] == self.prod_kind and cur_item["value"] == self.prod_value:
-            return False
-        return self._is_prod_valid()
-
-    @staticmethod
-    def can_city_build_unit_now(pcity, punittype_id):
-        return (pcity != None and pcity['can_build_unit'] != None
-                and punittype_id < len(pcity['can_build_unit'])
-                and pcity['can_build_unit'][punittype_id] > 0)
-
-    @staticmethod
-    def can_city_build_improvement_now(pcity, pimprove_id):
-        return (pcity != None and pcity['can_build_improvement'] != None
-                and pimprove_id < len(pcity['can_build_improvement'])
-                and pcity['can_build_improvement'][pimprove_id] > 0)
-
-    def _is_prod_valid(self):
-        if self.prod_kind == VUT_UTYPE:
-            return self.can_city_build_unit_now(self.pcity, self.prod_value)
-        else:
-            return self.can_city_build_improvement_now(self.pcity, self.prod_value)
-
-    @staticmethod
-    def worklist_not_empty(pcity):
-        return pcity['worklist'] != None and len(pcity['worklist']) != 0
-
-    @staticmethod
-    def workitem_is_valid(workitem):
-        return not (workitem["kind"] is None or workitem["value"] is None or len(workitem) == 0)
-
-    def get_worklist(self, pcity):
-        """Populates data to the production tab in the city dialog."""
+        raise Exception("To be overwritten")
 
     def _action_packet(self):
         packet = {"pid": packet_city_change, "city_id": self.pcity["id"],
@@ -290,6 +254,8 @@ class CityChangeUnitProduction(CityChangeProduction):
 
     def is_action_valid(self):
         if self.punit_type['name'] == "Barbarian Leader" or self.punit_type['name'] == "Leader":
+            return False
+        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
         return self.can_city_build_unit_now(self.pcity, self.punit_type["id"])
@@ -317,16 +283,10 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
+        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
+            return False
+
         return self.can_city_build_improvement_now(self.pcity, self.prod_value)
-
-    def get_impact_of_action(self):
-        build_cost = self.pimprovement['build_cost']
-        if self.pimprovement['name'] == "Coinage":
-            build_cost = "-"
-
-        infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
-        infos["build_cost"] = build_cost
-        return infos
 
     @staticmethod
     def can_city_build_improvement_now(pcity, pimprove_id):
@@ -338,54 +298,12 @@ class CityChangeImprovementProduction(CityChangeProduction):
             pcity['can_build_improvement'][pimprove_id] > 0
             if pimprove_id < len(pcity['can_build_improvement']) else False)
 
+    def get_impact_of_action(self):
+        build_cost = self.pimprovement['build_cost']
+        if self.pimprovement['name'] == "Coinage":
+            build_cost = "-"
 
-class CityRename(Action):
-    """Rename a city - ignored for bot"""
+        infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
+        infos["build_cost"] = build_cost
+        return infos
 
-    def __init__(self, pcity, suggested_name):
-        super().__init__()
-        self.pcity = pcity
-        self.suggested_name = suggested_name
-
-    def is_action_valid(self):
-        return True
-
-    def _action_packet(self):
-        packet = {"pid": packet_city_rename,
-                  "name": urllib.parse.quote(unicode(self.suggested_name).encode('utf-8')),
-                  "city_id": self.pcity['id']}
-        return packet
-
-
-class CityDoWorklist(Action):
-    """Set worklist for city - Irrelevant for bot - can automatically assess production each turn"""
-
-    def __init__(self, pcity):
-        super().__init__()
-        self.pcity = pcity
-
-    def _action_packet(self):
-        worklist = self.pcity['worklist']
-        overflow = len(worklist) - MAX_LEN_WORKLIST
-        if overflow > 0:
-            worklist = worklist[:MAX_LEN_WORKLIST-1]
-
-        packet = {"pid": packet_city_worklist,
-                  "city_id": self.pcity["id"],
-                  "worklist": worklist}
-        return packet
-
-    def send_city_worklist_add(self, kind, value):
-        if len(self.pcity['worklist']) >= MAX_LEN_WORKLIST:
-            return
-
-        self.pcity['worklist'].append({"kind": kind, "value": value})
-        self._action_packet()
-
-    @staticmethod
-    def find_universal_in_worklist(universal, worklist):
-        for i, work_item in enumerate(worklist):
-            if (work_item.kind == universal.kind and
-                    work_item.value == universal.value):
-                return i
-        return -1

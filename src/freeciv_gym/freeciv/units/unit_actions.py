@@ -817,6 +817,13 @@ class ActBuildRailRoad(EngineerAction):
     action_key = "railroad"
 
     def is_eng_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
+            return False
+        
+        # Is already performing road building, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_GEN_ROAD:
+            return False
+
         railroad_known = is_tech_known(self.focus.pplayer, 65)
         already_road = TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
         no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)

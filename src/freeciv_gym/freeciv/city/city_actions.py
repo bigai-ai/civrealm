@@ -53,7 +53,7 @@ class CityActions(ActionList):
                     work_act = CityWorkTile(pcity, dx, dy, self.city_map)
                     unwork_act = CityUnworkTile(pcity, dx, dy, self.city_map)
 
-                    if work_act.output_idx == None or (dx == 0 and dy == 0):
+                    if work_act.output_idx is None or (dx == 0 and dy == 0):
                         continue
                     if work_act.is_action_valid():
                         self.add_action(city_id, work_act)
@@ -109,14 +109,14 @@ class CityWorkTile(Action):
         self.ptile = city_map.map_ctrl.map_pos_to_tile(self.ctile["x"] + dx, self.ctile["y"] + dy)
 
         self.output_idx = self.city_map.get_city_dxy_to_index(dx, dy, self.ctile)
-        if self.output_idx == None:
+        if self.output_idx is None:
             self.action_key += "_None_%i_%i" % (dx, dy)
         else:
             self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
 
     def is_action_valid(self):
-        return "worked" in self.ptile and "output_food" in self.pcity and \
-            self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx != None
+        return ("worked" in self.ptile and "output_food" in self.pcity and
+                self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx is not None)
 
     def get_output_at_tile(self):
         if "output_food" in self.pcity:
@@ -142,8 +142,8 @@ class CityUnworkTile(CityWorkTile):
     action_key = "city_unwork"
 
     def is_action_valid(self):
-        return "worked" in self.ptile and "output_food" in self.pcity and \
-               self.ptile["worked"] == self.pcity["id"] and self.output_idx != -1
+        return ("worked" in self.ptile and "output_food" in self.pcity and
+                self.ptile["worked"] == self.pcity["id"] and self.output_idx != -1)
 
     def _action_packet(self):
         packet = {"pid": packet_city_make_specialist,
@@ -188,7 +188,9 @@ class CityBuyProduction(Action):
         self.pplayer = pplayer
 
     def is_action_valid(self):
-        if "buy_cost" not in self.pcity:
+        if "buy_cost" not in self.pcity or self.pcity['did_buy']:
+            return False
+        if self.pcity['production_kind'] == VUT_IMPROVEMENT and self.pcity['production_value'] == 67:
             return False
 
         return self.pplayer['gold'] >= self.pcity['buy_cost']
@@ -254,7 +256,7 @@ class CityChangeUnitProduction(CityChangeProduction):
         self.punit_type = punit_type
 
     def is_action_valid(self):
-        if self.punit_type['name'] == "Barbarian Leader" or self.punit_type['name'] == "Leader":
+        if self.punit_type['name'] == "Barbarian Leader" or self.punit_type['name'] == "Leader" or self.pcity['did_buy']:
             return False
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
@@ -267,7 +269,7 @@ class CityChangeUnitProduction(CityChangeProduction):
           Return whether given city can build given building returns FALSE if
           the building is obsolete.
         """
-        return (pcity != None and pcity['can_build_unit'] != None and punittype_id < len(pcity['can_build_unit'])
+        return (pcity is not None and pcity['can_build_unit'] is not None and punittype_id < len(pcity['can_build_unit'])
                 and pcity['can_build_unit'][punittype_id] > 0)
 
     def get_impact_of_action(self):
@@ -284,6 +286,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
+        if self.pcity['did_buy']:
+            return False
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
@@ -295,7 +299,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
         Return whether given city can build given building; returns FALSE if
         the building is obsolete.
         """
-        return pcity != None and pcity['can_build_improvement'] != None and (
+        return pcity is not None and pcity['can_build_improvement'] is not None and (
             pcity['can_build_improvement'][pimprove_id] > 0
             if pimprove_id < len(pcity['can_build_improvement']) else False)
 

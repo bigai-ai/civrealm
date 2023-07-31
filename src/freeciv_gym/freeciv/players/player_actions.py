@@ -321,7 +321,7 @@ class CancelTreaty(StartNegotiate):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
-        self.wait_for_pid = 51
+        self.wait_for_pid = 59
         return packet
 
 

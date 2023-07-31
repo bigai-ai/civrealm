@@ -234,18 +234,17 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-        punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
-        # punit['ssa_controller'] == SSA_NONE
-        
-        
+        punit['ssa_controller'] == SSA_NONE
+        # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
             
     
     def _can_query_action_pro(self, unit_id):
         punit = self.unit_data[unit_id].punit
         # If an unit has orders or action_decision_want, we don't query its action pro here.
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-        punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
-        # punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+        
         
             
 

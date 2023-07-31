@@ -286,6 +286,7 @@ class StartNegotiate(base_action.Action):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
+        self.wait_for_pid = 96
         return packet
 
 
@@ -298,6 +299,7 @@ class AcceptTreaty(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
                   "counterpart": self.counterpart["playerno"]}
+        self.wait_for_pid = 104
         return packet
 
 
@@ -331,6 +333,7 @@ class StopNegotiate(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
+        self.wait_for_pid = 98
         return packet
 
 
@@ -368,6 +371,7 @@ class RemoveClause(base_action.Action):
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
+        self.wait_for_pid = 102
         return packet
 
 
@@ -393,7 +397,7 @@ class AddClause(RemoveClause):
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-
+        self.wait_for_pid = 100
         return packet
 
 

@@ -24,56 +24,39 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 In order to test the freeciv-gym on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
-### Update the freeciv-web image
-
-```bash
-update_freeciv_web_docker
-```
-
-### Compile the updated files
-
-Enter the freeciv-web docker:
-
-```bash
-docker exec -it freeciv-web bash
-```
-
-and compile the new file:
-
-```bash
-cd /docker/freeciv-web
-sh build.sh
-```
-
-### Commit the current container to save the change to the image
-
-```bash
-cd freeciv-web
-docker commit freeciv-web freeciv/freeciv-web
-# Restart the docker container so that the change takes effect
-docker compose down
-docker compose up -d
-```
-
-Alternatively, you can commit the current `freeciv-web` container into a new image and use that image to build containers from now on. For example:
-
-```bash
-docker commit freeciv-web freeciv/freeciv-web:v2
-docker compose down
-# manually modify the image in docker-compose.yml to freeciv/freeciv-web:v2
-docker compose up -d
-```
-
-
 ## Installation
 
 Installation for freeciv-gym developers
 
 ```bash
 cd freeciv-gym
-
 pip install -e .
 ```
+
+### Update the freeciv-web image
+
+Start the freeciv-web docker:
+
+```bash
+cd freeciv-web
+docker compose up -d
+```
+
+Activate the freeciv-gym virtual environment, and update the freeciv-web image:
+
+```bash
+update_freeciv_web_docker
+```
+
+Restart the freeciv-web container so that the change takes effect
+
+```bash
+cd freeciv-web
+docker compose down
+docker compose up -d
+```
+
+### Testing the installation
 
 To test if the installation is successful, run
 

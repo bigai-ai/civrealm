@@ -102,6 +102,11 @@ class PlayerOptions(ActionList):
         if cancel_vision.is_action_valid():
             self.add_action(counter_id, cancel_vision)
 
+        self.remove_clause_options(dipl_ctrl, counter_id, cur_player)
+        self.add_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
+        self.add_clause_options(dipl_ctrl, cur_player['playerno'], counterpart, cur_player)
+
+    def remove_clause_options(self, dipl_ctrl, counter_id, cur_player):
         if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
             clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
             for clause in clauses:
@@ -116,49 +121,32 @@ class PlayerOptions(ActionList):
                 if remove_clause.is_action_valid():
                     self.add_action(counter_id, remove_clause)
 
+    def add_clause_options(self, dipl_ctrl, counter_id, cur_player, counterpart):
         base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION,
                         player_const.CLAUSE_EMBASSY, player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE,
                         player_const.CLAUSE_ALLIANCE]
         for ctype in base_clauses:
-            add_clause_1 = AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id)
-            if add_clause_1.is_action_valid():
-                self.add_action(counter_id, add_clause_1)
-            add_clause_2 = AddClause(ctype, 1, counter_id, cur_player['playerno'], dipl_ctrl, counter_id)
-            if add_clause_2.is_action_valid():
-                self.add_action(counter_id, add_clause_2)
+            add_clause = AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id)
+            if add_clause.is_action_valid():
+                self.add_action(counter_id, add_clause)
 
         for tech_id in self.rule_ctrl.techs:
-            add_trade_tech_1 = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                  cur_player['playerno'], counter_id, dipl_ctrl, counter_id,
-                                                  self.rule_ctrl, self.players)
-            if add_trade_tech_1.is_action_valid():
-                self.add_action(counter_id, add_trade_tech_1)
-            add_trade_tech_2 = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                  counter_id, cur_player['playerno'], dipl_ctrl, counter_id,
-                                                  self.rule_ctrl, self.players)
-            if add_trade_tech_2.is_action_valid():
-                self.add_action(counter_id, add_trade_tech_2)
+            add_trade_tech = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id, cur_player['playerno'],
+                                                counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
+            if add_trade_tech.is_action_valid():
+                self.add_action(counter_id, add_trade_tech)
 
         for pgold in range(1, max(cur_player['gold'] + 1, counterpart['gold'] + 1)):
-            add_trade_gold_1 = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, cur_player['playerno'],
-                                                  counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-            if add_trade_gold_1.is_action_valid():
-                self.add_action(counter_id, add_trade_gold_1)
-            add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player['playerno'],
-                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-            if add_trade_gold_2.is_action_valid():
-                self.add_action(counter_id, add_trade_gold_2)
+            add_trade_gold = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, cur_player['playerno'],
+                                                counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
+            if add_trade_gold.is_action_valid():
+                self.add_action(counter_id, add_trade_gold)
 
         for pcity in self.city_ctrl.cities.keys():
-            add_trade_city_1 = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, cur_player['playerno'], counter_id,
-                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
-            if add_trade_city_1.is_action_valid():
-                self.add_action(counter_id, add_trade_city_1)
-
-            add_trade_city_2 = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player['playerno'],
-                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
-            if add_trade_city_2.is_action_valid():
-                self.add_action(counter_id, add_trade_city_2)
+            add_trade_city = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, cur_player['playerno'], counter_id,
+                                                dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
+            if add_trade_city.is_action_valid():
+                self.add_action(counter_id, add_trade_city)
 
 
 class IncreaseSci(base_action.Action):

@@ -279,6 +279,8 @@ class StartNegotiate(base_action.Action):
     def is_action_valid(self):
         if (not self.clstate.client_is_observer() and self.counterpart != self.cur_player
                 and self.counterpart['is_alive'] and self.cur_player['is_alive']):
+            if self.counterpart['nation'] in [558, 559]:
+                return False
             if self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], [player_const.DS_NO_CONTACT]):
                 return True
         return False
@@ -391,7 +393,8 @@ class AddClause(RemoveClause):
             for clause in clauses:
                 if clause['giver'] == self.giver and clause['type'] == self.clause_type:
                     return False
-        return True
+            return True
+        return False
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_create_clause_req,
@@ -421,9 +424,10 @@ class AddTradeTechClause(AddClause):
                 if (clause['giver'] == self.giver and clause['type'] == self.clause_type
                         and clause['value'] == self.value):
                     return False
-        return (is_tech_known(self.players[self.giver], self.value)
-                and player_invention_state(self.players[self.counterpart], self.value)
-                in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
+            return (is_tech_known(self.players[self.giver], self.value)
+                    and player_invention_state(self.players[self.counterpart], self.value)
+                    in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
+        return False
 
 
 class AddTradeGoldClause(AddClause):
@@ -444,7 +448,8 @@ class AddTradeGoldClause(AddClause):
             for clause in clauses:
                 if clause['giver'] == self.giver and clause['type'] == self.clause_type:
                     return False
-        return not self.value > self.players[self.giver]['gold']
+            return not self.value > self.players[self.giver]['gold']
+        return False
 
 
 class AddTradeCityClause(AddClause):
@@ -466,8 +471,8 @@ class AddTradeCityClause(AddClause):
                 if (clause['giver'] == self.giver and clause['type'] == self.clause_type
                         and clause['value'] == self.value):
                     return False
-        if self.city_ctrl.cities[self.value]['capital']:
-            return False
-        return self.city_ctrl.cities[self.value]['owner'] == self.giver
-
+            if self.city_ctrl.cities[self.value]['capital']:
+                return False
+            return self.city_ctrl.cities[self.value]['owner'] == self.giver
+        return False
 

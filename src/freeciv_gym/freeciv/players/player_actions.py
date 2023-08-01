@@ -266,7 +266,7 @@ class StartNegotiate(base_action.Action):
         self.counterpart = counterpart
 
     def is_action_valid(self):
-        if (not self.clstate.client_is_observer() and self.counterpart != self.cur_player
+        if (self.dipl_ctrl.active_diplomacy_meeting_id != self.counterpart['playerno']
                 and self.counterpart['is_alive'] and self.cur_player['is_alive']):
             if self.counterpart['nation'] in [558, 559]:
                 return False
@@ -304,8 +304,7 @@ class CancelTreaty(StartNegotiate):
 
     def is_action_valid(self):
         ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR]
-        return (not self.clstate.client_is_observer()
-                and self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
+        return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
                 and self.counterpart['team'] != self.cur_player['team'])
 
     def _action_packet(self):

@@ -94,5 +94,6 @@ addopts = [
     # "tests/unit/test_get_action_pro_spy_steal.py",
     # "tests/unit/test_spy_bribe_unit.py",
     # "tests/unit/test_cancel_order.py",
+    # "tests/unit/test_airbase.py",
 
 ]

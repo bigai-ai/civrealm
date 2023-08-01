@@ -139,14 +139,15 @@ class PlayerOptions(ActionList):
             if add_trade_tech_2.is_action_valid():
                 self.add_action(counter_id, add_trade_tech_2)
 
-        add_trade_gold_1 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, cur_player['playerno'],
-                                              counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-        if add_trade_gold_1.is_action_valid():
-            self.add_action(counter_id, add_trade_gold_1)
-        add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, 1, counter_id, cur_player['playerno'],
-                                              dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-        if add_trade_gold_2.is_action_valid():
-            self.add_action(counter_id, add_trade_gold_2)
+        for pgold in range(1, max(cur_player['gold'] + 1, counterpart['gold'] + 1)):
+            add_trade_gold_1 = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, cur_player['playerno'],
+                                                  counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
+            if add_trade_gold_1.is_action_valid():
+                self.add_action(counter_id, add_trade_gold_1)
+            add_trade_gold_2 = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player['playerno'],
+                                                  dipl_ctrl, counter_id, self.rule_ctrl, self.players)
+            if add_trade_gold_2.is_action_valid():
+                self.add_action(counter_id, add_trade_gold_2)
 
         for pcity in self.city_ctrl.cities.keys():
             add_trade_city_1 = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, cur_player['playerno'], counter_id,
@@ -446,7 +447,8 @@ class AddTradeGoldClause(AddClause):
         if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
             clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
             for clause in clauses:
-                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
+                        and clause['value'] == self.value):
                     return False
             return not self.value > self.players[self.giver]['gold']
         return False

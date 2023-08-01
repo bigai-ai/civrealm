@@ -88,13 +88,11 @@ class ControllerAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_player_actions(self, action_dict):
-        desired_actions = {'increase_sci': 1.0,
-                           'decrease_sci': random.random(),
-                           'increase_lux': random.random(),
-                           'decrease_lux': random.random(),
-                           'increase_tax': random.random(),
-                           'decrease_tax': random.random(),
-                           'start_negotiation': random.random(),
+        desired_actions = {}
+        return self.sample_desired_actions(action_dict, desired_actions)
+
+    def calculate_dipl_actions(self, action_dict):
+        desired_actions = {'start_negotiation': random.random(),
                            'accept_treaty': random.random(),
                            'cancel_treaty': random.random(),
                            'cancel_vision': random.random(),
@@ -106,15 +104,17 @@ class ControllerAgent(BaseAgent):
                            'trade_city_clause': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
-    def calculate_dipl_actions(self, action_dict):
-        desired_actions = {}
-        return self.sample_desired_actions(action_dict, desired_actions)
-
     def calculate_tech_actions(self, action_dict):
         desired_actions = {'research_tech': random.random(),
                            'set_tech_goal': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_gov_actions(self, action_dict):
-        desired_actions = {'change_gov': random.random(), }
+        desired_actions = {'change_gov': random.random(),
+                           'increase_sci': random.random(),
+                           'decrease_sci': random.random(),
+                           'increase_lux': random.random(),
+                           'decrease_lux': random.random(),
+                           'increase_tax': random.random(),
+                           'decrease_tax': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)

@@ -588,12 +588,29 @@ class ActPlant(EngineerAction):
 class ActFortress(EngineerAction):
     """Action to create a fortress"""
     action_key = "fortress"
+    action_id = fc_types.ACTION_BASE
 
     def is_eng_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, self.action_id):
+            return False
+
+        # If the tile already has FORTRESS or BUOY extra, we cannot do FORTRESS again.
+        if TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY):
+            return False
+
+        # Is already performing mine, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_BASE:
+            return False
+        
+        # If locate inside own city, cannot perform this action.
+        if self.focus.pcity != None and CityState.city_owner_player_id(
+            self.focus.pcity) == self.focus.pplayer["playerno"]:
+            return False
+
         return is_tech_known(self.focus.pplayer, 19)
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_BASE, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_BASE, EXTRA_NONE)
 
 
 class ActAirbase(EngineerAction):

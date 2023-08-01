@@ -48,10 +48,17 @@ def test_fortress(controller):
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    # The unit has move in new turn, the build should be valid
     assert (not (build_tile['extras'][EXTRA_FORTRESS] == 1))
+    # The unit has move in this turn, the fortress should be valid
     assert (build_action.is_action_valid())
+    # Trigger fortress action will change the activity state of the unit.
     build_action.trigger_action(controller.ws_client)
+    # Get unit new info
+    controller.get_observation()
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    # Already performing fortress, the fortress action should be invalid.
+    assert ('fortress' not in valid_actions)
+
     print('Begin building a fortress, needs a few turns to finish ...')
     # Wait for 3 turns (until job is done)
     for turn_i in range(3):
@@ -61,9 +68,24 @@ def test_fortress(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     assert (build_tile['extras'][EXTRA_FORTRESS] == 1)
-    import time
-    time.sleep(2)
 
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    # There is already a fortress extra, the fortress action should be invalid
+    assert ('fortress' not in valid_actions)
+    # The pillage action should be valid
+    assert('pillage' in valid_actions)
+    print(valid_actions.keys())
+
+    # Check another unit
+    unit_id = 625
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    unit_focus = unit_opt.unit_data[unit_id]
+    ptile = unit_focus.ptile
+    # The tile has no fortress extra.
+    assert (ptile['extras'][EXTRA_FORTRESS] == 0)
+    # This unit type cannot perform fortress action.
+    assert ('fortress' not in valid_actions)
+    print(valid_actions.keys())
 
 def main():
     controller = CivController('testcontroller')

@@ -461,7 +461,14 @@ class EngineerAction(UnitAction):
 
     def is_eng_action_valid(self):
         raise Exception("Not implemented")
-
+    
+    def _eng_packet(self):
+        raise Exception("Not implemented")
+    
+    def _action_packet(self):
+        self.wait_for_pid = 63
+        return self._eng_packet()
+        
 
 class ActTransform(EngineerAction):
     action_key = "transform"
@@ -471,7 +478,7 @@ class ActTransform(EngineerAction):
             return False
         return True
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_TRANSFORM, EXTRA_NONE)
 
 
@@ -512,7 +519,7 @@ class ActMine(EngineerAction):
         return False
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
 
-    def _action_packet(self):
+    def _eng_packet(self):
         packet = self._request_new_unit_activity(fc_types.ACTIVITY_MINE, EXTRA_NONE)
         return packet
 
@@ -552,7 +559,7 @@ class ActCultivate(EngineerAction):
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
         return self.focus.pterrain['cultivate_time'] > 0
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_CULTIVATE, EXTRA_NONE)
 
 
@@ -574,7 +581,7 @@ class ActPlant(EngineerAction):
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PLANT])
         return self.focus.pterrain['plant_time'] > 0
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_PLANT, EXTRA_NONE)
 
 
@@ -585,7 +592,7 @@ class ActFortress(EngineerAction):
     def is_eng_action_valid(self):
         return is_tech_known(self.focus.pplayer, 19)
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_BASE, EXTRA_NONE)
 
 
@@ -596,7 +603,7 @@ class ActAirbase(EngineerAction):
     def is_eng_action_valid(self):
         return is_tech_known(self.focus.pplayer, 64)
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_BASE, ruleset.EXTRA_AIRBASE)
 
 
@@ -623,7 +630,7 @@ class ActIrrigation(EngineerAction):
         
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_IRRIGATE])
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(fc_types.ACTIVITY_IRRIGATE, EXTRA_NONE)
 
 
@@ -635,7 +642,7 @@ class ActFallout(ActOnExtra):
         self.extra_type = ruleset.EXTRA_FALLOUT
         super().__init__(cur_focus)
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_FALLOUT, EXTRA_NONE)
 
 
@@ -647,7 +654,7 @@ class ActPollution(ActOnExtra):
         self.extra_type = ruleset.EXTRA_POLLUTION
         super().__init__(cur_focus)
 
-    def _action_packet(self):
+    def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_POLLUTION, EXTRA_NONE)
 
 # -------Further unit specific actions

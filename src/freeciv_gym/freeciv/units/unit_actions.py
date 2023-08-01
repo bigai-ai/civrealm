@@ -850,9 +850,17 @@ class ActPillage(UnitAction):
         #     self.focus.pcity) != self.focus.pplayer["playerno"])
         # return self.focus.pplayer != None and self.focus.ptype['attack_strength'] > 0 and tile_valid
         
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_PILLAGE):
+            return False
+
         # Is already performing pillage, no need to show this action again.
         # TODO: if we support the choosing of pillage target in the future, we need to refine this logic.
         if self.focus.punit['activity'] == fc_types.ACTIVITY_PILLAGE:
+            return False
+        
+        # If locate inside own city, cannot perform this action.
+        if self.focus.pcity != None and CityState.city_owner_player_id(
+            self.focus.pcity) == self.focus.pplayer["playerno"]:
             return False
         
         can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \

@@ -170,46 +170,6 @@ class PlayerCtrl(CivPropController):
 
         return self.research_data[pplayer['playerno']]
 
-    def get_nation_options(self, selected_player):
-        player_id = selected_player
-        pplayer = self.players[selected_player]
-
-        if pplayer is None:
-            return
-
-        selected_myself = self.player_is_myself(selected_player)
-        both_alive_and_different = self.player_not_myself(self) and self.players_alive(pplayer)
-
-        player_options = []
-
-        if not self.clstate.client_is_observer() and both_alive_and_different:
-            if self.dipl_ctrl.check_not_dipl_states(player_id, [player_const.DS_NO_CONTACT]):
-                player_options.append("meet_player")
-
-        if not pplayer['flags'][player_const.PLRF_AI] and not selected_myself:
-            player_options.append("send_msg")
-
-        if self.clstate.can_client_control():
-            if not selected_myself:
-                if self.dipl_ctrl.check_in_dipl_states(
-                        player_id, [player_const.DS_CEASEFIRE, player_const.DS_ARMISTICE, player_const.DS_PEACE]):
-                    player_options.append("declare_war")
-                elif self.players_not_same_team(pplayer) and self.dipl_ctrl.check_not_dipl_states(player_id):
-                    if self.players_alive(pplayer):
-                        player_options.append("cancel_treaty")
-
-            if both_alive_and_different and self.players_not_same_team(pplayer) and \
-                    self.my_player['gives_shared_vision'][player_id]:
-                player_options.append("withdraw_vision")
-
-        if self.clstate.client_is_observer() or (
-                both_alive_and_different and self.dipl_ctrl.check_not_dipl_states(
-            player_id, [player_const.DS_NO_CONTACT])):
-            player_options.append("intl_report")
-
-        player_options.append("toggle_ai")
-        return player_options
-
     def handle_endgame_player(self, packet):
         self.endgame_player_info.append(packet)
 

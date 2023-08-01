@@ -266,7 +266,7 @@ class StartNegotiate(base_action.Action):
         self.counterpart = counterpart
 
     def is_action_valid(self):
-        if (self.dipl_ctrl.active_diplomacy_meeting_id != self.counterpart['playerno']
+        if (self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys()
                 and self.counterpart['is_alive'] and self.cur_player['is_alive']):
             if self.counterpart['nation'] in [558, 559]:
                 return False

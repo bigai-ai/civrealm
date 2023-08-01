@@ -184,6 +184,8 @@ class PlayerState(PlainState):
 
         if player_id == self.my_player_id:
             return "-"
+        elif self.my_player["real_embassy"][player_id] and pplayer['real_embassy'][self.my_player_id]:
+            return "Both"
         elif self.my_player["real_embassy"][player_id]:
             return "We have embassy"
         elif pplayer['real_embassy'][self.my_player_id]:

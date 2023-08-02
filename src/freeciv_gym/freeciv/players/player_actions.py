@@ -51,7 +51,7 @@ class PlayerOptions(ActionList):
             counterpart = self.players[counter_id]
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
-            else:
+            elif counterpart['is_alive']:
                 self.update_counterpart_options(self.clstate, self.dipl_ctrl, counter_id, pplayer, counterpart)
 
     def update_player_options(self, counter_id, pplayer):
@@ -266,10 +266,9 @@ class StartNegotiate(base_action.Action):
         self.counterpart = counterpart
 
     def is_action_valid(self):
-        if (self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys()
-                and self.counterpart['is_alive'] and self.cur_player['is_alive']):
+        if self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys():
             # if self.counterpart['nation'] in [558, 559]:
-            # If the counterpart is barbarian or pirate, cannot negotiate.
+            # If the counterpart is barbarian or pirate
             if self.dipl_ctrl._is_barbarian_pirate(self.counterpart['nation']):
                 return False
             if self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], [player_const.DS_NO_CONTACT]):
@@ -287,7 +286,7 @@ class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
 
     def is_action_valid(self):
-        return self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']
+        return self.counterpart['playerno'] in self.dipl_ctrl.diplomacy_clause_map.keys()
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
@@ -321,7 +320,7 @@ class StopNegotiate(StartNegotiate):
     action_key = "stop_negotiation"
 
     def is_action_valid(self):
-        return self.dipl_ctrl.active_diplomacy_meeting_id == self.counterpart['playerno']
+        return self.counterpart['playerno'] in self.dipl_ctrl.diplomacy_clause_map.keys()
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,

@@ -219,8 +219,9 @@ class PlayerCtrl(CivPropController):
 
     def handle_player_info(self, packet):
         """ Interpret player flags."""
-        packet['flags'] = byte_to_bit_array(packet['flags'])
-        packet['gives_shared_vision'] = byte_to_bit_array(packet['gives_shared_vision'])
+        packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
+        packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
+        packet['gives_shared_tiles'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_tiles']))
         playerno = packet["playerno"]
         # Update player information
         if not playerno in self.players.keys() or self.players[playerno] is None:

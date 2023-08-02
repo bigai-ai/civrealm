@@ -116,14 +116,14 @@ class CityState(ListState):
         return pcity['owner']
 
     def does_city_have_improvement(self, pcity, improvement_name):
-        if pcity is None or pcity['improvements'] is None:
+        if pcity is None or 'improvements' not in pcity:
             return False
 
         for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
-            if pcity['improvements'] != None and \
-               pcity['improvements'].isSet(z) and \
-               self.rulectrl.improvements[z] != None and \
-               self.rulectrl.improvements[z]['name'] == improvement_name:
+            if (pcity['improvements'] is not None
+                    and pcity['improvements'][z] == 1
+                    and self.rulectrl.improvements[z] is not None
+                    and self.rulectrl.improvements[z]['name'] == improvement_name):
                 return True
         return False
 

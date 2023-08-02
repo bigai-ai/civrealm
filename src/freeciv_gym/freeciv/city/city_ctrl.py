@@ -178,8 +178,8 @@ class CityCtrl(CivPropController):
           including it's internals.
         """
 
-        packet['can_build_unit'] = byte_to_bit_array(packet['can_build_unit'])
-        packet['can_build_improvement'] = byte_to_bit_array(packet['can_build_improvement'])
+        packet['can_build_unit'] = BitVector(bitlist=byte_to_bit_array(packet['can_build_unit']))
+        packet['can_build_improvement'] = BitVector(bitlist=byte_to_bit_array(packet['can_build_improvement']))
 
         # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:

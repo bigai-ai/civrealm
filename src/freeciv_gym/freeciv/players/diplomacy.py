@@ -107,7 +107,7 @@ class DiplomacyCtrl(CivPropController):
         else:
             return
 
-        self.diplstates[packet[opposite_player]] = packet['type']
+        self.diplstates[opposite_player] = packet['type']
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):
@@ -156,6 +156,8 @@ class DiplomacyCtrl(CivPropController):
             next_meeting = self.diplomacy_request_queue[0]
             if next_meeting != None and next_meeting != self.active_diplomacy_meeting_id:
                 self.active_diplomacy_meeting_id = next_meeting
+        else:
+            self.active_diplomacy_meeting_id = None
 
     def handle_diplomacy_create_clause(self, packet):
         if (self.diplomacy_clause_map[packet['counterpart']] == None):
@@ -167,7 +169,8 @@ class DiplomacyCtrl(CivPropController):
         for i, check_clause in enumerate(clause_list):
             if (packet['counterpart'] == check_clause['counterpart'] and
                 packet['giver'] == check_clause['giver'] and
-                    packet['type'] == check_clause['type']):
+                    packet['type'] == check_clause['type'] and
+                    packet['value'] == check_clause['value']):
 
                 del clause_list[i]
                 break
@@ -177,6 +180,12 @@ class DiplomacyCtrl(CivPropController):
         myself_accepted = packet['I_accepted']
         other_accepted = packet['other_accepted']
 
+        if myself_accepted and other_accepted:
+            if self.active_diplomacy_meeting_id == counterpart:
+                self.refresh_diplomacy_request_queue()
+            elif counterpart in self.diplomacy_request_queue:
+                del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
+        '''
         if not self.active_diplomacy_meeting_id == counterpart and myself_accepted and other_accepted:
             if counterpart in self.diplomacy_request_queue:
                 del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
@@ -184,8 +193,9 @@ class DiplomacyCtrl(CivPropController):
                 if self.dipl_evaluator is not None:
                     self.dipl_evaluator.evaluate_clauses(self.diplomacy_clause_map[counterpart], counterpart,
                                                          myself_accepted, other_accepted)
+        '''
 
-        self.refresh_diplomacy_request_queue()
+        # self.refresh_diplomacy_request_queue()
         # setTimeout(refresh_diplomacy_request_queue, 1000)
 
     def check_not_dipl_states(self, player_id, check_list=None):

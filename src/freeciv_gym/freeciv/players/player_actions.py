@@ -264,6 +264,7 @@ class StartNegotiate(base_action.Action):
         self.dipl_ctrl = dipl_ctrl
         self.cur_player = cur_player
         self.counterpart = counterpart
+        self.action_key += "_%i" % counterpart['playerno']
 
     def is_action_valid(self):
         if self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys():
@@ -353,7 +354,7 @@ class RemoveClause(base_action.Action):
         self.value = value
         self.giver = giver
         self.counterpart = counterpart
-        self.action_key += "_%s_player_%i_%i" % (player_const.CLAUSE_TXT[clause_type], counterpart, value)
+        self.action_key += "_%s_player_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], giver, counterpart, value)
 
     def is_action_valid(self):
         return True
@@ -402,7 +403,7 @@ class AddTradeTechClause(AddClause):
         super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
         self.players = players
-        self.action_key += "_%s_" % rule_ctrl.techs[value]["name"]
+        self.action_key += "_%s" % rule_ctrl.techs[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
@@ -450,7 +451,7 @@ class AddTradeCityClause(AddClause):
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.players = players
-        self.action_key += "_%s_" % city_ctrl.cities[value]["name"]
+        self.action_key += "_%s" % city_ctrl.cities[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_city"]:

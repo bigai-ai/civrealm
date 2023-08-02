@@ -1,0 +1,394 @@
+
+[scenario]
+game_version=3010000
+is_scenario=TRUE
+name=_("Tutorial")
+description=_("Play this tutorial scenario to get an introduction to Freeciv. This is intended for single-player games. It uses the default (civ2civ3) rules.")
+save_random=FALSE
+players=TRUE
+startpos_nations=FALSE
+lake_flooding=TRUE
+handmade=TRUE
+ruleset_locked=TRUE
+
+[savefile]
+options=" +version3"
+version=50
+reason="Scenario"
+revision="3.1.0-beta1"
+rulesetdir="civ2civ3"
+improvement_size=73
+improvement_vector="Airport","Aqueduct","Aqueduct, Lake","Aqueduct, River","Bank","Barracks","Barracks II","Barracks III","Cathedral","City Walls","Coastal Defense","Colosseum","Courthouse","Factory","Granary","Harbour","Hydro Plant","Library","Marketplace","Mass Transit","Mfg. Plant","Nuclear Plant","Offshore Platform","Palace","Ecclesiastical Palace","Police Station","Port Facility","Power Plant","Recycling Center","Research Lab","SAM Battery","SDI Defense","Sewer System","Solar Plant","Space Component","Space Module","Space Structural","Stock Exchange","Super Highways","Supermarket","Temple","University","Apollo Program","A.Smith's Trading Co.","Colossus","Copernicus' Observatory","Cure For Cancer","Darwin's Voyage","Eiffel Tower","Great Library","Great Wall","Hanging Gardens","Hoover Dam","Isaac Newton's College","J.S. Bach's Cathedral","King Richard's Crusade","Leonardo's Workshop","Lighthouse","Magellan's Expedition","Manhattan Project","Marco Polo's Embassy","Michelangelo's Chapel","Mausoleum of Mausolos","Statue of Zeus","Temple of Artemis","Pyramids","Internet","Shakespeare's Theatre","Statue of Liberty","Sun Tzu's War Academy","United Nations","Women's Suffrage","Coinage"
+technology_size=88
+technology_vector="A_NONE","Advanced Flight","Alphabet","Amphibious Warfare","Astronomy","Atomic Theory","Automobile","Banking","Bridge Building","Bronze Working","Ceremonial Burial","Chemistry","Chivalry","Code of Laws","Combined Arms","Combustion","Communism","Computers","Conscription","Construction","Currency","Democracy","Economics","Electricity","Electronics","Engineering","Environmentalism","Espionage","Explosives","Feudalism","Flight","Fusion Power","Genetic Engineering","Guerilla Warfare","Gunpowder","Horseback Riding","Industrialization","Invention","Iron Working","Labor Union","Laser","Leadership","Literacy","Machine Tools","Magnetism","Map Making","Masonry","Mass Production","Mathematics","Medicine","Metallurgy","Miniaturization","Mobile Warfare","Monarchy","Monotheism","Mysticism","Navigation","Nuclear Fission","Nuclear Power","Philosophy","Physics","Plastics","Polytheism","Pottery","Radio","Railroad","Recycling","Refining","Refrigeration","Robotics","Rocketry","Sanitation","Seafaring","Space Flight","Stealth","Steam Engine","Steel","Superconductors","Tactics","The Corporation","The Republic","The Wheel","Theology","Theory of Gravity","Trade","University","Warrior Code","Writing"
+activities_size=23
+activities_vector="Idle","Pollution","Unused Road","Mine","Irrigate","Fortified","Fortress","Sentry","Unused Railroad","Pillage","Goto","Explore","Transform","Unused","Unused Airbase","Fortifying","Fallout","Unused Patrol","Base","Road","Convert","Cultivate","Plant"
+specialists_size=3
+specialists_vector="elvis","scientist","taxman"
+trait_size=4
+trait_vector="Expansionist","Trader","Aggressive","Builder"
+extras_size=38
+extras_vector="Irrigation","Mine","Oil Well","Oil Platform","Pollution","Hut","Farmland","Fallout","Fort","Fortress","Airstrip","Airbase","Buoy","Ruins","Road","Railroad","Maglev","River","Gold","Iron","Game","Furs","Coal","Fish","Fruit","Gems","Buffalo","Wheat","Oasis","Peat","Pheasant","Resources","Ivory","Silk","Spice","Whales","Wine","Oil"
+multipliers_size=0
+diplstate_type_size=7
+diplstate_type_vector="Armistice","War","Cease-fire","Peace","Alliance","Never met","Team"
+city_options_size=3
+city_options_vector="Disband","Sci_Specialists","Tax_Specialists"
+action_size=106
+action_vector="Establish Embassy","Establish Embassy Stay","Investigate City","Investigate City Spend Unit","Poison City","Poison City Escape","Steal Gold","Steal Gold Escape","Sabotage City","Sabotage City Escape","Targeted Sabotage City","Targeted Sabotage City Escape","Sabotage City Production","Sabotage City Production Escape","Steal Tech","Steal Tech Escape Expected","Targeted Steal Tech","Targeted Steal Tech Escape Expected","Incite City","Incite City Escape","Establish Trade Route","Enter Marketplace","Help Wonder","Bribe Unit","Capture Units","Sabotage Unit","Sabotage Unit Escape","Found City","Join City","Steal Maps","Steal Maps Escape","Suitcase Nuke","Suitcase Nuke Escape","Explode Nuclear","Nuke City","Nuke Units","Destroy City","Expel Unit","Disband Unit Recover","Disband Unit","Home City","Unit Make Homeless","Upgrade Unit","Convert Unit","Airlift Unit","Attack","Suicide Attack","Surgical Strike Building","Surgical Strike Production","Conquer City","Conquer City 2","Conquer City 3","Conquer City 4","Bombard","Bombard 2","Bombard 3","Fortify","Cultivate","Plant","Transform Terrain","Build Road","Build Irrigation","Build Mine","Build Base","Pillage","Clean Pollution","Clean Fallout","Transport Board","Transport Alight","Transport Embark","Transport Embark 2","Transport Embark 3","Transport Disembark","Transport Disembark 2","Transport Disembark 3","Transport Disembark 4","Transport Unload","Spread Plague","Spy Attack","Conquer Extras","Conquer Extras 2","Conquer Extras 3","Conquer Extras 4","Enter Hut","Enter Hut 2","Enter Hut 3","Enter Hut 4","Frighten Hut","Frighten Hut 2","Frighten Hut 3","Frighten Hut 4","Heal Unit","Heal Unit 2","Paradrop Unit","Paradrop Unit Conquer","Paradrop Unit Frighten","Paradrop Unit Frighten Conquer","Paradrop Unit Enter","Paradrop Unit Enter Conquer","Unit Move","Unit Move 2","Unit Move 3","User Action 1","User Action 2","User Action 3","User Action 4"
+action_decision_size=3
+action_decision_vector="nothing","passive","active"
+server_side_agent_size=3
+server_side_agent_list="None","Autosettlers","Autoexplore"
+terrident={"name","identifier"
+"Inaccessible","i"
+"Lake","+"
+"Ocean"," "
+"Deep Ocean",":"
+"Glacier","a"
+"Desert","d"
+"Forest","f"
+"Grassland","g"
+"Hills","h"
+"Jungle","j"
+"Mountains","m"
+"Plains","p"
+"Swamp","s"
+"Tundra","t"
+}
+
+[game]
+server_state="S_S_INITIAL"
+meta_patches=""
+meta_server="https://meta.freeciv.org/metaserver.php"
+id=""
+serverid=""
+level="Easy"
+phase_mode="Concurrent"
+phase_mode_stored="Concurrent"
+phase=0
+scoreturn=20
+timeoutint=0
+timeoutintinc=0
+timeoutinc=0
+timeoutincmult=1
+timeoutcounter=1
+turn=0
+year=-4000
+year_0_hack=FALSE
+globalwarming=0
+heating=0
+warminglevel=3
+nuclearwinter=0
+cooling=0
+coolinglevel=3
+random_seed=771615991
+global_advances="1000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+save_players=FALSE
+mapseed=88
+
+[random]
+saved=FALSE
+
+[script]
+code=$
+function has_unit_type_name(unit, utype_name) 
+  return (unit.utype.id == find.unit_type(utype_name).id)
+end
+function has_tile_terrain_name(tile, terrain_name)
+  return (tile.terrain.id == find.terrain(terrain_name).id)
+end
+
+-- TODO:
+-- Hint to check science after building 1st city?
+-- Hint to build workers?
+
+function tutorial_turn_callback(turn, year)
+  if turn == 1 then
+    notify.event(nil, nil, E.SCRIPT,
+_("欢迎来到自由文明Freeciv。你将领导一座文明。你的任务是征服世界！<strong>现在你在一个方格上有多个单位，可以通过屏幕右下角的方框选中你要操作的单位。你应该从探险家（explorer）开始，探索你周围的土地，并利用移民者（settler）找到一个适合建城的好地方。\n使用鼠标左键拖动单位来规划行进路线。</strong>"))
+  elseif turn == 2 then
+      notify.event(player, tile, E.SCRIPT,
+_("在城市外，如果一片单一方格上有一个“堆叠”单位，它会受到攻击时，最强大的单位会进行防御；如果该单位被击败，该方格上的所有单位都会被消灭。因此，通常最好是将单位分散开，避免出现这样的“堆叠”单位，特别是在陆地上。"))
+      vuln_stack_warning = true
+  end
+end
+signal.connect('turn_begin', 'tutorial_turn_callback')
+
+-- Check for and warn about vulnerable stacks.
+function tutorial_check_stacks(tile, player)
+  if not vuln_stack_warning
+     and server.setting.get("killstack") == "ENABLED"
+     and not tile:city() and tile.terrain:class_name() == "Land" then
+    n_our_units = 0
+    for unit in tile:units_iterate() do
+      if unit.owner == player
+         and unit:transporter() == nil then
+        n_our_units = n_our_units + 1
+      end
+    end
+    -- Do not complain about 2 units, as that is a common defensive
+    -- formation: civilian plus bodyguard
+    if n_our_units >= 3 then
+      notify.event(player, tile, E.SCRIPT,
+_("在城市外，如果一片单一方格上有一个“堆叠”单位，它会受到攻击时，最强大的单位会进行防御；如果该单位被击败，该方格上的所有单位都会被消灭。因此，通常最好是将单位分散开，避免出现这样的“堆叠”单位，特别是在陆地上。"))
+      vuln_stack_warning = true
+    end
+  end
+end
+vuln_stack_warning = false
+
+function tutorial_unit_moved_callback(unit, src_tile, dst_tile)
+  if unit.owner:is_human() then
+    tutorial_check_stacks(dst_tile, unit.owner)
+    if citiesbuilt == 0
+      and has_unit_type_name(unit, 'Settlers')
+      and (has_tile_terrain_name(dst_tile, 'Grassland')
+           or has_tile_terrain_name(dst_tile, 'Plains')) then  
+      notify.event(unit.owner, dst_tile, E.SCRIPT,
+_("这看起来是建造城市的好地方。下次该单位有行动力时（通常是在新回合开始后，并且该单位还没有移动过时），建造一座城市。建造城市可以先选中移民者（settler），按下b键；或者右键点击该单位选择Build city。\n<strong>通常，你希望在靠近水源的开阔地建造城市。对于任何城市来说，食物是最重要的资源。草地和平原提供了大量的食物。</strong>"))
+    end
+  end
+end
+signal.connect('unit_moved', 'tutorial_unit_moved_callback')
+
+citypulses = 0
+
+function tutorial_first_city_pulse()
+  if citypulses < 1 then
+    citypulses = citypulses + 1
+  else
+    notify.event(city_builder, city_tile, E.SCRIPT,
+_("现在你已经建造了你的第一个城市。城市窗口应该已经自动打开；如果没有，请点击城市以打开它。在Freeciv中，城市是一个基本概念，因此你应该在窗口中进行尝试以熟悉它们。查看教程文档获取更多信息。\n你可能首先想要建造一些移民者，以进一步扩展你的文明。点击下方的生产（Production）选项卡，然后从右侧可能的生产列表中选择移民者单位，接着点击右下角的“Change Production”按钮以开始建造。\n完成后，关闭城市对话框。如果一切顺利，地图视图中的城市应该显示出正在生产移民者的情况。"))
+    signal.remove('pulse', 'tutorial_first_city_pulse')
+  end
+end
+
+function tutorial_second_city_pulse()
+  if citypulses < 2 then
+    citypulses = citypulses + 1
+  else
+    notify.event(city_builder, city_tile, E.SCRIPT,
+_("恭喜你，你已经建立了第二座城市。这座城市的行为几乎与第一座完全相同，只是由于周围的地形略有不同。你可能也想在这里建造移民者。"))
+    signal.remove('pulse', 'tutorial_second_city_pulse')
+  end
+end
+
+function tutorial_third_city_pulse()
+  if citypulses < 3 then
+    citypulses = citypulses + 1
+  else
+    notify.event(city_builder, city_tile, E.SCRIPT,
+_("你已经建立了第三座城市！你的文明似乎正在蓬勃发展。现在或许是考虑建立军队的时候了。选择一个生产力较高的城市，将其打造成一个军事中心。首先在那里建造一个兵营（Barracks），然后开始生产一支军事单位。选择你目前可用的最佳单位——在游戏开始时，战士（Warriors）可能是唯一的选择，但很快你将有很多选项。\n现在也是使用城市对话框中生产报告的工作列表功能的好时机。点击“兵营”（Barracks），然后点击“改变”（Change Production）来开始建造它们。然后双击一种军事单位，将其添加到工作列表（Target Worklist）中。一旦兵营建造完成，城市将自动转换为生产该单位。"))
+    signal.remove('pulse', 'tutorial_third_city_pulse')
+  end
+end
+
+function tutorial_fourth_city_pulse()
+  if citypulses < 4 then
+    citypulses = citypulses + 1
+  else
+    notify.event(city_builder, city_tile, E.SCRIPT,
+_("又一个城市！你真的掌握得很好了。现在你可能对如何处理新城市有了一个相当好的主意。花点时间查看地图视图中城市下方的状态栏。这个显示会提供一些有用的关于城市的信息。旗帜和背景颜色指示了城市所属的文明（当你遇到其他文明时，这将非常有用）。状态栏的还显示了城市的名称和规模，并且会显示一个或多个星星，表示城市中是否有单位。右边显示了城市正在建造的东西以及当前的城市人口。"))
+    signal.remove('pulse', 'tutorial_fourth_city_pulse')
+  end
+end
+
+function tutorial_fifth_city_pulse()
+  if citypulses < 5 then
+    citypulses = citypulses + 1
+  else
+    notify.event(city_builder, city_tile, E.SCRIPT,
+_("随着你帝国中城市的数量增长，管理每个城市变得更加困难。这时候，城市报告就变得非常有用了。通过顶端的Cities标签页打开城市报告。这个报告显示了一个城市列表，每个城市都有各种统计信息。通过一些练习，你几乎可以通过这份报告控制城市的方方面面。请观察练习这个页面，最后可以通过顶部的Map标签页回到地图视角。"))
+    signal.remove('pulse', 'tutorial_fifth_city_pulse')
+  end
+end
+
+function tutorial_city_built_callback(city)
+  if city.owner:is_human() then
+    city_builder = city.owner
+    city_tile = city.tile
+    if citiesbuilt == 0 then
+      signal.connect('pulse', 'tutorial_first_city_pulse')
+    elseif citiesbuilt == 1 then
+      signal.connect('pulse', 'tutorial_second_city_pulse')
+    elseif citiesbuilt == 2 then
+      signal.connect('pulse', 'tutorial_third_city_pulse')
+    elseif citiesbuilt == 3 then
+      signal.connect('pulse', 'tutorial_fourth_city_pulse')
+    elseif citiesbuilt == 4 then
+      signal.connect('pulse', 'tutorial_fifth_city_pulse')
+    end
+    citiesbuilt = citiesbuilt + 1
+  end
+end
+citiesbuilt = 0
+signal.connect('city_built', 'tutorial_city_built_callback')
+
+function tutorial_city_growth_callback(city, change, reason)
+  size = city.size
+  if city.owner:is_human() then
+    if size == 2 and not growth2msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("你的城市发展了！随着城市的成长，会有更多的居民可供安排在田地里工作，或者作为公民专家。一个有两个居民的城市可以同时处理两块不同的土地，除了中心的那块土地，它是不需要居民进行生产的。在城市对话框中，地图显示了哪些土地正在被开垦，并提供每块土地提供的食物、资源和贸易量。\n食物用于让你的城市增长，资源用于建造建筑和单位，而贸易提供应征的税收，可以转化为科研、黄金或奢侈品。\n在城市信息对话框中，点击一个已经有居民的土地，可以让居民离开那块土地。然后点击一块未开垦的土地，让居民去那里工作。当然，你最多可以把两个居民安排在土地上。其余的居民都是专家——默认情况下，他们都是提供奢侈品的娱乐家（在后期可能用得到）。"))
+      growth2msg = true
+    elseif size == 3 and not growth3msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("你的城市又发展了！现在有三个居民，你有相当多的选择来决定城市应该集中资源在哪里。当城市规模达到三个或以上时，还可以建造移民者，这将消耗两个人口单位。\n如果你的城市正在建造移民者，现在应该考虑购买它们。打开城市对话框，点击“购买”按钮。这会用黄金（如果你有足够的黄金）来立即完成生产。"))
+      growth3msg = true
+    elseif size == 5 and not growth5msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("现在你的城市已经发展到了人口规模5。随着城市变得越来越大，不满情绪会成为一个问题。通常情况下，这样规模的城市会有一个不开心的居民，除非使用平息效果；这意味着你需要一个娱乐家专家来让你的居民满意。实际上，这个居民基本上是被浪费了。\n关于这个问题，有几个解决办法。一个快速的解决办法是建造一个寺庙Temple（或其他文化建筑），这将使一个不开心的居民满意（请参阅有关城市改进City Improvements的帮助以了解每种建筑类型的规格）。随着你拥有更多的大城市，调整税率（点击顶部Government标签页，选择Tax rates）可能会产生回报，将一些税收直接用于奢侈品（每两个奢侈品将使一个居民平息）。建造市场（Marketplace）可以增强这一效果，为城市提供额外的50%奢侈品。"))
+      growth5msg = true
+    elseif size == 8 and not growth8msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("终于，你把一个城市发展到了人口规模8。人口规模8的城市可以提供可观的产出，前提是你有足够的奢侈品来让人口满意。\n要使城市超过人口规模8，需要建造一个引水渠（Aqueduct）。如果你的城市打算继续增长，你应该尽快开始建造。建造引水渠需要“建筑”（Construction）科技，除非你的城市旁边有湖泊或河流。"))
+      growth8msg = true
+    elseif size == 16 and not growth16msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("你已经将一个城市发展到了人口规模16。然而，要让它变得更大，你需要建造污水处理系统（Sewer System）。这需要拥有“卫生学”（Sanitation）科技。"))
+      growth16msg = true
+    elseif size == 13 and not growth13msg then
+      notify.event(city.owner, city.tile, E.SCRIPT,
+_("恭喜你，你已经将一个城市发展到了规模13。这么大的城市如果进行适当升级，将能提供巨大的产出。确保你有足够的税收和文化建筑来让你的居民满意。你还应该确保城市升级了能够增加产出的建筑。图书馆（Library）、市场（Marketplace）、工厂（Factory）和近海平台（Offshore Platform）是四个对大城市提供很大增益的好建筑。请考虑每个建筑将提供多大的好处，以及它们的成本 - 对于非常大的城市，几乎所有建筑都是值得的。这么大的城市还将提供足够的应征税收（黄金Gold），使你能够购买一些建筑来加速它们的生产。"))
+      growth13msg = true
+    end
+  end
+end
+growth2msg = false
+growth3msg = false
+growth5msg = false
+growth8msg = false
+growth16msg = false
+growth13msg = false
+signal.connect('city_size_change', 'tutorial_city_growth_callback')
+
+function tutorial_unit_built_callback(unit)
+  if not unit.owner:is_human() then
+    return
+  end
+  if has_unit_type_name(unit, 'Settlers') then
+    if settlersbuilt == 0 then
+      notify.event(unit.owner, unit.tile, E.SCRIPT,
+_("你已经建造了一个移民者单位。移民者最好用来建造新的城市，以便扩展你的文明。将你的移民者移动到离现有城市较远的地方，寻找一个新城市的位置。当你选定一个地点后，按下B键来建造城市。\n同样地，城市最好建在靠近水源的开阔地。草地和平原提供城市所需的食物。森林和丘陵提供建造所需的资源（生产力）。河流和海洋提供贸易奖励，提供全文明范围的好处。沙漠和苔原通常产出较少，对于小城市来说并没有太多用处。请查阅有关地形规格的帮助，以获取更多关于地形的信息。"))
+    elseif settlersbuilt == 1 then
+      notify.event(unit.owner, unit.tile, E.SCRIPT,
+_("你的第二支移民者也应该用来建造一个新的城市。注意当你将移民者移动离开现有城市时，会在它们周围绘制一个轮廓。这显示了在这个位置建造的城市将覆盖的区域；它与地图视图上已经显示的轮廓相吻合，显示了哪些方格被你现有的城市所覆盖。通常，在建造新城市时，你希望确保所有方格至少被一个城市所覆盖，但之后最好尽量使城市之间的重叠最小化。适当地分散城市使得每个城市可以接触更多的资源，从而使它们能够发展到更大的规模。"))
+    end
+    settlersbuilt = settlersbuilt + 1
+  elseif not unit.utype:has_flag('NonMil') and milbuilt == 0 then
+    notify.event(unit.owner, unit.tile, E.SCRIPT,
+_("你已经建造了你的第一个军事单位！军事单位有两个基本目标：攻击和防御。每个单位都有攻击力和防御力。战士(Warrior)只有微弱的1/1（攻击力/防御力），而重装步兵（Phalanx）则是一个更强大的防御者，拥有2的防御力（1/2）。投石车（Catapult）是一个很好的攻击单位，因为它有6的攻击力（6/1）。\n通常情况下，每个城市最好保留一到两个防御者。像你的首都这样重要的城市可能需要额外的保护。在一个城市建造的单位可以被派往另一个城市进行防御（按G键进入“前往”模式，以便轻松地将单位移动到较远的地方）。然而，如果你处于战争状态，你可能希望将你的单位朝向敌方城市进行攻击。但要小心不要失去它！"))
+    milbuilt = milbuilt + 1
+  end
+  -- The first military unit _could_ also be a boat...
+  if has_unit_type_name(unit, 'Trireme')
+    or has_unit_type_name(unit, 'Caravel')
+    or has_unit_type_name(unit, 'Frigate')
+    or has_unit_type_name(unit, 'Galleon')
+    or has_unit_type_name(unit, 'Transport') then
+    -- Let us assume that if they do not build any early boats, they
+    -- will not survive long enough to reach Submarine/Carrier
+    if boatsbuilt == 0 then
+      notify.event(unit.owner, unit.tile, E.SCRIPT,
+_("你已经建造了你的第一个水上单位。这些单位可以携带其他单位穿越水域，使你能够探索和定居新的土地。你可以用两种方式将陆地单位装载到你的船上。当你的船和你想要运送的单位在同一个城市时，选择后者并按下L键来装载该单位；或者如果船靠近一块陆地方块，你可以从那里将单位移动到船上。当你想要卸载单位时，选择被运送的单位并按下U键，或者将其移动到陆地方块上。"))
+    end
+    boatsbuilt = boatsbuilt + 1
+  end
+end
+settlersbuilt = 0
+boatsbuilt = 0
+milbuilt = 0
+signal.connect('unit_built', 'tutorial_unit_built_callback')
+
+function tutorial_building_built_callback(building, city)
+  if not city.owner:is_human() then
+    return
+  end
+  if building.id == find.building_type('Barracks').id and not barracksmsg then
+    notify.event(city.owner, city.tile, E.SCRIPT,
+_("你已经建造了一个兵营。这座建筑将使你建造的所有军事单位都作为老兵开始。老兵比没有经验（新手）的部队更强大，并且在战斗中能够生存更长时间。有关此建筑和其他建筑的更多信息，请参阅“城市改进”City Improvements的帮助。\n你可能想在建造了兵营的城市开始建造一个军事单位。兵营是一个重要的投资，而且也有一些维护成本，所以不把它们浪费掉是一个好主意。"))
+    barracksmsg = true
+  end
+end
+barracksmsg = false
+signal.connect('building_built', 'tutorial_building_built_callback')
+
+function tutorial_unit_cant_be_built_callback(unittype, city, reason)
+  if not city.owner:is_human() then
+    return
+  end
+  if unittype.id == find.unit_type('Settlers').id and not nosettlermsg then
+    notify.event(city.owner, city.tile, E.SCRIPT,
+_("你的城市无法建造移民者。建造一个移民者需要两个人口单位，所以规模为一或二的城市无法在不解散城市的情况下建造移民者。\n为了解决这个问题，你需要调整城市中的居民，提供更多的食物，以便更快地让城市增长。那些食物不多的城市不应该尝试建造移民者。在建立新城市时，请确保它建在提供足够食物的地形上 - 草地是最好的选择；平原或丘陵也几乎同样好。"))
+    nosettlermsg = true
+  end
+end
+nosettlermsg = false
+signal.connect('unit_cant_be_built', 'tutorial_unit_cant_be_built_callback')
+
+function tutorial_tech_researched_callback(tech, player, reason)
+  if not player:is_human() then
+    return
+  end
+  if numtechs == 0 then
+    notify.event(player, nil, E.SCRIPT,
+_("现在，进入研究报告并稍作尝试。在页面顶部点击“研究”（Research）标签页。在窗口的主要部分是科技树，找到名为“共和国（The Republic）”的科技，并点击它。现在，“共和国”已被设定为你的科技目标；这意味着在前往这项技术的道路上，下一个进步将自动选择进行研究。在窗口的顶部，显示了每回合你完成了多少科学研究 - 研究值（bulbs）来自你城市中可征税的贸易。当你鼠标悬停在某个科技上时，窗口的顶部将会显示该科技会让你能够做什么。例如书写（Writing）将会允许你建造图书馆（Library）。当你完成尝试后，在顶部点击Map返回到地图视图。"))
+  elseif numtechs == 1 then
+    notify.event(player, nil, E.SCRIPT,
+_("现在你已经获得了第二项科技。返回研究报告（Research）标签页，快速查看你的进展。如果你之前将“共和国”设定为你的科技目标，那么新的研究目标应该已经自动选择了。然而，如果你没有设定任何目标，直到回合结束之前都不会有新的目标被选择。\n在你完成研究的回合，你可以选择一个新的科技进行研究。<strong>然而，如果在研究特定科技的过程中更改目标，将导致你之前对它的所有研究成果都被抹掉。</strong>明智地设定你的科技目标意味着每次你完成对一项技术的研究时都不必担心选择新的研究目标。"))
+  elseif tech.name == 'Republic' then
+    notify.event(player, nil, E.SCRIPT,
+_("恭喜你成功地完成了对“共和国”的研究。这项科技特别有用，因为它引入了一种新的政府形式。你的文明所采用的政府在决定你的发展方向上非常重要。在一开始，你是一个专制政府，这是一种效率非常低下的政府形式。而后面的政府选项将让你可以选择你的文明是成为一个和平的贸易国家，还是一个征服的强大国家。每种形式都有其优势。\n现在，你可能希望直接切换到共和国制度。在窗口顶部点击“政府”（Government）选项卡，选择“革命”（Revolution），选择“共和国”（Republic）。是的，你希望进行一场革命！改变政府意味着经历几回合的无政府状态，因此并不是没有代价的。然而，共和国制度比专制制度要好得多，所以这项投资很快就会得到回报。"))
+  end
+  numtechs = numtechs + 1
+end
+numtechs = 0
+signal.connect('tech_researched', 'tutorial_tech_researched_callback')
+
+function tutorial_hut_entered_callback(unit)
+  if not unit.owner:is_human() then
+    return
+  end
+  if not hutmsg then
+    notify.event(unit.owner, unit.tile, E.SCRIPT,
+_("你的单位发现了一个小屋。这些小屋散落在整个地图上。当一个单位进入其中一个小屋时，可能会发生几件事情。最有可能的结果是你会发现一些价值不大的黄金资源。然而，也有可能在小屋里发现新的科技或雇佣军事单位。有些小屋里会有土著定居者，他们会加入你的文明，并为你的帝国带来一个新的城市。最后，有些小屋里可能会有野蛮人，会立即杀死你的单位。平均而言，尽快搜索并进入任何发现的小屋都是有益的。"))
+    hutmsg = true
+  end
+end
+hutmsg = false
+signal.connect('hut_enter', 'tutorial_hut_entered_callback')
+
+print(_("Loading tutorial events."))
+$
+
+[settings]
+set={"name","value","gamestart","gamesetdef"
+"aifill",2,2,"Changed"
+"mapsize","FULLSIZE","FULLSIZE","Changed"
+"revolentype","RANDOM","RANDOM","Changed"
+"size",1,1,"Changed"
+"topology","WRAPX|ISO|HEX","WRAPX|ISO|HEX","Changed"
+"victories","","","Changed"
+}
+set_count=6
+gamestart_valid=TRUE
+
+[ruledata]
+government={"name","changes"
+"Anarchy",0
+"Tribal",0
+"Despotism",0
+"Monarchy",0
+"Communism",0
+"Fundamentalism",0
+"Federation",0
+"Republic",0
+"Democracy",0
+}
+
+[history]
+turn=-2
+
+[mapimg]
+count=0

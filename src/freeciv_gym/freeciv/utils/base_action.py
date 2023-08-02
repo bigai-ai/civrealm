@@ -105,6 +105,15 @@ class ActionList(object):
 
         self._action_dict[actor_id][a_action.action_key] = a_action
 
+    # Used to remove the action added dynamically (due to dynamic target units)
+    def remove_action(self, actor_id, action_key):
+        if actor_id not in self._action_dict:
+            raise Exception(f'Add actor {actor_id} first!!!')
+        if action_key not in self._action_dict[actor_id]:
+            raise Exception(f'Action_key {action_key} does not exist')
+
+        del self._action_dict[actor_id][action_key]
+
     def add_get_pro_action(self, actor_id, a_action):
         if actor_id not in self._get_pro_action_dict:
             raise Exception("Add actor %s first!!!" % actor_id)

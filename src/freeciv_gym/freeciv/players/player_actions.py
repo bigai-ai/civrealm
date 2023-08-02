@@ -268,7 +268,9 @@ class StartNegotiate(base_action.Action):
     def is_action_valid(self):
         if (self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys()
                 and self.counterpart['is_alive'] and self.cur_player['is_alive']):
-            if self.counterpart['nation'] in [558, 559]:
+            # if self.counterpart['nation'] in [558, 559]:
+            # If the counterpart is barbarian or pirate, cannot negotiate.
+            if self.dipl_ctrl._is_barbarian_pirate(self.counterpart['nation']):
                 return False
             if self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], [player_const.DS_NO_CONTACT]):
                 return True

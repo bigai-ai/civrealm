@@ -59,7 +59,7 @@ class DiplomacyCtrl(CivPropController):
 
     # Check whether the given nation is barbarian or pirate.
     def _is_barbarian_pirate(self, nation_id):
-        return self.ruleset[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
+        return self.ruleset.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
 
     def get_current_state(self, counterpart):
         player_id = counterpart["playerno"]

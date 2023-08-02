@@ -61,7 +61,9 @@ class CityActions(ActionList):
                         self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
 
             for specialist_num in range(pcity['specialists_size']):
-                self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
+                change_specialist_act = CityChangeSpecialist(pcity, specialist_num)
+                if change_specialist_act.is_action_valid():
+                    self.add_action(city_id, change_specialist_act)
 
             city_buy_prod_act = CityBuyProduction(pcity, pplayer)
             if city_buy_prod_act.is_action_valid():
@@ -115,8 +117,9 @@ class CityWorkTile(Action):
             self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
 
     def is_action_valid(self):
-        return ("worked" in self.ptile and "output_food" in self.pcity and
-                self.ptile["worked"] == 0 and self.pcity["specialists_size"] > 0 and self.output_idx is not None)
+        return ('worked' in self.ptile and self.ptile['worked'] == 0
+                and 'specialists' in self.pcity and sum(self.pcity['specialists']) > 0
+                and 'output_food' in self.pcity and self.output_idx is not None)
 
     def get_output_at_tile(self):
         if "output_food" in self.pcity:
@@ -142,8 +145,8 @@ class CityUnworkTile(CityWorkTile):
     action_key = "city_unwork"
 
     def is_action_valid(self):
-        return ("worked" in self.ptile and "output_food" in self.pcity and
-                self.ptile["worked"] == self.pcity["id"] and self.output_idx != -1)
+        return ('worked' in self.ptile and self.ptile['worked'] == self.pcity['id']
+                and 'output_food' in self.pcity and self.output_idx is not None)
 
     def _action_packet(self):
         packet = {"pid": packet_city_make_specialist,
@@ -163,7 +166,8 @@ class CityChangeSpecialist(Action):
         self.action_key += "_%i" % specialist_num
 
     def is_action_valid(self):
-        return self.pcity["specialists_size"] > self.specialist_num
+        return (self.pcity["specialists_size"] > self.specialist_num
+                and self.pcity['specialists'][self.specialist_num] > 0)
 
     def _action_packet(self):
         # from_specialist_id = self.pcity["specialists"][self.specialist_num][id]
@@ -210,10 +214,12 @@ class CitySellImprovement(Action):
         super().__init__()
         self.pcity = pcity
         self.improvement_id = improvement_id
+        self.improvement_name = improvement_name
         self.action_key += "_%s" % improvement_name
 
     def is_action_valid(self):
-        return self.pcity['improvements'][self.improvement_id] == 1 and self.improvement_id != 21
+        return (self.pcity['improvements'][self.improvement_id] == 1
+                and self.improvement_name not in ['Palace', 'Coinage'])
 
     def _action_packet(self):
         packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],
@@ -256,7 +262,8 @@ class CityChangeUnitProduction(CityChangeProduction):
         self.punit_type = punit_type
 
     def is_action_valid(self):
-        if self.punit_type['name'] == "Barbarian Leader" or self.punit_type['name'] == "Leader" or self.pcity['did_buy']:
+        if (self.punit_type['name'] == "Barbarian Leader" or
+                self.punit_type['name'] == "Leader" or self.pcity['did_buy']):
             return False
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
@@ -286,7 +293,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
-        if self.pcity['did_buy']:
+        if self.pcity['did_buy'] or self.pimprovement['name'] == "Coinage":
             return False
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False

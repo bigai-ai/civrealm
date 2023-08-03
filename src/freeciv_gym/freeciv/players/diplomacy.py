@@ -107,7 +107,7 @@ class DiplomacyCtrl(CivPropController):
         else:
             return
 
-        self.diplstates[opposite_player] = packet['type']
+        self.diplstates[packet[opposite_player]] = packet['type']
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):

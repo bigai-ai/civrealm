@@ -18,6 +18,10 @@ import os
 import subprocess
 
 
+# Change this to 'fciv-net' if you are using fciv-net
+docker_image_name = 'freeciv-web'
+
+
 def run_bash_command(cmd):
     subprocess.call(cmd, shell=True, executable='/bin/bash')
 
@@ -41,38 +45,38 @@ def update_docker_image():
     modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_server_code')
 
     # Add more ports for multiplayer mode to enable parallel training and testing.
-    run_bash_command('docker exec -d freeciv-web rm /docker/publite2/*longturn*.serv')
+    run_bash_command(f'docker exec -d {docker_image_name} rm /docker/publite2/*longturn*.serv')
 
     # Customize the civ2civ3 ruleset to allow building settlers with population cost 1
     run_bash_command(
-        f'docker cp {modified_code_dir}/units.ruleset freeciv-web:/home/docker/freeciv/share/freeciv/civ2civ3/units.ruleset')
+        f'docker cp {modified_code_dir}/units.ruleset {docker_image_name}:/home/docker/freeciv/share/freeciv/civ2civ3/units.ruleset')
 
     # Add more ports for multiplayer mode to enable parallel training and testing.
     # Replace the `settings.ini` and `publite2.py` file in `/docker/publite2/`
-    run_bash_command(f'docker cp {modified_code_dir}/settings.ini freeciv-web:/docker/publite2/settings.ini')
-    run_bash_command(f'docker cp {modified_code_dir}/publite2.py freeciv-web:/docker/publite2/publite2.py')
+    run_bash_command(f'docker cp {modified_code_dir}/settings.ini {docker_image_name}:/docker/publite2/settings.ini')
+    run_bash_command(f'docker cp {modified_code_dir}/publite2.py {docker_image_name}:/docker/publite2/publite2.py')
 
     # Set the command level of client to hack to allow running all commands for debugging
     # Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`
     run_bash_command(
-        f'docker cp {modified_code_dir}/pubscript_singleplayer.serv freeciv-web:/docker/publite2/pubscript_singleplayer.serv')
+        f'docker cp {modified_code_dir}/pubscript_singleplayer.serv {docker_image_name}:/docker/publite2/pubscript_singleplayer.serv')
     run_bash_command(
-        f'docker cp {modified_code_dir}/pubscript_multiplayer.serv freeciv-web:/docker/publite2/pubscript_multiplayer.serv')
+        f'docker cp {modified_code_dir}/pubscript_multiplayer.serv {docker_image_name}:/docker/publite2/pubscript_multiplayer.serv')
 
     # # Custom freeciv-web to save game files for debugging
     # Replace the `DeleteSaveGame.java` and `ListSaveGames` file in `freeciv-web/src/main/java/org/freeciv/servlet`:
     run_bash_command(
-        f'docker cp {modified_code_dir}/DeleteSaveGame.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java')
+        f'docker cp {modified_code_dir}/DeleteSaveGame.java {docker_image_name}:/docker/freeciv-web/src/main/java/org/freeciv/servlet/DeleteSaveGame.java')
     run_bash_command(
-        f'docker cp {modified_code_dir}/ListSaveGames.java freeciv-web:/docker/freeciv-web/src/main/java/org/freeciv/servlet/ListSaveGames.java')
+        f'docker cp {modified_code_dir}/ListSaveGames.java {docker_image_name}:/docker/freeciv-web/src/main/java/org/freeciv/servlet/ListSaveGames.java')
 
     # Customize the civ2civ3 ruleset to allow building settlers with population cost 1
     run_bash_command(
-        f'docker cp {modified_code_dir}/units.ruleset freeciv-web:/home/docker/freeciv/share/freeciv/civ2civ3/units.ruleset')
+        f'docker cp {modified_code_dir}/units.ruleset {docker_image_name}:/home/docker/freeciv/share/freeciv/civ2civ3/units.ruleset')
 
     # Rebuild the web server
     run_bash_command(
-        f'docker exec -it freeciv-web bash -c "cd /docker/freeciv-web/; sh build.sh"')
-    
+        f'docker exec -it {docker_image_name} bash -c "cd /docker/freeciv-web/; sh build.sh"')
+
     # Commit the modified docker image
-    run_bash_command('docker commit freeciv-web freeciv/freeciv-web')
+    run_bash_command(f'docker commit {docker_image_name} freeciv/{docker_image_name}')

@@ -213,7 +213,7 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter]:
+        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark,]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_action(unit_id, act_class(unit_focus, dir8))
         
@@ -376,9 +376,9 @@ class ActCancelOrder(UnitAction):
     """Cancle the existing activity of a unit."""
     action_key = "cancel_order"
     def is_action_valid(self):
-        # It is meaningless to cancel order for transported unit.
-        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
-            return False
+        # # It is meaningless to cancel order for transported unit.
+        # if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+        #     return False
         # Only when the unit has a non-idle activity, we can cancel its order.
         return self.focus.punit['activity'] != ACTIVITY_IDLE
 
@@ -1553,7 +1553,38 @@ class ActAttack(UnitAction):
                                      self.target_tile_id,
                                      ACTION_ATTACK)
         return packet
-    
+
+class ActDisembark(UnitAction):
+    """Attack unit on target tile"""
+    action_key = "disembark"
+
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        # if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSPORT_DISEMBARK1):
+        #     return False
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
+        self.action_key = None
+        valid_key_num = 0
+        # We check for all disembark key because we are not sure which disembark key corresponds to which situation.
+        for key in [fc_types.ACTION_TRANSPORT_DISEMBARK1, fc_types.ACTION_TRANSPORT_DISEMBARK2, fc_types.ACTION_TRANSPORT_DISEMBARK3, fc_types.ACTION_TRANSPORT_DISEMBARK4]:
+            if action_prob_possible(self.focus.action_prob[self.dir8][key]):
+                self.action_key = key
+                valid_key_num += 1
+        # We assume there is only one valid disembark action for a given situation.
+        assert (valid_key_num < 2)        
+        return self.action_key != None
+
+    def _action_packet(self):
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_tile_id,
+                                     self.action_key)
+        return packet
+
 class ActEmbark(UnitAction):
     """Attack unit on target tile"""
     action_key = "embark"

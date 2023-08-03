@@ -21,7 +21,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-
+import freeciv_gym.freeciv.utils.fc_types as fc_types
 
 @pytest.fixture
 def controller():
@@ -53,7 +53,7 @@ def test_embark(controller):
     print(f'Unit {plane_id}, valid action keys: {valid_actions.keys()}')
     contain_embark = False
     for action_key in valid_actions:
-        if 'embark' in action_key:
+        if action_key.startswith('embark'):
             contain_embark = True
             break
     # The unit is a plane, cannot embark
@@ -77,7 +77,7 @@ def test_embark(controller):
         contain_embark = False
         embark_key = ''
         for action_key in valid_actions:
-            if 'embark' in action_key:
+            if action_key.startswith('embark'):
                 contain_embark = True
                 embark_key = action_key
                 break
@@ -111,7 +111,7 @@ def test_embark(controller):
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     contain_embark = False
     for action_key in valid_actions:
-        if 'embark' in action_key:
+        if action_key.startswith('embark'):
             contain_embark = True
             break
     # The unit is currently under pillage activity, the returned embark pro is 0.
@@ -132,10 +132,16 @@ def test_embark(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # if unit_id == 886:
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+
+        unit_focus = unit_opt.unit_data[unit_id]
+        for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
+            if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:
+                print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_WEST][i]}')
+
         contain_embark = False
         embark_key = ''
         for action_key in valid_actions:
-            if 'embark' in action_key:
+            if action_key.startswith('embark'):
                 contain_embark = True
                 embark_key = action_key
                 break
@@ -149,6 +155,8 @@ def test_embark(controller):
         else:
             # The unit is on boat, the embard action is invalid.
             assert (not contain_embark)
+            if unit_id == 319:
+                valid_actions['cancel_order'].trigger_action(controller.ws_client)
 
     print('Unit 886 embark the boat.')
     controller.send_end_turn()
@@ -157,7 +165,20 @@ def test_embark(controller):
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
 
-    
+    # valid_actions = unit_opt.get_actions(319, valid_only=True)
+    # print(f'Unit 319, valid action keys: {valid_actions.keys()}')
+    # unit_focus = unit_opt.unit_data[319]
+    # for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
+    #     if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:
+    #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_WEST][i]}')
+
+    # for i in range(len(unit_focus.action_prob[map_const.DIR8_SOUTHWEST])):
+    #     if unit_focus.action_prob[map_const.DIR8_SOUTHWEST][i] != {'min': 0, 'max': 0}:
+    #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_SOUTHWEST][i]}')
+
+    # for i in range(len(unit_focus.action_prob[map_const.DIR8_NORTH])):
+    #     if unit_focus.action_prob[map_const.DIR8_NORTH][i] != {'min': 0, 'max': 0}:
+    #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_NORTH][i]}')
 
     # import time
     # time.sleep(2)

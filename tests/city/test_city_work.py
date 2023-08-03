@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-27-07_59')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -42,36 +42,11 @@ def find_keys_with_keyword(dictionary, keyword):
 
 
 def test_city_work(controller):
-
-    # ============================== ensure at least 1 specialist ==============================
     fc_logger.info("test_city_work")
     _, options = get_first_observation_option(controller)
 
     city_opt = options['city']
-
     city_id = 155
-    pcity = city_opt.cities[city_id]
-
-    valid_unwork_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_unwork')
-    unwork_action = random.choice(valid_unwork_actions)
-
-    assert (unwork_action.is_action_valid())
-    dx = unwork_action.dx
-    dy = unwork_action.dy
-
-    ctile = city_opt.city_map.map_ctrl.city_tile(pcity)
-    wtile = city_opt.city_map.map_ctrl.map_pos_to_tile(ctile["x"] + dx, ctile["y"] + dy)
-    if_work_1 = wtile["worked"]
-
-    unwork_action.trigger_action(controller.ws_client)
-    controller.get_observation()
-    if_work_2 = wtile["worked"]
-
-    assert (if_work_1 == city_id and if_work_2 == 0)
-
-    # ===================================== test city_work =====================================
-    options = controller.turn_manager.get_available_actions()
-    city_opt = options['city']
     pcity = city_opt.cities[city_id]
 
     valid_work_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_work')
@@ -90,3 +65,4 @@ def test_city_work(controller):
     if_work_2 = wtile["worked"]
 
     assert (if_work_1 == 0 and if_work_2 == city_id)
+

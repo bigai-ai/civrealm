@@ -135,6 +135,10 @@ class UnitActions(ActionList):
         self.map_ctrl = map_ctrl
         self.city_ctrl = city_ctrl
         self.unit_data = {}
+        # The action class related to dynamic target units.
+        self.target_unit_action_class = {fc_types.ACTION_TRANSPORT_EMBARK: ActEmbark}
+        # The actions added dynamically. Need to clear the added actions after every step.
+        self.target_unit_action_keys = {fc_types.ACTION_TRANSPORT_EMBARK: []}
 
     def update(self, pplayer):
         for unit_id in self.unit_ctrl.units.keys():
@@ -152,11 +156,23 @@ class UnitActions(ActionList):
                 self.add_unit_order_commands(unit_id)
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
+        self.clear_target_unit_actions()
         self.query_action_probablity()
 
     # Use this to delete old probability before query the new pro.
     def reset_action_pro(self, unit_id):
-        self.unit_data[unit_id].action_prob = {}        
+        self.unit_data[unit_id].action_prob = {}
+    
+    # Reset the target_unit_action_keys and remove the previously added target_unit_actions.
+    def clear_target_unit_actions(self):
+        for action_idx in self.target_unit_action_keys:
+            # Has added some target_unit_actions for this action
+            if len(self.target_unit_action_keys[action_idx]) > 0:
+                for added_action in self.target_unit_action_keys[action_idx]:
+                    # The added_action is tuple: (actor_id, action_key).
+                    self.remove_action(added_action[0], added_action[1])
+                self.target_unit_action_keys[action_idx].clear()
+
 
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
@@ -172,9 +188,17 @@ class UnitActions(ActionList):
         # enemy_units = self.get_adjacent_enemy_units(ptile)
         self.unit_data[unit_id].set_focus(punit, ptype, ptile, pterrain, pcity, pplayer)
 
-    def update_unit_action_pro(self, unit_id, dir, prob):
+    def update_unit_action_pro(self, actor_unit_id, target_unit_id, dir, prob):
+        for action_key in self.target_unit_action_keys:
+            # The action that targets a unit is possible. Need to add it dynamically.
+            if action_prob_possible(prob[action_key]):
+                unit_focus = self.unit_data[actor_unit_id]
+                action = self.target_unit_action_class[action_key](unit_focus, dir, target_unit_id)
+                self.add_action(actor_unit_id, action)
+                # Record the added action for auto-removing.
+                self.target_unit_action_keys[action_key].append((actor_unit_id, action.action_key))
 
-        self.unit_data[unit_id].action_prob[dir] = prob
+        self.unit_data[actor_unit_id].action_prob[dir] = prob
 
     def add_unit_order_commands(self, unit_id):
         """Enables and disables the correct units commands for the unit in focus."""
@@ -189,22 +213,9 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        # for dir8 in [DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST, DIR8_SOUTH,
-        #              DIR8_SOUTHWEST, DIR8_WEST, DIR8_NORTHWEST]:
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActGoto(unit_focus, dir8))
-
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActAttack(unit_focus, dir8))
-            
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActSpyBribeUnit(unit_focus, dir8))
-            
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActSpyStealTech(unit_focus, dir8))
-
-        for dir8 in map_const.DIR8_ORDER:
-            self.add_action(unit_id, ActHutEnter(unit_focus, dir8))
+        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter]:
+            for dir8 in map_const.DIR8_ORDER:
+                self.add_action(unit_id, act_class(unit_focus, dir8))
         
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -365,6 +376,9 @@ class ActCancelOrder(UnitAction):
     """Cancle the existing activity of a unit."""
     action_key = "cancel_order"
     def is_action_valid(self):
+        # It is meaningless to cancel order for transported unit.
+        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+            return False
         # Only when the unit has a non-idle activity, we can cancel its order.
         return self.focus.punit['activity'] != ACTIVITY_IDLE
 
@@ -455,6 +469,9 @@ class EngineerAction(UnitAction):
         if self.focus.punit['movesleft'] == 0:
             return False  # raise Exception("Unit has no moves left to build city")
 
+        # Transported unit cannot do engineer action.
+        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+            return False
         # if self.focus.ptype['name'] in ["Workers", "Engineers"]:
         return self.is_eng_action_valid()
         # return False
@@ -823,6 +840,11 @@ class ActFortify(UnitAction):
         # Check whether the unit type can do the given action
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FORTIFY):
             return False
+        
+        # If being transported, cannot fortify.
+        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+            return False
+        
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):
@@ -1422,7 +1444,9 @@ class ActGetActionPro(UnitAction):
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
             self.target_tile_id = newtile['index']
             if len(newtile['units']) > 0:
-                self.target_unit_id = newtile['units'][0]['id']
+                self.target_unit_id = []
+                for idx in range(len(newtile['units'])):
+                    self.target_unit_id.append(newtile['units'][idx]['id'])
             else:
                 self.target_unit_id = -1
             self.target_city_id = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
@@ -1438,7 +1462,7 @@ class ActGetActionPro(UnitAction):
         return True
 
     def _action_packet(self):
-        if type(self.target_extra_id) == int:
+        if type(self.target_extra_id) == int and type(self.target_unit_id) == int:
             actor_unit = self.focus.punit 
             packet = {"pid": packet_unit_get_actions,
                     "actor_unit_id": actor_unit['id'],
@@ -1451,20 +1475,50 @@ class ActGetActionPro(UnitAction):
             self.wait_for_pid = 90
             return packet
         else:
-            packets = []
+            if type(self.target_extra_id) == list and type(self.target_unit_id) == int:
+                packets = []
+                self.wait_for_pid = 90
+                for extra_id in self.target_extra_id:
+                    actor_unit = self.focus.punit 
+                    packet = {"pid": packet_unit_get_actions,
+                            "actor_unit_id": actor_unit['id'],
+                            "target_tile_id": self.target_tile_id,
+                            # "target_city_id": self.target_city_id,
+                            "target_unit_id": self.target_unit_id,
+                            "target_extra_id": extra_id,                   
+                            "request_kind": 1
+                        }
+                    packets.append(packet)
+                return packets
+            
+            if type(self.target_extra_id) == int and type(self.target_unit_id) == list:
+                packets = []
+                self.wait_for_pid = 90
+                for unit_id in self.target_unit_id:
+                    actor_unit = self.focus.punit 
+                    packet = {"pid": packet_unit_get_actions,
+                            "actor_unit_id": actor_unit['id'],
+                            "target_tile_id": self.target_tile_id,
+                            # "target_city_id": self.target_city_id,
+                            "target_unit_id": unit_id,
+                            "target_extra_id": self.target_extra_id,                   
+                            "request_kind": 1
+                        }
+                    packets.append(packet)
+                return packets
+            
+            # Both target_extra_id and target_unit_id is a list. We currently do not handle this case.
+            actor_unit = self.focus.punit 
+            packet = {"pid": packet_unit_get_actions,
+                    "actor_unit_id": actor_unit['id'],
+                    "target_tile_id": self.target_tile_id,
+                    # "target_city_id": self.target_city_id,
+                    "target_unit_id": self.target_unit_id[0],
+                    "target_extra_id": self.target_extra_id[0],                   
+                    "request_kind": 1
+                }
             self.wait_for_pid = 90
-            for extra_id in self.target_extra_id:
-                actor_unit = self.focus.punit 
-                packet = {"pid": packet_unit_get_actions,
-                        "actor_unit_id": actor_unit['id'],
-                        "target_tile_id": self.target_tile_id,
-                        # "target_city_id": self.target_city_id,
-                        "target_unit_id": self.target_unit_id,
-                        "target_extra_id": extra_id,                   
-                        "request_kind": 1
-                    }
-                packets.append(packet)
-            return packets
+            return packet
         
 class ActNuke(UnitAction):
     """Start a goto that will end in the unit(s) detonating in a nuclear explosion."""
@@ -1498,6 +1552,33 @@ class ActAttack(UnitAction):
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
                                      ACTION_ATTACK)
+        return packet
+    
+class ActEmbark(UnitAction):
+    """Attack unit on target tile"""
+    action_key = "embark"
+
+    def __init__(self, focus, dir8, target_unit_id):
+        super().__init__(focus)
+        self.action_key += f'_{dir8}_{target_unit_id}'
+        self.target_unit_id = target_unit_id
+        # We store the direction in case the observation needs this information
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSPORT_EMBARK):
+            return False
+        
+        # Only when the action is added, the is_action_valid() can be called. Since this action targets a unit, we consider it as valid as long as we add it.
+        return True
+        # newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        # self.target_tile_id = newtile['index']
+        # return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
+
+    def _action_packet(self):
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_unit_id,
+                                     fc_types.ACTION_TRANSPORT_EMBARK)
         return packet
 
 

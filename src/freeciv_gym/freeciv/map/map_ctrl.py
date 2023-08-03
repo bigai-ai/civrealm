@@ -393,6 +393,7 @@ class CityTileMap():
             fc_logger.info('dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}'.format(
                 dx, dy, self.radius, city_tile['x'], city_tile['y']))
             fc_logger.info('city_tile_map_index: {}, a_map length: {}'.format(city_tile_map_index, len(a_map)))
+            return None
         return a_map[city_tile_map_index]
 
 

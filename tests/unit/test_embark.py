@@ -85,6 +85,8 @@ def test_embark(controller):
         assert (contain_embark)
         if unit_id != 886:
             action_list.append(valid_actions['embark_7_1549'])
+        if unit_id == 886:
+            action_list.append(valid_actions['pillage'])
     # Show the state of boat 1549.
     print(unit_opt.unit_ctrl.units[1549])
 
@@ -93,11 +95,33 @@ def test_embark(controller):
         action.trigger_action(controller.ws_client)
     
     print('Embark the boat.')
-    controller.send_end_turn()
+    # controller.send_end_turn()
     controller.get_info()
     controller.get_observation()
     # Show the state of boat 1549 after eight units embark.
     print(unit_opt.unit_ctrl.units[1549])
+
+    unit_id = 886
+    punit = unit_opt.unit_ctrl.units[unit_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+    contain_embark = False
+    for action_key in valid_actions:
+        if 'embark' in action_key:
+            contain_embark = True
+            break
+    # The unit is currently under pillage activity, the returned embark pro is 0.
+    assert (not contain_embark)
+    # Cancel the pillage order
+    valid_actions['cancel_order'].trigger_action(controller.ws_client)
+    print('Cancel unit 886 order.')
+    controller.send_end_turn()
+    controller.get_info()
+    controller.get_observation()
 
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]

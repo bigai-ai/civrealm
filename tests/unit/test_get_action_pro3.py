@@ -24,7 +24,7 @@ import freeciv_gym.freeciv.utils.fc_types as fc_types
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array, find_set_bits
 from BitVector import BitVector
-from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD, EXTRA_MINE
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_MINE
 
 @pytest.fixture
 def controller():

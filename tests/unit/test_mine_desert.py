@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_OIL_MINE
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_OIL_MINE
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args

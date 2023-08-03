@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_AIRBASE, EXTRA_FORTRESS
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_AIRBASE, EXTRA_FORTRESS
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -42,6 +42,11 @@ def test_airbase(controller):
     unit_id = 843
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    # print(unit_opt.unit_ctrl.units[801])
+    # print(unit_opt.unit_ctrl.units[776])
+    # print(unit_opt.unit_ctrl.units[479])
+    # print(unit_opt.unit_ctrl.units[475])
+    # print(unit_opt.unit_ctrl.units[467])
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
     # Get valid actions
@@ -49,13 +54,17 @@ def test_airbase(controller):
     assert ('airbase' in valid_actions)
     # Choose airbase action
     valid_actions['airbase'].trigger_action(controller.ws_client)
+    print(f"Activity: {punit['activity']}")
+    controller.get_info()
     controller.get_observation()
+    print(f"Activity: {punit['activity']}")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # Already performing airbase. The airbase action is invalid.
     assert ('airbase' not in valid_actions)
     assert (unit_tile['extras'][EXTRA_AIRBASE] == 0)
     print(f'valid action keys: {valid_actions.keys()}')
-
+    # Building airbase will make activity_tgt become 8.
+    print(punit)
     # Wait for airbase finish.
     for _ in range(3):
         controller.send_end_turn()
@@ -71,7 +80,10 @@ def test_airbase(controller):
 
     # Start to build fortress
     valid_actions['fortress'].trigger_action(controller.ws_client)
+    print(f"Activity: {punit['activity']}")
+    controller.get_info()
     controller.get_observation()
+    print(f"Activity: {punit['activity']}")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('fortress' not in valid_actions)
     assert (unit_tile['extras'][EXTRA_FORTRESS] == 0)

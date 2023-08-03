@@ -16,7 +16,6 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_AIRBASE, EXTRA_FORTRESS
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -114,8 +113,8 @@ def test_embark(controller):
         if action_key.startswith('embark'):
             contain_embark = True
             break
-    # The unit is currently under pillage activity, the returned embark pro is 0.
-    assert (not contain_embark)
+    # The unit is currently under pillage activity, but we cancel the activity before query the pro, so the returned embark pro is not 0.
+    assert (contain_embark)
     # Cancel the pillage order
     valid_actions['cancel_order'].trigger_action(controller.ws_client)
     print('Cancel unit 886 order.')
@@ -153,10 +152,8 @@ def test_embark(controller):
             # Perform embark for 886.
             valid_actions['embark_4_1099'].trigger_action(controller.ws_client)
         else:
-            # The unit is on boat, the embard action is invalid.
+            # The unit is on boat, the embark action is invalid.
             assert (not contain_embark)
-            if unit_id == 319:
-                valid_actions['cancel_order'].trigger_action(controller.ws_client)
 
     print('Unit 886 embark the boat.')
     controller.send_end_turn()
@@ -165,8 +162,8 @@ def test_embark(controller):
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
 
-    # valid_actions = unit_opt.get_actions(319, valid_only=True)
-    # print(f'Unit 319, valid action keys: {valid_actions.keys()}')
+    valid_actions = unit_opt.get_actions(319, valid_only=True)
+    print(f'Unit 319, valid action keys: {valid_actions.keys()}')
     # unit_focus = unit_opt.unit_data[319]
     # for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
     #     if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:

@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_FORTRESS
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_FORTRESS
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -58,7 +58,8 @@ def test_fortress(controller):
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # Already performing fortress, the fortress action should be invalid.
     assert ('fortress' not in valid_actions)
-
+    # Building fortress will make activity_tgt become 7.
+    print(punit)
     print('Begin building a fortress, needs a few turns to finish ...')
     # Wait for 3 turns (until job is done)
     for turn_i in range(3):

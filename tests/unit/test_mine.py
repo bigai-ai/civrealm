@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_MINE
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_MINE
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -74,6 +74,12 @@ def test_mine(controller):
     assert (build_action.is_action_valid())
     build_action.trigger_action(controller.ws_client)
     print('Begin building a mine, needs a few turns to finish ...')
+    print(punit['activity'])
+    controller.get_info()
+    controller.get_observation()
+    print(punit['activity'])
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    print(f'valid_actions: {valid_actions.keys()}')
     # Wait for 15 turns (until the work is done)
     for turn_i in range(15):
         controller.send_end_turn()

@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.game.ruleset import EXTRA_ROAD, EXTRA_RAILROAD
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_RAILROAD
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -80,12 +80,13 @@ def test_build_railroad(controller):
         if unit_id == 259:
             assert (build_tile['extras'][EXTRA_ROAD] == 1)
             assert ('railroad' not in valid_actions)
-
+    
     # wait until railroad is built
     for turn_i in range(3):
         controller.send_end_turn()
         controller.get_info()
         controller.get_observation()
+        # print(unit_opt.unit_ctrl.units[109])
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])

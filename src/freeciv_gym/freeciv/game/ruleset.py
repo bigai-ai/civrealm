@@ -22,23 +22,6 @@ from freeciv_gym.freeciv.game.info_states import RuleState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
-EXTRA_IRRIGATION = 0
-EXTRA_MINE = 1
-EXTRA_OIL_MINE = 2
-EXTRA_POLLUTION = 3
-EXTRA_HUT = 4
-EXTRA_FARMLAND = 5
-
-EXTRA_FORTRESS = 7
-EXTRA_AIRBASE = 8
-EXTRA_BUOY = 9
-EXTRA_RUINS = 10
-EXTRA_ROAD = 11
-EXTRA_RAILROAD = 12
-EXTRA_RIVER = 13
-
-# EXTRA_FALLOUT = None
-
 """
 Freeciv Web Client.
 This file contains the handling-code for packets from the civserver.

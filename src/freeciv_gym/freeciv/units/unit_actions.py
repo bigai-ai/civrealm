@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
 from freeciv_gym.freeciv.game import ruleset
 from freeciv_gym.freeciv.game.game_ctrl import EXTRA_NONE
-from freeciv_gym.freeciv.game.ruleset import EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_RIVER
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_RIVER
 
 from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
     packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
@@ -139,6 +139,8 @@ class UnitActions(ActionList):
         self.target_unit_action_class = {fc_types.ACTION_TRANSPORT_EMBARK: ActEmbark}
         # The actions added dynamically. Need to clear the added actions after every step.
         self.target_unit_action_keys = {fc_types.ACTION_TRANSPORT_EMBARK: []}
+        # Key: actor_id, value: (cancelled activity, cancelled activity extra target).
+        self.cancel_order_dict = {}
 
     def update(self, pplayer):
         for unit_id in self.unit_ctrl.units.keys():
@@ -157,7 +159,43 @@ class UnitActions(ActionList):
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
         self.clear_target_unit_actions()
+        self.cancel_orders_before_query_pro()
         self.query_action_probablity()
+
+    # This function cancels units' activity before querying action probability for them. Because the server will return 0 probability for the units under activity, this operation ensures the action probability can be returned by the server. We will restore the units' activity state when we handle the returned action probability packet by triggering the units' action corresponding to the cancelled activity.
+    def cancel_orders_before_query_pro(self):
+        if len(self.cancel_order_dict) > 0:
+            print(self.cancel_order_dict)
+        # This dict should be cleared after we restore the activity.
+        assert(len(self.cancel_order_dict) == 0)
+        for unit_id in self.unit_data.keys():
+            punit = self.unit_data[unit_id].punit
+            activity = punit['activity']
+            # We need this for fortress/airbase/buoy actions.
+            activity_tgt = punit['activity_tgt']
+            # If ssa_controller is not 0, it means unit is controlled by rule (e.g., auto_worker), we don't need to query pro for this kind of units.
+            if activity != fc_types.ACTIVITY_IDLE and punit['ssa_controller'] == 0:
+                # Record the activity to be cancelled.
+                self.cancel_order_dict[unit_id] = (activity, activity_tgt)
+                # Cancel order
+                self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
+
+    # This function is called during handle_unit_actions() in unit_ctrl. Restore the activity being cancelled before querying the action probability.
+    def restore_activity(self, unit_id):
+        # The unit has been cancelled its activity.
+        if unit_id in self.cancel_order_dict:
+            cancelled_activity = self.cancel_order_dict[unit_id]
+            if cancelled_activity[0] != fc_types.ACTIVITY_SENTRY and cancelled_activity[0] != fc_types.ACTIVITY_GOTO and cancelled_activity[0] != fc_types.ACTIVITY_EXPLORE:
+                # Get the action corresponding to the cancelled activity.
+                if cancelled_activity[0] == fc_types.ACTIVITY_BASE or cancelled_activity[0] == fc_types.ACTIVITY_GEN_ROAD:
+                    action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]][cancelled_activity[1]]
+                else:
+                    action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]]
+                # Restore the activity.
+                self._action_dict[unit_id][action_key].trigger_action(self.ws_client)
+
+            del self.cancel_order_dict[unit_id]
+            
 
     # Use this to delete old probability before query the new pro.
     def reset_action_pro(self, unit_id):
@@ -255,7 +293,6 @@ class UnitActions(ActionList):
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
         punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
-        
         
             
 
@@ -383,6 +420,7 @@ class ActCancelOrder(UnitAction):
         return self.focus.punit['activity'] != ACTIVITY_IDLE
 
     def _action_packet(self):
+        self.wait_for_pid = 63
         packet = self._request_new_unit_activity(ACTIVITY_IDLE, EXTRA_NONE)
         return packet
 
@@ -488,7 +526,7 @@ class EngineerAction(UnitAction):
         
 
 class ActTransform(EngineerAction):
-    action_key = "transform"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_TRANSFORM]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSFORM_TERRAIN):
@@ -500,7 +538,7 @@ class ActTransform(EngineerAction):
 
 
 class ActMine(EngineerAction):
-    action_key = "mine"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_MINE]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_MINE):
@@ -561,7 +599,7 @@ class ActOnExtra(EngineerAction):
 
 class ActCultivate(EngineerAction):
     """Action to deforest"""
-    action_key = "cultivate"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_CULTIVATE]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CULTIVATE):
@@ -582,7 +620,7 @@ class ActCultivate(EngineerAction):
 
 class ActPlant(EngineerAction):
     """Action to create forest"""
-    action_key = "plant"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_PLANT]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_PLANT):
@@ -604,7 +642,7 @@ class ActPlant(EngineerAction):
 
 class ActFortress(EngineerAction):
     """Action to create a fortress"""
-    action_key = "fortress"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_BASE][fc_types.EXTRA_FORTRESS]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_BASE):
@@ -631,7 +669,7 @@ class ActFortress(EngineerAction):
 
 class ActAirbase(EngineerAction):
     """Action to create a airbase"""
-    action_key = "airbase"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_BASE][fc_types.EXTRA_AIRBASE]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_BASE):
@@ -659,10 +697,10 @@ class ActAirbase(EngineerAction):
 # class ActIrrigation(ActOnExtra):
 class ActIrrigation(EngineerAction):
     """Action to create an irrigation"""
-    action_key = 'irrigation'
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_IRRIGATE]
 
     # def __init__(self, cur_focus):
-    #     self.extra_type = ruleset.EXTRA_IRRIGATION
+    #     self.extra_type = EXTRA_IRRIGATION
     #     super().__init__(cur_focus)
 
     def is_eng_action_valid(self):
@@ -700,7 +738,7 @@ class ActPollution(ActOnExtra):
     action_key = "pollution"
 
     def __init__(self, cur_focus):
-        self.extra_type = ruleset.EXTRA_POLLUTION
+        self.extra_type = fc_types.EXTRA_POLLUTION
         super().__init__(cur_focus)
 
     def _eng_packet(self):
@@ -833,7 +871,7 @@ class ActJoin(UnitAction):
         return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
 
 class ActFortify(UnitAction):
-    action_key = "fortify"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_FORTIFIED]
 
     def is_action_valid(self):
         # return not self.focus.ptype['name'] in ["Settlers", "Workers"]
@@ -848,12 +886,13 @@ class ActFortify(UnitAction):
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):
+        self.wait_for_pid = 63
         return self._request_new_unit_activity(fc_types.ACTIVITY_FORTIFYING, EXTRA_NONE)
 
 
 class ActBuildRoad(EngineerAction):
     """Tell the units in focus to build road."""
-    action_key = "road"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_GEN_ROAD][fc_types.EXTRA_ROAD]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
@@ -875,7 +914,7 @@ class ActBuildRoad(EngineerAction):
 
 class ActBuildRailRoad(EngineerAction):
     """Tell the units in focus to build or railroad."""
-    action_key = "railroad"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_GEN_ROAD][fc_types.EXTRA_RAILROAD]
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
@@ -897,7 +936,7 @@ class ActBuildRailRoad(EngineerAction):
 
 class ActPillage(UnitAction):
     """Pillages Irrigation, Mine, Oil Mine, Farmland, Fortress, Airbase, Buoy, Ruins, Road and Railroad from tiles."""
-    action_key = "pillage"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_PILLAGE]
 
     def is_action_valid(self):
         # tile_valid = self.focus.pcity is None or (self.focus.pcity != None and CityState.city_owner_player_id(
@@ -930,6 +969,7 @@ class ActPillage(UnitAction):
         return can_pillage_extra
 
     def _action_packet(self):
+        self.wait_for_pid = 63
         return self._request_new_unit_activity(ACTIVITY_PILLAGE, EXTRA_NONE)
 
 

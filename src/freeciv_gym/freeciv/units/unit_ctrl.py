@@ -487,6 +487,9 @@ class UnitCtrl(CivPropController):
         unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
         self.prop_actions.update_unit_action_pro(actor_unit_id, target_unit_id, move_dir, action_probabilities)
+        
+        self.prop_actions.restore_activity(actor_unit_id)
+
         # if (target_tile['x'] == 55 and target_tile['y'] == 39) or (target_tile['x'] == 55 and target_tile['y'] == 40):
         #     fc_logger.info(f'actor_unit_id: {actor_unit_id}, target_tile_id: {target_tile_id}, target_extra_id: {target_extra_id}, action_probabilities: {action_probabilities}')
         #     for i in range(len(action_probabilities)):

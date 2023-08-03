@@ -17,7 +17,7 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
-from freeciv_gym.freeciv.game.ruleset import EXTRA_IRRIGATION
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_IRRIGATION
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option

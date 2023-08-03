@@ -21,7 +21,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
-from freeciv_gym.freeciv.game.ruleset import EXTRA_HUT
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_HUT
 
 @pytest.fixture
 def controller():

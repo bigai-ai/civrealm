@@ -61,7 +61,7 @@ class ActChooseResearchTech(Action):
 
     def _action_packet(self):
         packet = {"pid": packet_player_research, "tech": self.new_tech_id}
-        self.wait_for_pid = 60
+        self.wait_for_pid = (60, self.pplayer['playerno'])
         return packet
 
 
@@ -73,5 +73,5 @@ class ActChooseResearchGoal(ActChooseResearchTech):
 
     def _action_packet(self):
         packet = {"pid": packet_player_tech_goal, "tech": self.new_tech_id}
-        self.wait_for_pid = 60
+        self.wait_for_pid = (60, self.pplayer['playerno'])
         return packet

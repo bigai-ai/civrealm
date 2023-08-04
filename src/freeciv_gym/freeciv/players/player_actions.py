@@ -57,7 +57,7 @@ class PlayerOptions(ActionList):
     def update_player_options(self, counter_id, pplayer):
         maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
 
-        cur_state = {"tax": pplayer['tax'], "sci": pplayer["science"],
+        cur_state = {"playerno": pplayer['playerno'], "tax": pplayer['tax'], "sci": pplayer["science"],
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 
         fc_logger.info(cur_state)
@@ -152,12 +152,13 @@ class PlayerOptions(ActionList):
 class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
 
-    def __init__(self, tax, sci, lux, max_rate):
+    def __init__(self, playerno, tax, sci, lux, max_rate):
         super().__init__()
         self.tax = self.get_corrected_num(tax)
         self.sci = self.get_corrected_num(sci)
         self.lux = self.get_corrected_num(lux)
         self.max_rate = max_rate
+        self.playerno = playerno
 
     def get_corrected_num(self, num):
         if num % 10 != 0:
@@ -181,7 +182,7 @@ class IncreaseSci(base_action.Action):
                   "tax": self.tax,
                   "luxury": self.lux,
                   "science": self.sci}
-        self.wait_for_pid = 51
+        self.wait_for_pid = (51, self.playerno)
         return packet
 
 
@@ -279,7 +280,7 @@ class StartNegotiate(base_action.Action):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
-        self.wait_for_pid = 96
+        self.wait_for_pid = (96, self.counterpart["playerno"])
         return packet
 
 
@@ -292,7 +293,7 @@ class AcceptTreaty(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
                   "counterpart": self.counterpart["playerno"]}
-        self.wait_for_pid = 104
+        self.wait_for_pid = (104, self.counterpart["playerno"])
         return packet
 
 
@@ -313,7 +314,7 @@ class CancelTreaty(StartNegotiate):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
-        self.wait_for_pid = 59
+        self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
 
 
@@ -326,7 +327,7 @@ class StopNegotiate(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
-        self.wait_for_pid = 98
+        self.wait_for_pid = (98, self.counterpart["playerno"])
         return packet
 
 
@@ -341,7 +342,7 @@ class CancelVision(StartNegotiate):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
                   "clause": player_const.CLAUSE_VISION}
-        self.wait_for_pid = 51
+        self.wait_for_pid = (51, self.cur_player['playerno'])
         return packet
 
 
@@ -365,7 +366,7 @@ class RemoveClause(base_action.Action):
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = 102
+        self.wait_for_pid = (102, self.counterpart)
         return packet
 
 
@@ -392,7 +393,7 @@ class AddClause(RemoveClause):
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = 100
+        self.wait_for_pid = (100, self.counterpart)
         return packet
 
 

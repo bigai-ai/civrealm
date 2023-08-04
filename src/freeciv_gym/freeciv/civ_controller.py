@@ -294,6 +294,10 @@ class CivController(CivPropController):
                     pid_info = (packet['pid'], packet['actor_unit_id'])
                 elif 'playerno' in packet:
                     pid_info = (packet['pid'], packet['playerno'])
+                elif 'counterpart' in packet:
+                    pid_info = (packet['pid'], packet['counterpart'])
+                elif 'plr1' in packet:
+                    pid_info = (packet['pid'], (packet['plr1'], packet['plr2']))
                 else:
                     pid_info = (packet['pid'], None)
                 self.ws_client.stop_waiting(pid_info)

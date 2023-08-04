@@ -117,5 +117,5 @@ class ChangeGovernment(base_action.Action):
     def _action_packet(self):
         packet = {"pid": packet_player_change_government,
                   "government": self.govt_id}
-        self.wait_for_pid = 51
+        self.wait_for_pid = (51, self.pplayer['playerno'])
         return packet

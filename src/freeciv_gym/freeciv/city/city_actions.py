@@ -133,7 +133,7 @@ class CityWorkTile(Action):
         packet = {"pid": packet_city_make_worker,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def _refresh_state_packet(self):
@@ -152,7 +152,7 @@ class CityUnworkTile(CityWorkTile):
         packet = {"pid": packet_city_make_specialist,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
 
@@ -175,7 +175,7 @@ class CityChangeSpecialist(Action):
                   "city_id": self.pcity["id"],
                   "from": self.specialist_num,
                   "to": (self.specialist_num + 1) % 3}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def _refresh_state_packet(self):
@@ -202,7 +202,7 @@ class CityBuyProduction(Action):
     def _action_packet(self):
         """Buy whatever is being built in the city."""
         packet = {"pid": packet_city_buy, "city_id": self.pcity['id']}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
 
@@ -224,7 +224,7 @@ class CitySellImprovement(Action):
     def _action_packet(self):
         packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],
                   "build_id": self.improvement_id}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
 
@@ -246,7 +246,7 @@ class CityChangeProduction(Action):
     def _action_packet(self):
         packet = {"pid": packet_city_change, "city_id": self.pcity["id"],
                   "production_kind": self.prod_kind, "production_value": self.prod_value}
-        self.wait_for_pid = (31, self.pcity['id'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def _refresh_state_packet(self):

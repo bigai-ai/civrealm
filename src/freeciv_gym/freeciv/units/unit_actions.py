@@ -183,7 +183,7 @@ class UnitActions(ActionList):
                 self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
 
                 # if unit_id == 103:
-                #     print(f'**Cancel order. {punit}')
+                #     fc_logger.info(f'**Cancel order. {punit}')
 
     # This function is called during handle_unit_actions() in unit_ctrl. Restore the activity being cancelled before querying the action probability.
     def restore_activity(self, unit_id):
@@ -200,7 +200,7 @@ class UnitActions(ActionList):
                 self._action_dict[unit_id][action_key].trigger_action(self.ws_client)
 
                 # if unit_id == 103:
-                #     print(f'++Restore activity. {self.unit_data[unit_id].punit}')
+                #     fc_logger.info(f'++Restore activity. {self.unit_data[unit_id].punit}')
 
             del self.cancel_order_dict[unit_id]
             
@@ -849,7 +849,7 @@ class ActBuild(UnitAction):
     def found_new_city(self, unit_id):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
-        self.wait_for_pid = (31, None)
+        self.wait_for_pid = (31, actor_unit['tile'])
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 class ActJoin(UnitAction):
@@ -916,7 +916,7 @@ class ActBuildRoad(EngineerAction):
         no_road_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
         return (bridge_known or tile_no_river) and no_road_yet
 
-    def _action_packet(self):
+    def _eng_packet(self):
         extra_id = self.focus.rule_ctrl.extras['Road']['id']
         return self._request_new_unit_activity(fc_types.ACTIVITY_GEN_ROAD, extra_id)
 
@@ -938,7 +938,7 @@ class ActBuildRailRoad(EngineerAction):
         no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
         return railroad_known and already_road and no_rail_yet
 
-    def _action_packet(self):
+    def _eng_packet(self):
         extra_id = self.focus.rule_ctrl.extras['Railroad']['id']
         return self._request_new_unit_activity(ACTIVITY_GEN_ROAD, extra_id)
 

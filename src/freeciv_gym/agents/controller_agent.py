@@ -62,7 +62,7 @@ class ControllerAgent(BaseAgent):
         return self.sample_action_by_prob(action_probabilities)
 
     def calculate_unit_actions(self, action_dict):
-        desired_actions = {'explore': 1.0,
+        desired_actions = {#'explore': 1.0,
                            'goto': random.random()*0.2,
                            # 'autosettlers': 1.0,
                            'road': random.random()*0.2,

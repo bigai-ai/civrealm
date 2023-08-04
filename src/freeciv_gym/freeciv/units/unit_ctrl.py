@@ -625,4 +625,4 @@ class UnitCtrl(CivPropController):
         self.city_name_list.append(suggested_name)
 
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=suggested_name)
-        self.ws_client.send_request(packet, wait_for_pid=31)
+        self.ws_client.send_request(packet, wait_for_pid=(31, None))

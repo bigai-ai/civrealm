@@ -166,6 +166,8 @@ class UnitActions(ActionList):
     def cancel_orders_before_query_pro(self):
         if len(self.cancel_order_dict) > 0:
             print(self.cancel_order_dict)
+            # for key in self.cancel_order_dict:
+            #     print(self.unit_ctrl.units[key])
         # This dict should be cleared after we restore the activity.
         assert(len(self.cancel_order_dict) == 0)
         for unit_id in self.unit_data.keys():
@@ -180,6 +182,9 @@ class UnitActions(ActionList):
                 # Cancel order
                 self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
 
+                # if unit_id == 103:
+                #     print(f'**Cancel order. {punit}')
+
     # This function is called during handle_unit_actions() in unit_ctrl. Restore the activity being cancelled before querying the action probability.
     def restore_activity(self, unit_id):
         # The unit has been cancelled its activity.
@@ -193,6 +198,9 @@ class UnitActions(ActionList):
                     action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]]
                 # Restore the activity.
                 self._action_dict[unit_id][action_key].trigger_action(self.ws_client)
+
+                # if unit_id == 103:
+                #     print(f'++Restore activity. {self.unit_data[unit_id].punit}')
 
             del self.cancel_order_dict[unit_id]
             
@@ -420,7 +428,7 @@ class ActCancelOrder(UnitAction):
         return self.focus.punit['activity'] != ACTIVITY_IDLE
 
     def _action_packet(self):
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         packet = self._request_new_unit_activity(ACTIVITY_IDLE, EXTRA_NONE)
         return packet
 
@@ -521,7 +529,7 @@ class EngineerAction(UnitAction):
         raise Exception("Not implemented")
     
     def _action_packet(self):
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self._eng_packet()
         
 
@@ -770,6 +778,7 @@ class ActExplore(UnitAction):
         return self.focus.ptype["name"] == "Explorer"
 
     def _action_packet(self):
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self._request_new_unit_activity(ACTIVITY_EXPLORE, EXTRA_NONE)
 
 
@@ -829,7 +838,7 @@ class ActBuild(UnitAction):
         if self.next_city_name is None:
             packet = {"pid": packet_city_name_suggestion_req,
                         "unit_id": unit_id}
-            self.wait_for_pid = 44
+            self.wait_for_pid = (44, self.focus.punit['id'])
             return packet
         else:
             return self.found_new_city(unit_id)
@@ -840,7 +849,7 @@ class ActBuild(UnitAction):
     def found_new_city(self, unit_id):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
-        self.wait_for_pid = 31
+        self.wait_for_pid = (31, None)
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 class ActJoin(UnitAction):
@@ -867,7 +876,7 @@ class ActJoin(UnitAction):
             assert(False)
         unit_id = self.focus.punit["id"]
         # Join city will cause the removal of unit. Wait for the unit remove packet.
-        self.wait_for_pid = 62
+        self.wait_for_pid = (62, unit_id)
         return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
 
 class ActFortify(UnitAction):
@@ -886,7 +895,7 @@ class ActFortify(UnitAction):
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self._request_new_unit_activity(fc_types.ACTIVITY_FORTIFYING, EXTRA_NONE)
 
 
@@ -969,7 +978,7 @@ class ActPillage(UnitAction):
         return can_pillage_extra
 
     def _action_packet(self):
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self._request_new_unit_activity(ACTIVITY_PILLAGE, EXTRA_NONE)
 
 
@@ -1328,7 +1337,6 @@ class ActGoto(StdAction):
         actor_unit = self.focus.punit
         dir8 = self.move_dir
         target_tile = self.newtile
-        self.wait_for_pid = 63
         # packet = {"pid"       : packet_unit_orders,
         #           "unit_id"   : actor_unit['id'],
         #           "src_tile"  : actor_unit['tile'],
@@ -1359,7 +1367,7 @@ class ActGoto(StdAction):
                   #   "extra"     : [EXTRA_NONE]
                   "dest_tile": target_tile['index']
                   }
-
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
     
 class ActHutEnter(StdAction):
@@ -1385,14 +1393,14 @@ class ActHutEnter(StdAction):
         return not (self.move_dir is None or self.move_dir == -1)
 
     def _action_packet(self):
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self.unit_do_action(self.focus.punit['id'],
                                    self.newtile['index'],
                                    fc_types.ACTION_HUT_ENTER)
         actor_unit = self.focus.punit
         dir8 = self.move_dir
         target_tile = self.newtile
-        self.wait_for_pid = 63
+        self.wait_for_pid = (63, self.focus.punit['id'])
         packet = {"pid": packet_unit_orders,
                   "unit_id": actor_unit['id'],
                   "src_tile": actor_unit['tile'],
@@ -1512,12 +1520,12 @@ class ActGetActionPro(UnitAction):
                     "target_extra_id": self.target_extra_id,                   
                     "request_kind": 1
                 }
-            self.wait_for_pid = 90
+            self.wait_for_pid = (90, self.focus.punit['id'])
             return packet
         else:
             if type(self.target_extra_id) == list and type(self.target_unit_id) == int:
                 packets = []
-                self.wait_for_pid = 90
+                self.wait_for_pid = (90, self.focus.punit['id'])
                 for extra_id in self.target_extra_id:
                     actor_unit = self.focus.punit 
                     packet = {"pid": packet_unit_get_actions,
@@ -1533,7 +1541,7 @@ class ActGetActionPro(UnitAction):
             
             if type(self.target_extra_id) == int and type(self.target_unit_id) == list:
                 packets = []
-                self.wait_for_pid = 90
+                self.wait_for_pid = (90, self.focus.punit['id'])
                 for unit_id in self.target_unit_id:
                     actor_unit = self.focus.punit 
                     packet = {"pid": packet_unit_get_actions,
@@ -1557,7 +1565,7 @@ class ActGetActionPro(UnitAction):
                     "target_extra_id": self.target_extra_id[0],                   
                     "request_kind": 1
                 }
-            self.wait_for_pid = 90
+            self.wait_for_pid = (90, self.focus.punit['id'])
             return packet
         
 class ActNuke(UnitAction):

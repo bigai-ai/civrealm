@@ -132,10 +132,10 @@ def test_embark(controller):
         # if unit_id == 886:
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
 
-        unit_focus = unit_opt.unit_data[unit_id]
-        for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
-            if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:
-                print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_WEST][i]}')
+        # unit_focus = unit_opt.unit_data[unit_id]
+        # for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
+        #     if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:
+        #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_WEST][i]}')
 
         contain_embark = False
         embark_key = ''
@@ -161,9 +161,27 @@ def test_embark(controller):
     controller.get_observation()
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
+    # Disembark to the north
+    valid_actions['disembark_1'].trigger_action(controller.ws_client)
 
     valid_actions = unit_opt.get_actions(319, valid_only=True)
     print(f'Unit 319, valid action keys: {valid_actions.keys()}')
+
+    controller.send_end_turn()
+    controller.get_info()
+    controller.get_observation()
+
+    unit_id = 886
+    punit = unit_opt.unit_ctrl.units[unit_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+    assert(unit_tile['x'] == 47 and unit_tile['y'] == 26)
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # if unit_id == 886:
+    print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+    
     # unit_focus = unit_opt.unit_data[319]
     # for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
     #     if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:

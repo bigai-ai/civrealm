@@ -10,7 +10,7 @@ DIR8_SOUTHEAST = 7
 DIR8_LAST = 8
 DIR8_COUNT = DIR8_LAST
 
-DIR8_NAMES = ['NW', 'N', 'NE', 'W', 'E', 'SW', 'S', 'SE']
+DIR8_NAMES = ['NorthWest', 'North', 'NorthEast', 'West', 'East', 'SouthWest', 'South', 'SouthEast']
 
 DIR8_ORDER = [DIR8_NORTHWEST, DIR8_NORTH, DIR8_NORTHEAST, DIR8_WEST,
               DIR8_EAST, DIR8_SOUTHWEST, DIR8_SOUTH, DIR8_SOUTHEAST]

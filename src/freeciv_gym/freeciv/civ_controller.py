@@ -287,7 +287,16 @@ class CivController(CivPropController):
             for packet in p_list:
                 if packet is None:
                     continue
-                self.ws_client.stop_waiting(packet['pid'])
+                pid_info = None
+                if 'id' in packet:
+                    pid_info = (packet['pid'], packet['id'])
+                elif 'actor_unit_id' in packet:
+                    pid_info = (packet['pid'], packet['actor_unit_id'])
+                elif 'playerno' in packet:
+                    pid_info = (packet['pid'], packet['playerno'])
+                else:
+                    pid_info = (packet['pid'], None)
+                self.ws_client.stop_waiting(pid_info)
                 self.handle_pack(packet['pid'], packet)
                 if 31 in self.ws_client.wait_for_packs:
                     # TODO: handle wait_for_packs

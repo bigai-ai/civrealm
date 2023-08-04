@@ -51,6 +51,7 @@ class TurnManager(object):
         fc_logger.info(
             f'============== Begin turn: {self._turn:04d} ==============')
         fc_logger.info('==============================================')
+        # print(f'\nBegin turn: {self._turn:04d}\n')
 
     def begin_turn(self, pplayer, info_controls):
         self._turn_active = True

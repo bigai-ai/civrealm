@@ -28,6 +28,7 @@ import freeciv_gym.freeciv.tech.tech_const as tech_const
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
+MAX_GOLD = 10
 
 class PlayerOptions(ActionList):
     # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
@@ -38,6 +39,7 @@ class PlayerOptions(ActionList):
         self.rule_ctrl = rule_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.city_ctrl = city_ctrl
+        self.city_set = set()
 
     def _can_actor_act(self, actor_id):
         return True
@@ -45,6 +47,7 @@ class PlayerOptions(ActionList):
     def update(self, pplayer):
         for counter_id in self.players:
             if self.actor_exists(counter_id):
+                self.update_city_action_set(counter_id, pplayer)
                 continue
             self.add_actor(counter_id)
 
@@ -62,91 +65,65 @@ class PlayerOptions(ActionList):
 
         fc_logger.info(cur_state)
 
-        increase_lux = IncreaseLux(**cur_state)
-        if increase_lux.is_action_valid():
-            self.add_action(counter_id, increase_lux)
-        decrease_lux = DecreaseLux(**cur_state)
-        if decrease_lux.is_action_valid():
-            self.add_action(counter_id, decrease_lux )
-        increase_sci = IncreaseSci(**cur_state)
-        if increase_sci.is_action_valid():
-            self.add_action(counter_id, increase_sci)
-        decrease_sci = DecreaseSci(**cur_state)
-        if decrease_sci.is_action_valid():
-            self.add_action(counter_id, decrease_sci)
-        increase_tax = IncreaseTax(**cur_state)
-        if increase_tax.is_action_valid():
-            self.add_action(counter_id, increase_tax)
-        decrease_tax = DecreaseTax(**cur_state)
-        if decrease_tax.is_action_valid():
-            self.add_action(counter_id, decrease_tax)
+        self.add_action(counter_id, IncreaseLux(**cur_state))
+        self.add_action(counter_id, DecreaseLux(**cur_state))
+        self.add_action(counter_id, IncreaseSci(**cur_state))
+        self.add_action(counter_id, DecreaseSci(**cur_state))
+        self.add_action(counter_id, IncreaseTax(**cur_state))
+        self.add_action(counter_id, DecreaseTax(**cur_state))
 
     def update_counterpart_options(self, clstate, dipl_ctrl, counter_id, cur_player, counterpart):
-        start_negotiate = StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart)
-        if start_negotiate.is_action_valid():
-            self.add_action(counter_id, start_negotiate)
+        self.add_action(counter_id, StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
+        self.add_action(counter_id, StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
+        self.add_action(counter_id, AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart))
+        self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart))
+        self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
 
-        stop_negotiate = StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart)
-        if stop_negotiate.is_action_valid():
-            self.add_action(counter_id, stop_negotiate)
+        self.update_clause_options(dipl_ctrl, counter_id, cur_player)
+        self.update_clause_options(dipl_ctrl, cur_player['playerno'], counterpart)
 
-        accept_treaty = AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart)
-        if accept_treaty.is_action_valid():
-            self.add_action(counter_id, accept_treaty)
-
-        cancel_treaty = CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart)
-        if cancel_treaty.is_action_valid():
-            self.add_action(counter_id, cancel_treaty)
-
-        cancel_vision = CancelVision(clstate, dipl_ctrl, cur_player, counterpart)
-        if cancel_vision.is_action_valid():
-            self.add_action(counter_id, cancel_vision)
-
-        self.remove_clause_options(dipl_ctrl, counter_id, cur_player)
-        self.add_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
-        self.add_clause_options(dipl_ctrl, cur_player['playerno'], counterpart, cur_player)
-
-    def remove_clause_options(self, dipl_ctrl, counter_id, cur_player):
-        if counter_id in dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = dipl_ctrl.diplomacy_clause_map[counter_id]
-            for clause in clauses:
-                giver = clause['giver']
-                if giver == counter_id:
-                    counterpart_id = cur_player['playerno']
-                else:
-                    counterpart_id = counter_id
-                type = clause['type']
-                value = clause['value']
-                remove_clause = RemoveClause(type, value, giver, counterpart_id)
-                if remove_clause.is_action_valid():
-                    self.add_action(counter_id, remove_clause)
-
-    def add_clause_options(self, dipl_ctrl, counter_id, cur_player, counterpart):
+    def update_clause_options(self, dipl_ctrl, counter_id, cur_player):
         base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION,
                         player_const.CLAUSE_EMBASSY, player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE,
                         player_const.CLAUSE_ALLIANCE]
         for ctype in base_clauses:
-            add_clause = AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id)
-            if add_clause.is_action_valid():
-                self.add_action(counter_id, add_clause)
+            self.add_action(counter_id, AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+            self.add_action(counter_id, RemoveClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
 
         for tech_id in self.rule_ctrl.techs:
-            add_trade_tech = AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id, cur_player['playerno'],
-                                                counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-            if add_trade_tech.is_action_valid():
-                self.add_action(counter_id, add_trade_tech)
+            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE,
+                                                           tech_id, cur_player['playerno'], counter_id, dipl_ctrl,
+                                                           counter_id, self.rule_ctrl, self.players))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_ADVANCE, tech_id,
+                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
 
-        for pgold in range(1, max(cur_player['gold'] + 1, counterpart['gold'] + 1)):
-            add_trade_gold = AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, cur_player['playerno'],
-                                                counter_id, dipl_ctrl, counter_id, self.rule_ctrl, self.players)
-            if add_trade_gold.is_action_valid():
-                self.add_action(counter_id, add_trade_gold)
+        for pgold in range(1, MAX_GOLD):
+            self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD,
+                                                           pgold, cur_player['playerno'], counter_id, dipl_ctrl,
+                                                           counter_id, self.rule_ctrl, self.players))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold,
+                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
 
         for pcity in self.city_ctrl.cities.keys():
-            add_trade_city = AddTradeCityClause(player_const.CLAUSE_CITY, pcity, cur_player['playerno'], counter_id,
-                                                dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players)
-            if add_trade_city.is_action_valid():
-                self.add_action(counter_id, add_trade_city)
+            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY,
+                                                           pcity, cur_player['playerno'], counter_id, dipl_ctrl,
+                                                           counter_id, self.rule_ctrl, self.city_ctrl, self.players))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
+                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+
+    def new_cities(self):
+        new_city_set = set(self.city_ctrl.cities.keys()) - self.city_set
+        self.city_set = set(self.city_ctrl.cities.keys())
+        return new_city_set
+
+    def update_city_action_set(self, counter_id, pplayer):
+        new_city_set = self.new_cities()
+        for pcity in new_city_set:
+            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY,
+                                                           pcity, pplayer['playerno'], counter_id, self.dipl_ctrl,
+                                                           counter_id, self.rule_ctrl, self.city_ctrl, self.players))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
+                                                     pplayer['playerno'], counter_id, self.dipl_ctrl, counter_id))
 
 
 class IncreaseSci(base_action.Action):
@@ -349,34 +326,37 @@ class CancelVision(StartNegotiate):
 class RemoveClause(base_action.Action):
     action_key = "remove_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart):
+    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id):
         super().__init__()
         self.clause_type = clause_type
         self.value = value
         self.giver = giver
-        self.counterpart = counterpart
-        self.action_key += "_%s_player_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], giver, counterpart, value)
+        self.counter_index = counter_index
+        self.dipl_ctrl = dipl_ctrl
+        self.counter_id = counter_id
+        self.action_key += "_%s_player_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], giver, counter_index, value)
 
     def is_action_valid(self):
-        return True
+        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
+                    return True
+            return False
+        return False
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_remove_clause_req,
-                  "counterpart": self.counterpart,
+                  "counterpart": self.counter_index,
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = (102, self.counterpart)
+        self.wait_for_pid = (102, self.counter_index)
         return packet
 
 
 class AddClause(RemoveClause):
     action_key = "add_clause"
-
-    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id):
-        super().__init__(clause_type, value, giver, counterpart)
-        self.dipl_ctrl = dipl_ctrl
-        self.counter_id = counter_id
 
     def is_action_valid(self):
         if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
@@ -389,19 +369,19 @@ class AddClause(RemoveClause):
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_create_clause_req,
-                  "counterpart": self.counterpart,
+                  "counterpart": self.counter_index,
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = (100, self.counterpart)
+        self.wait_for_pid = (100, self.counter_index)
         return packet
 
 
 class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, players):
+        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
         self.players = players
         self.action_key += "_%s" % rule_ctrl.techs[value]["name"]
@@ -416,7 +396,7 @@ class AddTradeTechClause(AddClause):
                         and clause['value'] == self.value):
                     return False
             return (is_tech_known(self.players[self.giver], self.value)
-                    and player_invention_state(self.players[self.counterpart], self.value)
+                    and player_invention_state(self.players[self.counter_index], self.value)
                     in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
         return False
 
@@ -424,10 +404,9 @@ class AddTradeTechClause(AddClause):
 class AddTradeGoldClause(AddClause):
     action_key = "trade_gold_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, players):
+        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
-        self.counterpart = counterpart
         self.giver = giver
         self.players = players
 
@@ -447,8 +426,8 @@ class AddTradeGoldClause(AddClause):
 class AddTradeCityClause(AddClause):
     action_key = "trade_city_clause"
 
-    def __init__(self, clause_type, value, giver, counterpart, dipl_ctrl, counter_id, rule_ctrl, city_ctrl, players):
-        super().__init__(clause_type, value, giver, counterpart, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, city_ctrl, players):
+        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.players = players

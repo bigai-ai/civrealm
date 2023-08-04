@@ -50,7 +50,8 @@ def test_city_unwork(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_unwork_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_unwork')
+        valid_unwork_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                      'city_unwork')
         unwork_action = random.choice(valid_unwork_actions)
 
         assert (unwork_action.is_action_valid())

@@ -39,11 +39,14 @@ class CityActions(ActionList):
         return True
 
     def update(self, pplayer):
-        self._action_dict = {}
 
         for city_id in self.cities:
             pcity = self.cities[city_id]
             if pcity["owner"] != pplayer["playerno"]:
+                if self.actor_exists(city_id):
+                    del self._action_dict[city_id]
+                continue
+            if self.actor_exists(city_id):
                 continue
             self.add_actor(city_id)
 
@@ -51,23 +54,16 @@ class CityActions(ActionList):
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
                     work_act = CityWorkTile(pcity, dx, dy, self.city_map)
-                    unwork_act = CityUnworkTile(pcity, dx, dy, self.city_map)
 
                     if work_act.output_idx is None or (dx == 0 and dy == 0):
                         continue
-                    if work_act.is_action_valid():
-                        self.add_action(city_id, work_act)
-                    if unwork_act.is_action_valid():
-                        self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
+                    self.add_action(city_id, work_act)
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
 
             for specialist_num in range(pcity['specialists_size']):
-                change_specialist_act = CityChangeSpecialist(pcity, specialist_num)
-                if change_specialist_act.is_action_valid():
-                    self.add_action(city_id, change_specialist_act)
+                self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
-            city_buy_prod_act = CityBuyProduction(pcity, pplayer)
-            if city_buy_prod_act.is_action_valid():
-                self.add_action(city_id, city_buy_prod_act)
+            self.add_action(city_id, CityBuyProduction(pcity, pplayer))
 
             # for unit_type_id in self.rulectrl.unit_types:
             #     punit_type = self.rulectrl.unit_types[unit_type_id]
@@ -75,9 +71,7 @@ class CityActions(ActionList):
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
-                change_unit_prod_act = CityChangeUnitProduction(pcity, punit_type)
-                if change_unit_prod_act.is_action_valid():
-                    self.add_action(city_id, change_unit_prod_act)
+                self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
 
             # logger.info("self.rulectrl.improvements:")
             # for improvement_id in self.rulectrl.improvements:
@@ -87,13 +81,8 @@ class CityActions(ActionList):
 
             for improvement_id in self.rulectrl.improvements:
                 pimprovement = self.rulectrl.improvements[improvement_id]
-                change_improve_prod_act = CityChangeImprovementProduction(pcity, pimprovement)
-                if change_improve_prod_act.is_action_valid():
-                    self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
-
-                city_sell_improve_act = CitySellImprovement(pcity, improvement_id, pimprovement["name"])
-                if city_sell_improve_act.is_action_valid():
-                    self.add_action(city_id, city_sell_improve_act)
+                self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
+                self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
 
 class CityWorkTile(Action):

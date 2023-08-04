@@ -46,7 +46,8 @@ def test_gov_decrease_lux(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    decrease_lux_action = find_keys_with_keyword(player_opt._action_dict[0], 'decrease_lux')[0]
+    decrease_lux_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'decrease_lux')[0]
     assert (decrease_lux_action.is_action_valid())
 
     lux_1 = pplayer['luxury']

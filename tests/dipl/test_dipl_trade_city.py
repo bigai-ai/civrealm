@@ -45,7 +45,8 @@ def test_dipl_trade_city(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    trade_city_act = find_keys_with_keyword(player_opt._action_dict[3], 'trade_city_clause')[1]
+    trade_city_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True),
+                                            'trade_city_clause')[1]
 
     assert (trade_city_act.is_action_valid())
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]

@@ -46,7 +46,8 @@ def test_gov_decrease_tax(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    decrease_tax_action = find_keys_with_keyword(player_opt._action_dict[0], 'decrease_tax')[0]
+    decrease_tax_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'decrease_tax')[0]
     assert (decrease_tax_action.is_action_valid())
 
     tax_1 = pplayer['tax']

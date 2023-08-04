@@ -44,7 +44,8 @@ def test_dipl_start_negotiate(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    negotiate_act = find_keys_with_keyword(player_opt._action_dict[4], 'start_negotiation')[0]
+    negotiate_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True),
+                                           'start_negotiation')[0]
 
     assert (negotiate_act.is_action_valid())
     meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id

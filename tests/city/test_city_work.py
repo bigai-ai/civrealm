@@ -49,7 +49,7 @@ def test_city_work(controller):
     city_id = 155
     pcity = city_opt.cities[city_id]
 
-    valid_work_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_work')
+    valid_work_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True), 'city_work')
     work_action = random.choice(valid_work_actions)
 
     assert (work_action.is_action_valid())

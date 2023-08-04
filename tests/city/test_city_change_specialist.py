@@ -53,7 +53,8 @@ def test_city_change_specialist(controller):
     city_id = 155
     pcity = city_opt.cities[city_id]
 
-    change_specialist_action = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_change_specialist_0')
+    change_specialist_action = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                      'city_change_specialist_0')
     assert (change_specialist_action.is_action_valid())
 
     specialists_1 = pcity['specialists']

@@ -50,7 +50,8 @@ def test_city_change_unit_prod(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_unit_prod_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'change_unit_prod_Settler')
+        valid_unit_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                         'change_unit_prod_Settler')
         unit_prod_action = random.choice(valid_unit_prod_actions)
         assert (unit_prod_action.is_action_valid())
 

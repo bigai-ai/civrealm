@@ -48,7 +48,8 @@ def test_city_buy_prod(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_city_buy_actions = find_keys_with_keyword(city_opt._action_dict[city_id], 'city_buy_production')
+        valid_city_buy_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                        'city_buy_production')
         city_buy_action = random.choice(valid_city_buy_actions)
         assert (city_buy_action.is_action_valid())
 

@@ -51,8 +51,7 @@ class GovActions(ActionList):
             self.add_actor(player_id)
             for govt_id in self.rule_ctrl.governments:
                 act = ChangeGovernment(govt_id, self.player_ctrl, self.rule_ctrl, pplayer)
-                if act.is_action_valid():
-                    self.add_action(player_id, act)
+                self.add_action(player_id, ChangeGovernment(govt_id, self.player_ctrl, self.rule_ctrl, pplayer))
 
 
 class GovernmentCtrl(CivPropController):
@@ -110,9 +109,8 @@ class ChangeGovernment(base_action.Action):
         if self.govt_id == self.rule_ctrl.governments[self.pplayer['government']]['id']:
             return False
 
-        pplayer = self.pplayer
-        return (self.player_ctrl.player_has_wonder(pplayer["playerno"], 63)
-                or ReqInfo.are_reqs_active(pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
+        return (self.player_ctrl.player_has_wonder(self.pplayer["playerno"], 63)
+                or ReqInfo.are_reqs_active(self.pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
 
     def _action_packet(self):
         packet = {"pid": packet_player_change_government,

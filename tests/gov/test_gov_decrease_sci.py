@@ -46,7 +46,8 @@ def test_gov_decrease_sci(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    decrease_sci_action = find_keys_with_keyword(player_opt._action_dict[0], 'decrease_sci')[0]
+    decrease_sci_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'decrease_sci')[0]
     assert (decrease_sci_action.is_action_valid())
 
     sci_1 = pplayer['science']

@@ -45,7 +45,8 @@ def test_dipl_cancel_vision(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    cancel_vision_act = find_keys_with_keyword(player_opt._action_dict[4], 'cancel_vision')[0]
+    cancel_vision_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True),
+                                               'cancel_vision')[0]
 
     assert (cancel_vision_act.is_action_valid())
     vs_1 = player_opt.players[0]['gives_shared_vision'][4]

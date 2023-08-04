@@ -45,7 +45,8 @@ def test_choose_research_goal(controller):
 
     tech_opt = options['tech']
 
-    valid_tech_goal_actions = find_keys_with_keyword(tech_opt._action_dict['cur_player'], 'set_tech_goal')
+    valid_tech_goal_actions = find_keys_with_keyword(tech_opt.get_actions('cur_player', valid_only=True),
+                                                     'set_tech_goal')
     tech_goal_action = random.choice(valid_tech_goal_actions)
     assert (tech_goal_action.is_action_valid())
 

@@ -38,13 +38,8 @@ class TechActions(ActionList):
         for tech_id in self.rule_ctrl.techs:
             tech_name = self.rule_ctrl.techs[tech_id]["name"]
 
-            choose_research_tech_act = ActChooseResearchTech(pplayer, tech_id, tech_name)
-            if choose_research_tech_act.is_action_valid():
-                self.add_action(actor_id, choose_research_tech_act)
-
-            choose_research_goal_act = ActChooseResearchGoal(pplayer, tech_id, tech_name)
-            if choose_research_goal_act.is_action_valid():
-                self.add_action(actor_id, choose_research_goal_act)
+            self.add_action(actor_id, ActChooseResearchTech(pplayer, tech_id, tech_name))
+            self.add_action(actor_id, ActChooseResearchGoal(pplayer, tech_id, tech_name))
 
 
 class ActChooseResearchTech(Action):

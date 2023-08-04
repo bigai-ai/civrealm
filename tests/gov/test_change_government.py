@@ -46,7 +46,8 @@ def test_change_government(controller):
     pplayer = options['player'].players[0]
     gov_opt = options['gov']
 
-    change_gov_action = find_keys_with_keyword(gov_opt._action_dict[0], 'change_gov_Anarchy')[0]
+    change_gov_action = find_keys_with_keyword(gov_opt.get_actions(0, valid_only=True),
+                                               'change_gov_Anarchy')[0]
     assert (change_gov_action.is_action_valid())
 
     gov_1 = pplayer['government']

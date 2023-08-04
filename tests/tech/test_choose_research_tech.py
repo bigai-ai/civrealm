@@ -45,7 +45,8 @@ def test_choose_research_tech(controller):
 
     tech_opt = options['tech']
 
-    valid_research_actions = find_keys_with_keyword(tech_opt._action_dict['cur_player'], 'research_tech')
+    valid_research_actions = find_keys_with_keyword(tech_opt.get_actions('cur_player', valid_only=True),
+                                                    'research_tech')
     while True:
         research_action = random.choice(valid_research_actions)
         if research_action.action_key != 'research_tech_Masonry_46':

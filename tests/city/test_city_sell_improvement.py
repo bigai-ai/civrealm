@@ -48,7 +48,7 @@ def test_city_sell_improvement(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_sell_improve_actions = find_keys_with_keyword(city_opt._action_dict[city_id],
+        valid_sell_improve_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
                                                             'city_sell_improvement_Barracks')
         sell_improve_action = random.choice(valid_sell_improve_actions)
         improve_id = sell_improve_action.improvement_id

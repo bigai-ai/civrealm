@@ -47,7 +47,8 @@ class PlayerOptions(ActionList):
     def update(self, pplayer):
         for counter_id in self.players:
             if self.actor_exists(counter_id):
-                self.update_city_action_set(counter_id, pplayer)
+                self.update_city_action_set(counter_id, pplayer['playerno'], counter_id)
+                self.update_city_action_set(pplayer['playerno'], counter_id, counter_id)
                 continue
             self.add_actor(counter_id)
 
@@ -79,51 +80,51 @@ class PlayerOptions(ActionList):
         self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart))
         self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
 
-        self.update_clause_options(dipl_ctrl, counter_id, cur_player)
-        self.update_clause_options(dipl_ctrl, cur_player['playerno'], counterpart)
+        self.update_clause_options(dipl_ctrl, counter_id, cur_player['playerno'], counter_id)
+        self.update_clause_options(dipl_ctrl, cur_player['playerno'], counter_id, counter_id)
 
-    def update_clause_options(self, dipl_ctrl, counter_id, cur_player):
+    def update_clause_options(self, dipl_ctrl, counter_index, pplayer_id, counter_id):
         base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION,
                         player_const.CLAUSE_EMBASSY, player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE,
                         player_const.CLAUSE_ALLIANCE]
         for ctype in base_clauses:
-            self.add_action(counter_id, AddClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
-            self.add_action(counter_id, RemoveClause(ctype, 1, cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+            self.add_action(counter_id, AddClause(ctype, 1, pplayer_id, counter_index, dipl_ctrl, counter_id))
+            self.add_action(counter_id, RemoveClause(ctype, 1, pplayer_id, counter_index, dipl_ctrl, counter_id))
 
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE,
-                                                           tech_id, cur_player['playerno'], counter_id, dipl_ctrl,
+            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
+                                                           pplayer_id, counter_index, dipl_ctrl,
                                                            counter_id, self.rule_ctrl, self.players))
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_ADVANCE, tech_id,
-                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+                                                     pplayer_id, counter_index, dipl_ctrl, counter_id))
 
         for pgold in range(1, MAX_GOLD):
-            self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD,
-                                                           pgold, cur_player['playerno'], counter_id, dipl_ctrl,
-                                                           counter_id, self.rule_ctrl, self.players))
+            self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold,
+                                                           pplayer_id, counter_index,
+                                                           dipl_ctrl, counter_id, self.rule_ctrl, self.players))
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold,
-                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+                                                     pplayer_id, counter_index, dipl_ctrl, counter_id))
 
         for pcity in self.city_ctrl.cities.keys():
             self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY,
-                                                           pcity, cur_player['playerno'], counter_id, dipl_ctrl,
+                                                           pcity, pplayer_id, counter_index, dipl_ctrl,
                                                            counter_id, self.rule_ctrl, self.city_ctrl, self.players))
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
-                                                     cur_player['playerno'], counter_id, dipl_ctrl, counter_id))
+                                                     pplayer_id, counter_index, dipl_ctrl, counter_id))
 
     def new_cities(self):
         new_city_set = set(self.city_ctrl.cities.keys()) - self.city_set
         self.city_set = set(self.city_ctrl.cities.keys())
         return new_city_set
 
-    def update_city_action_set(self, counter_id, pplayer):
+    def update_city_action_set(self, counter_index, pplayer_id, counter_id):
         new_city_set = self.new_cities()
         for pcity in new_city_set:
-            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY,
-                                                           pcity, pplayer['playerno'], counter_id, self.dipl_ctrl,
-                                                           counter_id, self.rule_ctrl, self.city_ctrl, self.players))
+            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, pplayer_id,
+                                                           counter_id, self.dipl_ctrl, counter_id,
+                                                           self.rule_ctrl, self.city_ctrl, self.players))
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
-                                                     pplayer['playerno'], counter_id, self.dipl_ctrl, counter_id))
+                                                     pplayer_id, counter_id, self.dipl_ctrl, counter_id))
 
 
 class IncreaseSci(base_action.Action):
@@ -343,11 +344,11 @@ class RemoveClause(base_action.Action):
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_remove_clause_req,
-                  "counterpart": self.counter_index,
+                  "counterpart": self.counter_id,
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = (102, self.counter_index)
+        self.wait_for_pid = (102, self.counter_id)
         return packet
 
     def if_on_meeting(self):
@@ -375,11 +376,11 @@ class AddClause(RemoveClause):
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_create_clause_req,
-                  "counterpart": self.counter_index,
+                  "counterpart": self.counter_id,
                   "giver": self.giver,
                   "type": self.clause_type,
                   "value": self.value}
-        self.wait_for_pid = (100, self.counter_index)
+        self.wait_for_pid = (100, self.counter_id)
         return packet
 
 

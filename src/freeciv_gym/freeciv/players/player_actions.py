@@ -337,12 +337,8 @@ class RemoveClause(base_action.Action):
         self.action_key += "_%s_player_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], giver, counter_index, value)
 
     def is_action_valid(self):
-        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-            for clause in clauses:
-                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
-                    return True
-            return False
+        if self.if_on_meeting():
+            return self.if_clause_exists()
         return False
 
     def _action_packet(self):
@@ -354,17 +350,27 @@ class RemoveClause(base_action.Action):
         self.wait_for_pid = (102, self.counter_index)
         return packet
 
+    def if_on_meeting(self):
+        return self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys()
+
+    def if_clause_exists(self):
+        if self.counter_id not in self.dipl_ctrl.diplomacy_clause_map.keys():
+            raise Exception("Start negotiation with %i first" % self.counter_id)
+
+        clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+        for clause in clauses:
+            if (clause['giver'] == self.giver and clause['type'] == self.clause_type
+                    and clause['value'] == self.value):
+                return True
+        return False
+
 
 class AddClause(RemoveClause):
     action_key = "add_clause"
 
     def is_action_valid(self):
-        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-            for clause in clauses:
-                if clause['giver'] == self.giver and clause['type'] == self.clause_type:
-                    return False
-            return True
+        if self.if_on_meeting():
+            return not self.if_clause_exists()
         return False
 
     def _action_packet(self):
@@ -389,13 +395,8 @@ class AddTradeTechClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
-        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-            for clause in clauses:
-                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
-                        and clause['value'] == self.value):
-                    return False
-            return (is_tech_known(self.players[self.giver], self.value)
+        if self.if_on_meeting():
+            return (not self.if_clause_exists() and is_tech_known(self.players[self.giver], self.value)
                     and player_invention_state(self.players[self.counter_index], self.value)
                     in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
         return False
@@ -413,13 +414,8 @@ class AddTradeGoldClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_gold"]:
             return False
-        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-            for clause in clauses:
-                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
-                        and clause['value'] == self.value):
-                    return False
-            return not self.value > self.players[self.giver]['gold']
+        if self.if_on_meeting():
+            return not self.if_clause_exists() and not self.value > self.players[self.giver]['gold']
         return False
 
 
@@ -436,14 +432,9 @@ class AddTradeCityClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_city"]:
             return False
-        if self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys():
-            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-            for clause in clauses:
-                if (clause['giver'] == self.giver and clause['type'] == self.clause_type
-                        and clause['value'] == self.value):
-                    return False
-            if self.city_ctrl.cities[self.value]['capital']:
-                return False
-            return self.city_ctrl.cities[self.value]['owner'] == self.giver
+        if self.if_on_meeting():
+
+            return (not self.if_clause_exists() and not self.city_ctrl.cities[self.value]['capital']
+                    and self.city_ctrl.cities[self.value]['owner'] == self.giver)
         return False
 

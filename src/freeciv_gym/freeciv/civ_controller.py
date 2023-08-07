@@ -306,10 +306,10 @@ class CivController(CivPropController):
                     else:
                         pid_info = (packet['pid'], None)
                 self.ws_client.stop_waiting(pid_info)
+                # self.ws_client.stop_waiting(packet['pid'])
                 self.handle_pack(packet['pid'], packet)
-                if 31 in self.ws_client.wait_for_packs:
-                    # TODO: handle wait_for_packs
-                    pass
+                # if 31 in self.ws_client.wait_for_packs:
+                #     pass
 
             self.maybe_grant_control_to_player()
         except Exception:

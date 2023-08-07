@@ -33,7 +33,7 @@ def controller():
     controller.close()
 
 
-def test_embark(controller):
+def test_embark_disembark(controller):
     fc_logger.info("test_embark")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
@@ -202,7 +202,7 @@ def test_embark(controller):
 def main():
     controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T375_2023-08-02-10_04')
-    test_embark(controller)
+    test_embark_disembark(controller)
 
 
 if __name__ == '__main__':

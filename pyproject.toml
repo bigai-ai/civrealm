@@ -96,5 +96,6 @@ addopts = [
     # "tests/unit/test_cancel_order.py",
     # "tests/unit/test_airbase.py",
     # "tests/unit/test_embark_disembark.py",
+    # "tests/unit/test_load_unload.py",
 
 ]

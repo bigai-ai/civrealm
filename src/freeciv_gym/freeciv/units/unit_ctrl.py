@@ -322,9 +322,10 @@ class UnitCtrl(CivPropController):
                         self.action_decision_handle(packet_unit)
         self.units[packet_unit['id']].update(packet_unit)
         self._update_tile_unit(self.units[packet_unit['id']])
-        # Clear action_decision_want (resulting from the saved human operation) if exist. 
+        # Clear action_decision_want (resulting from the saved human operation or units moving into some area) if exist. 
         if 'action_decision_want' in packet_unit:
-            self.action_decision_clear_want(packet_unit['id'])
+            if packet_unit['action_decision_want'] != ACT_DEC_NOTHING:
+                self.action_decision_clear_want(packet_unit['id'])
         """
         if current_focus.length > 0 and current_focus[0]['id'] == packet_unit['id']:
             update_active_units_dialog()
@@ -352,7 +353,12 @@ class UnitCtrl(CivPropController):
                 "type"    : USSDT_UNQUEUE,
                 "value"   : IDENTITY_NUMBER_ZERO
             }
-            self.ws_client.send_request(unqueue_packet)
+            self.ws_client.send_request(unqueue_packet, wait_for_pid=(63, old_actor_id))
+            # self.ws_client.send_request(unqueue_packet, wait_for_pid=63)
+            # if old_actor_id == 1912:
+            #     print(old_actor_id)
+            #     print(old)
+            #     fc_logger.info('Clear decision want.')
 
     # def unit_actor_wants_input(self, pdiplomat):
     #     """Handle server request for user input about diplomat action to do."""
@@ -626,3 +632,4 @@ class UnitCtrl(CivPropController):
 
         packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=suggested_name)
         self.ws_client.send_request(packet, wait_for_pid=(31, actor_unit['tile']))
+        # self.ws_client.send_request(packet, wait_for_pid=31)

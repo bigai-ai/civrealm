@@ -395,7 +395,11 @@ class UnitAction(Action):
         packet = {"pid": packet_unit_change_activity, "unit_id": self.focus.punit['id'],
                   "activity": activity, "target": target}
         return packet
-
+    
+    def _unit_do_activity(self, actor_id, activity, target):
+        packet = {"pid": packet_unit_change_activity, "unit_id": actor_id,
+                  "activity": activity, "target": target}
+        return packet
 
 class UnitActionVsTile(UnitAction):
     def action_packet(self):
@@ -429,6 +433,7 @@ class ActCancelOrder(UnitAction):
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         packet = self._request_new_unit_activity(ACTIVITY_IDLE, EXTRA_NONE)
         return packet
 
@@ -530,6 +535,7 @@ class EngineerAction(UnitAction):
     
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return self._eng_packet()
         
 
@@ -779,6 +785,7 @@ class ActExplore(UnitAction):
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return self._request_new_unit_activity(ACTIVITY_EXPLORE, EXTRA_NONE)
 
 
@@ -839,6 +846,7 @@ class ActBuild(UnitAction):
             packet = {"pid": packet_city_name_suggestion_req,
                         "unit_id": unit_id}
             self.wait_for_pid = (44, self.focus.punit['id'])
+            # self.wait_for_pid = 44
             return packet
         else:
             return self.found_new_city(unit_id)
@@ -850,6 +858,7 @@ class ActBuild(UnitAction):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
         self.wait_for_pid = (31, actor_unit['tile'])
+        # self.wait_for_pid = 31
         return self.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 class ActJoin(UnitAction):
@@ -877,6 +886,7 @@ class ActJoin(UnitAction):
         unit_id = self.focus.punit["id"]
         # Join city will cause the removal of unit. Wait for the unit remove packet.
         self.wait_for_pid = (62, unit_id)
+        # self.wait_for_pid = 62
         return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
 
 class ActFortify(UnitAction):
@@ -896,6 +906,7 @@ class ActFortify(UnitAction):
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return self._request_new_unit_activity(fc_types.ACTIVITY_FORTIFYING, EXTRA_NONE)
 
 
@@ -979,6 +990,7 @@ class ActPillage(UnitAction):
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return self._request_new_unit_activity(ACTIVITY_PILLAGE, EXTRA_NONE)
 
 
@@ -1052,19 +1064,52 @@ class ActLoadUnit(UnitAction):
 
 
 class ActUnloadUnit(UnitAction):
-    """Unload unit from transport"""
-    action_key = "unit_unload"
+    """Unload units from transport"""
+    action_key = "unload"
 
     def is_action_valid(self):
-        return self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0
+        # The unit cannot transport
+        if self.focus.ptype['transport_capacity'] == 0 or 'occupied' not in self.focus.punit:
+            return False
+        
+        if self.focus.punit['occupied'] == False:
+            return False
+
+        # Only when in a city, the transporter can unload all units.
+        if self.focus.pcity == None:
+            return False
+        
+        return True
 
     def _action_packet(self):
-        """Assuming only valid triggers"""
-        packet = {"pid": packet_unit_unload,
-                  "cargo_id": self.focus.punit['id'],
-                  "transporter_id": self.focus.punit['transported_by']
-                  }
-        return packet
+        # Get the units in the same tile. Note that not all these units are transported by the focus unit.
+        units = self.focus.ptile['units']
+        packets = []
+        for unit in units:
+            # The unit is transported by the focus transporter
+            if unit['transported_by'] == self.focus.punit['id']:
+                packets.append(self._unit_do_activity(unit['id'], fc_types.ACTIVITY_IDLE, EXTRA_NONE))
+                packets.append(self.unit_do_action(self.focus.punit["id"], unit['id'], fc_types.ACTION_TRANSPORT_UNLOAD))
+                
+        # for (var i = 0; i < units_on_tile.length; i++) {
+        #     var punit = units_on_tile[i];
+
+        #     if (punit['transported'] && punit['transported_by'] > 0
+        #         && punit['owner'] == client.conn.playing.playerno) {
+        #     request_new_unit_activity(punit, ACTIVITY_IDLE, EXTRA_NONE);
+        #     request_unit_do_action(ACTION_TRANSPORT_DEBOARD, punit['id'],
+        #                             punit['transported_by']);
+        #     } else {
+        #     request_new_unit_activity(punit, ACTIVITY_IDLE, EXTRA_NONE);
+        #     request_unit_do_action(ACTION_TRANSPORT_UNLOAD,
+        #                             punit['transported_by'],
+        #                             punit['id']);
+        #     }
+        # }
+
+        self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
+        return packets
 
 
 class DiplomaticAction(UnitAction):
@@ -1323,6 +1368,8 @@ class ActGoto(StdAction):
         self.move_dir = None
 
     def is_action_valid(self):
+        #if self.focus.punit['transported']:
+            #return False
         if not action_prob_possible(self.focus.action_prob[self.dir8][ACTION_UNIT_MOVE]):
             return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
@@ -1368,6 +1415,7 @@ class ActGoto(StdAction):
                   "dest_tile": target_tile['index']
                   }
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return packet
     
 class ActHutEnter(StdAction):
@@ -1382,6 +1430,8 @@ class ActHutEnter(StdAction):
         self.move_dir = None
 
     def is_action_valid(self):
+        #if self.focus.punit['transported']:
+           # return False
         if not action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_HUT_ENTER]):
             return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
@@ -1394,6 +1444,7 @@ class ActHutEnter(StdAction):
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         return self.unit_do_action(self.focus.punit['id'],
                                    self.newtile['index'],
                                    fc_types.ACTION_HUT_ENTER)
@@ -1401,6 +1452,7 @@ class ActHutEnter(StdAction):
         dir8 = self.move_dir
         target_tile = self.newtile
         self.wait_for_pid = (63, self.focus.punit['id'])
+        # self.wait_for_pid = 63
         packet = {"pid": packet_unit_orders,
                   "unit_id": actor_unit['id'],
                   "src_tile": actor_unit['tile'],
@@ -1474,7 +1526,13 @@ class ActGetActionPro(UnitAction):
             newtile = self.focus.ptile
             self.target_tile_id = newtile['index']
             self.target_unit_id = -1
-            self.target_city_id = -1
+            # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+            # if self.target_city == None:
+            #     self.target_city_id = -1
+            # else:
+            #     self.target_city_id = self.target_city['id']
+            # if self.focus.punit['id'] in [1549, 1099, 886, 1964, 1912]:
+            #     print(self.target_city_id)
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:
@@ -1497,7 +1555,11 @@ class ActGetActionPro(UnitAction):
                     self.target_unit_id.append(newtile['units'][idx]['id'])
             else:
                 self.target_unit_id = -1
-            self.target_city_id = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+            # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+            # if self.target_city == None:
+            #     self.target_city_id = -1
+            # else:
+            #     self.target_city_id = self.target_city['id']
             # extra = newtile['extras']
             # set_bits = find_set_bits(extra)
             # if len(set_bits) == 0:
@@ -1521,11 +1583,13 @@ class ActGetActionPro(UnitAction):
                     "request_kind": 1
                 }
             self.wait_for_pid = (90, self.focus.punit['id'])
+            # self.wait_for_pid = 90
             return packet
         else:
             if type(self.target_extra_id) == list and type(self.target_unit_id) == int:
                 packets = []
                 self.wait_for_pid = (90, self.focus.punit['id'])
+                # self.wait_for_pid = 90
                 for extra_id in self.target_extra_id:
                     actor_unit = self.focus.punit 
                     packet = {"pid": packet_unit_get_actions,
@@ -1542,6 +1606,7 @@ class ActGetActionPro(UnitAction):
             if type(self.target_extra_id) == int and type(self.target_unit_id) == list:
                 packets = []
                 self.wait_for_pid = (90, self.focus.punit['id'])
+                # self.wait_for_pid = 90
                 for unit_id in self.target_unit_id:
                     actor_unit = self.focus.punit 
                     packet = {"pid": packet_unit_get_actions,
@@ -1566,6 +1631,7 @@ class ActGetActionPro(UnitAction):
                     "request_kind": 1
                 }
             self.wait_for_pid = (90, self.focus.punit['id'])
+            # self.wait_for_pid = 90
             return packet
         
 class ActNuke(UnitAction):

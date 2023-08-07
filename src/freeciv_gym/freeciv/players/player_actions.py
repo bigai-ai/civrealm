@@ -161,6 +161,7 @@ class IncreaseSci(base_action.Action):
                   "luxury": self.lux,
                   "science": self.sci}
         self.wait_for_pid = (51, self.playerno)
+        # self.wait_for_pid = 51
         return packet
 
 
@@ -259,6 +260,7 @@ class StartNegotiate(base_action.Action):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
         self.wait_for_pid = (96, self.counterpart["playerno"])
+        # self.wait_for_pid = 96
         return packet
 
 
@@ -272,6 +274,7 @@ class AcceptTreaty(StartNegotiate):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
                   "counterpart": self.counterpart["playerno"]}
         self.wait_for_pid = (104, self.counterpart["playerno"])
+        # self.wait_for_pid = 104
         return packet
 
 
@@ -293,6 +296,7 @@ class CancelTreaty(StartNegotiate):
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
         self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
+        # self.wait_for_pid = 59
         return packet
 
 
@@ -306,6 +310,7 @@ class StopNegotiate(StartNegotiate):
         packet = {"pid": packet_diplomacy_cancel_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
         self.wait_for_pid = (98, self.counterpart["playerno"])
+        # self.wait_for_pid = 98
         return packet
 
 
@@ -321,6 +326,7 @@ class CancelVision(StartNegotiate):
                   "other_player_id": self.counterpart["playerno"],
                   "clause": player_const.CLAUSE_VISION}
         self.wait_for_pid = (51, self.cur_player['playerno'])
+        # self.wait_for_pid = 51
         return packet
 
 
@@ -349,6 +355,7 @@ class RemoveClause(base_action.Action):
                   "type": self.clause_type,
                   "value": self.value}
         self.wait_for_pid = (102, self.counter_id)
+        # self.wait_for_pid = 102
         return packet
 
     def if_on_meeting(self):
@@ -381,6 +388,7 @@ class AddClause(RemoveClause):
                   "type": self.clause_type,
                   "value": self.value}
         self.wait_for_pid = (100, self.counter_id)
+        # self.wait_for_pid = 100
         return packet
 
 

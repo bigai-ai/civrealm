@@ -121,10 +121,10 @@ class PlayerOptions(ActionList):
         new_city_set = self.new_cities()
         for pcity in new_city_set:
             self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, pplayer_id,
-                                                           counter_id, self.dipl_ctrl, counter_id,
+                                                           counter_index, self.dipl_ctrl, counter_id,
                                                            self.rule_ctrl, self.city_ctrl, self.players))
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
-                                                     pplayer_id, counter_id, self.dipl_ctrl, counter_id))
+                                                     pplayer_id, counter_index, self.dipl_ctrl, counter_id))
 
 
 class IncreaseSci(base_action.Action):

@@ -68,6 +68,7 @@ addopts = [
     # "tests/dipl/test_dipl_trade_tech.py",
     # "tests/dipl/test_dipl_trade_gold.py",
     # "tests/dipl/test_dipl_trade_city.py",
+    
     # "tests/unit/test_move_to.py",
     # "tests/unit/test_hut_enter.py",
     # "tests/unit/test_build_city.py",

@@ -502,6 +502,12 @@ class UnitCtrl(CivPropController):
         #         if action_probabilities[i] != {'min': 0, 'max': 0}:
         #             fc_logger.info(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {action_probabilities[i]}')
 
+        # if (actor_unit_id == 886):
+        #     print(f'actor_unit_id: {actor_unit_id}, target_unit_id: {target_unit_id}, target_tile_id: {target_tile_id}')
+        #     for i in range(len(action_probabilities)):
+        #         if action_probabilities[i] != {'min': 0, 'max': 0}:
+        #             fc_logger.info(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {action_probabilities[i]}')
+
         # print(f"unit_id: {actor_unit_id}, target_position: ({target_tile['x']}, {target_tile['y']}), extra: {self.rule_ctrl.extras[target_extra_id]['name'] if target_extra_id != -1 else None}.")
         
         # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')

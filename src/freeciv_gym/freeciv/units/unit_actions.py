@@ -70,7 +70,6 @@ class FocusUnit():
 
         self.obsolete_type = None
         self.transporter = None
-        self.trans_capacity = None
 
         self.action_prob = {}
 
@@ -90,14 +89,45 @@ class FocusUnit():
         else:
             self.obsolete_type = None
 
+        # ground, air, or missile
+        self.transported_type = ''
+         # Check the transported_type of the unit.
+        if self.ptype['name'] in self.rule_ctrl.air_units:
+            self.transported_type = 'air'
+        elif self.ptype['name'] in self.rule_ctrl.missile_units:
+            self.transported_type = 'missile'
+        elif self.ptype['name'] in self.rule_ctrl.ground_units:
+            self.transported_type = 'ground'
+    
+    def get_transporter(self):
         self.transporter = None
-        self.trans_capacity = 0
+        # Key: transporter id; Value: record how many units the transporter has carried.
+        transport_count = {}
 
-        for tunit in self.units_on_tile:
-            trans_type = self.rule_ctrl.unit_type(tunit)
-            if trans_type['transport_capacity'] > 0:
-                self.transporter = tunit
-                self.trans_capacity = trans_type['transport_capacity']
+        if self.transported_type == 'ground':
+            for tunit in self.units_on_tile:
+                # This unit is tranported by a ground_unit_transporter
+                if tunit['transported_by'] > 0 and self.rule_ctrl.unit_type(self.unit_ctrl.units[tunit['transported_by']])['name'] in self.rule_ctrl.ground_unit_transporter:
+                    # update transport_count
+                    if tunit['transported_by'] in transport_count:
+                        transport_count[tunit['transported_by']] = transport_count[tunit['transported_by']] + 1
+                    else:
+                        # Initialize count for this transporter
+                        transport_count[tunit['transported_by']] = 1
+                else:
+                    trans_type = self.rule_ctrl.unit_type(tunit)
+                    # This unit is a ground unit transporter
+                    if trans_type['name'] in self.rule_ctrl.ground_unit_transporter:
+                        if tunit['id'] not in transport_count:
+                            # Initialize count for this transporter
+                            transport_count[tunit['id']] = 0
+            
+            for transporter in transport_count:
+                trans_unit = self.unit_ctrl.units[transporter]
+                trans_type = self.rule_ctrl.unit_type(trans_unit)
+                # As long as a transporter has a capacity, we let it be the transporter. TODO: update the mechanism to let the unit can select which transporter to load.
+                if transport_count[transporter] < trans_type['transport_capacity']:
+                    self.transporter = trans_unit
 
     # Core functions to control focus units--------------------------------------------------
     @staticmethod
@@ -121,7 +151,6 @@ class FocusUnit():
 
         self.obsolete_type = None
         self.transporter = None
-        self.trans_capacity = None
 
         self.action_probabilities = None
 
@@ -469,6 +498,7 @@ class ActDisband(StdAction):
         target_city = self.focus.pcity
         target_id = self.focus.punit['id'] if target_city is None else target_city['id']
         action_id = ACTION_DISBAND_UNIT if target_city is None else ACTION_DISBAND_UNIT_RECOVER
+        self.wait_for_pid = (62, self.focus.punit['id'])
         return self.unit_do_action(self.focus.punit['id'], target_id, action_id)
 
 
@@ -766,6 +796,7 @@ class ActAutoSettler(UnitAction):
     action_key = "autosettlers"
 
     def is_action_valid(self):
+        return False
         return self.focus.ptype["name"] in ["Settlers", "Workers", "Engineers"]
 
     def _action_packet(self):
@@ -898,9 +929,8 @@ class ActFortify(UnitAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FORTIFY):
             return False
         
-        # If being transported, cannot fortify.
-        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
-            return False
+        # if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+        #     return False
         
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
@@ -1047,25 +1077,38 @@ class ActLoadUnit(UnitAction):
     action_key = "unit_load"
 
     def is_action_valid(self):
-        if self.focus.pcity is None:
+        # If unit is a transporter, cannot load onto another unit.
+        if self.focus.ptype['transport_capacity'] > 0:
+            return False
+        # The unit has been transported, cannot do load action again.
+        if self.focus.punit['transported']:
+            return False
+        # Check whether the unit is a ground unit.
+        if self.focus.transported_type == 'ground':
+            # If the unit is not in a city, cannot perform load action.
+            if self.focus.pcity is None:
+                return False
+            # Get the current avaliable transporter
+            self.focus.get_transporter()
+            return self.focus.transporter is not None
+        else:
+            # Check air units and missile units later
             return False
 
-        return self.focus.trans_capacity > 0 and \
-            self.focus.transporter["id"] != self.focus.punit["id"]
-
     def _action_packet(self):
-        """Assuming only valid triggers"""
-        packet = {"pid": packet_unit_load,
-                  "cargo_id": self.focus.punit['id'],
-                  "transporter_id": self.focus.transporter['id'],
-                  "transporter_tile": self.focus.punit['tile']
-                  }
+        # """Assuming only valid triggers"""
+        # packet = {"pid": packet_unit_load,
+        #           "cargo_id": self.focus.punit['id'],
+        #           "transporter_id": self.focus.transporter['id'],
+        #           "transporter_tile": self.focus.punit['tile']
+        #           }
+        packet = self.unit_do_action(self.focus.punit['id'], self.focus.transporter['id'], fc_types.ACTION_TRANSPORT_BOARD)
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
-
 
 class ActUnloadUnit(UnitAction):
     """Unload units from transport"""
-    action_key = "unload"
+    action_key = "unit_unload"
 
     def is_action_valid(self):
         # The unit cannot transport
@@ -1525,7 +1568,19 @@ class ActGetActionPro(UnitAction):
         if self.dir8 == map_const.DIR8_STAY:
             newtile = self.focus.ptile
             self.target_tile_id = newtile['index']
+            
+            # if self.focus.punit['id'] == 886:
+            #     for u in newtile['units']:
+            #         print(u)
+
+            # if len(newtile['units']) > 0:
+            #     self.target_unit_id = []
+            #     for idx in range(len(newtile['units'])):
+            #         self.target_unit_id.append(newtile['units'][idx]['id'])
+            # else:
+            #     self.target_unit_id = -1
             self.target_unit_id = -1
+
             # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
             # if self.target_city == None:
             #     self.target_city_id = -1
@@ -1666,6 +1721,8 @@ class ActAttack(UnitAction):
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
                                      ACTION_ATTACK)
+        
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
 
 class ActDisembark(UnitAction):

@@ -33,8 +33,8 @@ def controller():
     controller.close()
 
 
-def test_load_unload(controller):
-    fc_logger.info("test_load_unload")
+def test_load_deboard_unload(controller):
+    fc_logger.info("test_load_deboard_unload")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
@@ -92,12 +92,14 @@ def test_load_unload(controller):
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
 
     for unit_id in boat_ids:
+        unit_focus = unit_opt.unit_data[unit_id]
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # Both boats are in a city, can unload.
         assert ('unit_unload' in valid_actions)
 
         if unit_id == 1549:
+            print(f"Boat {unit_id}'s move left before unload: {unit_focus.punit['movesleft']}")
             # Boat 1549 unloads its units.
             valid_actions['unit_unload'].trigger_action(controller.ws_client)
     
@@ -105,7 +107,10 @@ def test_load_unload(controller):
 
     controller.get_info()
     controller.get_observation()
-
+    
+    unit_focus = unit_opt.unit_data[1549]
+    print(f"Boat {1549}'s move left after unload: {unit_focus.punit['movesleft']}")
+    
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -129,9 +134,26 @@ def test_load_unload(controller):
         # All units have been onboard.
         assert (unit_focus.punit['transported'] > 0)
         assert ('unit_load' not in valid_actions)
+        assert ('unit_deboard' in valid_actions)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
         print(f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
+        print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
+        valid_actions['unit_deboard'].trigger_action(controller.ws_client)
 
+    print('All units deboard.')
+    controller.get_info()
+    controller.get_observation()
+
+    for unit_id in unit_ids:
+        unit_focus = unit_opt.unit_data[unit_id]
+        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+        # All units have deboarded.
+        assert (unit_focus.punit['transported'] == 0)
+        assert ('unit_load' in valid_actions)
+        assert ('unit_deboard' not in valid_actions)
+        print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+        print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
+        print(f"Unit{unit_id}\'s move left: {unit_focus.punit['movesleft']}")
 
     # import time
     # time.sleep(2)
@@ -140,7 +162,7 @@ def test_load_unload(controller):
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T376_2023-08-07-07_35')
-    test_load_unload(controller)
+    test_load_deboard_unload(controller)
 
 
 if __name__ == '__main__':

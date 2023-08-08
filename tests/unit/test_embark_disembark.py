@@ -161,6 +161,7 @@ def test_embark_disembark(controller):
     controller.get_observation()
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
+    print(f"Unit {886}'s move left before disembark: {unit_opt.unit_data[886].punit['movesleft']}")
     # Disembark to the north
     valid_actions['disembark_1'].trigger_action(controller.ws_client)
 
@@ -170,7 +171,7 @@ def test_embark_disembark(controller):
     controller.send_end_turn()
     controller.get_info()
     controller.get_observation()
-
+    
     unit_id = 886
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])

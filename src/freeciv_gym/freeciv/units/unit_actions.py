@@ -282,7 +282,7 @@ class UnitActions(ActionList):
 
         for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
-                          ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade,
+                          ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
                           ]:
@@ -1072,8 +1072,33 @@ class ActUpgrade(UnitAction):
         return self.unit_do_action(self.focus.punit['id'], target_id, ACTION_UPGRADE_UNIT)
 
 
+class ActDeboard(UnitAction):
+    """A unit performs this action to deboard from a transport. This action does not cost move."""
+    action_key = "unit_deboard"
+
+    def is_action_valid(self):
+        # The unit has not been transported, cannot do deboard action.
+        if self.focus.punit['transported'] == False:
+            return False
+        else:            
+            # Check whether the unit is a ground unit.
+            if self.focus.transported_type == 'ground':
+                # If the unit is not in a city, cannot perform deboard action.
+                if self.focus.pcity is None:
+                    return False
+                return True
+            else:
+                # Check air units and missile units later
+                return False
+
+    def _action_packet(self):
+        packet = self.unit_do_action(self.focus.punit['id'], self.focus.punit['transported_by'], fc_types.ACTION_TRANSPORT_DEBOARD)
+        self.wait_for_pid = (63, self.focus.punit['id'])
+        return packet
+
+
 class ActLoadUnit(UnitAction):
-    """Tell the units in focus to load on a transport."""
+    """A unit performs this action to load on a transport. This action does not cost move."""
     action_key = "unit_load"
 
     def is_action_valid(self):
@@ -1107,7 +1132,7 @@ class ActLoadUnit(UnitAction):
         return packet
 
 class ActUnloadUnit(UnitAction):
-    """Unload units from transport"""
+    """A transporter performs this action to unload all units carried by it. This action does not cost move."""
     action_key = "unit_unload"
 
     def is_action_valid(self):
@@ -1726,7 +1751,7 @@ class ActAttack(UnitAction):
         return packet
 
 class ActDisembark(UnitAction):
-    """Attack unit on target tile"""
+    """Disembark a transported unit on target tile. This action costs the unit's move."""
     action_key = "disembark"
 
     def __init__(self, focus, dir8):
@@ -1757,7 +1782,7 @@ class ActDisembark(UnitAction):
         return packet
 
 class ActEmbark(UnitAction):
-    """Attack unit on target tile"""
+    """Embark a unit on a target transporter. This action costs the unit's move."""
     action_key = "embark"
 
     def __init__(self, focus, dir8, target_unit_id):

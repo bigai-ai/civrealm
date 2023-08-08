@@ -30,6 +30,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 MAX_GOLD = 10
 
+
 class PlayerOptions(ActionList):
     # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
     def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players, clstate):
@@ -46,13 +47,15 @@ class PlayerOptions(ActionList):
 
     def update(self, pplayer):
         for counter_id in self.players:
-            if self.actor_exists(counter_id):
-                self.update_city_action_set(counter_id, pplayer['playerno'], counter_id)
-                self.update_city_action_set(pplayer['playerno'], counter_id, counter_id)
-                continue
-            self.add_actor(counter_id)
-
             counterpart = self.players[counter_id]
+
+            if self.actor_exists(counter_id):
+                if counterpart != pplayer and counterpart['is_alive'] and len(self.new_cities()) > 0:
+                    self.update_city_action_set(counter_id, pplayer['playerno'], counter_id, self.new_cities())
+                    self.update_city_action_set(pplayer['playerno'], counter_id, counter_id, self.new_cities())
+                continue
+
+            self.add_actor(counter_id)
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
             elif counterpart['is_alive']:
@@ -60,7 +63,6 @@ class PlayerOptions(ActionList):
 
     def update_player_options(self, counter_id, pplayer):
         maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
-
         cur_state = {"playerno": pplayer['playerno'], "tax": pplayer['tax'], "sci": pplayer["science"],
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 
@@ -105,20 +107,14 @@ class PlayerOptions(ActionList):
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold,
                                                      pplayer_id, counter_index, dipl_ctrl, counter_id))
 
-        for pcity in self.city_ctrl.cities.keys():
-            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY,
-                                                           pcity, pplayer_id, counter_index, dipl_ctrl,
-                                                           counter_id, self.rule_ctrl, self.city_ctrl, self.players))
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
-                                                     pplayer_id, counter_index, dipl_ctrl, counter_id))
+        self.update_city_action_set(counter_index, pplayer_id, counter_id, set(self.city_ctrl.cities.keys()))
 
     def new_cities(self):
         new_city_set = set(self.city_ctrl.cities.keys()) - self.city_set
         self.city_set = set(self.city_ctrl.cities.keys())
         return new_city_set
 
-    def update_city_action_set(self, counter_index, pplayer_id, counter_id):
-        new_city_set = self.new_cities()
+    def update_city_action_set(self, counter_index, pplayer_id, counter_id, new_city_set):
         for pcity in new_city_set:
             self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, pplayer_id,
                                                            counter_index, self.dipl_ctrl, counter_id,
@@ -441,8 +437,9 @@ class AddTradeCityClause(AddClause):
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_city"]:
             return False
+        if self.value not in self.city_ctrl.cities:
+            return False
         if self.if_on_meeting():
-
             return (not self.if_clause_exists() and not self.city_ctrl.cities[self.value]['capital']
                     and self.city_ctrl.cities[self.value]['owner'] == self.giver)
         return False

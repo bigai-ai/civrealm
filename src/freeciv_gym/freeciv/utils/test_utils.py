@@ -3,10 +3,13 @@ import random
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.port_list import DEV_PORT_LIST
 
-def get_first_observation_option(controller):
+
+def get_first_observation_option(controller, client_port=None):
     # Random choose one port for test
-    port = random.choice(DEV_PORT_LIST)
-    controller.client_port = port
+    if client_port is not None:
+        controller.client_port = client_port
+    else:
+        controller.client_port = random.choice(DEV_PORT_LIST)
     # Reset controller. Otherwise, the states (clstate, conn info, etc.) changed in the previous login will cause errors.
     controller.reset()
     opt = None

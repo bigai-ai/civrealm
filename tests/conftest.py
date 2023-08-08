@@ -18,17 +18,23 @@ import subprocess
 import logging
 import pytest
 import filelock
+from freeciv_gym.freeciv.build_server import docker_image_name
 from freeciv_gym.configs import fc_args
 fc_args['username'] = 'testcontroller'
 
 
 test_dir = os.path.dirname(__file__)
-subprocess.call(
-    f'docker cp {test_dir}/game_save/testcontroller freeciv-web:/var/lib/tomcat10/webapps/data/savegames/',
-    shell=True, executable='/bin/bash')
-subprocess.call(
-    f'docker cp {test_dir}/game_save/tutorial freeciv-web:/var/lib/tomcat10/webapps/data/savegames/',
-    shell=True, executable='/bin/bash')
+if docker_image_name == 'freeciv-web':
+    tomcat_dir = 'tomcat10'
+elif docker_image_name == 'fciv-net':
+    tomcat_dir = 'tomcat9'
+else:
+    raise ValueError(f'Unknown docker image name: {docker_image_name}')
+
+for username in next(os.walk(f'{test_dir}/game_save/'))[1]:
+    subprocess.call(
+        f'docker cp {test_dir}/game_save/{username} {docker_image_name}:/var/lib/{tomcat_dir}/webapps/data/savegames/',
+        shell=True, executable='/bin/bash')
 
 
 def pytest_configure(config):

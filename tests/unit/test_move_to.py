@@ -118,11 +118,16 @@ def test_move_to(controller):
         else:
             pass
 
-# def main():
-#     controller = CivController(fc_args['username'])
-#     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-#     test_move_to(controller)
+def main():
+    fc_args['username'] = 'testcontroller'
+    controller = CivController(fc_args['username'])
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    test_move_to(controller)
+    # Delete gamesave saved in handle_begin_turn
+    controller.handle_end_turn(None)
+    controller.end_game()
+    controller.close()
 
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

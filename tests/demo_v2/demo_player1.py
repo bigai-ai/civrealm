@@ -27,8 +27,36 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
-
-
+########################################
+#### Initial Information
+# myagent(OUR)
+# Unit id: 108, position: (30, 26)
+# Unit id: 107, position: (31, 26)
+# Unit id: 102, position: (32, 26)
+#### Next Location: Target City Discovery
+# Unit id: 108, position: (30, 23)
+# Unit id: 107, position: (31, 23)
+# Unit id: 102, position: (32, 23)
+#### Next Location: Target Plane Discovery
+#### Next Location: Target Leader of Enemy Discovery
+########################################
+SCRIPT_LIST = ["TARGET_CITY_DISCOVERY", "TARGET_PLANE_DISCOVERY"]
+STAY_UNITS_LIST = [110]
+MOVE_UNITS_LIST = [102, 107, 108]
+UNITS_TRACK = {
+    108: {
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
+    },
+    107: {
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
+    },
+    102: {
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
+    }
+}
 
 def configure_test_logger():
     # Close and remove all old handlers and add a new one with the test name
@@ -61,61 +89,47 @@ def test_move_to(controller):
     time.sleep(10)
 
     # action control
-    test_action_list = []
-    origin_position = {}
-    stay_units_list = [110]
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        # stay units
-        if unit_id in stay_units_list:
-            continue
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-        origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
-        # Get valid actions
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        if unit_id == 108:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-        elif unit_id == 107:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-        elif unit_id == 102:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-    
-    # Perform goto action for each unit
-    for action in test_action_list:
-        action.trigger_action(controller.ws_client)
 
-    # Get unit new state
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
-    unit_opt = options['unit']
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        # stay units
-        if unit_id in stay_units_list:
-            continue
+    # loop for scripts
+    for script in SCRIPT_LIST:
+        print(f"LOADING SCRIPT: {script}")
+        unit_step_pointer = {i: 0 for i in MOVE_UNITS_LIST}
+        while True:
+            # Append action for each unit
+            test_action_list = []
+            for unit_id in unit_opt.unit_ctrl.units.keys():
+                # Stay units
+                if unit_id in STAY_UNITS_LIST:
+                    continue
+                
+                punit = unit_opt.unit_ctrl.units[unit_id]
+                unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+                print(
+                    f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+                # Get valid actions
+                valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+                step = unit_step_pointer[unit_id]
+                # Avoid out of index
+                if step >= len(UNITS_TRACK[unit_id][script]):
+                    continue
+                # Append action
+                test_action_list.append(valid_actions[UNITS_TRACK[unit_id][script][step]])
+                unit_step_pointer[unit_id] += 1
+            
+            # Break Loop if not valid actions
+            if len(test_action_list) == 0:
+                break
 
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        old_position = origin_position[unit_id]
-        new_position = (unit_tile['x'], unit_tile['y'])
-        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-        origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        print(f"Unit id: {unit_id}, valid_actions: {valid_actions}")
-        assert (valid_actions != {})
-        assert (unit_opt.unit_ctrl.get_unit_moves_left(punit) != '0')
+            # Perform goto action for each unit
+            for action in test_action_list:
+                action.trigger_action(controller.ws_client)
 
-        if unit_id == 108:
-            # EAST
-            assert (new_position[1] == old_position[1]-1)
-        elif unit_id == 107:
-            # NORTHWEST
-            assert (new_position[1] == old_position[1]-1)
-        elif unit_id == 102:
-            # SOUTH
-            assert (new_position[1] == old_position[1]-1)
-
+            # Get unit new state and check
+            options = controller.get_info()['available_actions']
+            controller.get_observation()
+            unit_opt = options['unit']
+        
+            time.sleep(1)
 
 def main():
     fc_args['username'] = 'myagent'

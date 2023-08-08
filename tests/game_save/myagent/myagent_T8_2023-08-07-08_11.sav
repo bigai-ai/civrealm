@@ -1177,9 +1177,9 @@ nunits=4
 orders_max_length=0
 u={"id","x","y","facing","nationality","veteran","hp","homecity","type_by_name","activity","activity_count","activity_tgt","changed_from","changed_from_count","changed_from_tgt","done_moving","moves","fuel","born","battlegroup","go","goto_x","goto_y","server_side_agent","passenger","ferryboat","charge","bodyguard","texaipassenger","texaiferryboat","texaicharge","texaibodyguard","ord_map","ord_city","moved","paradropped","transported_by","carrying","action_decision","action_decision_tile_x","action_decision_tile_y","stay","orders_length","orders_index","orders_repeat","orders_vigilant","orders_list","dir_list","activity_list","action_vec","tgt_vec","sub_tgt_vec"
 110,31,27,"7",0,0,20,0,"Leader",0,0,-1,0,0,-1,FALSE,6,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
-108,30,26,"7",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,9,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
-107,31,26,"8",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,9,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
-102,32,26,"9",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,9,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
+108,30,26,"7",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,90,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
+107,31,26,"8",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,90,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
+102,32,26,"9",0,0,30,0,"Mech. Inf.",0,0,-1,0,0,-1,FALSE,90,0,1,-1,FALSE,0,0,0,0,0,0,0,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-",-1,-1,-1
 }
 map_t0000="uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu"
 map_t0001="uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu"

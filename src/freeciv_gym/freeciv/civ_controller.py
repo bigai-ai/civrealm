@@ -290,7 +290,7 @@ class CivController(CivPropController):
                 pid_info = None
                 if packet['pid'] == 31:
                     pid_info = (packet['pid'], packet['tile'])
-                elif packet['pid'] == 44:
+                elif packet['pid'] == 44 or packet['pid'] == 62:
                     pid_info = (packet['pid'], packet['unit_id'])
                 else:
                     if 'id' in packet:

@@ -94,9 +94,9 @@ def test_get_action_pro(controller):
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
-        # In last turn, Unit 207 has a goal. Afer end turn, it reaches the goal and its action_decision_want becomes non_zero. We do not query its action pro in this case. 
+        # In last turn, Unit 207 has a goal. Afer end turn, it reaches the goal and its action_decision_want becomes non_zero. We will clear its action_decision_want and query its action pro in this case. 
         if unit_id == 207:
-            assert(len(unit_focus.action_prob) == 0)
+            assert(len(unit_focus.action_prob) > 0)
     
     controller.send_end_turn()
     print('end turn')

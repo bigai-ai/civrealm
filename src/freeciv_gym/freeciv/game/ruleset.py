@@ -58,6 +58,14 @@ class RulesetCtrl(CivPropController):
         self.prop_state = RuleState(self.game_info)
         self.prop_actions = NoActions(ws_client)
 
+        self.ground_unit_transporter = ['Trireme', 'Caravel', 'Galleon', 'Frigate', 'Transport']
+        self.missile_unit_transporter = ['Submarine']
+        self.air_unit_transporter = ['Carrier']
+
+        self.air_units = ['Fighter', 'Bomber', 'AWACS', 'Helicopter', 'Stealth_Fighter', 'Stealth_Bomber']
+        self.missile_units = ['Cruise_Missile', 'Nuclear']
+        self.ground_units = ['Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archers', 'Legion', 'Pikemen', 'Musketeers', 'Partisan', 'Alpine_Troops', 'Riflemen', 'Marines', 'Paratroopers', 'Mech._Inf.', 'Horsemen', 'Chariot', 'Knights', 'Dragoons', 'Cavalry', 'Armor', 'Catapult', 'Cannon', 'Artillery', 'Howitzer', 'Diplomat', 'Spy', 'Caravan', 'Freight', 'Explorer']
+
     def register_all_handlers(self):
         self.register_handler(9, "handle_ruleset_tech_class")
         self.register_handler(12, "handle_endgame_report")
@@ -166,6 +174,9 @@ class RulesetCtrl(CivPropController):
                 packet['name'] = packet['name'].replace('?unit:', '')
 
             self.unit_types[packet['id']] = packet
+            # if packet['transport_capacity'] > 0:
+            # print(packet)
+            # print('\n')
 
     def handle_ruleset_game(self, packet):
         self.game_rules = packet

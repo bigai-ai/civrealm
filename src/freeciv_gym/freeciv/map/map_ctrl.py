@@ -115,6 +115,17 @@ class MapCtrl(CivPropController):
             y += 1
         return self.prop_state.tiles[x + y * self.map_info['xsize']]
 
+    def if_out_mapsize(self, x, y):
+        wrap_has_flag = self.wrap_has_flag
+        if wrap_has_flag(map_const.TF_WRAPX) and wrap_has_flag(map_const.TF_WRAPY):
+            return False
+        elif wrap_has_flag(map_const.TF_WRAPX):
+            return y >= self.map_info['ysize'] or y < 0
+        elif wrap_has_flag(map_const.TF_WRAPY):
+            return x >= self.map_info['xsize'] or x < 0
+        else:
+            return x >= self.map_info['xsize'] or y >= self.map_info['ysize'] or x < 0 or y < 0
+
     def index_to_tile(self, index):
         """Return the tile for the given index."""
         return self.prop_state.tiles[index]

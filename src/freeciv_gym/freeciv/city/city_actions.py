@@ -33,6 +33,7 @@ class CityActions(ActionList):
         super().__init__(ws_client)
         self.rulectrl = rulectrl
         self.cities = city_list
+        self.map_ctrl = map_ctrl
         self.city_map = CityTileMap(1, map_ctrl)
 
     def _can_actor_act(self, actor_id):
@@ -50,11 +51,15 @@ class CityActions(ActionList):
                 continue
             self.add_actor(city_id)
 
+            ctile = self.map_ctrl.index_to_tile(pcity['tile'])
             r_city = int(floor(sqrt(pcity["city_radius_sq"])))
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
-                    work_act = CityWorkTile(pcity, dx, dy, self.city_map)
 
+                    if self.map_ctrl.if_out_mapsize(ctile['x'] + dx, ctile['y'] + dy):
+                        continue
+
+                    work_act = CityWorkTile(pcity, dx, dy, self.city_map)
                     if work_act.output_idx is None or (dx == 0 and dy == 0):
                         continue
                     self.add_action(city_id, work_act)

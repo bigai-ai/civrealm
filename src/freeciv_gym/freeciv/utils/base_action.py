@@ -143,6 +143,7 @@ class ActionList(object):
                     if action.is_action_valid():
                         act_dict[action_key] = action
             return act_dict
+        return {}
 
     def get_valid_actions(self, actor_id, act_keys):
         # FIXME: unsed function. May be useful for creating action masks.

@@ -55,9 +55,10 @@ class FocusUnit():
     """Stores all relevant information for deciding on valid actions for the
     unit in focus"""
 
-    def __init__(self, rule_ctrl, map_ctrl, unit_ctrl):
+    def __init__(self, rule_ctrl, map_ctrl, city_ctrl, unit_ctrl):
         self.rule_ctrl = rule_ctrl
         self.map_ctrl = map_ctrl
+        self.city_ctrl = city_ctrl
         self.unit_ctrl = unit_ctrl
 
         self.punit = None
@@ -252,7 +253,7 @@ class UnitActions(ActionList):
 
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
-            self.unit_data[unit_id] = FocusUnit(self.rule_ctrl, self.map_ctrl, self.unit_ctrl)
+            self.unit_data[unit_id] = FocusUnit(self.rule_ctrl, self.map_ctrl, self.city_ctrl, self.unit_ctrl)
 
         ptype = self.rule_ctrl.unit_type(punit)
         ptile = self.map_ctrl.index_to_tile(punit['tile'])
@@ -281,7 +282,7 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler, ActTradeRoute,
+        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
@@ -289,9 +290,13 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark,]:
+        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_action(unit_id, act_class(unit_focus, dir8))
+        
+        # Add stay (i.e., no move) direction for this two action.
+        for act_class in [ActTradeRoute, ActMarketplace]:
+            self.add_action(unit_id, act_class(unit_focus, map_const.DIR8_STAY))
         
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -1059,14 +1064,16 @@ class ActHomecity(UnitAction):
                                    self.focus.pcity['id'], fc_types.ACTION_HOME_CITY)
 
 class ActTradeRoute(UnitAction):
-    """Establish a trade route from the homecity to the arrived city."""
+    """Establish a trade route from the homecity to the arrived city. This action will cost the unit."""
     action_key = "trade_route"
 
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
     def is_action_valid(self):
-        if self.focus.pcity is None:
-            return False
-        
-        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_TRADE_ROUTE])
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_TRADE_ROUTE])
 
         # if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
         #     return False
@@ -1075,9 +1082,50 @@ class ActTradeRoute(UnitAction):
         # return False
 
     def _action_packet(self):
-        self.wait_for_pid = (249, self.focus.pcity['id'])
+        if self.dir8 == map_const.DIR8_STAY:
+            newtile = self.focus.ptile
+        else:
+            newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        target_city = self.focus.city_ctrl.tile_city(newtile)
+        if target_city != None:
+            self.target_city_id = target_city['id']
+
+        # self.wait_for_pid = (249, self.target_city_id)
+        self.wait_for_pid = (62, self.focus.punit['id'])
         return self.unit_do_action(self.focus.punit['id'],
-                                   self.focus.pcity['id'], fc_types.ACTION_TRADE_ROUTE)
+                                   self.target_city_id, fc_types.ACTION_TRADE_ROUTE)
+
+class ActMarketplace(UnitAction):
+    """If the arrived city has established a trade route with the homecity, a unit can do marketplace action to get one-time revenue. This action will cost the unit."""
+    action_key = "marketplace"
+
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_MARKETPLACE])
+
+        # if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
+        #     return False
+        # if self.focus.punit['homecity'] != self.focus.pcity['id']:
+        #     return True
+        # return False
+
+    def _action_packet(self):
+        if self.dir8 == map_const.DIR8_STAY:
+            newtile = self.focus.ptile
+        else:
+            newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        target_city = self.focus.city_ctrl.tile_city(newtile)
+        if target_city != None:
+            self.target_city_id = target_city['id']
+
+        # self.wait_for_pid = (249, self.target_city_id)
+        self.wait_for_pid = (62, self.focus.punit['id'])
+        return self.unit_do_action(self.focus.punit['id'],
+                                   self.target_city_id, fc_types.ACTION_MARKETPLACE)
 
 
 class ActAirlift(UnitAction):
@@ -1675,13 +1723,7 @@ class ActGetActionPro(UnitAction):
                 for idx in range(len(newtile['units'])):
                     self.target_unit_id.append(newtile['units'][idx]['id'])
             else:
-                self.target_tile_id = newtile['index']
-                if len(newtile['units']) > 0:
-                    self.target_unit_id = []
-                    for idx in range(len(newtile['units'])):
-                        self.target_unit_id.append(newtile['units'][idx]['id'])
-                else:
-                    self.target_unit_id = -1
+                self.target_unit_id = -1
                 # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
                 # if self.target_city == None:
                 #     self.target_city_id = -1
@@ -1845,12 +1887,10 @@ class ActEmbark(UnitAction):
             return False
         
         # Only when the action is added, the is_action_valid() can be called. Since this action targets a unit, we consider it as valid as long as we add it.
-        # return True
-        return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
+        return True
+        
 
     def _action_packet(self):
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_unit_id,
                                      fc_types.ACTION_TRANSPORT_EMBARK)

@@ -221,8 +221,8 @@ class MapCtrl(CivPropController):
         """
         for dir8 in range(map_const.DIR8_LAST):
             test_tile = self.mapstep(start_tile, dir8)
-            if test_tile is None:
-                continue
+            # if test_tile is None:
+            #     continue
 
             if test_tile == end_tile:
                 return dir8

@@ -30,13 +30,30 @@ class FreecivCodeEnv(FreecivBaseEnv):
         map_info = self.civ_controller.controller_list['map'].prop_state._state
 
         mini_map_info = {}
-        info_keys = ['status', 'terrain', 'extras']
+        info_keys = ['status', 'terrain', 'extras', 'units']
         for ptype in info_keys:
-            if ptype != 'extras':
+            if ptype in ['status', 'terrain']:
                 mini_map_info[ptype] = map_info[ptype][x-RADIUS: x+RADIUS+1, y-RADIUS: y+RADIUS+1]
-            else:
+            elif ptype == 'extras':
                 mini_map_info[ptype] = map_info[ptype][x-RADIUS: x+RADIUS+1, y-RADIUS: y+RADIUS+1, :]
+            else:
+                mini_map_info[ptype] = self.get_units_on_mini_map(ptile)
         return mini_map_info
+
+    def get_units_on_mini_map(self, ptile):
+        units_on_mini_map = {}
+
+        x = ptile['x']
+        y = ptile['y']
+        for dx in range(-RADIUS, RADIUS+1):
+            for dy in range(RADIUS, RADIUS+1):
+                ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x+dx, y+dy)
+                units_on_ntile = ntile['units']
+                if len(units_on_ntile) == 0:
+                    continue
+                for punit in units_on_ntile:
+                    units_on_mini_map[punit['id']] = self.civ_controller.controller_list['unit'].units[punit['id']]
+        return units_on_mini_map
 
     def _get_observation(self):
         self.civ_controller.lock_control()

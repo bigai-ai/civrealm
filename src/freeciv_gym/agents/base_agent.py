@@ -70,3 +70,17 @@ class BaseAgent(ABC):
                     return actor_id, valid_action_dict
 
         return None, None
+
+    def get_valid_actions(self, info, ctrl_type, actor_id):
+        available_actions = info['available_actions']
+        action_list = available_actions[ctrl_type]
+
+        if not actor_id in action_list:
+            return None
+        if action_list._can_actor_act(actor_id):
+            valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
+            if not valid_action_dict:
+                return None
+            return valid_action_dict
+
+        return None

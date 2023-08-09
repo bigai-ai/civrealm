@@ -27,33 +27,31 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
-########################################
-#### Initial Information
-# myagent(OUR)
-# Unit id: 108, position: (30, 26)
-# Unit id: 107, position: (31, 26)
-# Unit id: 102, position: (32, 26)
-#### Next Location: Target City Discovery
-# Unit id: 108, position: (30, 23)
-# Unit id: 107, position: (31, 23)
-# Unit id: 102, position: (32, 23)
-#### Next Location: Target Plane Discovery
-#### Next Location: Target Leader of Enemy Discovery
-########################################
-SCRIPT_LIST = ["TARGET_CITY_DISCOVERY", "TARGET_PLANE_DISCOVERY"]
+SCRIPT_LIST = [
+    # 旁白：路途中间有非常多的敌方建筑物。三个机器人士兵分别对当前的情况生成自己的方案。
+    "TARGET_CITY_DISCOVERY", 
+    # 旁白：突然出现了敌方的隐形飞机（突如其来的敌军伏兵）。这时士兵灵活的进行战略的调整。【体现灵活性与可靠性】
+    "TARGET_PLANE_DISCOVERY"
+]
 STAY_UNITS_LIST = [110]
 MOVE_UNITS_LIST = [102, 107, 108]
 UNITS_TRACK = {
     108: {
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        # 机器人1：我希望直接朝接近目标的方向前进，因为我们的任务为到达目标位置(由于该任务紧急，指挥官选择【机器人1】)
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
+        # 机器人1：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 1】，因为战略不但需要根据情况灵活变化，而且1号机器人的方案符合指挥官意图。)
         "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
     },
     107: {
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        # 机器人2：我希望往更远的未知区域探索，因为提供更多已知信息可能会对后续任务有益
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
+        # 机器人2：我希望进攻敌方单位，因为我们应该消灭尽可能多的敌人
         "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
     },
     102: {
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        # 机器人3：我希望探索敌方建筑物，因为其中可能有我们需要的资源
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
+        # 机器人3：我希望直接冲入敌军，因为我们应当尽快到达目标位置。
         "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
     }
 }
@@ -134,7 +132,7 @@ def test_move_to(controller):
 def main():
     fc_args['username'] = 'myagent'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'myagent_T8_2023-08-07-08_11')#
+    controller.set_parameter('debug.load_game', 'myagent_T50_2023-08-09-08_30_01')#
     controller.set_parameter('minp', '2')
     test_move_to(controller)
     # Delete gamesave saved in handle_begin_turn

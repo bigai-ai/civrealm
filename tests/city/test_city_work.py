@@ -61,6 +61,7 @@ def test_city_work(controller):
     _, options = get_first_observation_option(controller)
 
     city_opt = options['city']
+
     for city_id in city_opt.cities:
         pcity = city_opt.cities[city_id]
 

@@ -38,11 +38,7 @@ def find_keys_with_keyword(dictionary, keyword):
     for key in dictionary:
         if keyword in key:
             keys.append(dictionary[key])
-
-    if len(keys) == 1:
-        return keys[0]
-    else:
-        return keys
+    return keys
 
 
 def test_city_change_specialist(controller):
@@ -50,19 +46,23 @@ def test_city_change_specialist(controller):
     _, options = get_first_observation_option(controller)
 
     city_opt = options['city']
-    city_id = 155
-    pcity = city_opt.cities[city_id]
 
-    change_specialist_action = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
-                                                      'city_change_specialist_0')
-    assert (change_specialist_action.is_action_valid())
+    for city_id in city_opt.cities.keys():
+        pcity = city_opt.cities[city_id]
 
-    specialists_1 = pcity['specialists']
+        valid_change_specialist_action = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                                'city_change_specialist_0')
+        if len(valid_change_specialist_action) == 0:
+            continue
 
-    change_specialist_action.trigger_action(controller.ws_client)
-    controller.get_observation()
-    specialists_2 = pcity['specialists']
+        change_specialist_action = random.choice(valid_change_specialist_action)
+        assert (change_specialist_action.is_action_valid())
 
-    assert (specialists_1[0] == 1 and specialists_1[1] == 0 and specialists_1[2] == 0 and
-            specialists_2[0] == 0 and specialists_2[1] == 1 and specialists_2[2] == 0)
-    
+        specialists_1 = pcity['specialists']
+
+        change_specialist_action.trigger_action(controller.ws_client)
+        controller.get_observation()
+        specialists_2 = pcity['specialists']
+
+        assert (specialists_1[0] == 1 and specialists_1[1] == 0 and specialists_1[2] == 0 and
+                specialists_2[0] == 0 and specialists_2[1] == 1 and specialists_2[2] == 0)

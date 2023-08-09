@@ -187,6 +187,8 @@ class CityBuyProduction(Action):
         super().__init__()
         self.pcity = pcity
         self.pplayer = pplayer
+        self.kind = self.pcity['production_kind']
+        self.value = self.pcity['production_value']
 
     def is_action_valid(self):
         if "buy_cost" not in self.pcity or self.pcity['did_buy']:

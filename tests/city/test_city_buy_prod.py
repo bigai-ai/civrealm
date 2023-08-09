@@ -47,8 +47,6 @@ def test_city_buy_prod(controller):
     city_opt = options['city']
 
     for city_id in city_opt.cities.keys():
-        improvement_1 = None
-        improvement_2 = None
         pcity = city_opt.cities[city_id]
 
         valid_city_buy_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),

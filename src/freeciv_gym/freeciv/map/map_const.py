@@ -58,3 +58,14 @@ TF_HEX = 8
 
 DIR_DX = [-1, 0, 1, -1, 1, -1, 0, 1]
 DIR_DY = [-1, -1, -1, 0, 0, 1, 1, 1]
+
+TERRAIN_NAMES = ['Inaccessible', 'Lake', 'Ocean', 'Deep Ocean', 'Glacier',
+                 'Desert', 'Forest', 'Grassland', 'Hills', 'Jungle',
+                 'Mountains', 'Plains', 'Swamp', 'Tundra']
+
+EXTRA_NAMES = ['Irrigation', '?extra:Mine', 'Oil Well', 'Pollution',
+               'Minor Tribe Village', 'Farmland', 'Fallout', 'Fortress',
+               'Airbase', 'Buoy', 'Ruins', 'Road', 'Railroad', 'River',
+               'Gold', 'Iron', '?animals:Game', 'Furs', 'Coal', 'Fish',
+               'Fruit', 'Gems', 'Buffalo', 'Wheat', 'Oasis', 'Peat',
+               'Pheasant', 'Resources', 'Ivory', 'Silk', 'Spice', 'Whales', 'Wine', 'Oil']

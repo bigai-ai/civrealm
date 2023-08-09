@@ -105,7 +105,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def reset(self):
         self.civ_controller.init_network()        
         info = self._get_info()
-        observation = self._get_observation()        
+        observation = self._get_observation()
         return observation, info
 
     def end_game(self):

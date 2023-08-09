@@ -280,7 +280,7 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
+        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler, ActTradeRoute,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
@@ -1031,15 +1031,40 @@ class ActHomecity(UnitAction):
     def is_action_valid(self):
         if self.focus.pcity is None:
             return False
-        if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
-            return False
-        if self.focus.punit['homecity'] != self.focus.pcity['id']:
-            return True
-        return False
+        
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY])
+
+        # if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
+        #     return False
+        # if self.focus.punit['homecity'] != self.focus.pcity['id']:
+        #     return True
+        # return False
 
     def _action_packet(self):
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return self.unit_do_action(self.focus.punit['id'],
-                                   self.focus.pcity['id'], ACTION_HOME_CITY)
+                                   self.focus.pcity['id'], fc_types.ACTION_HOME_CITY)
+
+class ActTradeRoute(UnitAction):
+    """Establish a trade route from the homecity to the arrived city."""
+    action_key = "trade_route"
+
+    def is_action_valid(self):
+        if self.focus.pcity is None:
+            return False
+        
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_TRADE_ROUTE])
+
+        # if self.focus.punit['homecity'] == 0 or self.focus.punit['homecity'] == self.focus.pcity['id']:
+        #     return False
+        # if self.focus.punit['homecity'] != self.focus.pcity['id']:
+        #     return True
+        # return False
+
+    def _action_packet(self):
+        self.wait_for_pid = (249, self.focus.pcity['id'])
+        return self.unit_do_action(self.focus.punit['id'],
+                                   self.focus.pcity['id'], fc_types.ACTION_TRADE_ROUTE)
 
 
 class ActAirlift(UnitAction):
@@ -1628,6 +1653,9 @@ class ActGetActionPro(UnitAction):
             self.target_extra_id = -1
         else:
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+            if newtile is None:
+                self.focus.action_prob[self.dir8] = [{'min': 0, 'max': 0}]*(fc_types.ACTION_COUNT+1)
+                return False
             self.target_tile_id = newtile['index']
             if len(newtile['units']) > 0:
                 self.target_unit_id = []

@@ -151,7 +151,7 @@ def test_plant(controller):
 
 
 def main():
-    controller = CivController(fc_args['username'])
+    controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_plant(controller)
 

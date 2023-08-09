@@ -200,16 +200,17 @@ class UnitActions(ActionList):
         # This dict should be cleared after we restore the activity.
         assert(len(self.cancel_order_dict) == 0)
         for unit_id in self.unit_data.keys():
-            punit = self.unit_data[unit_id].punit
-            activity = punit['activity']
-            # We need this for fortress/airbase/buoy actions.
-            activity_tgt = punit['activity_tgt']
-            # If ssa_controller is not 0, it means unit is controlled by rule (e.g., auto_worker), we don't need to query pro for this kind of units.
-            if activity != fc_types.ACTIVITY_IDLE and punit['ssa_controller'] == 0:
-                # Record the activity to be cancelled.
-                self.cancel_order_dict[unit_id] = (activity, activity_tgt)
-                # Cancel order
-                self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
+            if self._can_query_action_pro(unit_id):
+                punit = self.unit_data[unit_id].punit
+                activity = punit['activity']
+                # We need this for fortress/airbase/buoy actions.
+                activity_tgt = punit['activity_tgt']
+                # If ssa_controller is not 0, it means unit is controlled by rule (e.g., auto_worker), we don't need to query pro for this kind of units.
+                if activity != fc_types.ACTIVITY_IDLE and punit['ssa_controller'] == 0:
+                    # Record the activity to be cancelled.
+                    self.cancel_order_dict[unit_id] = (activity, activity_tgt)
+                    # Cancel order
+                    self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
 
                 # if unit_id == 103:
                 #     fc_logger.info(f'**Cancel order. {punit}')
@@ -323,7 +324,6 @@ class UnitActions(ActionList):
         punit['ssa_controller'] == SSA_NONE
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
             
-    
     def _can_query_action_pro(self, unit_id):
         punit = self.unit_data[unit_id].punit
         # If an unit has orders or action_decision_want, we don't query its action pro here.
@@ -331,8 +331,6 @@ class UnitActions(ActionList):
         punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
         
-            
-
     def get_get_pro_actions(self, actor_id, valid_only=False):
         if self.actor_exists(actor_id):
             if valid_only:
@@ -777,13 +775,28 @@ class ActFallout(ActOnExtra):
         return self._request_new_unit_activity(ACTIVITY_FALLOUT, EXTRA_NONE)
 
 
-class ActPollution(ActOnExtra):
+# class ActPollution(ActOnExtra):
+class ActPollution(EngineerAction):
     """Action to remove pollution"""
-    action_key = "pollution"
+    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_POLLUTION]
 
-    def __init__(self, cur_focus):
-        self.extra_type = fc_types.EXTRA_POLLUTION
-        super().__init__(cur_focus)
+    # def __init__(self, cur_focus):
+    #     self.extra_type = fc_types.EXTRA_POLLUTION
+    #     super().__init__(cur_focus)
+    
+    def is_eng_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CLEAN_POLLUTION):
+            return False
+        
+        # Is already performing cultivate, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_POLLUTION:
+            return False
+        
+        # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
+        # return terr_name == "Forest"
+        # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
+        # return self.focus.pterrain['pollution_time'] > 0
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CLEAN_POLLUTION])
 
     def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_POLLUTION, EXTRA_NONE)
@@ -1232,12 +1245,6 @@ class ActSpyStealTech(DiplomaticAction):
         # self.tech_id = None
         self.action_key += "_%i" % dir8
         self.dir8 = dir8
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
-        if target_city is not None:
-            self.target_city_id = target_city['id']
-        else:
-            self.target_city_id = -1
 
     def is_dipl_action_valid(self):
         # if self.focus.pcity is None or self.focus.action_probabilities is None:
@@ -1250,6 +1257,12 @@ class ActSpyStealTech(DiplomaticAction):
     #     self.tech_id = tech_id
 
     def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+        if target_city is not None:
+            self.target_city_id = target_city['id']
+        else:
+            self.target_city_id = -1
         # packet = self.unit_do_action(self.focus.punit["id"], self.focus.pcity['id'],
         #                              self.action_id)
         packet = self.unit_do_action(self.focus.punit["id"], self.target_city_id,
@@ -1353,17 +1366,17 @@ class ActSpyUnitAction(DiplomaticAction):
         super().__init__(focus)
         self.action_key += "_%i" % dir8
         self.dir8 = dir8
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        if len(newtile['units']) > 0:
-            self.target_unit_id = newtile['units'][0]['id']
-        else:
-            self.target_unit_id = -1
 
     def is_dipl_action_valid(self):
         # return self.focus.target_unit != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
         return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
 
     def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        if len(newtile['units']) > 0:
+            self.target_unit_id = newtile['units'][0]['id']
+        else:
+            self.target_unit_id = -1
         # packet = {"pid": packet_unit_action_query,
         #           "diplomat_id": self.focus.punit['id'],
         #           "target_id": self.target_unit_id,
@@ -1662,20 +1675,26 @@ class ActGetActionPro(UnitAction):
                 for idx in range(len(newtile['units'])):
                     self.target_unit_id.append(newtile['units'][idx]['id'])
             else:
-                self.target_unit_id = -1
-            # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
-            # if self.target_city == None:
-            #     self.target_city_id = -1
-            # else:
-            #     self.target_city_id = self.target_city['id']
-            # extra = newtile['extras']
-            # set_bits = find_set_bits(extra)
-            # if len(set_bits) == 0:
-            #     self.target_extra_id = -1
-            # elif len(set_bits) == 1:
-            #     self.target_extra_id = set_bits[0]
-            # else:
-            #     self.target_extra_id = set_bits
+                self.target_tile_id = newtile['index']
+                if len(newtile['units']) > 0:
+                    self.target_unit_id = []
+                    for idx in range(len(newtile['units'])):
+                        self.target_unit_id.append(newtile['units'][idx]['id'])
+                else:
+                    self.target_unit_id = -1
+                # self.target_city = self.focus.unit_ctrl.city_ctrl.tile_city(newtile)
+                # if self.target_city == None:
+                #     self.target_city_id = -1
+                # else:
+                #     self.target_city_id = self.target_city['id']
+                # extra = newtile['extras']
+                # set_bits = find_set_bits(extra)
+                # if len(set_bits) == 0:
+                #     self.target_extra_id = -1
+                # elif len(set_bits) == 1:
+                #     self.target_extra_id = set_bits[0]
+                # else:
+                #     self.target_extra_id = set_bits
             self.target_extra_id = -1
         return True
 
@@ -1766,11 +1785,11 @@ class ActAttack(UnitAction):
     def is_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ATTACK):
             return False
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        self.target_tile_id = newtile['index']
         return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
 
     def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
                                      ACTION_ATTACK)
@@ -1790,8 +1809,7 @@ class ActDisembark(UnitAction):
     def is_action_valid(self):
         # if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSPORT_DISEMBARK1):
         #     return False
-        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        self.target_tile_id = newtile['index']
+
         self.action_key = None
         valid_key_num = 0
         # We check for all disembark key because we are not sure which disembark key corresponds to which situation.
@@ -1804,6 +1822,8 @@ class ActDisembark(UnitAction):
         return self.action_key != None
 
     def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
                                      self.action_key)
@@ -1825,12 +1845,12 @@ class ActEmbark(UnitAction):
             return False
         
         # Only when the action is added, the is_action_valid() can be called. Since this action targets a unit, we consider it as valid as long as we add it.
-        return True
-        # newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
-        # self.target_tile_id = newtile['index']
-        # return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
+        # return True
+        return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
 
     def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_unit_id,
                                      fc_types.ACTION_TRANSPORT_EMBARK)

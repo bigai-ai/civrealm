@@ -56,7 +56,10 @@ class MapCtrl(CivPropController):
     def get_adjacent_tiles(self, tile):
         tile_dict = {}
         for dir8 in map_const.DIR8_ORDER:
-            tile_dict[dir8] = self.mapstep(tile, dir8)
+            adj_tile = self.mapstep(tile, dir8)
+            if adj_tile is None:
+                continue
+            tile_dict[dir8] = adj_tile
         return tile_dict    
 
     def city_tile(self, pcity):
@@ -109,6 +112,9 @@ class MapCtrl(CivPropController):
 
     def map_pos_to_tile(self, x, y):
         """ Return the tile for the given cartesian (map) position."""
+        # Here assume the map has TF_WRAPX flag
+        if y >= self.map_info['ysize'] or y < 0:
+            return None
         if x >= self.map_info['xsize']:
             y -= 1
         elif (x < 0):
@@ -215,6 +221,8 @@ class MapCtrl(CivPropController):
         """
         for dir8 in range(map_const.DIR8_LAST):
             test_tile = self.mapstep(start_tile, dir8)
+            if test_tile is None:
+                continue
 
             if test_tile == end_tile:
                 return dir8

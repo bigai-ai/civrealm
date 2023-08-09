@@ -81,6 +81,7 @@ ACTIVITY_ACTION_MAP = {
     ACTIVITY_GEN_ROAD: {EXTRA_ROAD: 'road', EXTRA_RAILROAD: 'railroad'},
     ACTIVITY_CULTIVATE: 'cultivate',
     ACTIVITY_PLANT: 'plant',
+    ACTIVITY_POLLUTION: 'pollution',
 }
 
 # /* enum action_result */

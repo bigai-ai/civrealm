@@ -157,6 +157,12 @@ class UnitCtrl(CivPropController):
             return 0
         else:
             return len(unit_list)
+    
+    # Reset the keep_activity state of units. Called this method when handle the begin_turn packet.
+    def reset_keep_activity_state(self):
+        for unit_id in self.units:
+            # We set the state for all units (including the enemy units). This state is useless for enemy units.
+            self.units[unit_id]['keep_activity'] = False
 
     def get_unit_moves_left(self, punit):
         """Returns a string saying how many moves a unit has left."""
@@ -315,6 +321,8 @@ class UnitCtrl(CivPropController):
             packet_unit['anim_list'] = []
             self.units[packet_unit['id']] = packet_unit
             self.units[packet_unit['id']]['facing'] = 6
+            # We can normally handle the packets for new units before the begin_turn packet. One exception is the case where we bribe an enemy unit during a turn. In this case, the bribed unit is a new unit. We need to set its keep_activity state here. Otherwise, the _can_actor_act() will have key error.
+            self.units[packet_unit['id']]['keep_activity'] = False
         else:
             if punit != None:
                 if 'action_decision_want' in packet_unit:

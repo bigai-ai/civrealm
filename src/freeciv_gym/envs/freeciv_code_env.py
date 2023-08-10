@@ -95,11 +95,11 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 observations[ctrl_type] = {}
                 units = self.civ_controller.controller_list['unit'].units
                 for punit in units:
+                    if units[punit]['owner'] != self.civ_controller.controller_list['player'].my_player_id:
+                        continue
+
                     ptile = self.civ_controller.controller_list['map'].index_to_tile(units[punit]['tile'])
-                    if 'movesleft' in units[punit]:
-                        mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
-                    else:
-                        mini_map_info = self.get_mini_map_info(units[punit]['type'], 'Unknown', ptile)
+                    mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
                     observations[ctrl_type][punit] = mini_map_info
             else:
                 observations[ctrl_type] = ctrl.get_current_state(pplayer)

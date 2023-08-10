@@ -27,32 +27,45 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
+PORT = 6001
+FILE = 'myagent_T50_2023-08-09-08_30_01'
 SCRIPT_LIST = [
     # 旁白：路途中间有非常多的敌方建筑物。三个机器人士兵分别对当前的情况生成自己的方案。
     "TARGET_CITY_DISCOVERY", 
     # 旁白：突然出现了敌方的隐形飞机（突如其来的敌军伏兵）。这时士兵灵活的进行战略的调整。【体现灵活性与可靠性】
-    "TARGET_PLANE_DISCOVERY"
+    "TARGET_PLANE_DISCOVERY",
+    # 旁白：消灭敌军之后，发现前方有平原和森林两种地形，3个士兵提出各自方案。
+    "TARGET_GOAL_DESTROY",
 ]
-STAY_UNITS_LIST = [110]
 MOVE_UNITS_LIST = [102, 107, 108]
 UNITS_TRACK = {
-    108: {
-        # 机器人1：我希望直接朝接近目标的方向前进，因为我们的任务为到达目标位置(由于该任务紧急，指挥官选择【机器人1】)
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
-        # 机器人1：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 1】，因为战略不但需要根据情况灵活变化，而且1号机器人的方案符合指挥官意图。)
-        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
-    },
-    107: {
-        # 机器人2：我希望往更远的未知区域探索，因为提供更多已知信息可能会对后续任务有益
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
-        # 机器人2：我希望进攻敌方单位，因为我们应该消灭尽可能多的敌人
-        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
-    },
+    # rightmost
     102: {
-        # 机器人3：我希望探索敌方建筑物，因为其中可能有我们需要的资源
-        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*4,
-        # 机器人3：我希望直接冲入敌军，因为我们应当尽快到达目标位置。
-        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']*3,
+        # 机器人3：我希望摧毁敌方建筑物，因为其中可能有我们需要的资源
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}', f'goto_{map_const.DIR8_EAST}']*2+[f'goto_{map_const.DIR8_EAST}'],
+        # 机器人3：我希望进攻敌方单位，因为我们应该消灭尽可能多的敌人
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_NORTHWEST}']*5+[f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_WEST}']*3,
+        # 机器人3：我希望通过平原前往目标，因为敌人已消灭，可以安全前进。
+        "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHEAST}']+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
+    }, 
+    # leftmost x, y = 24, 25
+    108: {
+        # 机器人2：我希望往更远的未知区域探索，因为提供更多已知信息可能会对后续任务有益
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_EAST}']+[f'goto_{map_const.DIR8_NORTH}'],
+        # 机器人2：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 2】，因为战略不但需要根据情况灵活变化，而且2号机器人的方案符合指挥官意图。)
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_SOUTHWEST}']+[f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHWEST}']+\
+                    [f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_EAST}']*5+[f'goto_{map_const.DIR8_NORTHEAST}'],
+        # 机器人2：我希望通过平原前往目标，尽快抵达目的地；
+        "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTHEAST}']*2+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
+    },
+    # centor
+    107: {
+        # 机器人1：我希望直接冲入敌军，因为我们应当尽快到达目标位置
+        "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*5,
+        # 机器人1：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 1】，因为战略不但需要根据情况灵活变化，而且1号机器人的方案符合指挥官意图。)
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_EAST}']+[f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_WEST}']+[f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_WEST}'],
+        # 机器人1：我希望通过森林抵达目标，隐蔽行动，即使牺牲一些时间；
+        "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTHEAST}']*2+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
     }
 }
 
@@ -79,12 +92,12 @@ def configure_test_logger():
 def test_move_to(controller):
     configure_test_logger()
     fc_logger.info("test_move_to")
-    _, options = get_first_observation_option(controller, 6001)
+    _, options = get_first_observation_option(controller, PORT)
     # Class: UnitActions
     unit_opt = options['unit']
 
     # sleep for 10 seconds between the observation and agent action, provide enough time to observe actions
-    time.sleep(10)
+    time.sleep(1)
 
     # action control
 
@@ -97,21 +110,33 @@ def test_move_to(controller):
             test_action_list = []
             for unit_id in unit_opt.unit_ctrl.units.keys():
                 # Stay units
-                if unit_id in STAY_UNITS_LIST:
+                if unit_id not in MOVE_UNITS_LIST:
                     continue
-                
+                print(f"---------------\nUnit id: {unit_id}")
+
                 punit = unit_opt.unit_ctrl.units[unit_id]
                 unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-                print(
-                    f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-                # Get valid actions
-                valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
                 step = unit_step_pointer[unit_id]
+
                 # Avoid out of index
                 if step >= len(UNITS_TRACK[unit_id][script]):
                     continue
+
+                # Get valid actions
+                try:
+                    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+                except Exception as ex:
+                    print("Exception : \n", ex)
+                    continue
+
+                print(f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, step: {step}.")
+
+                action = UNITS_TRACK[unit_id][script][step]
+
+                print(f"Unit id: {unit_id}, expect action: {action}, valid_actions: {valid_actions}")
+
                 # Append action
-                test_action_list.append(valid_actions[UNITS_TRACK[unit_id][script][step]])
+                test_action_list.append(valid_actions[action])
                 unit_step_pointer[unit_id] += 1
             
             # Break Loop if not valid actions
@@ -128,11 +153,12 @@ def test_move_to(controller):
             unit_opt = options['unit']
         
             time.sleep(1)
+        time.sleep(10)
 
 def main():
     fc_args['username'] = 'myagent'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'myagent_T50_2023-08-09-08_30_01')#
+    controller.set_parameter('debug.load_game', FILE)#
     controller.set_parameter('minp', '2')
     test_move_to(controller)
     # Delete gamesave saved in handle_begin_turn

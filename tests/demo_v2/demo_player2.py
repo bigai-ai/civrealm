@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
+PORT = 6001
 
 def configure_test_logger():
     # Close and remove all old handlers and add a new one with the test name
@@ -51,7 +52,7 @@ def configure_test_logger():
 def test_move_to(controller):
     configure_test_logger()
     fc_logger.info("test_move_to")
-    _, options = get_first_observation_option(controller, 6001)
+    _, options = get_first_observation_option(controller, PORT)
     # Class: UnitActions
     unit_opt = options['unit']
     print(unit_opt.unit_ctrl.units.keys())

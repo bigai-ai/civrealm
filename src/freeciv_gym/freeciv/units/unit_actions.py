@@ -285,7 +285,7 @@ class UnitActions(ActionList):
         for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler, ActKeepActivity,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
-                          ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
+                          ActBoard, ActUnloadUnit, ActNoorders, ActCancelOrder,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
@@ -1177,7 +1177,7 @@ class ActUpgrade(UnitAction):
 
 class ActDeboard(UnitAction):
     """A unit performs this action to deboard from a transport. This action does not cost move."""
-    action_key = "unit_deboard"
+    action_key = "deboard"
 
     def is_action_valid(self):
         # The unit has not been transported, cannot do deboard action.
@@ -1200,9 +1200,9 @@ class ActDeboard(UnitAction):
         return packet
 
 
-class ActLoadUnit(UnitAction):
-    """A unit performs this action to load on a transport. This action does not cost move."""
-    action_key = "unit_load"
+class ActBoard(UnitAction):
+    """A unit performs this action to board on a transport. This action does not cost move."""
+    action_key = "board"
 
     def is_action_valid(self):
         # If unit is a transporter, cannot load onto another unit.

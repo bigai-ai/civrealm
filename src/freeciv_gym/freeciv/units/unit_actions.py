@@ -282,7 +282,7 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler,
+        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler, ActKeepActivity,
                           ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActLoadUnit, ActUnloadUnit, ActNoorders, ActCancelOrder,
@@ -326,7 +326,7 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-        punit['ssa_controller'] == SSA_NONE
+        punit['ssa_controller'] == SSA_NONE and not punit['keep_activity']
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
             
     def _can_query_action_pro(self, unit_id):
@@ -382,6 +382,23 @@ class UnitActions(ActionList):
                     unit_dict[tile] = tile_dict[tile]['units']
                     break
         return unit_dict
+
+# This action changes the keep_activity state of a unit to true. Once this state is true, the unit will not perform actions in this turn anymore. This mimics the human player's decision that a unit does not need further orders in this turn.
+class ActKeepActivity(Action):
+    action_key = 'keep_activity'
+
+    def __init__(self, focus):
+        self.focus = focus
+
+    def is_action_valid(self):
+        # We always allow to set the keep_activity state
+        return True
+    
+    def _action_packet(self):
+        return 'keep_activity'
+    
+    def trigger_action(self, ws_client):
+        self.focus.punit['keep_activity'] = True
 
 
 class UnitAction(Action):

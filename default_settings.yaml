@@ -10,7 +10,7 @@ multiplayer_game: True
 # Whether to start hotseat game in single player mode
 hotseat_game: False
 # Whether to wait a observer join before start the game
-wait_for_observer: True
+wait_for_observer: False
 # The seed used to generate a map
 mapseed: 88
 # Number of AI players

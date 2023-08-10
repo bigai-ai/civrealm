@@ -14,7 +14,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gymnasium
+import numpy as np
+
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
+from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
 RADIUS = 2
 
 
@@ -41,7 +44,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return mini_map_info
 
     def get_units_on_mini_map(self, ptile):
-        units_on_mini_map = {}
+        number_of_unit_types = len(UNIT_TYPES)
+        units_on_mini_map = np.zeros((2*RADIUS+1, 2*RADIUS+1, number_of_unit_types))
 
         x = ptile['x']
         y = ptile['y']
@@ -52,7 +56,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 if len(units_on_ntile) == 0:
                     continue
                 for punit in units_on_ntile:
-                    units_on_mini_map[punit['id']] = self.civ_controller.controller_list['unit'].units[punit['id']]
+                    punit_type = punit['type']
+                    units_on_mini_map[RADIUS+dx, RADIUS+dy, punit_type] += 1
         return units_on_mini_map
 
     def _get_observation(self):

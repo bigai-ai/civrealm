@@ -81,7 +81,7 @@ def test_load_deboard_unload(controller):
             # This unit is not transporter, cannot perform unload
             assert ('unit_unload' not in valid_actions)
             # The unit is being transported, cannot perform load
-            assert ('unit_load' not in valid_actions)
+            assert ('board' not in valid_actions)
 
     # controller.send_end_turn()
     controller.get_info()
@@ -130,8 +130,8 @@ def test_load_deboard_unload(controller):
         else:
             # Unit 886 and 1964 have been unloaded.
             assert (unit_focus.punit['transported'] == 0)
-            assert ('unit_load' in valid_actions)
-            valid_actions['unit_load'].trigger_action(controller.ws_client)
+            assert ('board' in valid_actions)
+            valid_actions['board'].trigger_action(controller.ws_client)
             print(f'Unit {unit_id} loading.')
         # print(unit_focus.punit)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')            
@@ -144,12 +144,12 @@ def test_load_deboard_unload(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # All units have been onboard.
         assert (unit_focus.punit['transported'] > 0)
-        assert ('unit_load' not in valid_actions)
-        assert ('unit_deboard' in valid_actions)
+        assert ('board' not in valid_actions)
+        assert ('deboard' in valid_actions)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
         print(f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
         print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
-        valid_actions['unit_deboard'].trigger_action(controller.ws_client)
+        valid_actions['deboard'].trigger_action(controller.ws_client)
 
     print('All units deboard.')
     controller.get_info()
@@ -160,8 +160,8 @@ def test_load_deboard_unload(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # All units have deboarded.
         assert (unit_focus.punit['transported'] == 0)
-        assert ('unit_load' in valid_actions)
-        assert ('unit_deboard' not in valid_actions)
+        assert ('board' in valid_actions)
+        assert ('deboard' not in valid_actions)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
         print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
         print(f"Unit{unit_id}\'s move left: {unit_focus.punit['movesleft']}")

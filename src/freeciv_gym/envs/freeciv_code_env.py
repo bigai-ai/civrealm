@@ -14,8 +14,13 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gymnasium
+import numpy as np
+
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
+from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
+from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 RADIUS = 2
+MAP_SIZE = RADIUS * 2 + 1
 
 
 class FreecivCodeEnv(FreecivBaseEnv):
@@ -24,19 +29,59 @@ class FreecivCodeEnv(FreecivBaseEnv):
     def __init__(self):
         super().__init__()
 
-    def get_mini_map_info(self, ptile):
+    def get_mini_map_info(self, utype, moves, ptile):
+        mini_map_info = {}
+        info_keys = ['utype', 'moves', 'terrain', 'extras', 'units']
+        terrain_info, extra_info = self.get_meta_info_of_mini_map(ptile)
+
+        for ptype in info_keys:
+            if ptype == 'utype':
+                mini_map_info[ptype] = utype
+            elif ptype == 'moves':
+                mini_map_info[ptype] = moves
+            elif ptype == 'terrain':
+                mini_map_info[ptype] = terrain_info
+            elif ptype == 'extras':
+                mini_map_info[ptype] = extra_info
+            else:
+                mini_map_info[ptype] = self.get_units_on_mini_map(ptile)
+        return mini_map_info
+
+    def get_meta_info_of_mini_map(self, ptile):
         x = ptile['x']
         y = ptile['y']
-        map_info = self.civ_controller.controller_list['map'].prop_state._state
+        terrain_info = np.zeros((MAP_SIZE, MAP_SIZE))
+        extra_info = np.zeros((MAP_SIZE, MAP_SIZE))
 
-        mini_map_info = {}
-        info_keys = ['status', 'terrain', 'extras']
-        for ptype in info_keys:
-            if ptype != 'extras':
-                mini_map_info[ptype] = map_info[ptype][x-RADIUS: x+RADIUS+1, y-RADIUS: y+RADIUS+1]
-            else:
-                mini_map_info[ptype] = map_info[ptype][x-RADIUS: x+RADIUS+1, y-RADIUS: y+RADIUS+1, :]
-        return mini_map_info
+        for dx in range(-RADIUS, RADIUS+1):
+            for dy in range(RADIUS, RADIUS+1):
+                ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+                terrain_info[RADIUS+dx, RADIUS+dy] = ntile['terrain']
+
+                extra = -1
+                for extra_id in range(len(EXTRA_NAMES)):
+                    if ntile['extras'][extra_id] == 1:
+                        extra = extra_id
+                        break
+                extra_info[RADIUS+dx, RADIUS+dy] = extra
+        return terrain_info, extra_info
+
+    def get_units_on_mini_map(self, ptile):
+        number_of_unit_types = len(UNIT_TYPES)
+        units_on_mini_map = np.zeros((MAP_SIZE, MAP_SIZE, number_of_unit_types))
+
+        x = ptile['x']
+        y = ptile['y']
+        for dx in range(-RADIUS, RADIUS+1):
+            for dy in range(RADIUS, RADIUS+1):
+                ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x+dx, y+dy)
+                units_on_ntile = ntile['units']
+                if len(units_on_ntile) == 0:
+                    continue
+                for punit in units_on_ntile:
+                    punit_type = punit['type']
+                    units_on_mini_map[RADIUS+dx, RADIUS+dy, punit_type] += 1
+        return units_on_mini_map
 
     def _get_observation(self):
         self.civ_controller.lock_control()
@@ -51,10 +96,14 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 units = self.civ_controller.controller_list['unit'].units
                 for punit in units:
                     ptile = self.civ_controller.controller_list['map'].index_to_tile(units[punit]['tile'])
-                    mini_map_info = self.get_mini_map_info(ptile)
+                    if 'movesleft' in units[punit]:
+                        mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
+                    else:
+                        mini_map_info = self.get_mini_map_info(units[punit]['type'], 'Unknown', ptile)
                     observations[ctrl_type][punit] = mini_map_info
             else:
                 observations[ctrl_type] = ctrl.get_current_state(pplayer)
 
         return observations
+
 

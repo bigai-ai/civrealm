@@ -290,7 +290,7 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace]:
+        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace, ActEmbassyStay]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_action(unit_id, act_class(unit_focus, dir8))
         
@@ -1831,6 +1831,34 @@ class ActNuke(UnitAction):
         # /* The last order of the goto is the nuclear detonation. */
         self.activate_goto_last(ORDER_PERFORM_ACTION, ACTION_NUKE)
 
+
+class ActEmbassyStay(UnitAction):
+    """Establish embassy. This action will consume the unit."""
+    action_key = "embassy_stay"
+
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ESTABLISH_EMBASSY_STAY):
+            return False
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_ESTABLISH_EMBASSY_STAY])
+
+    def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        
+        target_city = self.focus.city_ctrl.tile_city(newtile)
+        if target_city != None:
+            self.target_city_id = target_city['id']
+
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_city_id,
+                                     fc_types.ACTION_ESTABLISH_EMBASSY_STAY)
+        
+        self.wait_for_pid = (62, self.focus.punit['id'])
+        return packet
 
 class ActAttack(UnitAction):
     """Attack unit on target tile"""

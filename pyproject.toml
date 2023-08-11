@@ -103,5 +103,6 @@ addopts = [
     # "tests/unit/test_embark_disembark.py",
     # "tests/unit/test_load_deboard_unload.py",
     # "tests/unit/test_trade_route_market.py",
+    # "tests/unit/test_embassy_stay.py",
 
 ]

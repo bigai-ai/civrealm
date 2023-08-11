@@ -54,33 +54,39 @@ class FreecivCodeEnv(FreecivBaseEnv):
         extra_info = np.zeros((MAP_SIZE, MAP_SIZE))
 
         for dx in range(-RADIUS, RADIUS+1):
-            for dy in range(RADIUS, RADIUS+1):
-                ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
-                terrain_info[RADIUS+dx, RADIUS+dy] = ntile['terrain']
-
+            for dy in range(-RADIUS, RADIUS+1):
+                terrain = -1
                 extra = -1
-                for extra_id in range(len(EXTRA_NAMES)):
-                    if ntile['extras'][extra_id] == 1:
-                        extra = extra_id
-                        break
+
+                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+                    terrain = ntile['terrain']
+                    for extra_id in range(len(EXTRA_NAMES)):
+                        if ntile['extras'][extra_id] == 1:
+                            extra = extra_id
+                            break
+
+                terrain_info[RADIUS+dx, RADIUS+dy] = terrain
                 extra_info[RADIUS+dx, RADIUS+dy] = extra
         return terrain_info, extra_info
 
     def get_units_on_mini_map(self, ptile):
+        x = ptile['x']
+        y = ptile['y']
         number_of_unit_types = len(UNIT_TYPES)
         units_on_mini_map = np.zeros((MAP_SIZE, MAP_SIZE, number_of_unit_types))
 
-        x = ptile['x']
-        y = ptile['y']
         for dx in range(-RADIUS, RADIUS+1):
-            for dy in range(RADIUS, RADIUS+1):
-                ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x+dx, y+dy)
-                units_on_ntile = ntile['units']
-                if len(units_on_ntile) == 0:
-                    continue
-                for punit in units_on_ntile:
-                    punit_type = punit['type']
-                    units_on_mini_map[RADIUS+dx, RADIUS+dy, punit_type] += 1
+            for dy in range(-RADIUS, RADIUS+1):
+                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+                    units_on_ntile = ntile['units']
+                    if len(units_on_ntile) == 0:
+                        continue
+                    for punit in units_on_ntile:
+                        punit_type = punit['type']
+                        units_on_mini_map[RADIUS + dx, RADIUS + dy, punit_type] += 1
+
         return units_on_mini_map
 
     def _get_observation(self):
@@ -105,5 +111,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 observations[ctrl_type] = ctrl.get_current_state(pplayer)
 
         return observations
+
 
 

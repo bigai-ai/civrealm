@@ -19,7 +19,7 @@ from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.agents.controller_agent import ControllerAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
+from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES, DIR8_NAMES
 from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
 
 RADIUS = 2
@@ -55,6 +55,11 @@ DIR = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, 1), (1, -1), (-1, 
        (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (0, -2), (1, -2), (-1, -2), (2, -2),
        (-2, -2), (2, 0), (2, 1), (2, -1), (-2, 0), (-2, 1), (-2, -1)]
 
+MOVE_NAMES = {'goto_0': 'move NorthWest', 'goto_1': 'move North',
+              'goto_2': 'move NorthEast', 'goto_3': 'move West',
+              'goto_4': 'move East', 'goto_5': 'move SouthWest',
+              'goto_6': 'move South', 'goto_7': 'move SouthEast'}
+
 '''
 current prompt examples:
 tile_info = {'current_tile': ['Forest', '1 Explorer'],
@@ -84,13 +89,19 @@ tile_info = {'current_tile': ['Forest', '1 Explorer'],
              'tile_south_1_west_2': ['Plains']
              }
 
-unit_dict = {'Workers': {'max_move': 0, 'avail_actions': []},
-             'Explorer': {'max_move': 2, 'avail_actions': ['disband', 'keep_activity', 'explore', 
-                                                           'fortify', 'goto_0', 'goto_1', 'goto_2', 
-                                                           'goto_3', 'goto_4', 'goto_5', 'goto_6', 'goto_7']},
-             'Warriors': {'max_move': 3, 'avail_actions': ['disband', 'keep_activity', 'fortify', 
-                                                           'goto_0', 'goto_1', 'goto_2', 'goto_3', 
-                                                           'goto_4', 'goto_5', 'goto_6', 'goto_7']}
+unit_dict = {'Settlers 101': {'max_move': 0, 'avail_actions': []}, 
+             'Workers 103': {'max_move': 3, 'avail_actions': ['disband', 'keep_activity', 'move NorthWest', 
+                                                              'move North', 'move NorthEast', 'move West', 
+                                                              'move East', 'move SouthWest', 'move South', 
+                                                              'move SouthEast']}, 
+             'Workers 104': {'max_move': 3, 'avail_actions': ['disband', 'keep_activity', 'move NorthWest', 
+                                                              'move North', 'move NorthEast', 'move West', 
+                                                              'move East', 'move SouthWest', 'move South', 
+                                                              'move SouthEast']}, 
+             'Explorer 105': {'max_move': 3, 'avail_actions': ['disband', 'keep_activity', 'explore', 'fortify', 
+                                                               'move NorthWest', 'move North', 'move NorthEast', 
+                                                               'move West', 'move East', 'move SouthWest', 
+                                                               'move South', 'move SouthEast']}
              }
 '''
 
@@ -127,12 +138,18 @@ class LanguageAgent(ControllerAgent):
         unit_dict = {}
         units = list(info['available_actions'][ctrl_type].get_actors())
         for punit in units:
-            unit_name = UNIT_TYPES[observations[punit]['utype']]
+            unit_name = UNIT_TYPES[observations[punit]['utype']] + ' ' + str(punit)
             unit_dict[unit_name] = {}
             unit_dict[unit_name]['max_move'] = observations[punit]['moves']
 
             valid_action_dict = self.get_valid_actions(info, ctrl_type, punit)
-            unit_dict[unit_name]['avail_actions'] = list(valid_action_dict.keys())
+            avail_actions = list(valid_action_dict.keys())
+
+            for action_id, action_name in enumerate(avail_actions):
+                if action_name in MOVE_NAMES:
+                    avail_actions[action_id] = MOVE_NAMES[action_name]
+
+            unit_dict[unit_name]['avail_actions'] = avail_actions
         return unit_dict
 
     def get_tiles_info(self, observations, actor_id):
@@ -192,5 +209,4 @@ class LanguageAgent(ControllerAgent):
                 punit_name = UNIT_TYPES[punit]
                 unit_str.append(str(int(punit_number)) + ' ' + punit_name)
         return unit_str
-
 

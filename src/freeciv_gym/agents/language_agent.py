@@ -24,8 +24,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES, DIR8_NAMES
 from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
 from freeciv_gym.agents.civ_autogpt.GPTAgent import GPTAgent
-# from freeciv_gym.agents.civ_autogpt.utils.process_command import process_command
-from freeciv_gym.agents.civ_autogpt.arguments import *
+
 
 RADIUS = 2
 TILE_INFO_TEMPLATE = {
@@ -60,6 +59,7 @@ DIR = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, 1), (1, -1), (-1, 
        (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (0, -2), (1, -2), (-1, -2), (2, -2),
        (-2, -2), (2, 0), (2, 1), (2, -1), (-2, 0), (-2, 1), (-2, -1)]
 
+# Currently not being used.
 MOVE_NAMES = {'goto_0': 'move NorthWest', 'goto_1': 'move North', 'goto_2': 'move NorthEast',
               'goto_3': 'move West', 'goto_4': 'move East', 'goto_5': 'move SouthWest',
               'goto_6': 'move South', 'goto_7': 'move SouthEast'}

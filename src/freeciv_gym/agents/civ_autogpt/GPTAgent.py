@@ -7,7 +7,6 @@ import requests
 import warnings
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
-from freeciv_gym.agents.civ_autogpt.arguments import *
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory
@@ -33,7 +32,7 @@ if USE_API2D:
     headers = {
       'Content-Type': 'application/json',
       'x-api2d-no-cache': '1',
-      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
+      'Authorization': 'Bearer xxxx'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
     }
 else:
     url = ""

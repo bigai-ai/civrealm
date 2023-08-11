@@ -96,8 +96,8 @@ def test_move_to(controller):
     # Class: UnitActions
     unit_opt = options['unit']
 
-    # sleep for 10 seconds between the observation and agent action, provide enough time to observe actions
-    time.sleep(1)
+    # sleep for 5 seconds between the observation and agent action, provide enough time to observe actions
+    time.sleep(5)
 
     # action control
 
@@ -152,8 +152,8 @@ def test_move_to(controller):
             controller.get_observation()
             unit_opt = options['unit']
         
-            time.sleep(1)
-        time.sleep(10)
+            time.sleep(0.5)
+        time.sleep(5)
 
 def main():
     fc_args['username'] = 'myagent'

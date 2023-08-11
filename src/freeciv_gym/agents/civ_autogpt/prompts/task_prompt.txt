@@ -1,0 +1,1 @@
+Can you guide me to play the FreeCiv game? Now I will give you the operaing unit name, a 5*5 tiles as observation with the four directions of east, west, north, south, and the number next to them to represent the number of tiles advancing towards that direction and game message. You are on the 'current_tile'. I will also give your available actions.

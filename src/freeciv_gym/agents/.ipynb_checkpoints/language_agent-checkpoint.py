@@ -143,20 +143,20 @@ class LanguageAgent(ControllerAgent):
                         current_avail_actions_list.append(action_name[:-1] + NUM_TO_DIRECTION_DICT[action_name[-1]])
                     else:
                         current_avail_actions_list.append(action_name)
-                    DIRECTION_TO_NUM_ACTION_DICT[current_avail_actions_list[-1]] = temp_name
+                    DIRECTION_TO_NUM_ACTION_DICT[action_name] = temp_name
 
                 obs_input_prompt = f"""The unit is {current_unit_name}, observation is {current_obs}. Your available action list is {current_avail_actions_list}. """
 
                 response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
                 self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': response})
                 response = json.loads(response)
-                exec_action_name = None
-                while exec_action_name is None:
-                    exec_action_name = self.ga.process_command(response['command'], obs_input_prompt, current_unit_name, current_avail_actions_list)
+
+                process_command(response['command'], self.ga, obs_input_prompt, current_unit_name, current_avail_actions_list)
+
+                
 
                 # calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
-                # exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[calculate_func(valid_action_dict)]
-                exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[exec_action_name]
+                exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[calculate_func(valid_action_dict)]
                 if exec_action_name:
                     return valid_action_dict[exec_action_name]
 

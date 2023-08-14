@@ -14,7 +14,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, LanguageAgent
+from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, LanguageAgent, DQNAgent
 from freeciv_gym.configs import fc_args
 import freeciv_gym
 import gymnasium
@@ -24,8 +24,8 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivCode-v0')
-    agent = LanguageAgent()
+    env = gymnasium.make('freeciv/FreecivBase-v0')
+    agent = DQNAgent()
 
     observations, info = env.reset()
     done = False

@@ -196,7 +196,7 @@ class CityBuyProduction(Action):
         if self.pcity['production_kind'] == VUT_IMPROVEMENT and self.pcity['production_value'] == 67:
             return False
 
-        return self.pplayer['gold'] >= self.pcity['buy_cost']
+        return self.pplayer['gold'] >= self.pcity['buy_cost'] > 0
 
     def _action_packet(self):
         """Buy whatever is being built in the city."""

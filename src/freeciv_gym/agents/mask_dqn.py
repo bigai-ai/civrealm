@@ -129,9 +129,9 @@ class DQNAgent(BaseAgent):
                 self.action_mask = self.make_mask(valid_action_dict)
                 action_name = self.unit_agent.take_action(obs, self.action_mask)
                 self.action_choose = action_name #save policy output to replybuffer
-                if action_name:
-                    print('action_name: ', list(self.unit_action_dict.values())[action_name])
-                    return valid_action_dict[list(self.unit_action_dict.values())[action_name]]
+
+                print('action_name: ', list(self.unit_action_dict.values())[action_name])
+                return valid_action_dict[list(self.unit_action_dict.values())[action_name]]
             else:
                 calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
                 action_name = calculate_func(valid_action_dict)             
@@ -178,39 +178,45 @@ class DQNAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_city_actions(self, action_dict):
-        desired_actions = {'city_work': 0.0,
-                           'city_unwork': 0.0,
-                           'change_improve_prod': 0.0,
-                           'change_unit_prod': 0.0,
-                           'city_buy_production': 0.0,
-                           'city_sell_improvement': 0.0,
-                           'city_change_specialist': 0.0, }
+        desired_actions = {'city_work': random.random() * 0.2,
+                           'city_unwork': random.random() * 0.2,
+                           'change_improve_prod': random.random() * 0.2,
+                           'change_unit_prod': random.random() * 0.2,
+                           'city_buy_production': random.random() * 0.2,
+                           'city_sell_improvement': random.random() * 0.2,
+                           'city_change_specialist': random.random() * 0.2, }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_player_actions(self, action_dict):
-        desired_actions = {'increase_sci': 0.0,
-                           'decrease_sci': 0.0,
-                           'increase_lux': 0.0,
-                           'decrease_lux': 0.0,
-                           'start_negotiation': 0.0,
-                           'accept_treaty': 0.0,
-                           'stop_negotiation': 0.0,
-                           'remove_clause': 0.0,
-                           'add_clause': 0.0,
-                           'cancel_clause': 0.0,
-                           'trade_tech_clause': 0.0, }
+        desired_actions = {}
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_dipl_actions(self, action_dict):
-        desired_actions = {}
+        desired_actions = {'start_negotiation': random.random(),
+                           'accept_treaty': random.random(),
+                           'cancel_treaty': random.random(),
+                           'cancel_vision': random.random(),
+                           'stop_negotiation': random.random(),
+                           'remove_clause': random.random(),
+                           'add_clause': random.random(),
+                           'trade_tech_clause': random.random(),
+                           'trade_gold_clause': random.random(),
+                           'trade_city_clause': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_tech_actions(self, action_dict):
-        desired_actions = {'set_tech_goal_Rocketry': 1.0}
+        desired_actions = {'research_tech': random.random(),
+                           'set_tech_goal': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_gov_actions(self, action_dict):
-        desired_actions = {}
+        desired_actions = {'change_gov': random.random(),
+                           'increase_sci': random.random(),
+                           'decrease_sci': random.random(),
+                           'increase_lux': random.random(),
+                           'decrease_lux': random.random(),
+                           'increase_tax': random.random(),
+                           'decrease_tax': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
    
 # class DQNAgent:

@@ -291,7 +291,7 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace, ActEmbassyStay]:
+        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace, ActEmbassyStay, ActInvestigateSpend]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_action(unit_id, act_class(unit_focus, dir8))
         
@@ -1884,6 +1884,33 @@ class ActAttack(UnitAction):
         
         self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
+    
+class ActInvestigateSpend(UnitAction):
+    """Investigate the city with a diplomat. This action will consume the unit."""
+    action_key = "investigate_spend"
+
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+
+    def is_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_INV_CITY_SPEND):
+            return False
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_INV_CITY_SPEND])
+
+    def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        pcity = self.focus.city_ctrl.tile_city(newtile)
+        self.target_city_id = pcity['id']
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_city_id,
+                                     fc_types.ACTION_INV_CITY_SPEND)
+        
+        # Investigate city should get city additional info as a response.
+        self.wait_for_pid = (256, self.target_city_id)
+        return packet
+    
 
 class ActDisembark(UnitAction):
     """Disembark a transported unit on target tile. This action costs the unit's move."""

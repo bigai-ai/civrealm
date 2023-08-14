@@ -68,6 +68,7 @@ class GPTAgent:
         self.model = model
         self.dialogue = []
         self.agent_index = None
+        self.taken_actions_list = []
         self.message = ''
 
         self.openai_api_keys = self.load_openai_keys()
@@ -130,6 +131,31 @@ class GPTAgent:
         self.openai_api_keys.pop(0)
         self.openai_api_keys.append(curr_key)
 
+    def check_if_the_taken_actions_list_needed_update(self, check_content, check_num = 3, top_k_charactors = 0):
+        if top_k_charactors == 0:
+            if len(self.taken_actions_list) >= check_num:
+                for i in range(check_num):
+                    if self.taken_actions_list[-1 - i] == check_content:
+                        if i == check_num - 1:
+                            return True
+                        else:
+                            continue
+                    else:
+                        return True
+                
+            return False 
+        else:
+            if len(self.taken_actions_list) >= check_num:
+                for i in range(check_num):
+                    if self.taken_actions_list[-1 - i][:top_k_charactors] == check_content:
+                        if i == check_num - 1:
+                            return True
+                        else:
+                            continue
+                    else:
+                        return True
+            return False 
+
     def process_command(self, command_json, obs_input_prompt, current_unit_name, current_avail_actions):
         '''
         manualAndHistorySearch
@@ -143,32 +169,57 @@ class GPTAgent:
             # Here to implement controller
             exec_action = command_input['action']
             while True:
-                print(command_input['action'])
-                if command_input['action'] not in current_avail_actions:
+                if not command_input['action']:
+                    self.update_dialogue(obs_input_prompt + ' CAUTION: You should answer action from the available action list!', pop_num = 2)
+                    continue
+                elif command_input['action'] not in current_avail_actions:
                     if random.random() > 0.5:
                         self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
                     else:
                         self.update_dialogue(obs_input_prompt, pop_num = 2)
                     continue
                 else:
-                    break
+                    self.taken_actions_list.append(command_input['action'])
+                    # if len(self.taken_actions_list) >= 3 and (self.taken_actions_list[-1][:4] == self.taken_actions_list[-2][:4] == self.taken_actions_list[-3][:4] == 'goto'):
+                    if self.check_if_the_taken_actions_list_needed_update('goto', 3, 4):
+                        self.update_dialogue(obs_input_prompt + \
+                            ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
+                        self.taken_actions_list = []
+                        continue
+                    else:
+                        break
+            print('exec_action:', exec_action)
             return exec_action
 
         elif command_json['name'] == 'ask' and command_input['question']:
             print(command_input)
+            self.taken_actions_list.append(command_input.keys()[0])
             return 'UNDEFINED'
         
         elif command_json['name'] == 'askCurrentGameInformation' and command_input['query']:
             print(command_input)
+            self.taken_actions_list.append(command_input.keys()[0])
             return 'UNDEFINED'
         
         elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_for']:
             print(command_input)
-            query = command_input['look_for']
-            answer = self.get_answer(query)
-            print('answer:', answer)
-            self.dialogue.append({'role': 'user', 'content': answer})
+            
+            if self.check_if_the_taken_actions_list_needed_update('look_for', 3, 0):
+                answer = 'Too many look for! Now You should give me an action at once!'
+                print(answer)
+                self.dialogue.append({'role': 'user', 'content': answer})
+                self.taken_actions_list = []
+            else:
+                query = command_input['look_for']
+                answer = self.get_answer(query)
+                print('answer:', answer)
+                if random.random() > 0.5:
+                    self.dialogue.append({'role': 'user', 'content': answer + ' Now you get the needed information from the manual, give me your action answer.'})
+                else:
+                    self.dialogue.append({'role': 'user', 'content': answer})
+            
             self.memory.save_context({'assistant': query}, {'user': answer})
+            self.taken_actions_list.append('look_for')
 
             return None
         else:
@@ -306,6 +357,7 @@ class GPTAgent:
         self.dialogue = []
         self.agent_index = None
         self.message = ''
+        self.taken_actions_list = []
         # self.gpt_extractor.reset()
 
         self.openai_api_keys = self.load_openai_keys()

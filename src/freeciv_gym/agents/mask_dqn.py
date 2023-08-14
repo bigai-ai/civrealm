@@ -248,7 +248,7 @@ def select_obs(observation):
     obs = observation['map']['terrain'].reshape(-1)
     return obs
 
-
+'''
 for i_episode in range(num_episodes):
     observations, info = env.reset()
     obs = select_obs(observations)
@@ -278,3 +278,4 @@ for i_episode in range(num_episodes):
             agent.unit_agent.update(transition_dict)
             print('success update')
     print('episode_reward',episode_reward)
+'''

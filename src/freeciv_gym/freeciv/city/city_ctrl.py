@@ -58,6 +58,9 @@ class CityCtrl(CivPropController):
         self.register_handler(32, "handle_city_short_info")
         self.register_handler(256, "handle_web_city_info_addition")
         self.register_handler(249, "handle_traderoute_info")
+        self.register_handler(46, "handle_city_nationalities")
+        self.register_handler(138, "handle_city_rally_point")
+        self.register_handler(514, "handle_city_update_counters")
 
     def tile_city(self, ptile):
         """Return the city on this tile (or NULL), checking for city center."""
@@ -121,6 +124,15 @@ class CityCtrl(CivPropController):
             trade_data["trade_"+good['name']].append((tcity['name'], routes[i]['value']))
 
         return trade_data
+
+    def handle_city_update_counters(self, packet):
+        fc_logger.info(packet)
+
+    def handle_city_rally_point(self, packet):
+        fc_logger.info(packet)
+
+    def handle_city_nationalities(self, packet):
+        fc_logger.info(packet)
 
     def handle_city_remove(self, packet):
         self.remove_city(packet['city_id'])

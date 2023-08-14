@@ -63,9 +63,8 @@ TERRAIN_NAMES = ['Inaccessible', 'Lake', 'Ocean', 'Deep Ocean', 'Glacier',
                  'Desert', 'Forest', 'Grassland', 'Hills', 'Jungle',
                  'Mountains', 'Plains', 'Swamp', 'Tundra']
 
-EXTRA_NAMES = ['Irrigation', '?extra:Mine', 'Oil Well', 'Pollution',
-               'Minor Tribe Village', 'Farmland', 'Fallout', 'Fortress',
-               'Airbase', 'Buoy', 'Ruins', 'Road', 'Railroad', 'River',
-               'Gold', 'Iron', '?animals:Game', 'Furs', 'Coal', 'Fish',
-               'Fruit', 'Gems', 'Buffalo', 'Wheat', 'Oasis', 'Peat',
-               'Pheasant', 'Resources', 'Ivory', 'Silk', 'Spice', 'Whales', 'Wine', 'Oil']
+EXTRA_NAMES = ['Irrigation', 'Mine', 'Oil Well', 'Pollution', 'Minor Tribe Village',
+               'Farmland', 'Fallout', 'Fortress', 'Airbase', 'Buoy', 'Ruins', 'Road',
+               'Railroad', 'River', 'Gold', 'Iron', 'Game', 'Furs', 'Coal', 'Fish', 'Fruit',
+               'Gems', 'Buffalo', 'Wheat', 'Oasis', 'Peat', 'Pheasant', 'Resources',
+               'Ivory', 'Silk', 'Spice', 'Whales', 'Wine', 'Oil']

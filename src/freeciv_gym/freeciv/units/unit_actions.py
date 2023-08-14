@@ -282,10 +282,11 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActDisband, ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution, ActAutoSettler, ActKeepActivity,
-                          ActExplore, ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
+        for act_class in [ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution,  ActKeepActivity,
+                          ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
-                          ActBoard, ActUnloadUnit, ActNoorders, ActCancelOrder,
+                          ActBoard, ActUnloadUnit, ActCancelOrder,
+                          # ActDisband, ActAutoSettler, ActExplore, ActNoorders,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))

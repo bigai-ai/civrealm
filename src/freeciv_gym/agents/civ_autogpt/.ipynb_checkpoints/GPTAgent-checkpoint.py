@@ -7,7 +7,6 @@ import requests
 import warnings
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
-from freeciv_gym.agents.civ_autogpt.arguments import *
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory
@@ -25,7 +24,7 @@ from langchain.chains.question_answering import load_qa_chain
 
 warnings.filterwarnings('ignore')
 
-USE_API2D = False
+USE_API2D = True
 
 
 if USE_API2D:
@@ -88,7 +87,7 @@ class GPTAgent:
         # embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         self.index = Pinecone.from_existing_index(index_name='langchain-demo', embedding=OpenAIEmbeddings(model="text-embedding-ada-002"))
 
-    def get_similiar_docs(self, query, index, k=2, score=False):
+    def get_similiar_docs(self, query, k=2, score=False):
         index = self.index
         if score:
             similar_docs = index.similarity_search_with_score(query, k=k)
@@ -97,8 +96,8 @@ class GPTAgent:
         return similar_docs
 
     def get_answer(self, query):
-        similar_docs = get_similiar_docs(query)
-        answer = chain.run(input_documents=similar_docs, question=query)
+        similar_docs = self.get_similiar_docs(query)
+        answer = self.chain.run(input_documents=similar_docs, question=query)
         return answer
         
     @staticmethod
@@ -138,37 +137,47 @@ class GPTAgent:
         askCurrentGameInformation
         finalDecision
         '''
-        command_name = command_json['name']
+        # command_name = command_json['name']
         command_input = command_json['input']
         if command_json['name'] == 'finalDecision' and command_input['action']:
             # Here to implement controller
+            exec_action = command_input['action']
             while True:
                 print(command_input['action'])
                 if command_input['action'] not in current_avail_actions:
-                    self.update_dialogue(obs_input_prompt, pop_num = 2)
+                    if random.random() > 0.5:
+                        self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
+                    else:
+                        self.update_dialogue(obs_input_prompt, pop_num = 2)
                     continue
                 else:
                     break
+            return exec_action
 
         elif command_json['name'] == 'ask' and command_input['question']:
             print(command_input)
-            # return ''
+            return 'UNDEFINED'
+        
         elif command_json['name'] == 'askCurrentGameInformation' and command_input['query']:
             print(command_input)
-
-            # return ''
+            return 'UNDEFINED'
+        
         elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_for']:
             print(command_input)
             query = command_input['look_for']
-            answer = get_answer(query)
+            answer = self.get_answer(query)
             print('answer:', answer)
             self.dialogue.append({'role': 'user', 'content': answer})
             self.memory.save_context({'assistant': query}, {'user': answer})
+
+            return None
         else:
-            print('error')
-            print(command_json)
-            self.dialogue.pop(-1)
-            # return 'error'
+            # print('error')
+            # print(command_json)
+            # self.dialogue.pop(-1)
+            self.update_dialogue(obs_input_prompt, pop_num = 1)
+
+            return None
 
 
     # def query(self, model="gpt-3.5-turbo-0301"):
@@ -270,6 +279,8 @@ class GPTAgent:
                 self.dialogue.append(self.message)
 
                 response = self.message["content"]
+
+                print('response:', response)
 
                 try:
                     json.loads(response)

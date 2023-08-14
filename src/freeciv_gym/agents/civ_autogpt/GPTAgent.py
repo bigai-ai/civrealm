@@ -145,7 +145,10 @@ class GPTAgent:
             while True:
                 print(command_input['action'])
                 if command_input['action'] not in current_avail_actions:
-                    self.update_dialogue(obs_input_prompt, pop_num = 2)
+                    if random.random() > 0.5:
+                        self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
+                    else:
+                        self.update_dialogue(obs_input_prompt, pop_num = 2)
                     continue
                 else:
                     break
@@ -276,6 +279,8 @@ class GPTAgent:
                 self.dialogue.append(self.message)
 
                 response = self.message["content"]
+
+                print('response:', response)
 
                 try:
                     json.loads(response)

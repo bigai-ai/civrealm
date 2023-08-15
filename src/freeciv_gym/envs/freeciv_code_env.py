@@ -93,7 +93,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
         self.civ_controller.lock_control()
         self.civ_controller.turn_manager.get_observation()
         turn_manager = self.civ_controller.turn_manager
-        pplayer = turn_manager._turn_player
 
         observations = {}
         for ctrl_type, ctrl in turn_manager._turn_ctrls.items():
@@ -108,7 +107,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
                     mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
                     observations[ctrl_type][punit] = mini_map_info
             else:
-                observations[ctrl_type] = ctrl.get_current_state(pplayer)
+                observations[ctrl_type] = turn_manager._turn_state[ctrl_type]
 
         return observations
 

@@ -24,7 +24,7 @@ from langchain.chains.question_answering import load_qa_chain
 
 warnings.filterwarnings('ignore')
 
-USE_API2D = False
+USE_API2D = True
 
 
 if USE_API2D:
@@ -32,7 +32,7 @@ if USE_API2D:
     headers = {
       'Content-Type': 'application/json',
       'x-api2d-no-cache': '1',
-      'Authorization': 'Bearer xxxx'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
+      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
     }
 else:
     url = ""
@@ -68,6 +68,7 @@ class GPTAgent:
         self.model = model
         self.dialogue = []
         self.agent_index = None
+        self.taken_actions_list = []
         self.message = ''
 
         self.openai_api_keys = self.load_openai_keys()
@@ -83,7 +84,6 @@ class GPTAgent:
         pinecone.init(
             api_key="a0f60dc9-dd3e-40d3-ab5d-983421854662", environment="asia-southeast1-gcp-free"
         )
-        # # "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"
         # embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         self.index = Pinecone.from_existing_index(index_name='langchain-demo', embedding=OpenAIEmbeddings(model="text-embedding-ada-002"))
 
@@ -130,6 +130,33 @@ class GPTAgent:
         self.openai_api_keys.pop(0)
         self.openai_api_keys.append(curr_key)
 
+    def check_if_the_taken_actions_list_needed_update(self, check_content, check_num = 3, top_k_charactors = 0):
+        if top_k_charactors == 0:
+            if len(self.taken_actions_list) >= check_num:
+                for i in range(check_num):
+                    if self.taken_actions_list[-1 - i] == check_content:
+                        if i == check_num - 1:
+                            return True
+                        else:
+                            continue
+                    else:
+                        return False
+                    
+                
+            return False 
+        else:
+            if len(self.taken_actions_list) >= check_num:
+                for i in range(check_num):
+                    if self.taken_actions_list[-1 - i][:top_k_charactors] == check_content:
+                        if i == check_num - 1:
+                            return True
+                        else:
+                            continue
+                    else:
+                        return False
+                    
+            return False 
+
     def process_command(self, command_json, obs_input_prompt, current_unit_name, current_avail_actions):
         '''
         manualAndHistorySearch
@@ -139,48 +166,93 @@ class GPTAgent:
         '''
         # command_name = command_json['name']
         command_input = command_json['input']
-        if command_json['name'] == 'finalDecision' and command_input['action']:
+        if (command_json['name'] == 'finalDecision') and command_input['action']:
             # Here to implement controller
+            print(command_json)
+            new_response = {}
             exec_action = command_input['action']
-            while True:
-                print(command_input['action'])
-                if command_input['action'] not in current_avail_actions:
-                    if random.random() > 0.5:
-                        self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
-                    else:
-                        self.update_dialogue(obs_input_prompt, pop_num = 2)
-                    continue
+
+            if command_input['action'] not in current_avail_actions:
+                if random.random() > 0.5:
+                    self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
+                    return None
                 else:
-                    break
-            return exec_action
+                    self.update_dialogue(obs_input_prompt, pop_num = 2)
+                    return None
+                
+            else:
+                self.taken_actions_list.append(command_input['action'])
+                if self.check_if_the_taken_actions_list_needed_update('goto', 3, 4):
+                    new_response = self.update_dialogue(obs_input_prompt + \
+                            ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
+                    # command_input = new_response['command']['input']
+                    self.taken_actions_list = []
+                    return None
+                else:
+                    print('exec_action:', exec_action)
+                    return exec_action
 
         elif command_json['name'] == 'ask' and command_input['question']:
             print(command_input)
-            return 'UNDEFINED'
+            
+            if self.check_if_the_taken_actions_list_needed_update('ask', 3, 0):
+                answer = 'Too many ask! Now You should give me an action at once!'
+                print(answer)
+                self.dialogue.append({'role': 'user', 'content': answer})
+                self.taken_actions_list = []
+            else:
+                query = command_input['ask']
+                answer = self.get_answer(query)
+                print('answer:', answer)
+                if random.random() > 0.5:
+                    self.dialogue.append({'role': 'user', 'content': answer + ' Now you get the needed information from the manual, give me your action answer.'})
+                else:
+                    self.dialogue.append({'role': 'user', 'content': answer})
+            
+            self.memory.save_context({'assistant': query}, {'user': answer})
+            self.taken_actions_list.append('ask')
+
+            return None
         
         elif command_json['name'] == 'askCurrentGameInformation' and command_input['query']:
             print(command_input)
-            return 'UNDEFINED'
+            self.taken_actions_list.append('askCurrentGameInformation')
+            return None
         
         elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_for']:
             print(command_input)
-            query = command_input['look_for']
-            answer = self.get_answer(query)
-            print('answer:', answer)
-            self.dialogue.append({'role': 'user', 'content': answer})
+            
+            if self.check_if_the_taken_actions_list_needed_update('look_for', 3, 0):
+                answer = 'Too many look for! Now You should give me an action at once!'
+                print(answer)
+                self.dialogue.append({'role': 'user', 'content': answer})
+                self.taken_actions_list = []
+            else:
+                query = command_input['look_for']
+                answer = self.get_answer(query)
+                print('answer:', answer)
+                if random.random() > 0.5:
+                    self.dialogue.append({'role': 'user', 'content': answer + ' Now you get the needed information from the manual, give me your action answer.'})
+                else:
+                    self.dialogue.append({'role': 'user', 'content': answer})
+            
             self.memory.save_context({'assistant': query}, {'user': answer})
+            self.taken_actions_list.append('look_for')
 
             return None
         else:
-            # print('error')
-            # print(command_json)
-            # self.dialogue.pop(-1)
-            self.update_dialogue(obs_input_prompt, pop_num = 1)
+            print('error')
+            print(command_json)
+            
+            if random.random() < 0.8:
+                self.dialogue.pop(-1)
+            else:
+                self.dialogue.append({'role': 'user', 'content': 'You should only use the given commands!'})
+            # self.update_dialogue(obs_input_prompt, pop_num = 1)
 
             return None
 
 
-    # def query(self, model="gpt-3.5-turbo-0301"):
     def query(self, stop = None, temperature = 0.1):
         self.restrict_dialogue()
         # TODO add retreat mech to cope with rate limit
@@ -306,6 +378,7 @@ class GPTAgent:
         self.dialogue = []
         self.agent_index = None
         self.message = ''
+        self.taken_actions_list = []
         # self.gpt_extractor.reset()
 
         self.openai_api_keys = self.load_openai_keys()

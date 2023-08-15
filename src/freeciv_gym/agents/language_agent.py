@@ -26,6 +26,8 @@ from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
 from freeciv_gym.agents.civ_autogpt.GPTAgent import GPTAgent
 
 
+
+
 RADIUS = 2
 TILE_INFO_TEMPLATE = {
             'current_tile': [],
@@ -101,16 +103,16 @@ class LanguageAgent(ControllerAgent):
                     DIRECTION_TO_NUM_ACTION_DICT[current_avail_actions_list[-1]] = temp_name
 
                 obs_input_prompt = f"""The unit is {current_unit_name}, observation is {current_obs}. Your available action list is {current_avail_actions_list}. """
-
-                response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
-                self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': response})
-                response = json.loads(response)
+                print('current unit:', current_unit_name)
+                
                 exec_action_name = None
                 while exec_action_name is None:
+                    response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
+                    self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': response})
+                    response = json.loads(response)
+
                     exec_action_name = self.ga.process_command(response['command'], obs_input_prompt, current_unit_name, current_avail_actions_list)
 
-                # calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
-                # exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[calculate_func(valid_action_dict)]
                 exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[exec_action_name]
                 if exec_action_name:
                     return valid_action_dict[exec_action_name]

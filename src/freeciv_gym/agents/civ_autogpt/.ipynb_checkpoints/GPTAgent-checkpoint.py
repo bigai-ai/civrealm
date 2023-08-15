@@ -5,6 +5,8 @@ import random
 import json
 import requests
 import warnings
+from func_timeout import func_timeout
+from func_timeout import FunctionTimedOut
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
 from langchain.chat_models import ChatOpenAI
@@ -21,10 +23,9 @@ from langchain.chains.question_answering import load_qa_chain
 
 
 
-
 warnings.filterwarnings('ignore')
 
-USE_API2D = True
+USE_API2D = False
 
 
 if USE_API2D:
@@ -32,7 +33,7 @@ if USE_API2D:
     headers = {
       'Content-Type': 'application/json',
       'x-api2d-no-cache': '1',
-      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
+      'Authorization': 'Bearer fkxxxx'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
     }
 else:
     url = ""
@@ -84,7 +85,6 @@ class GPTAgent:
         pinecone.init(
             api_key="a0f60dc9-dd3e-40d3-ab5d-983421854662", environment="asia-southeast1-gcp-free"
         )
-        # # "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"
         # embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         self.index = Pinecone.from_existing_index(index_name='langchain-demo', embedding=OpenAIEmbeddings(model="text-embedding-ada-002"))
 
@@ -141,7 +141,8 @@ class GPTAgent:
                         else:
                             continue
                     else:
-                        return True
+                        return False
+                    
                 
             return False 
         else:
@@ -153,7 +154,8 @@ class GPTAgent:
                         else:
                             continue
                     else:
-                        return True
+                        return False
+                    
             return False 
 
     def process_command(self, command_json, obs_input_prompt, current_unit_name, current_avail_actions):
@@ -165,41 +167,59 @@ class GPTAgent:
         '''
         # command_name = command_json['name']
         command_input = command_json['input']
-        if command_json['name'] == 'finalDecision' and command_input['action']:
+        if (command_json['name'] == 'finalDecision') and command_input['action']:
+            if current_unit_name == 'Explorer':
+                print('here')
             # Here to implement controller
+            print(command_json)
             exec_action = command_input['action']
-            while True:
-                if not command_input['action']:
-                    self.update_dialogue(obs_input_prompt + ' CAUTION: You should answer action from the available action list!', pop_num = 2)
-                    continue
-                elif command_input['action'] not in current_avail_actions:
-                    if random.random() > 0.5:
-                        self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
-                    else:
-                        self.update_dialogue(obs_input_prompt, pop_num = 2)
-                    continue
+
+            if command_input['action'] not in current_avail_actions:
+                if random.random() > 0.5:
+                    self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
+                    return None
                 else:
-                    self.taken_actions_list.append(command_input['action'])
-                    # if len(self.taken_actions_list) >= 3 and (self.taken_actions_list[-1][:4] == self.taken_actions_list[-2][:4] == self.taken_actions_list[-3][:4] == 'goto'):
-                    if self.check_if_the_taken_actions_list_needed_update('goto', 3, 4):
-                        self.update_dialogue(obs_input_prompt + \
-                            ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
-                        self.taken_actions_list = []
-                        continue
-                    else:
-                        break
-            print('exec_action:', exec_action)
-            return exec_action
+                    self.update_dialogue(obs_input_prompt, pop_num = 2)
+                    return None
+                
+            else:
+                self.taken_actions_list.append(command_input['action'])
+                if self.check_if_the_taken_actions_list_needed_update('goto', 15, 4) or self.check_if_the_taken_actions_list_needed_update('keep_activity', 15, 0):
+                    self.update_dialogue(obs_input_prompt + \
+                        ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
+                    # command_input = new_response['command']['input']
+                    self.taken_actions_list = []
+                    return None
+                else:
+                    print('exec_action:', exec_action)
+                    return exec_action
 
         elif command_json['name'] == 'ask' and command_input['question']:
             print(command_input)
-            self.taken_actions_list.append(command_input.keys()[0])
-            return 'UNDEFINED'
+            
+            if self.check_if_the_taken_actions_list_needed_update('ask', 3, 0):
+                answer = 'Too many ask! Now You should give me an action at once!'
+                print(answer)
+                self.dialogue.append({'role': 'user', 'content': answer})
+                self.taken_actions_list = []
+            else:
+                query = command_input['ask']
+                answer = self.get_answer(query)
+                print('answer:', answer)
+                if random.random() > 0.5:
+                    self.dialogue.append({'role': 'user', 'content': answer + ' Now you get the needed information from the manual, give me your action answer.'})
+                else:
+                    self.dialogue.append({'role': 'user', 'content': answer})
+            
+            self.memory.save_context({'assistant': query}, {'user': answer})
+            self.taken_actions_list.append('ask')
+
+            return None
         
         elif command_json['name'] == 'askCurrentGameInformation' and command_input['query']:
             print(command_input)
-            self.taken_actions_list.append(command_input.keys()[0])
-            return 'UNDEFINED'
+            self.taken_actions_list.append('askCurrentGameInformation')
+            return None
         
         elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_for']:
             print(command_input)
@@ -223,15 +243,18 @@ class GPTAgent:
 
             return None
         else:
-            # print('error')
-            # print(command_json)
-            # self.dialogue.pop(-1)
-            self.update_dialogue(obs_input_prompt, pop_num = 1)
+            print('error')
+            print(command_json)
+            
+            if random.random() < 0.8:
+                self.dialogue.pop(-1)
+            else:
+                self.dialogue.append({'role': 'user', 'content': 'You should only use the given commands!'})
+            # self.update_dialogue(obs_input_prompt, pop_num = 1)
 
             return None
 
 
-    # def query(self, model="gpt-3.5-turbo-0301"):
     def query(self, stop = None, temperature = 0.1):
         self.restrict_dialogue()
         # TODO add retreat mech to cope with rate limit
@@ -247,7 +270,10 @@ class GPTAgent:
             else:
                 response = openai.ChatCompletion.create(
                     model=self.model,
-                    messages=self.dialogue
+                    messages=self.dialogue,
+                    temperature=temperature,
+                    n = 1,
+                    top_p = 0.95
                 )
         elif self.model in ['gpt-4-0314', 'gpt-4']:
             
@@ -322,16 +348,20 @@ class GPTAgent:
 
     def communicate(self, content, parse_choice_tag = False):
         self.dialogue.append({"role": "user", "content": content})
-        pop_flag = 0
         while True:
             try:
-                raw_response = self.query()
+                try:
+                    func_timeout(30, self.query)
+                except FunctionTimedOut as e:
+                    print(e)
+                    print('进程运行超时')
+                # raw_response = self.query()
                 self.message = self.parse_response(raw_response)
                 self.dialogue.append(self.message)
 
                 response = self.message["content"]
 
-                print('response:', response)
+                # print('response:', response)
 
                 try:
                     json.loads(response)

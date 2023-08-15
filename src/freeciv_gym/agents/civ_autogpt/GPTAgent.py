@@ -5,6 +5,8 @@ import random
 import json
 import requests
 import warnings
+from func_timeout import func_timeout
+from func_timeout import FunctionTimedOut
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
 from langchain.chat_models import ChatOpenAI
@@ -21,10 +23,9 @@ from langchain.chains.question_answering import load_qa_chain
 
 
 
-
 warnings.filterwarnings('ignore')
 
-USE_API2D = True
+USE_API2D = False
 
 
 if USE_API2D:
@@ -32,7 +33,7 @@ if USE_API2D:
     headers = {
       'Content-Type': 'application/json',
       'x-api2d-no-cache': '1',
-      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
+      'Authorization': 'Bearer fkxxxx'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
     }
 else:
     url = ""
@@ -169,10 +170,10 @@ class GPTAgent:
         if (command_json['name'] == 'finalDecision') and command_input['action']:
             # Here to implement controller
             print(command_json)
-            new_response = {}
             exec_action = command_input['action']
 
             if command_input['action'] not in current_avail_actions:
+                # Here is the most time taking place.
                 if random.random() > 0.5:
                     self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
                     return None
@@ -182,9 +183,9 @@ class GPTAgent:
                 
             else:
                 self.taken_actions_list.append(command_input['action'])
-                if self.check_if_the_taken_actions_list_needed_update('goto', 3, 4):
-                    new_response = self.update_dialogue(obs_input_prompt + \
-                            ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
+                if self.check_if_the_taken_actions_list_needed_update('goto', 15, 4) or self.check_if_the_taken_actions_list_needed_update('keep_activity', 15, 0):
+                    self.update_dialogue(obs_input_prompt + \
+                        ' CAUTION: You have chosen too much goto operation. You should try various kind of action. Try to look for more information in manual!', pop_num = 2)
                     # command_input = new_response['command']['input']
                     self.taken_actions_list = []
                     return None
@@ -268,7 +269,10 @@ class GPTAgent:
             else:
                 response = openai.ChatCompletion.create(
                     model=self.model,
-                    messages=self.dialogue
+                    messages=self.dialogue,
+                    temperature=temperature,
+                    n = 1,
+                    top_p = 0.95
                 )
         elif self.model in ['gpt-4-0314', 'gpt-4']:
             
@@ -343,16 +347,22 @@ class GPTAgent:
 
     def communicate(self, content, parse_choice_tag = False):
         self.dialogue.append({"role": "user", "content": content})
-        pop_flag = 0
         while True:
             try:
-                raw_response = self.query()
+                while True:
+                    try:
+                        raw_response = func_timeout(20, self.query)
+                        break
+                    except FunctionTimedOut as e:
+                        print(e, endl = '')
+                        print('query timeout, retrying...')
+                # raw_response = self.query()
                 self.message = self.parse_response(raw_response)
                 self.dialogue.append(self.message)
 
                 response = self.message["content"]
 
-                print('response:', response)
+                # print('response:', response)
 
                 try:
                     json.loads(response)

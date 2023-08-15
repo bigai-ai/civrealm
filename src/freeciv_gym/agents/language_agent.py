@@ -108,6 +108,7 @@ class LanguageAgent(ControllerAgent):
                 exec_action_name = None
                 while exec_action_name is None:
                     response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
+
                     self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': response})
                     response = json.loads(response)
 
@@ -142,7 +143,18 @@ class LanguageAgent(ControllerAgent):
                 # TODO: We need to write the choosing mechanism in the following version.
                 if actor_id in self.planned_actor_ids:
                     # We have planned an action for this actor in this turn.
-                    continue
+                    continue_flag = 0
+                    for id in unit_dict.keys():
+                        if actor_id == int(id.split(' ')[-1]):
+                            # For those not explorer, we only let them move once.
+                            if id.split(' ')[0] != 'Explorer':
+                                continue_flag = 1
+                                break
+                            if unit_dict[id]['max_move'] <= 0:
+                                continue_flag = 1
+                                break
+                    if continue_flag == 1:
+                        continue
 
                 if action_list._can_actor_act(actor_id):
                     fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')

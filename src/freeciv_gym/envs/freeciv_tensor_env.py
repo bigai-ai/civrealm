@@ -21,3 +21,17 @@ class FreecivTensorEnv(FreecivBaseEnv):
 
     def __init__(self):
         super().__init__()
+
+    def _get_observation(self):
+        self.civ_controller.lock_control()
+        self.civ_controller.turn_manager.get_observation()
+        turn_manager = self.civ_controller.turn_manager
+
+        observations = {}
+        for ctrl_type, ctrl in turn_manager._turn_ctrls.items():
+            if ctrl_type == 'unit':
+                observations[ctrl_type] = self.civ_controller.controller_list['map'].prop_state._state['terrain']
+            else:
+                observations[ctrl_type] = turn_manager._turn_state[ctrl_type]
+
+        return observations

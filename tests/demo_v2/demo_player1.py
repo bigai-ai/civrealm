@@ -28,7 +28,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
 PORT = 6001
-FILE = 'myagent_T50_2023-08-09-08_30_02'
+FILE = 'myagent_T50_2023-08-09-08_30_03'
 SCRIPT_LIST = [
     # 旁白：路途中间有非常多的敌方建筑物。三个机器人士兵分别对当前的情况生成自己的方案。
     "TARGET_CITY_DISCOVERY", 
@@ -153,7 +153,7 @@ def test_move_to(controller):
             unit_opt = options['unit']
         
             time.sleep(0.5)
-        time.sleep(5)
+        time.sleep(3)
 
 def main():
     fc_args['username'] = 'myagent'

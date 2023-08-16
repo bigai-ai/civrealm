@@ -33,7 +33,7 @@ dependencies = [
     "tiktoken",
     "openai",
     "langchain",
-    "pipecone-client"
+    "pinecone-client"
 ]
 
 

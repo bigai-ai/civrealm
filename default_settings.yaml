@@ -41,9 +41,10 @@ debug:
   gameseed: 1729
   # set agentseed to fix the action sequence when game/map are fixed
   agentseed: 1729
-  # The ruleset to be used
-  ruleset: classic
-  
+
+# The ruleset to be used
+ruleset: classic
+
 
 trainer:
   epoch: 300

@@ -5,6 +5,7 @@
 
 # Generated files
 freeciv_gym.egg-info/
+tests/logs/
 geckodriver
 geckodriver.log
 .pytest_cache/

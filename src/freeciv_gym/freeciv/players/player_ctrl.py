@@ -53,8 +53,8 @@ class PlayerCtrl(CivPropController):
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
         self.register_handler(58, "handle_player_attribute_chunk")
-        self.register_handler(60, "handle_player_research_info")
-        self.register_handler(259, "handle_web_player_addition_info")
+        self.register_handler(60, "handle_research_info")
+        self.register_handler(259, "handle_web_player_info_addition")
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -237,10 +237,12 @@ class PlayerCtrl(CivPropController):
         # update_player_info_pregame()
         # update_tech_screen()
 
-    def handle_web_player_addition_info(self, packet):
-        fc_logger.debug(packet)
+    def handle_web_player_info_addition(self, packet):
+        # Currently there is only one additional field expected_income
+        del packet['pid']
+        self.players[packet['playerno']].update(packet)
 
-    def handle_player_research_info(self, packet):
+    def handle_research_info(self, packet):
         old_inventions = None
         if packet['id'] in self.research_data:
             old_inventions = self.research_data[packet['id']]['inventions']

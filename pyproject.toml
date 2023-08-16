@@ -29,6 +29,10 @@ dependencies = [
     "pytest",
     "pytest-xdist",
     "filelock",
+    "tiktoken",
+    "openai",
+    "langchain",
+    "pipecone-client"
 ]
 
 

@@ -208,7 +208,7 @@ class ClientState(CivPropController):
 
     def set_multiplayer_game(self):
         # Set AI player to 0. Based on HACKING file
-        self.ws_client.send_message(f"/rulesetdir civ2civ3")
+        self.ws_client.send_message(f"/rulesetdir {fc_args['ruleset']}")
         self.ws_client.send_message(f"/set aifill {fc_args['aifill']}")
         # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
         self.ws_client.send_message("/set topology \"\"")

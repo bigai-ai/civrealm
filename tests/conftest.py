@@ -21,6 +21,7 @@ import filelock
 from freeciv_gym.freeciv.build_server import docker_image_name
 from freeciv_gym.configs import fc_args
 fc_args['username'] = 'testcontroller'
+fc_args['ruleset'] = 'classic'
 
 
 test_dir = os.path.dirname(__file__)

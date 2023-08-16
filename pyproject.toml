@@ -33,7 +33,8 @@ dependencies = [
     "tiktoken",
     "openai",
     "langchain",
-    "pinecone-client"
+    "pinecone-client",
+    "func-timeout"
 ]
 
 

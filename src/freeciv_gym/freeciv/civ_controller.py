@@ -318,7 +318,11 @@ class CivController(CivPropController):
             raise
 
     def end_game(self):
-        self.ws_client.send_message(f"/endgame")
+        packet = {'pid': 26,
+                  'message': f"/endgame"}
+        self.ws_client.send_request(packet, wait_for_pid=(223, None))
+        self.ws_client.start_ioloop()
+
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name

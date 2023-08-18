@@ -32,9 +32,11 @@ class GameCtrl(CivPropController):
         self.calendar_info = {}
         self.scenario_info = {}
         self.page_msg = {}
-
+        self.ws_client = ws_client
         self.prop_state = GameState(self.scenario_info, self.calendar_info)
         self.prop_actions = NoActions(ws_client)
+        self.end_game_player_packet = None
+        self.end_game_report = None
 
     def register_all_handlers(self):
         self.register_handler(13, "handle_scenario_description")
@@ -58,6 +60,7 @@ class GameCtrl(CivPropController):
         self.register_handler(219, "handle_edit_object_created")
 
         self.register_handler(223, "handle_endgame_player")
+        self.register_handler(12, "handle_endgame_report")
         self.register_handler(238, "handle_achievement_info")
         self.register_handler(245, "handle_play_music")
 
@@ -118,8 +121,14 @@ class GameCtrl(CivPropController):
             self.page_msg = {}
 
     def handle_endgame_player(self, packet):
-        # /* TODO: implement */
-        return
+        self.end_game_player_packet = packet
+        fc_logger.info(f'End_game_player_packet: {packet}')
+        self.ws_client.stop_ioloop()
+        
+
+    def handle_endgame_report(self, packet):
+        self.end_game_report = packet
+        fc_logger.info(f'End_game_report: {packet}')
 
     def handle_play_music(self, packet):
         pass

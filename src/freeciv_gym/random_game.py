@@ -36,7 +36,8 @@ def main():
             done = terminated or truncated
         except Exception as e:
             fc_logger.warning(repr(e))
-            env.end_game()
+            break
+    env.end_game()
     env.close()
 
 

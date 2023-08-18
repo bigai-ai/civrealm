@@ -164,8 +164,6 @@ class RulesetCtrl(CivPropController):
         else:
             self.ruleset_description += packet['text']
 
-   
-
     def handle_ruleset_unit(self, packet):
         if packet['name'] != None:
             if '?unit:' in packet['name']:

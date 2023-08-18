@@ -42,6 +42,7 @@ class PlayerCtrl(CivPropController):
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.players = {}
+        self.all_players = {}
         # Include the data of the Player himself and the other players who have been met.
         self.research_data = {}
         self.endgame_player_info = []
@@ -224,7 +225,7 @@ class PlayerCtrl(CivPropController):
         packet['gives_shared_tiles'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_tiles']))
         playerno = packet["playerno"]
         # Update player information
-        if not playerno in self.players.keys() or self.players[playerno] is None:
+        if playerno not in self.players.keys() or self.players[playerno] is None:
             self.players[playerno] = packet
         else:
             self.players[playerno].update(packet)
@@ -236,6 +237,8 @@ class PlayerCtrl(CivPropController):
             # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
+        if playerno not in self.all_players.keys():
+            self.all_players[playerno] = packet['nation']
 
     def handle_web_player_info_addition(self, packet):
         # Currently there is only one additional field expected_income

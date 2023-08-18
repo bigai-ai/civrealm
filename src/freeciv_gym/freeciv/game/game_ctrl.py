@@ -19,6 +19,7 @@ from freeciv_gym.freeciv.game.info_states import GameState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -154,3 +155,47 @@ class GameCtrl(CivPropController):
     def handle_edit_object_created(self, packet):
         # /* TODO: implement */
         pass
+
+    def get_game_scores(self, game_scores):
+        start_turn = 0
+        score_items = game_scores.split("\n")
+        players = {}
+        turns = {}
+        tags = {}
+        evaluations = {}
+
+        for score_item in score_items:
+            scores = score_item.split(" ")
+            if len(scores) >= 3:
+
+                if scores[0] == 'tag':
+                    ptag = int(scores[1])
+                    tags[ptag] = scores[2] + '-' + EVALUATION_TAGS[ptag]
+
+                elif scores[0] == 'turn':
+                    pturn = int(scores[1])
+                    turn_name = " ".join(scores[3:])
+                    turns[pturn] = turn_name
+
+                elif scores[0] == 'addplayer':
+                    player_id = int(scores[2])
+                    players[player_id] = {}
+                    player_name = " ".join(scores[3:])
+                    players[player_id]['name'] = player_name
+                    players[player_id]['start_turn'] = start_turn
+
+                elif scores[0] == 'data':
+                    ptag = int(scores[2])
+                    ptag_name = EVALUATION_TAGS[ptag]
+                    pplayer = int(scores[3])
+                    player_index = 'player' + '_' + str(pplayer)
+                    value = int(scores[4])
+
+                    if ptag_name not in evaluations:
+                        evaluations[ptag_name] = dict()
+                    if player_index not in evaluations[ptag_name]:
+                        evaluations[ptag_name][player_index] = []
+
+                    evaluations[ptag_name][player_index].append(value)
+
+        return players, tags, turns, evaluations

@@ -45,6 +45,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 MAX_REQUESTS = 10
 SLEEP_TIME = 1
@@ -350,6 +351,91 @@ class CivController(CivPropController):
                 fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
                 time.sleep(SLEEP_TIME)
         return game_scores
+
+    '''
+        Format description of the scorelog format version 2
+        ===================================================
+
+        Empty lines and lines starting with '#' are comments. Each non-comment 
+        line starts with a command. The parameter are supplied on that line
+        and are seperated by a space. Strings which may contain whitespaces
+        are always the last parameter and so extend till the end of line.
+
+        The following commands exists:
+        id <game-id>
+        <game-id> is a string without whitespaces which is used
+                  to match a scorelog against a savegame.
+
+        tag <tag-id> <descr>
+        add a data-type (tag)
+          the <tag-id> is used in the 'data' commands
+          <descr> is a string without whitespaces which
+                  identified this tag
+
+        turn <turn> <number> <descr>
+        adds information about the <turn> turn
+          <number> can be for example year
+          <descr> may contain whitespaces
+
+        addplayer <turn> <player-id> <name>
+        adds a player starting at the given turn (inclusive)
+          <player-id> is a number which can be reused
+          <name> may contain whitespaces
+
+        delplayer <turn> <player-id>
+        removes a player from the game. The player was
+          active till the given turn (inclusive)
+          <player-id> used by the creation
+
+        data <turn> <tag-id> <player-id> <value>
+        give the value of the given tag for the given
+        player for the given turn
+        '''
+
+    def get_game_scores(self):
+        game_scores = self.request_scorelog()
+        start_turn = 0
+        score_items = game_scores.split("\n")
+        players = {}
+        turns = {}
+        tags = {}
+        evaluations = {}
+
+        for score_item in score_items:
+            scores = score_item.split(" ")
+            if len(scores) >= 3:
+
+                if scores[0] == 'tag':
+                    ptag = int(scores[1])
+                    tags[ptag] = scores[2] + '-' + EVALUATION_TAGS[ptag]
+
+                elif scores[0] == 'turn':
+                    pturn = int(scores[1])
+                    turn_name = " ".join(scores[3:])
+                    turns[pturn] = turn_name
+
+                elif scores[0] == 'addplayer':
+                    player_id = int(scores[2])
+                    players[player_id] = {}
+                    player_name = " ".join(scores[3:])
+                    players[player_id]['name'] = player_name
+                    players[player_id]['start_turn'] = start_turn
+
+                elif scores[0] == 'data':
+                    ptag = int(scores[2])
+                    ptag_name = EVALUATION_TAGS[ptag]
+                    pplayer = int(scores[3])
+                    player_index = 'player' + '_' + str(pplayer)
+                    value = int(scores[4])
+
+                    if ptag_name not in evaluations:
+                        evaluations[ptag_name] = dict()
+                    if player_index not in evaluations[ptag_name]:
+                        evaluations[ptag_name][player_index] = []
+
+                    evaluations[ptag_name][player_index].append(value)
+
+        return players, tags, turns, evaluations
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name

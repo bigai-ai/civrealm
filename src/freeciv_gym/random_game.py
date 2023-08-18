@@ -40,6 +40,9 @@ def main():
     env.end_game()
     env.close()
 
+    '''
+    players, tags, turns, evaluations = env.evaluate_game()
+    '''
 
 if __name__ == '__main__':
     main()

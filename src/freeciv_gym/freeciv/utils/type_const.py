@@ -21,3 +21,6 @@ IMPR_TYPES = ['Airport', 'Aqueduct', 'Bank', 'Barracks', 'Barracks II', 'Barrack
               'Pyramids', 'SETI Program', "Shakespeare's Theater", 'Statue of Liberty', "Sun Tzu's War Academy",
               'United Nations', "Women's Suffrage", 'Coinage']
 
+EVALUATION_TAGS = ['score', 'population', 'economics', 'production', 'cities', 'techs',
+                   'military units', 'wonders', 'tech output', 'land area', 'settled area',
+                   'gold', 'units built', 'units killed', 'units lost', 'units used']

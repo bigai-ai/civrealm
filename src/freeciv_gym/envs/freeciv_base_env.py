@@ -90,7 +90,12 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        # We put _get_info() before _get_observation() because the actions of new units will be initialized in _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        '''
+        We put _get_info() before _get_observation() because the actions of new units will be initialized in 
+        _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the 
+        corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from 
+        server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        '''
         info = self._get_info()
         observation = self._get_observation()        
         reward = self._get_reward()
@@ -110,7 +115,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def end_game(self):
         self.civ_controller.end_game()
-        self.civ_controller.request_scorelog()
+
+    def evaluate_game(self):
+        return self.civ_controller.get_game_scores()
 
     def render(self):
         """Render the environment based on freeciv-web.

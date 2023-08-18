@@ -34,7 +34,8 @@ dependencies = [
     "openai",
     "langchain",
     "pinecone-client",
-    "func-timeout"
+    "func-timeout",
+    "requests"
 ]
 
 

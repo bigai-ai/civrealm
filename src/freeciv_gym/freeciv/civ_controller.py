@@ -15,6 +15,7 @@
 
 import random
 import requests
+import time
 from datetime import datetime, timezone, timedelta
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -43,6 +44,10 @@ from freeciv_gym.freeciv.turn_manager import TurnManager
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
+
+MAX_REQUESTS = 10
+SLEEP_TIME = 1
 
 
 class CivController(CivPropController):
@@ -93,8 +98,8 @@ class CivController(CivPropController):
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
-
         self.init_controllers(username)
+        self.url = f"http://localhost:8080/data/scorelogs/score-{client_port}.log"
 
     def reset(self):
         self.ws_client = CivConnection(self.host, self.client_port)
@@ -301,6 +306,8 @@ class CivController(CivPropController):
                         pid_info = (packet['pid'], packet['actor_unit_id'])
                     elif 'playerno' in packet:
                         pid_info = (packet['pid'], packet['playerno'])
+                    elif 'playerid' in packet:
+                        pid_info = (packet['pid'], packet['playerid'])
                     elif 'counterpart' in packet:
                         pid_info = (packet['pid'], packet['counterpart'])
                     elif 'plr1' in packet:
@@ -318,11 +325,31 @@ class CivController(CivPropController):
             raise
 
     def end_game(self):
-        packet = {'pid': 26,
+        packet = {'pid': packet_chat_msg_req,
                   'message': f"/endgame"}
-        self.ws_client.send_request(packet, wait_for_pid=(223, None))
+        wait_for_pid_list = self.end_game_packet_list()
+        self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
         self.ws_client.start_ioloop()
 
+    def end_game_packet_list(self):
+        wait_for_pid_list = []
+        for player_id in self.player_ctrl.players.keys():
+            wait_for_pid_list.append((223, player_id))
+        return wait_for_pid_list
+
+    def request_scorelog(self):
+        game_scores = None
+
+        for ptry in range(MAX_REQUESTS):
+            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
+            if response.status_code == 200:
+                fc_logger.debug(f'Request of game_scores succeed')
+                game_scores = response.text
+                break
+            else:
+                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
+                time.sleep(SLEEP_TIME)
+        return game_scores
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name

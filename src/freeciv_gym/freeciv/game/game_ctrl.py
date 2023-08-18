@@ -122,13 +122,10 @@ class GameCtrl(CivPropController):
 
     def handle_endgame_player(self, packet):
         self.end_game_player_packet = packet
-        fc_logger.info(f'End_game_player_packet: {packet}')
         self.ws_client.stop_ioloop()
-        
 
     def handle_endgame_report(self, packet):
         self.end_game_report = packet
-        fc_logger.info(f'End_game_report: {packet}')
 
     def handle_play_music(self, packet):
         pass

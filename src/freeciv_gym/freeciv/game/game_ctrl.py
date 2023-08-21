@@ -38,6 +38,7 @@ class GameCtrl(CivPropController):
         self.prop_actions = NoActions(ws_client)
         self.end_game_player_packet = None
         self.end_game_report = None
+        self.game_results = dict()
 
     def register_all_handlers(self):
         self.register_handler(13, "handle_scenario_description")
@@ -123,6 +124,11 @@ class GameCtrl(CivPropController):
 
     def handle_endgame_player(self, packet):
         self.end_game_player_packet = packet
+        player_id = packet['player_id']
+        self.game_results[player_id] = dict()
+        self.game_results[player_id]['winner'] = packet['winner']
+        self.game_results[player_id]['score'] = packet['score']
+        self.game_results[player_id]['category_score'] = packet['category_score']
         self.ws_client.stop_ioloop()
 
     def handle_endgame_report(self, packet):

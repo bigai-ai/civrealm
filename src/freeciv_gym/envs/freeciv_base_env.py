@@ -118,6 +118,10 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def end_game(self):
         self.civ_controller.end_game()
 
+    def get_game_results(self):
+        game_results = self.civ_controller.game_ctrl.game_results
+        return dict(sorted(game_results.items()))
+
     def evaluate_game(self):
         game_scores = self.civ_controller.request_scorelog()
         return self.civ_controller.game_ctrl.get_game_scores(game_scores)
@@ -150,4 +154,3 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
-

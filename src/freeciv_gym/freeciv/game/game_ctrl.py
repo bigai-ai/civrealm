@@ -188,14 +188,15 @@ class GameCtrl(CivPropController):
                     ptag = int(scores[2])
                     ptag_name = EVALUATION_TAGS[ptag]
                     pplayer = int(scores[3])
-                    player_index = 'player' + '_' + str(pplayer)
                     value = int(scores[4])
 
                     if ptag_name not in evaluations:
                         evaluations[ptag_name] = dict()
-                    if player_index not in evaluations[ptag_name]:
-                        evaluations[ptag_name][player_index] = []
+                    if pplayer not in evaluations[ptag_name]:
+                        evaluations[ptag_name][pplayer] = []
 
-                    evaluations[ptag_name][player_index].append(value)
+                    evaluations[ptag_name][pplayer].append(value)
 
         return players, tags, turns, evaluations
+
+

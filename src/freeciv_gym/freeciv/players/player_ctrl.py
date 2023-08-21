@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 from freeciv_gym.freeciv.city.city_state import CityState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.utility import format_hex
 
 
 # from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
@@ -42,7 +43,6 @@ class PlayerCtrl(CivPropController):
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.players = {}
-        self.all_players = {}
         # Include the data of the Player himself and the other players who have been met.
         self.research_data = {}
         self.endgame_player_info = []
@@ -237,8 +237,6 @@ class PlayerCtrl(CivPropController):
             # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
-        if playerno not in self.all_players.keys():
-            self.all_players[playerno] = packet['nation']
 
     def handle_web_player_info_addition(self, packet):
         # Currently there is only one additional field expected_income
@@ -310,3 +308,13 @@ class PlayerCtrl(CivPropController):
             nation_adj = nations[pplayer['nation']]['adjective']
             message += (i+1) + ": The " + nation_adj + " ruler " + pplayer['name'] + " scored " + info['score'] + " points" + "<br>"
     """
+
+    def get_player_colors(self):
+        player_colors = dict()
+        for player_id in self.players:
+            color_red = self.players[player_id]['color_red']
+            color_green = self.players[player_id]['color_green']
+            color_blue = self.players[player_id]['color_blue']
+            player_colors[player_id] = '#' + format_hex(color_red) + format_hex(color_green) + format_hex(color_blue)
+        return player_colors
+

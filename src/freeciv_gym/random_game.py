@@ -42,7 +42,9 @@ def main():
 
     '''
     players, tags, turns, evaluations = env.evaluate_game()
+    env.plot_game_scores()
     '''
 
 if __name__ == '__main__':
     main()
+

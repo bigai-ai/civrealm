@@ -47,5 +47,12 @@ def find_set_bits(bit_vector):
     
     return set_bits
 
+
 def sign(x):
     return (x > 0) - (x < 0)
+
+
+def format_hex(num):
+    hex_value = hex(num)[2:]
+    formatted_hex = format(int(hex_value, 16), '02X')
+    return formatted_hex

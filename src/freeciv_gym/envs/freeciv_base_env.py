@@ -15,6 +15,7 @@
 
 import os
 import json
+import matplotlib.pyplot as plt
 
 import gymnasium
 from gymnasium import utils
@@ -22,6 +23,7 @@ from gymnasium import utils
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
@@ -97,18 +99,18 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
         '''
         info = self._get_info()
-        observation = self._get_observation()        
+        observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
-        
+
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
 
         return observation, reward, terminated, truncated, info
 
     def reset(self):
-        self.civ_controller.init_network()        
+        self.civ_controller.init_network()
         info = self._get_info()
         observation = self._get_observation()
         return observation, info
@@ -120,6 +122,26 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         game_scores = self.civ_controller.request_scorelog()
         return self.civ_controller.game_ctrl.get_game_scores(game_scores)
 
+    def plot_game_scores(self):
+        plot_game_scores_folder = 'plot_game_scores'
+        if not os.path.exists(plot_game_scores_folder):
+            os.mkdir(plot_game_scores_folder)
+
+        players, tags, turns, evaluations = self.evaluate_game()
+        player_colors = self.civ_controller.player_ctrl.get_player_colors()
+        for ptag in EVALUATION_TAGS:
+            plt.figure()
+            for player_id in evaluations[ptag].keys():
+                scores = evaluations[ptag][player_id]
+                x_1 = players[player_id]['start_turn']
+                x_axis = range(x_1 + x_1 + len(scores))
+                plt.plot(x_axis, scores, color=player_colors[player_id], label='player' + '_' + str(player_id))
+
+            plt.legend()
+            pfile = os.path.join(plot_game_scores_folder, ptag + '.png')
+            plt.savefig(pfile)
+            plt.close()
+
     def render(self):
         """Render the environment based on freeciv-web.
         """
@@ -128,3 +150,4 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
+

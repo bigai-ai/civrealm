@@ -18,6 +18,7 @@ import random
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
+import ray
 
 class ControllerAgent(BaseAgent):
     def __init__(self):
@@ -118,3 +119,8 @@ class ControllerAgent(BaseAgent):
                            'increase_tax': random.random(),
                            'decrease_tax': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
+
+@ray.remote
+class ControllerAgentParallel(ControllerAgent):
+    def __init__(self):
+        super().__init__()

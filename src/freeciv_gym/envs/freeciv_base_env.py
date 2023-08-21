@@ -19,6 +19,7 @@ import matplotlib.pyplot as plt
 
 import gymnasium
 from gymnasium import utils
+import ray
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -31,10 +32,13 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     metadata = {'render_modes': ['human']}
 
     def __init__(self):
-        self.civ_controller = CivController(username=fc_args['username'])
+        self.civ_controller = CivController(username=fc_args['username'], host=fc_args['host'], client_port=fc_args['client_port'])
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
+        
+    def set_client_port(self, port):
+        self.civ_controller.set_client_port(port)
 
     def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
@@ -154,3 +158,23 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
+
+@ray.remote
+class FreecivBaseParallelEnv(FreecivBaseEnv):
+    def __init__(self):
+        super().__init__()
+
+    def step(self, action):
+        self.civ_controller.perform_action(action)
+        info = self._get_info()
+        observation = self._get_observation()        
+        reward = self._get_reward()
+        terminated = self._get_terminated()
+        truncated = self._get_truncated()
+        return self.civ_controller.get_turn(), 0, False, False, self.civ_controller.get_turn()
+    
+    def reset(self):
+        self.civ_controller.init_network()
+        info = self._get_info()
+        observation = self._get_observation()
+        return self.civ_controller.get_turn(), self.civ_controller.get_turn()

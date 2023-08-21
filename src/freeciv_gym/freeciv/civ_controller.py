@@ -59,7 +59,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host=fc_args['host'], client_port=fc_args['client_port'], visualize=False):
+    def __init__(self, username, host, client_port, visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -101,6 +101,12 @@ class CivController(CivPropController):
         self.game_saving_time_range = []
         self.init_controllers(username)
         self.url = f"http://localhost:8080/data/scorelogs/score-{client_port}.log"
+
+    def set_client_port(self, port):
+        if fc_args['multiplayer_game']:
+            assert port in PORT_LIST, f'Multiplayer game port {port} is invalid.'
+        self.client_port = port
+        self.ws_client.set_client_port(port)
 
     def reset(self):
         self.ws_client = CivConnection(self.host, self.client_port)
@@ -239,6 +245,8 @@ class CivController(CivPropController):
     def perform_action(self, action):
         if action == None:
             self.send_end_turn()
+        elif action == 'pass':
+            pass
         else:
             action.trigger_action(self.ws_client)
 
@@ -275,11 +283,6 @@ class CivController(CivPropController):
         """
         # FIXME: check victory conditions.
         return False
-
-    def close(self):
-        if self.visualize:
-            self.monitor.stop_monitor()
-        self.ws_client.close()
 
     # ============================================================
     # ========================= Handlers =========================
@@ -331,6 +334,11 @@ class CivController(CivPropController):
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
         self.ws_client.start_ioloop()
+
+    def close(self):
+        if self.visualize:
+            self.monitor.stop_monitor()
+        self.ws_client.close()
 
     def end_game_packet_list(self):
         wait_for_pid_list = []

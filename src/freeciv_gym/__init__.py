@@ -28,3 +28,8 @@ register(
     id='freeciv/FreecivCode-v0',
     entry_point='freeciv_gym.envs:FreecivCodeEnv',
 )
+
+register(
+    id='freeciv/FreecivBaseParallel-v0',
+    entry_point='freeciv_gym.envs:FreecivBaseParallelEnv',
+)

@@ -29,6 +29,8 @@ dependencies = [
     "pytest",
     "pytest-xdist",
     "filelock",
+    # The following packages are for parallel training
+    "ray",
     # The following packages are for the LLM agent
     "tiktoken",
     "openai",
@@ -36,7 +38,9 @@ dependencies = [
     "pinecone-client",
     "func-timeout",
     "requests",
-    "ray"
+    # The following packages are for the tensor-based agent
+    "torch",
+    "matplotlib"
 ]
 
 

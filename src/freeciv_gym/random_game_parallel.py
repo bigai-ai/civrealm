@@ -14,8 +14,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.envs.freeciv_base_env import FreecivBaseParallelEnv
-from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, ControllerAgentParallel
+from freeciv_gym.envs.freeciv_base_env import FreecivParallelBaseEnv
+from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, ParallelControllerAgent
 # from freeciv_gym.configs import fc_args
 import freeciv_gym
 # from freeciv_gym.runners import REGISTRY as r_REGISTRY
@@ -41,14 +41,14 @@ def main():
     port = 6300
     # Initialize environments
     for i in range(process_num):
-        temp_port = port+i    
-        env = FreecivBaseParallelEnv.remote()
+        temp_port = port+i
+        env = FreecivParallelBaseEnv.remote()
         env.set_client_port.remote(temp_port)
         env_list.append(env)
         # wrapped_env = CloudpickleWrapper(env)
         # wrapped_env.x.set_client_port.remote(temp_port)
         # env_list.append(wrapped_env)
-    
+
     result_ids = []
     for i in range(process_num):
         result_ids.append(env_list[i].reset.remote())
@@ -93,13 +93,13 @@ def main():
                 # The result is a list (length is one) of tuple.
                 observation_list[env_id] = result[0][0]
                 info_list[env_id] = result[0][4]
-                # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
+                # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3],
             except Exception as e:
                 fc_logger.warning(repr(e))
                 done_list[env_id] = True
             index += 1
             ready, unready = ray.wait(unready, num_returns=1)
-        
+
         # Handle the last ready result
         if ready:
             env_id = index_id_map[index]
@@ -116,17 +116,17 @@ def main():
 
         print(observation_list)
         # print(info_list)
-        for i in range(process_num):    
+        for i in range(process_num):
             if done_list[i]:
                 env_list[i].end_game.remote()
                 env_list[i].close.remote()
                 # env_list[i].x.end_game.remote()
                 # env_list[i].x.close.remote()
-        
+
         all_done = all(done_list)
         if all_done:
             break
-    
+
     # actor = AsyncActor.remote()
     # # regular ray.get
     # ray.get([actor.get_result.remote(port+i) for i in range(5)])
@@ -142,12 +142,12 @@ def main():
 # @ray.remote
 # def run(port):
 #     env_list = []
-    
+
 #     env = gymnasium.make('freeciv/FreecivBase-v0')
 #     env.set_client_port(port)
 #     # agent = CloudpickleWrapper(ControllerAgentParallel.remote())
 #     agent = ControllerAgent()
-    
+
 #     observations, info = env.reset()
 #     done = False
 #     while not done:
@@ -162,6 +162,7 @@ def main():
 #             break
 #     env.end_game()
 #     env.close()
+
 
 if __name__ == '__main__':
     main()

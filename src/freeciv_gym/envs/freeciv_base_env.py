@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -32,11 +32,14 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     metadata = {'render_modes': ['human']}
 
     def __init__(self):
-        self.civ_controller = CivController(username=fc_args['username'], host=fc_args['host'], client_port=fc_args['client_port'])
+        self.civ_controller = CivController(
+            username=fc_args['username'],
+            host=fc_args['host'],
+            client_port=fc_args['client_port'])
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
-        
+
     def set_client_port(self, port):
         self.civ_controller.set_client_port(port)
 
@@ -159,20 +162,23 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def close(self):
         self.civ_controller.close()
 
+
 @ray.remote
-class FreecivBaseParallelEnv(FreecivBaseEnv):
+class FreecivParallelBaseEnv(FreecivBaseEnv):
     def __init__(self):
         super().__init__()
 
     def step(self, action):
         self.civ_controller.perform_action(action)
         info = self._get_info()
-        observation = self._get_observation()        
+        observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
+
+        # TODO: observation, reward, terminated, truncated, info
         return self.civ_controller.get_turn(), 0, False, False, self.civ_controller.get_turn()
-    
+
     def reset(self):
         self.civ_controller.init_network()
         info = self._get_info()

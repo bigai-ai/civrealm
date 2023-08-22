@@ -95,12 +95,12 @@ class PlayerState(PlainState):
         self._state.update(dict([(op_id + "invention_%i" % tech_id, None)
                                  for tech_id in self.rule_ctrl.techs]))
 
-        self._state[op_id + "col_love"] = self.col_love(opponent)
-        self._state[op_id + "plr_score"] = self.get_score_text(opponent)
+        self._state[op_id + "_col_love"] = self.col_love(opponent)
+        self._state[op_id + "_plr_score"] = self.get_score_text(opponent)
         if opponent['flags'][player_const.PLRF_AI] != 0:
-            self._state[op_id + "plr_type"] = self.get_ai_level_text(opponent) + " AI"
+            self._state[op_id + "_plr_type"] = self.get_ai_level_text(opponent) + " AI"
         else:
-            self._state[op_id + "plr_type"] = "Human"
+            self._state[op_id + "_plr_type"] = "Human"
 
         if pplayer["real_embassy"][opponent["playerno"]]:
             self.show_intelligence_report_embassy(opponent, op_id)

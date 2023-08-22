@@ -50,7 +50,7 @@ class CityState(ListState):
         cur_state = {}
 
         for cp in ["id", "size", "food_stock", "granary_size",
-                   "granary_turn", "production_kind", "production_value"]:
+                   "granary_turns", "production_kind", "production_value"]:
             if cp in pcity:
                 cur_state[cp] = pcity[cp] if pcity[cp] != None else -1
             else:

@@ -35,7 +35,8 @@ dependencies = [
     "langchain",
     "pinecone-client",
     "func-timeout",
-    "requests"
+    "requests",
+    "ray"
 ]
 
 

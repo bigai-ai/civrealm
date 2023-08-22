@@ -31,7 +31,7 @@ class DiplomacyState(PlainState):
 
     def _update_state(self, pplayer):
         player_id = pplayer["playerno"]
-        return {"diplstates%i" % player_id: self.diplstates[player_id]}
+        return {"diplstates_%i" % player_id: self.diplstates[player_id]}
 
 
 class DiplomacyCtrl(CivPropController):

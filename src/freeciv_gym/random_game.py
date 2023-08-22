@@ -42,10 +42,11 @@ def main():
 
     '''
     players, tags, turns, evaluations = env.evaluate_game()
+    '''
     env.plot_game_scores()
     game_results = env.get_game_results()
     print('game results:', game_results)
-    '''
+
 
 if __name__ == '__main__':
     main()

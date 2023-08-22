@@ -87,6 +87,9 @@ class PlayerCtrl(CivPropController):
             if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
                 return False
         return True
+    
+    def total_players(self):
+        return len(self.players)
 
     def player_is_myself(self, player_id):
         return player_id == self.my_player_id

@@ -53,9 +53,9 @@ class TurnManager(object):
         fc_logger.info('==============================================')
         # print(f'\nBegin turn: {self._turn:04d}\n')
 
-    def begin_turn(self, pplayer, info_controls):
+    def begin_turn(self, pplayer, info_controllers):
         self._turn_active = True
-        self._turn_ctrls = info_controls
+        self._turn_ctrls = info_controllers
         self._turn_player = pplayer
         self._turn_state = dict()
         self._turn_opts = dict()
@@ -90,13 +90,12 @@ class TurnManager(object):
         observation_space = dict()
         fc_logger.debug('Computing observation space for: ')
         for ctrl_type, ctrl in self._turn_ctrls.items():
+            fc_logger.debug(f'....: {ctrl_type}')
             if ctrl_type not in ['map']:
                 # TODO: add observation spaces for all controllers
                 observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
-                continue
-            fc_logger.debug(f'....: {ctrl_type}')
-            observation_space[ctrl_type] = ctrl.get_observation_space(
-                self._turn_player)
+            else:
+                observation_space[ctrl_type] = ctrl.get_observation_space(self._turn_player)
 
         return gymnasium.spaces.Dict(observation_space)
 

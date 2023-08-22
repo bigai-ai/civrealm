@@ -223,11 +223,11 @@ class CivController(CivPropController):
         '''
         return self.turn_manager.turn_active and self.if_not_waiting()
 
-    '''
-    wait for the players with a smaller playerno to end their phase.
-    FIXME: incorporate this logic with the logic in the turn manager
-    '''
     def if_not_waiting(self):
+        """
+        wait for the players with a smaller playerno to end their phase.
+        FIXME: incorporate this logic with the logic in the turn manager
+        """
         if self.player_ctrl.others_finished():
             return not self.ws_client.is_waiting_for_responses()
 
@@ -637,7 +637,7 @@ class CivController(CivPropController):
         if self.clstate.client_is_observer():
             self.send_end_turn()
             return
-        
+
         self.unit_ctrl.reset_keep_activity_state()
         pplayer = self.player_ctrl.my_player
         fc_logger.debug(f'Receiving begin turn packets: {packet}')

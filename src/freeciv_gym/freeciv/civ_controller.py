@@ -213,13 +213,21 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def ready_to_act(self):
-        # TODO: make sure the condition is correct
-        # turn_active is true after receving PACKET_BEGIN_TURN
-        if not self.turn_manager.turn_active:
-            return False
 
-        # Wait for the players with a smaller playerno to end their phase.
-        # FIXME: incorporate this logic with the logic in the turn manager
+        if not self.player_ctrl.my_player['is_alive']:
+            return True
+
+        '''
+        TODO: make sure the condition is correct
+        turn_active is true after receving PACKET_BEGIN_TURN
+        '''
+        return self.turn_manager.turn_active and self.if_not_waiting()
+
+    '''
+    wait for the players with a smaller playerno to end their phase.
+    FIXME: incorporate this logic with the logic in the turn manager
+    '''
+    def if_not_waiting(self):
         if self.player_ctrl.others_finished():
             return not self.ws_client.is_waiting_for_responses()
 
@@ -229,7 +237,7 @@ class CivController(CivPropController):
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
-            if not self.clstate.begin_logged:
+            if self.player_ctrl.my_player['is_alive'] and not self.clstate.begin_logged:
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
@@ -282,6 +290,9 @@ class CivController(CivPropController):
         """Returns True if the game has ended.       
         """
         # FIXME: check victory conditions.
+        if not self.player_ctrl.my_player['is_alive']:
+            return True
+
         return False
 
     # ============================================================

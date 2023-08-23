@@ -47,7 +47,6 @@ def run(port):
         except Exception as e:
             fc_logger.warning(repr(e))
             break
-    env.end_game()
     env.close()
 
     '''

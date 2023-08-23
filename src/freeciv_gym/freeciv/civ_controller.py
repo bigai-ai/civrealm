@@ -107,6 +107,7 @@ class CivController(CivPropController):
         if fc_args['multiplayer_game']:
             assert port in PORT_LIST, f'Multiplayer game port {port} is invalid.'
         self.client_port = port
+        self.url = f"http://localhost:8080/data/scorelogs/score-{self.client_port}.log"
         self.ws_client.set_client_port(port)
 
     def reset(self):

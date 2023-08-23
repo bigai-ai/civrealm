@@ -95,6 +95,9 @@ class WebSocketClient(object):
         self._on_connection_close()
         self._ws_connection.close()
         ioloop.IOLoop.current().stop()
+        ioloop.IOLoop.current().start()
+        # ioloop.IOLoop.clear_current()
+        # ioloop.IOLoop.current().close()
 
     @final
     def _connect_callback(self, future):

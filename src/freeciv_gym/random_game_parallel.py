@@ -126,12 +126,11 @@ def run(process_num, port):
 
         print(observation_list)
         # print(info_list)
-        result_ids = []
-        for i in range(process_num):
-            if done_list[i]:
-                result_ids.append(env_list[i].end_game.remote())
-
-        ray.get(result_ids)
+        # result_ids = []
+        # for i in range(process_num):
+        #     if done_list[i]:
+        #         result_ids.append(env_list[i].end_game.remote())
+        # ray.get(result_ids)
 
         result_ids = []
         for i in range(process_num):

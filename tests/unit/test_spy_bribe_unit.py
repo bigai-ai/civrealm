@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -29,7 +29,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -40,13 +39,13 @@ def test_spy_bribe_unit(controller):
     unit_opt = options['unit']
     test_action_list = []
     diplomat_id = 1164
-    
+
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         if unit_id == diplomat_id:
             print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+                f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
@@ -75,7 +74,8 @@ def test_spy_bribe_unit(controller):
     assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
     import time
     time.sleep(2)
-    
+
+
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')

@@ -48,14 +48,15 @@ class CivWSClient(WebSocketClient):
         try:
             if message is None:
                 # fc_logger.warning('Received empty message from server. Closing connection')
-                raise Exception("Received empty message from server. Closing connection")
+                return
+                # raise Exception("Received empty message from server. Closing connection")
             self.read_packs = json.loads(message)
             fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
             self.packets_callback(self.read_packs)
             self.read_packs = []
             self.clear_send_queue()
         except Exception as e:
-            self.close()
+            # self.close()
             fc_logger.error(f"{str(e)}")
             # assert False, f"{str(e)}"
             raise Exception("Exception occurred in on_message_callback")
@@ -140,9 +141,11 @@ class CivConnection(CivWSClient):
         self._restarting_server = False
         self._cur_retry = 0
         self._retry_connection = retry_connection
-    
+
     def set_client_port(self, port):
         self.client_port = port
+        self.proxyport = 1000 + self.client_port
+        self.ws_address = f'ws://{self.host}:8080/civsocket/{self.proxyport}'
 
     def _retry(self):
         self._cur_retry += 1

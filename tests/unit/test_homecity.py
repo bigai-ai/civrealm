@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -22,6 +22,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.map.map_const as map_const
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -29,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -78,7 +78,7 @@ def test_homecity(controller):
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
-    
+
     unit_id = 248
     unit_focus = unit_opt.unit_data[unit_id]
     punit = unit_opt.unit_ctrl.units[unit_id]
@@ -90,7 +90,7 @@ def test_homecity(controller):
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
-    
+
     import time
     time.sleep(2)
 

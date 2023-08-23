@@ -21,6 +21,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.players.player_const as player_const
 
+
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
@@ -28,7 +29,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -56,6 +56,3 @@ def test_dipl_cancel_treaty(controller):
     ds_2 = controller.controller_list['dipl'].diplstates[4]
 
     assert (ds_1 == player_const.DS_ALLIANCE and ds_2 == player_const.DS_ARMISTICE)
-
-
-

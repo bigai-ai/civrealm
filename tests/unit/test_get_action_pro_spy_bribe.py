@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')
     yield controller
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -40,10 +39,11 @@ def test_get_action_pro_spy(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     for unit_id in unit_opt.unit_data.keys():
-        unit_focus = unit_opt.unit_data[unit_id]        
+        unit_focus = unit_opt.unit_data[unit_id]
         if unit_id == 1164:
             # The agent cannot move to sea.
-            assert(unit_focus.action_prob[map_const.DIR8_SOUTHWEST][fc_types.ACTION_SPY_BRIBE_UNIT] == {'min': 200, 'max': 200})
+            assert (unit_focus.action_prob[map_const.DIR8_SOUTHWEST]
+                    [fc_types.ACTION_SPY_BRIBE_UNIT] == {'min': 200, 'max': 200})
 
 
 def main():

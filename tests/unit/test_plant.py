@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -29,7 +29,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -53,15 +52,15 @@ def test_plant(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 137:
-            assert('plant' not in valid_actions)
+            assert ('plant' not in valid_actions)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
         elif unit_id == 139:
-            assert('plant' not in valid_actions)
+            assert ('plant' not in valid_actions)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHWEST}'])
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
-    
+
     # Get unit new state
     controller.send_end_turn()
     # # Tile info won't update unless options get assigned here
@@ -73,14 +72,14 @@ def test_plant(controller):
         terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
         print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-        
+
         if unit_id == 137 or unit_id == 139:
             # Desert and Mountains's plant_time is 0.
             assert (terrain['plant_time'] > 0)
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 139:
-            assert('plant' in valid_actions)
+            assert ('plant' in valid_actions)
             valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
 
     test_action_list = []
@@ -107,7 +106,7 @@ def test_plant(controller):
         controller.send_end_turn()
         controller.get_info()
         controller.get_observation()
-    
+
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -117,11 +116,11 @@ def test_plant(controller):
             # Forest's plant_time is 15.
             assert (terrain['plant_time'] == 15)
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert('plant' in valid_actions)
+            assert ('plant' in valid_actions)
         # The other two terrains needs 15 turns to finish plant.
         if unit_id == 137:
             assert (terrain['name'] != 'Forest')
-    
+
     # Wait for another 5 turns.
     for _ in range(5):
         controller.send_end_turn()
@@ -137,14 +136,14 @@ def test_plant(controller):
             # Forest's plant_time is 15.
             assert (terrain['plant_time'] == 15)
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert('plant' in valid_actions)
+            assert ('plant' in valid_actions)
         # The other two terrains needs 15 turns to finish plant.
         if unit_id == 139:
             assert (terrain['name'] == 'Swamp')
             # Swamp's plant_time is 15.
             assert (terrain['plant_time'] == 15)
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert('plant' in valid_actions)
+            assert ('plant' in valid_actions)
 
     import time
     time.sleep(2)

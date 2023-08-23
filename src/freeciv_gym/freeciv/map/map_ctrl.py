@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -60,7 +60,7 @@ class MapCtrl(CivPropController):
             if adj_tile is None:
                 continue
             tile_dict[dir8] = adj_tile
-        return tile_dict    
+        return tile_dict
 
     def city_tile(self, pcity):
         if pcity == None:

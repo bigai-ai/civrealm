@@ -20,6 +20,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
+
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
@@ -27,7 +28,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -57,5 +57,3 @@ def test_gov_increase_lux(controller):
     lux_2 = pplayer['luxury']
 
     assert (lux_2 - lux_1 == 10)
-
-

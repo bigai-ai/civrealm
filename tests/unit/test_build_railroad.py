@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -39,7 +38,7 @@ def test_build_railroad(controller):
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
-    
+
     unit_ids = [109, 236, 259]
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
@@ -80,7 +79,7 @@ def test_build_railroad(controller):
         if unit_id == 259:
             assert (build_tile['extras'][EXTRA_ROAD] == 1)
             assert ('railroad' not in valid_actions)
-    
+
     # wait until railroad is built
     for turn_i in range(3):
         controller.send_end_turn()

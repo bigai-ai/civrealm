@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -45,13 +44,13 @@ def test_mine_desert(controller):
     unit_focus = unit_opt.unit_data[worker_id]
     ptile = unit_focus.ptile
     # There is no oil mine extra
-    assert(ptile['extras'][EXTRA_OIL_MINE] == 0)
+    assert (ptile['extras'][EXTRA_OIL_MINE] == 0)
     print(
         f"Unit id: {worker_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
-    
+
     # Get valid actions
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    assert('mine' in valid_actions)
+    assert ('mine' in valid_actions)
     # Trigger mine action
     valid_actions[f'mine'].trigger_action(controller.ws_client)
     # Wait for 5 turns (until the work is done)
@@ -60,13 +59,13 @@ def test_mine_desert(controller):
         controller.get_info()
         controller.get_observation()
     # Build oil mine extra
-    assert(ptile['extras'][EXTRA_OIL_MINE] == 1)
-    
+    assert (ptile['extras'][EXTRA_OIL_MINE] == 1)
+
     # Get valid actions again
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # Cannot mine again
-    assert('mine' not in valid_actions)
-    
+    assert ('mine' not in valid_actions)
+
     import time
     time.sleep(2)
 

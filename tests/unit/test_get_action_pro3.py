@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.utils.utility import byte_to_bit_array, find_set_bits
 from BitVector import BitVector
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_MINE
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -33,7 +34,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -42,7 +42,7 @@ def test_get_action_pro3(controller):
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
-    
+
     # Get all units (including those controlled by other players)
     # for unit_id in unit_opt.unit_ctrl.units.keys():
     # Get all unit type information
@@ -52,7 +52,7 @@ def test_get_action_pro3(controller):
     #         print(unit_opt.rule_ctrl.unit_types[type])
     #         print('===============')
     # Get all units controlled by the current player
-    
+
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
@@ -63,7 +63,8 @@ def test_get_action_pro3(controller):
             unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
             for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
                 if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-                    print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+                    print(
+                        f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             valid_actions['plant'].trigger_action(controller.ws_client)
         # if unit_id == 137:
@@ -83,7 +84,8 @@ def test_get_action_pro3(controller):
     assert (unit_opt.rule_ctrl.tile_terrain(unit_tile)['name'] == 'Forest')
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
@@ -95,11 +97,12 @@ def test_get_action_pro3(controller):
     print(f"({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     valid_actions = unit_opt.get_actions(138, valid_only=True)
-    assert('mine' in valid_actions)
+    assert ('mine' in valid_actions)
     # TODO: current server does not return correct probability for build_road action in the hill. If this assert fails in the future, we can update the action_valid() for build_road action.
-    assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_ROAD] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_ROAD] == {'min': 0, 'max': 0})
     valid_actions['mine'].trigger_action(controller.ws_client)
     for turn_i in range(11):
         controller.send_end_turn()
@@ -109,8 +112,9 @@ def test_get_action_pro3(controller):
 
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-    assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 200, 'max': 200})
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 200, 'max': 200})
     build_tile = unit_opt.map_ctrl.index_to_tile(unit_focus.punit['tile'])
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
@@ -124,7 +128,8 @@ def test_get_action_pro3(controller):
 
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
@@ -138,8 +143,9 @@ def test_get_action_pro3(controller):
     print(f"({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-    
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions['mine'].trigger_action(controller.ws_client)
     for turn_i in range(10):
@@ -153,7 +159,8 @@ def test_get_action_pro3(controller):
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions['road'].trigger_action(controller.ws_client)
@@ -167,7 +174,8 @@ def test_get_action_pro3(controller):
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions['pillage'].trigger_action(controller.ws_client)
@@ -181,8 +189,9 @@ def test_get_action_pro3(controller):
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-    
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions['pillage'].trigger_action(controller.ws_client)
     # Wait for 15 turns (until the work is done)
@@ -196,10 +205,11 @@ def test_get_action_pro3(controller):
     print(f"extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
     # There is only a Gold extra in the tile and the pillage action should be invalid.
-    assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 0, 'max': 0})
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     assert ('pillage' not in valid_actions)
@@ -209,8 +219,8 @@ def test_get_action_pro3(controller):
     print(f"({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
 
     # NOTE: The following case shows that Mine pro is also inaccurate when the irrigation action is valid.
     unit_id = 139
@@ -219,7 +229,8 @@ def test_get_action_pro3(controller):
     print(f"Location: ({ptile['x']}, {ptile['y']})")
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     # punit = unit_opt.unit_ctrl.units[unit_id]
     # unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -236,7 +247,9 @@ def test_get_action_pro3(controller):
     print(ptile['extras'])
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-            print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+            print(
+                f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+
 
 def main():
     controller = CivController(fc_args['username'])

@@ -24,9 +24,19 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivCode-v0')
-    agent = LanguageAgent('vicuna-33B')
-    # agent = LanguageAgent()
+    port = 6300
+    epoch_num = 2
+    for i in range(epoch_num):
+        # pool.apply(run, (process_num, port+i*process_num))
+        run(port+i)
+        import time
+        time.sleep(1)
+
+def run(port):
+    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env.set_client_port(port)
+    agent = ControllerAgent()
+
     observations, info = env.reset()
     done = False
     while not done:
@@ -36,7 +46,7 @@ def main():
             done = terminated or truncated
         except Exception as e:
             fc_logger.warning(repr(e))
-            raise e
+            break
     env.close()
 
     '''
@@ -49,3 +59,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+

@@ -59,7 +59,8 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host, client_port, visualize=False):
+    def __init__(self, username=fc_args['username'], host=fc_args['host'],
+                 client_port=fc_args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -106,6 +107,7 @@ class CivController(CivPropController):
         if fc_args['multiplayer_game']:
             assert port in PORT_LIST, f'Multiplayer game port {port} is invalid.'
         self.client_port = port
+        self.url = f"http://localhost:8080/data/scorelogs/score-{self.client_port}.log"
         self.ws_client.set_client_port(port)
 
     def reset(self):
@@ -195,9 +197,9 @@ class CivController(CivPropController):
         try:
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
-            self.delete_save_game()
             self.end_game()
-            self.ws_client.close()
+            # If not need to see the game score after KeyboardInterrupt, can call close() instead.
+            # self.close()
 
     def init_game(self):
         """
@@ -212,24 +214,28 @@ class CivController(CivPropController):
     def get_turn(self):
         return self.turn_manager.turn
 
-    def ready_to_act(self):
-
-        if not self.player_ctrl.my_player['is_alive']:
+    def should_wait(self):
+        if not self.player_ctrl.previous_players_finished():
             return True
 
-        '''
-        TODO: make sure the condition is correct
-        turn_active is true after receving PACKET_BEGIN_TURN
-        '''
-        return self.turn_manager.turn_active and self.if_not_waiting()
+        if self.ws_client.is_waiting_for_responses():
+            return True
 
-    def if_not_waiting(self):
+        return False
+
+    def ready_to_act(self):
         """
-        wait for the players with a smaller playerno to end their phase.
-        FIXME: incorporate this logic with the logic in the turn manager
+        TODO: make sure the condition is correct, and incorporate this logic with the logic in the turn manager.
+        - In a non-concurrent setting, the player should wait for the players with smaller player numbers to end their phase. 
+        - turn_active is set to True after receving PACKET_BEGIN_TURN. It is set to False after our player has completed its phase.
+        - In our player's phase, it should also wait for responses of actions performed in the previous step from the server to be ready to act. 
         """
-        if self.player_ctrl.others_finished():
-            return not self.ws_client.is_waiting_for_responses()
+        return self.turn_manager.turn_active and not self.should_wait()
+
+    def my_player_is_defeated(self):
+        if self.player_ctrl.my_player_id in self.player_ctrl.players:
+            if not self.player_ctrl.my_player['is_alive']:
+                return True
 
     def maybe_grant_control_to_player(self):
         """
@@ -237,10 +243,17 @@ class CivController(CivPropController):
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
-            if self.player_ctrl.my_player['is_alive'] and not self.clstate.begin_logged:
+            if not self.clstate.begin_logged:
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
+            return
+
+        if not self.should_wait() and self.my_player_is_defeated():
+            self.ws_client.stop_ioloop()
+            return
+
+        return
 
     @property
     def action_space(self):
@@ -259,6 +272,7 @@ class CivController(CivPropController):
             action.trigger_action(self.ws_client)
 
     def get_observation(self):
+        # fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         self.lock_control()
         return self.turn_manager.get_observation()
@@ -267,6 +281,7 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward()
 
     def get_info(self):
+        # fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
         return info
@@ -284,6 +299,7 @@ class CivController(CivPropController):
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
         """
+        # fc_logger.debug(f"game_has_truncated: {self.turn_manager.turn > fc_args['max_turns']}")
         return self.turn_manager.turn > fc_args['max_turns']
 
     def game_has_terminated(self) -> bool:
@@ -314,6 +330,8 @@ class CivController(CivPropController):
                     pid_info = (packet['pid'], packet['unit_id'])
                 elif packet['pid'] == 249:
                     pid_info = (packet['pid'], packet['city'])
+                elif packet['pid'] == 223:
+                    pid_info = (packet['pid'], packet['player_id'])
                 else:
                     if 'id' in packet:
                         pid_info = (packet['pid'], packet['id'])
@@ -344,11 +362,16 @@ class CivController(CivPropController):
                   'message': f"/endgame"}
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
+        # Listen to the server to get final scores
+        # Using lock_control() will lead to recursive calling of end_game() during KeyboardInterrupt
+        # self.lock_control()
         self.ws_client.start_ioloop()
 
     def close(self):
+        self.end_game()
         if self.visualize:
             self.monitor.stop_monitor()
+        self.delete_save_game()
         self.ws_client.close()
 
     def end_game_packet_list(self):
@@ -358,20 +381,7 @@ class CivController(CivPropController):
         return wait_for_pid_list
 
     def request_scorelog(self):
-        game_scores = None
-
-        for ptry in range(MAX_REQUESTS):
-            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
-            if response.status_code == 200:
-                fc_logger.debug(f'Request of game_scores succeed')
-                game_scores = response.text
-                break
-            else:
-                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
-                time.sleep(SLEEP_TIME)
-        return game_scores
-
-    '''
+        """
         Format description of the scorelog format version 2
         ===================================================
 
@@ -409,7 +419,19 @@ class CivController(CivPropController):
         data <turn> <tag-id> <player-id> <value>
         give the value of the given tag for the given
         player for the given turn
-        '''
+        """
+        game_scores = None
+
+        for ptry in range(MAX_REQUESTS):
+            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
+            if response.status_code == 200:
+                fc_logger.debug(f'Request of game_scores succeed')
+                game_scores = response.text
+                break
+            else:
+                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
+                time.sleep(SLEEP_TIME)
+        return game_scores
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name
@@ -425,36 +447,41 @@ class CivController(CivPropController):
         Delete the save game on the server (docker).
         Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
         """
-        url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
-        response = requests.post(url)
-        save_list = response.text.split(';')
+        # Check whether save_game() has been called.
+        if len(self.game_saving_time_range) > 0:
+            # fc_logger.info('delete_save_game')
+            url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
+            response = requests.post(url)
+            save_list = response.text.split(';')
 
-        real_saved_name = ''
-        for saving_time in self.game_saving_time_range:
-            possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-            for saved_name in save_list:
-                # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
-                if possible_saved_name in saved_name:
-                    real_saved_name = possible_saved_name
-                    break
-
-        if real_saved_name == '':
-            fc_logger.warning('Failed to find saved game file to delete.')
+            real_saved_name = ''
             for saving_time in self.game_saving_time_range:
                 possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-                fc_logger.warning(f'Possible save name: {possible_saved_name}')
-            for saved_name in save_list:
-                fc_logger.warning(f'Save name in List: {saved_name}')
-            return
+                for saved_name in save_list:
+                    # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
+                    if possible_saved_name in saved_name:
+                        real_saved_name = possible_saved_name
+                        break
 
-        # If use savegame=ALL, it will delete all saves under the given username.
-        sha_password = self.clstate.get_password()
-        url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
-        response = requests.post(url)
-        if response.text != '':
-            fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
-        else:
-            fc_logger.debug(f'Deleting unnecessary saved game.')
+            if real_saved_name == '':
+                fc_logger.warning('Failed to find saved game file to delete.')
+                for saving_time in self.game_saving_time_range:
+                    possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
+                    fc_logger.warning(f'Possible save name: {possible_saved_name}')
+                for saved_name in save_list:
+                    fc_logger.warning(f'Save name in List: {saved_name}')
+                return
+
+            # If use savegame=ALL, it will delete all saves under the given username.
+            sha_password = self.clstate.get_password()
+            url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
+            response = requests.post(url)
+            if response.text != '':
+                fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
+            else:
+                fc_logger.debug(f'Deleting unnecessary saved game.')
+
+            self.game_saving_time_range.clear()
 
     def load_game(self, save_name):
         load_username = save_name.split('_')[0]
@@ -647,10 +674,12 @@ class CivController(CivPropController):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
         # Delete saved game in the end of turn.
+        # fc_logger.info('handle_end_turn')
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
+
         self.turn_manager.turn += 1
 
     def handle_conn_info(self, packet):

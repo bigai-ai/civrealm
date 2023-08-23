@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -22,6 +22,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -29,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -43,7 +43,8 @@ def test_load_deboard_unload(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         if (ptile['x'] == 45 and ptile['y'] == 30) or (ptile['x'] == 46 and ptile['y'] == 30):
-            print(f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
+            print(
+                f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
 
         # if unit_id == 1912:
         #     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -57,7 +58,7 @@ def test_load_deboard_unload(controller):
         # #     print(unit_focus.ptype)
         # valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # print(f'valid actions: {valid_actions.keys()}')
-    
+
     # Boats are in (45, 30) -- a tile with city
     boat_ids = [1549, 1099]
     # Transported units are in (45, 30)
@@ -113,15 +114,15 @@ def test_load_deboard_unload(controller):
             print(f"Boat {unit_id}'s move left before unload: {unit_focus.punit['movesleft']}")
             # Boat 1549 unloads its units.
             valid_actions['unit_unload'].trigger_action(controller.ws_client)
-    
+
     print('Unit 1549 unloads its units.')
 
     controller.get_info()
     controller.get_observation()
-    
+
     unit_focus = unit_opt.unit_data[1549]
     print(f"Boat {1549}'s move left after unload: {unit_focus.punit['movesleft']}")
-    
+
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -134,8 +135,8 @@ def test_load_deboard_unload(controller):
             valid_actions['board'].trigger_action(controller.ws_client)
             print(f'Unit {unit_id} loading.')
         # print(unit_focus.punit)
-        print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')            
-        
+        print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+
     controller.get_info()
     controller.get_observation()
 

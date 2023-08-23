@@ -32,10 +32,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     metadata = {'render_modes': ['human']}
 
     def __init__(self):
-        self.civ_controller = CivController(
-            username=fc_args['username'],
-            host=fc_args['host'],
-            client_port=fc_args['client_port'])
+        self.civ_controller = CivController()
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
@@ -122,9 +119,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         observation = self._get_observation()
         return observation, info
 
-    def end_game(self):
-        self.civ_controller.end_game()
-
     def get_game_results(self):
         game_results = self.civ_controller.game_ctrl.game_results
         return dict(sorted(game_results.items()))
@@ -167,7 +161,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 class FreecivParallelBaseEnv(FreecivBaseEnv):
     def __init__(self):
         super().__init__()
-
+        # self.unwrapped.spec = self
     def step(self, action):
         self.civ_controller.perform_action(action)
         info = self._get_info()
@@ -175,10 +169,9 @@ class FreecivParallelBaseEnv(FreecivBaseEnv):
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
-
         # TODO: observation, reward, terminated, truncated, info
-        return self.civ_controller.get_turn(), 0, False, False, self.civ_controller.get_turn()
-
+        return self.civ_controller.get_turn(), 0, False, truncated, self.civ_controller.get_turn()
+    
     def reset(self):
         self.civ_controller.init_network()
         info = self._get_info()

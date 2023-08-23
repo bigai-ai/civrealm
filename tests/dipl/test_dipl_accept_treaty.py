@@ -21,6 +21,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.players.player_const as player_const
 
+
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
@@ -28,7 +29,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -56,5 +56,3 @@ def test_dipl_accept_treaty(controller):
     emb_2 = player_opt.players[3]['real_embassy'][0]
 
     assert (emb_1 == 0 and emb_2 == 1)
-
-

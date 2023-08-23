@@ -20,6 +20,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -27,7 +28,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -61,4 +61,3 @@ def test_city_sell_improvement(controller):
         improvement_exist_2 = pcity['improvements'][improve_id]
 
         assert (improvement_exist_1 == 1 and improvement_exist_2 == 0)
-        

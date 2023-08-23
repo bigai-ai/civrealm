@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -29,7 +29,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -51,15 +50,15 @@ def test_cultivate(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 137:
-            assert('cultivate' not in valid_actions)
+            assert ('cultivate' not in valid_actions)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
         elif unit_id == 139:
-            assert('cultivate' not in valid_actions)
+            assert ('cultivate' not in valid_actions)
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
-    
+
     # Get unit new state
     controller.send_end_turn()
     # # Tile info won't update unless options get assigned here
@@ -87,7 +86,7 @@ def test_cultivate(controller):
         controller.send_end_turn()
         controller.get_info()
         controller.get_observation()
-    
+
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -95,10 +94,10 @@ def test_cultivate(controller):
         assert (terrain['cultivate_time'] > 0)
         assert (terrain['name'] == 'Forest')
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        assert('cultivate' in valid_actions)
+        assert ('cultivate' in valid_actions)
         # Perform cultivate action
         valid_actions[f'cultivate'].trigger_action(controller.ws_client)
-    
+
     # Wait for 5 turns to finish cultivate.
     for _ in range(5):
         controller.send_end_turn()
@@ -112,10 +111,10 @@ def test_cultivate(controller):
         # Forest has been removed.
         assert (terrain['name'] != 'Forest')
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        assert('cultivate' not in valid_actions)
+        assert ('cultivate' not in valid_actions)
         # The terrain which had forest before should allow plant action.
-        assert('plant' in valid_actions)
-       
+        assert ('plant' in valid_actions)
+
     import time
     time.sleep(2)
 

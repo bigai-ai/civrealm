@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -23,6 +23,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_HUT
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -30,7 +31,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -74,7 +74,7 @@ def test_hut_enter(controller):
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        
+
         if unit_id == 156:
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             # There is a hut in the north.
@@ -83,11 +83,12 @@ def test_hut_enter(controller):
             valid_actions['hut_enter_1'].trigger_action(controller.ws_client)
             target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTH)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
-    
+
     controller.get_info()
     controller.get_observation()
     # After enter hut, the extra disappears.
     assert (target_tile['extras'][EXTRA_HUT] == 0)
+
 
 def main():
     controller = CivController(fc_args['username'])

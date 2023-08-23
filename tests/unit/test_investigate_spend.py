@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -41,14 +40,14 @@ def test_investigate_spend(controller):
     unit_opt = options['unit']
     unit_id = 2021
 
-    #Get valid actions
+    # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     investigate_spend = False
     for action_key in valid_actions:
         if action_key.startswith('investigate_spend'):
             investigate_spend = True
-    
+
     # Can investigate city
     assert (investigate_spend)
 
@@ -68,13 +67,14 @@ def test_investigate_spend(controller):
     valid_actions['investigate_spend_0'].trigger_action(controller.ws_client)
     controller.get_info()
     controller.get_observation()
-    
+
     # This info of the target_city has been investigated.
     assert ('can_build_improvement' in target_city)
     print(target_city)
-    
+
     # The unit has been consumed.
     assert (unit_id not in unit_opt.unit_data)
+
 
 def main():
     fc_args['username'] = 'testcontroller'
@@ -83,7 +83,6 @@ def main():
     test_investigate_spend(controller)
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 

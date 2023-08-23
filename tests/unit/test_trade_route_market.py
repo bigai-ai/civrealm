@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -22,6 +22,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -29,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -43,7 +43,8 @@ def test_trade_route_market(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         if (ptile['x'] == 45 and ptile['y'] == 30) or (ptile['x'] == 45 and ptile['y'] == 29):
-            print(f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
+            print(
+                f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
 
         #     for i in range(len(unit_focus.action_prob[map_const.DIR8_SOUTH])):
         #         if unit_focus.action_prob[map_const.DIR8_SOUTH][i] != {'min': 0, 'max': 0}:
@@ -52,7 +53,7 @@ def test_trade_route_market(controller):
         #     for i in range(len(unit_focus.action_prob[map_const.DIR8_NORTHEAST])):
         #         if unit_focus.action_prob[map_const.DIR8_NORTHEAST][i] != {'min': 0, 'max': 0}:
         #             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_NORTHEAST][i]}')
-    
+
     # Transported units are in (45, 30)
     unit_ids = [1964, 1912, 1743]
     action_list = []
@@ -95,12 +96,12 @@ def test_trade_route_market(controller):
             if key.startswith('trade_route'):
                 trade_route_num += 1
                 trade_route = True
-        
+
         # This unit has changed the homecity to the current city, cannot build trade route anymore.
         if unit_id == 1743:
             assert (not trade_route)
             assert (trade_route_num == 0)
-        
+
         # Unit 1743 is adjacent to two cities, so it has two trade_route options.
         if unit_id == 1964:
             assert (trade_route)
@@ -114,13 +115,13 @@ def test_trade_route_market(controller):
 
     city_id = 414
     # The trade route is empty before 1912 build one.
-    assert(city_id not in controller.city_ctrl.city_trade_routes)
+    assert (city_id not in controller.city_ctrl.city_trade_routes)
 
     controller.get_info()
     controller.get_observation()
-    
+
     # Unit 1912 has built a trade route.
-    assert(controller.city_ctrl.city_trade_routes[city_id] != {})
+    assert (controller.city_ctrl.city_trade_routes[city_id] != {})
     # Unit 1912 has been removed.
     del unit_ids[1]
 
@@ -150,7 +151,7 @@ def test_trade_route_market(controller):
             assert (trade_route_num == 1)
             assert (marketplace)
             assert (marketplace_num == 1)
-            print('Unit 1964 performs marketplace action.') 
+            print('Unit 1964 performs marketplace action.')
             valid_actions['marketplace_6'].trigger_action(controller.ws_client)
 
     controller.get_info()

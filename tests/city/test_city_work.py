@@ -44,7 +44,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -83,5 +82,3 @@ def test_city_work(controller):
         if_work_2 = wtile["worked"]
 
         assert (if_work_1 == 0 and if_work_2 == city_id)
-
-

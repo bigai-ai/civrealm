@@ -82,7 +82,7 @@ class PlayerCtrl(CivPropController):
         return self.prop_state.my_player
 
     # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
-    def previous_player_finished(self) -> bool:
+    def previous_players_finished(self) -> bool:
         for playerno in self.players:
             if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
                 return False

@@ -210,14 +210,14 @@ class CivController(CivPropController):
 
     def get_turn(self):
         return self.turn_manager.turn
-    
+
     def should_wait(self):
-        if not self.player_ctrl.previous_player_finished():
+        if not self.player_ctrl.previous_players_finished():
             return True
 
         if self.ws_client.is_waiting_for_responses():
             return True
-        
+
         return False
 
     def ready_to_act(self):
@@ -229,9 +229,10 @@ class CivController(CivPropController):
         """
         return self.turn_manager.turn_active and not self.should_wait()
 
-    def my_player_is_alive(self):
+    def my_player_is_defeated(self):
         if self.player_ctrl.my_player_id in self.player_ctrl.players:
-            return self.player_ctrl.my_player['is_alive']
+            if not self.player_ctrl.my_player['is_alive']:
+                return True
 
     def maybe_grant_control_to_player(self):
         """
@@ -245,10 +246,10 @@ class CivController(CivPropController):
             self.ws_client.stop_ioloop()
             return
 
-        if (not self.should_wait()) and (not self.my_player_is_alive()):
+        if not self.should_wait() and self.my_player_is_defeated():
             self.ws_client.stop_ioloop()
             return
-        
+
         return
 
     @property
@@ -442,7 +443,7 @@ class CivController(CivPropController):
         Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
         """
         # Check whether save_game() has been called.
-        if len(self.game_saving_time_range) >0:
+        if len(self.game_saving_time_range) > 0:
             # fc_logger.info('delete_save_game')
             url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
             response = requests.post(url)
@@ -673,7 +674,7 @@ class CivController(CivPropController):
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
-        
+
         self.turn_manager.turn += 1
 
     def handle_conn_info(self, packet):

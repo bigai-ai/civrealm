@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -35,7 +35,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
     # fc_logger.info(f'Port 8080 in use: {is_port_in_use(8080)}')
     # fc_logger.info(f"Port {fc_args['client_port']} in use: {is_port_in_use(fc_args['client_port'])}")
@@ -49,31 +48,31 @@ def test_build_city(controller):
     build_action = None
 
     for unit_id in unit_opt.unit_data.keys():
-        unit_focus = unit_opt.unit_data[unit_id]        
+        unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         # print(
         #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
         if unit_id == 436:
             # The settler is in foreign tile, cannot build.
-            assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 0, 'max': 0})
             print(ptile)
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert('build' not in valid_actions)
+            assert ('build' not in valid_actions)
             valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(controller.ws_client)
-    
+
     controller.send_end_turn()
     # Get unit new state
     options = controller.get_info()['available_actions']
     controller.get_observation()
     for unit_id in unit_opt.unit_data.keys():
-        unit_focus = unit_opt.unit_data[unit_id]        
+        unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         # print(
         #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
         if unit_id == 436:
             # The settler can build city now.
-            assert(unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 200, 'max': 200})
+            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 200, 'max': 200})
             print(ptile)
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             build_action = valid_actions['build']

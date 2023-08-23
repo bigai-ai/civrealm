@@ -20,6 +20,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -27,7 +28,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -61,4 +61,3 @@ def test_choose_research_tech(controller):
     tech_2 = tech_data[tech_opt.player_ctrl.my_player_id]['researching']
 
     assert (tech_1 != tech_2)
-

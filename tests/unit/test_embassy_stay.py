@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -41,14 +40,14 @@ def test_embassy_stay(controller):
     unit_opt = options['unit']
     unit_id = 2021
 
-    #Get valid actions
+    # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     embassy_stay = False
     for action_key in valid_actions:
         if action_key.startswith('embassy_stay'):
             embassy_stay = True
-    
+
     # Can establish embassy
     assert (embassy_stay)
 
@@ -60,17 +59,18 @@ def test_embassy_stay(controller):
     other_player_id = controller.city_ctrl.cities[885]['owner']
     # Embassy has not been established
     assert (controller.player_ctrl.players[controller.player_ctrl.my_player_id]['real_embassy'][other_player_id] == 0)
-    
+
     print('Establish embassy')
     valid_actions['embassy_stay_0'].trigger_action(controller.ws_client)
     controller.get_info()
     controller.get_observation()
-    
+
     # The unit has been consumed.
     assert (unit_id not in unit_opt.unit_data)
 
     # Embassy has been established
     assert (controller.player_ctrl.players[controller.player_ctrl.my_player_id]['real_embassy'][other_player_id])
+
 
 def main():
     fc_args['username'] = 'testcontroller'
@@ -79,7 +79,6 @@ def main():
     test_embassy_stay(controller)
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 

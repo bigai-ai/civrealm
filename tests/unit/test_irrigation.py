@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -52,8 +51,8 @@ def test_irrigation(controller):
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
             print(valid_actions.keys())
             # There is no river or irrigated area nearby, the irrigation action is invalid.
-            assert('irrigation' not in valid_actions)
-  
+            assert ('irrigation' not in valid_actions)
+
     print('Move to the west tile which is near the sea (irrigation is allowed)')
     # Perform goto action for the worker
     for action in test_action_list:
@@ -66,8 +65,8 @@ def test_irrigation(controller):
     assert (not (build_tile['extras'][EXTRA_IRRIGATION] == 1))
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # The unit has no move left, the build should be invalid
-    assert('irrigation' not in valid_actions)
-    
+    assert ('irrigation' not in valid_actions)
+
     # End turn
     controller.send_end_turn()
     controller.get_info()
@@ -98,7 +97,7 @@ def test_irrigation(controller):
     controller.get_observation()
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # There is an irrigated area in the west, the irrigation action becomes valid.
-    assert('irrigation' in valid_actions)
+    assert ('irrigation' in valid_actions)
     print(valid_actions.keys())
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     assert (build_tile['extras'][EXTRA_IRRIGATION] == 0)

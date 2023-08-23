@@ -20,6 +20,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
+
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
@@ -27,7 +28,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -55,7 +55,3 @@ def test_dipl_stop_negotiate(controller):
     meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
 
     assert (meeting_id_1 == 4 and meeting_id_2 is None)
-
-
-
-

@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -31,7 +31,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -54,7 +53,7 @@ def test_cancel_order(controller):
             # Fortify
             print(f'unit_id: {unit_id} do fortify.')
             valid_actions['fortify'].trigger_action(controller.ws_client)
-    
+
     controller.get_info()
     controller.get_observation()
     for unit_id in unit_ids:
@@ -67,7 +66,7 @@ def test_cancel_order(controller):
             # This unit has an activity, can cancel the order.
             assert ('cancel_order' in valid_actions)
             print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
-                
+
     # End the turn
     print('End Turn')
     controller.send_end_turn()

@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -25,6 +25,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array, find_set_bits
 from BitVector import BitVector
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -32,7 +33,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -40,7 +40,7 @@ def test_get_action_pro2(controller):
     fc_logger.info("test_get_action_pro2")
     _, options = get_first_observation_option(controller)
     # for type_id in controller.rule_ctrl.unit_types:
-    for type_id in range(0,2):
+    for type_id in range(0, 2):
         type = controller.rule_ctrl.unit_types[type_id]
         print(type['name'])
         print(type['utype_actions'])
@@ -59,18 +59,19 @@ def test_get_action_pro2(controller):
     #         print('===============')
     # Get all units controlled by the current player
     for unit_id in unit_opt.unit_data.keys():
-        unit_focus = unit_opt.unit_data[unit_id]        
+        unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         # print(
         #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
         if unit_id == 140:
             # The agent cannot move to sea.
-            assert(unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert(unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 200, 'max': 200})
-        
+            assert (unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 200, 'max': 200})
+
         # for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         #     if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
         #         print(f'index: {i}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+
 
 def main():
     controller = CivController(fc_args['username'])

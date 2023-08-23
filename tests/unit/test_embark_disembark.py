@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -22,6 +22,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 
+
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
@@ -29,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -43,11 +43,12 @@ def test_embark_disembark(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         if ptile['x'] == 47 and ptile['y'] == 28:
-            print(f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+            print(
+                f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
 
     # Plane is in (47, 28)
     plane_id = 1841
-    
+
     valid_actions = unit_opt.get_actions(plane_id, valid_only=True)
     print(f'Unit {plane_id}, valid action keys: {valid_actions.keys()}')
     contain_embark = False
@@ -57,7 +58,7 @@ def test_embark_disembark(controller):
             break
     # The unit is a plane, cannot embark
     assert (not contain_embark)
-    
+
     # Boats are in (47, 27)
     boat_ids = [1549, 1099]
     # 886 in (46, 27), others in (46, 26)
@@ -92,7 +93,7 @@ def test_embark_disembark(controller):
     # Perform embark action for units which is not 886.
     for action in action_list:
         action.trigger_action(controller.ws_client)
-    
+
     print('Embark the boat.')
     # controller.send_end_turn()
     controller.get_info()
@@ -171,18 +172,18 @@ def test_embark_disembark(controller):
     controller.send_end_turn()
     controller.get_info()
     controller.get_observation()
-    
+
     unit_id = 886
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
-    assert(unit_tile['x'] == 47 and unit_tile['y'] == 26)
+    assert (unit_tile['x'] == 47 and unit_tile['y'] == 26)
     # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # if unit_id == 886:
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
-    
+
     # unit_focus = unit_opt.unit_data[319]
     # for i in range(len(unit_focus.action_prob[map_const.DIR8_WEST])):
     #     if unit_focus.action_prob[map_const.DIR8_WEST][i] != {'min': 0, 'max': 0}:

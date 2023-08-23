@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -30,7 +30,6 @@ def controller():
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
-    controller.end_game()
     controller.close()
 
 
@@ -74,7 +73,7 @@ def test_fortress(controller):
     # There is already a fortress extra, the fortress action should be invalid
     assert ('fortress' not in valid_actions)
     # The pillage action should be valid
-    assert('pillage' in valid_actions)
+    assert ('pillage' in valid_actions)
     print(valid_actions.keys())
 
     # Check another unit
@@ -87,6 +86,7 @@ def test_fortress(controller):
     # This unit type cannot perform fortress action.
     assert ('fortress' not in valid_actions)
     print(valid_actions.keys())
+
 
 def main():
     controller = CivController('testcontroller')

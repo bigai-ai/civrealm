@@ -24,7 +24,7 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 In order to test the freeciv-gym on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
-> [!IMPORTANT]  
+> :warning:
 > Please make sure you have installed **the latest** docker engine and docker-compose.
 > Using older versions of docker may result in unexpected erorrs.
 

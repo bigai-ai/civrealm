@@ -83,7 +83,10 @@ class CivWSClient(WebSocketClient):
         '''
         self.send_queue.append(packet_payload)
         if wait_for_pid is not None:
-            self.wait_for_packs.append(wait_for_pid)
+            if isinstance(wait_for_pid, list):
+                self.wait_for_packs.extend(wait_for_pid)
+            else:
+                self.wait_for_packs.append(wait_for_pid)
         # fc_logger.info(f'read_packs: {self.read_packs}')
         # fc_logger.info(f'wait_for_packs: {self.wait_for_packs}')
         if self.read_packs == []:
@@ -137,6 +140,9 @@ class CivConnection(CivWSClient):
         self._restarting_server = False
         self._cur_retry = 0
         self._retry_connection = retry_connection
+    
+    def set_client_port(self, port):
+        self.client_port = port
 
     def _retry(self):
         self._cur_retry += 1

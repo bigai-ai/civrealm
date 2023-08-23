@@ -15,6 +15,7 @@
 
 import random
 import requests
+import time
 from datetime import datetime, timezone, timedelta
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -43,6 +44,11 @@ from freeciv_gym.freeciv.turn_manager import TurnManager
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
+
+MAX_REQUESTS = 10
+SLEEP_TIME = 1
 
 
 class CivController(CivPropController):
@@ -53,7 +59,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host=fc_args['host'], client_port=fc_args['client_port'], visualize=False):
+    def __init__(self, username, host, client_port, visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -93,8 +99,14 @@ class CivController(CivPropController):
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
-
         self.init_controllers(username)
+        self.url = f"http://localhost:8080/data/scorelogs/score-{client_port}.log"
+
+    def set_client_port(self, port):
+        if fc_args['multiplayer_game']:
+            assert port in PORT_LIST, f'Multiplayer game port {port} is invalid.'
+        self.client_port = port
+        self.ws_client.set_client_port(port)
 
     def reset(self):
         self.ws_client = CivConnection(self.host, self.client_port)
@@ -201,13 +213,21 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def ready_to_act(self):
-        # TODO: make sure the condition is correct
-        # turn_active is true after receving PACKET_BEGIN_TURN
-        if not self.turn_manager.turn_active:
-            return False
 
-        # Wait for the players with a smaller playerno to end their phase.
-        # FIXME: incorporate this logic with the logic in the turn manager
+        if not self.player_ctrl.my_player['is_alive']:
+            return True
+
+        '''
+        TODO: make sure the condition is correct
+        turn_active is true after receving PACKET_BEGIN_TURN
+        '''
+        return self.turn_manager.turn_active and self.if_not_waiting()
+
+    def if_not_waiting(self):
+        """
+        wait for the players with a smaller playerno to end their phase.
+        FIXME: incorporate this logic with the logic in the turn manager
+        """
         if self.player_ctrl.others_finished():
             return not self.ws_client.is_waiting_for_responses()
 
@@ -217,7 +237,7 @@ class CivController(CivPropController):
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
-            if not self.clstate.begin_logged:
+            if self.player_ctrl.my_player['is_alive'] and not self.clstate.begin_logged:
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
@@ -233,6 +253,8 @@ class CivController(CivPropController):
     def perform_action(self, action):
         if action == None:
             self.send_end_turn()
+        elif action == 'pass':
+            pass
         else:
             action.trigger_action(self.ws_client)
 
@@ -268,12 +290,10 @@ class CivController(CivPropController):
         """Returns True if the game has ended.       
         """
         # FIXME: check victory conditions.
-        return False
+        if not self.player_ctrl.my_player['is_alive']:
+            return True
 
-    def close(self):
-        if self.visualize:
-            self.monitor.stop_monitor()
-        self.ws_client.close()
+        return False
 
     # ============================================================
     # ========================= Handlers =========================
@@ -301,6 +321,8 @@ class CivController(CivPropController):
                         pid_info = (packet['pid'], packet['actor_unit_id'])
                     elif 'playerno' in packet:
                         pid_info = (packet['pid'], packet['playerno'])
+                    elif 'playerid' in packet:
+                        pid_info = (packet['pid'], packet['playerid'])
                     elif 'counterpart' in packet:
                         pid_info = (packet['pid'], packet['counterpart'])
                     elif 'plr1' in packet:
@@ -318,7 +340,76 @@ class CivController(CivPropController):
             raise
 
     def end_game(self):
-        self.ws_client.send_message(f"/endgame")
+        packet = {'pid': packet_chat_msg_req,
+                  'message': f"/endgame"}
+        wait_for_pid_list = self.end_game_packet_list()
+        self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
+        self.ws_client.start_ioloop()
+
+    def close(self):
+        if self.visualize:
+            self.monitor.stop_monitor()
+        self.ws_client.close()
+
+    def end_game_packet_list(self):
+        wait_for_pid_list = []
+        for player_id in self.player_ctrl.players.keys():
+            wait_for_pid_list.append((223, player_id))
+        return wait_for_pid_list
+
+    def request_scorelog(self):
+        game_scores = None
+
+        for ptry in range(MAX_REQUESTS):
+            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
+            if response.status_code == 200:
+                fc_logger.debug(f'Request of game_scores succeed')
+                game_scores = response.text
+                break
+            else:
+                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
+                time.sleep(SLEEP_TIME)
+        return game_scores
+
+    '''
+        Format description of the scorelog format version 2
+        ===================================================
+
+        Empty lines and lines starting with '#' are comments. Each non-comment 
+        line starts with a command. The parameter are supplied on that line
+        and are seperated by a space. Strings which may contain whitespaces
+        are always the last parameter and so extend till the end of line.
+
+        The following commands exists:
+        id <game-id>
+        <game-id> is a string without whitespaces which is used
+                  to match a scorelog against a savegame.
+
+        tag <tag-id> <descr>
+        add a data-type (tag)
+          the <tag-id> is used in the 'data' commands
+          <descr> is a string without whitespaces which
+                  identified this tag
+
+        turn <turn> <number> <descr>
+        adds information about the <turn> turn
+          <number> can be for example year
+          <descr> may contain whitespaces
+
+        addplayer <turn> <player-id> <name>
+        adds a player starting at the given turn (inclusive)
+          <player-id> is a number which can be reused
+          <name> may contain whitespaces
+
+        delplayer <turn> <player-id>
+        removes a player from the game. The player was
+          active till the given turn (inclusive)
+          <player-id> used by the creation
+
+        data <turn> <tag-id> <player-id> <value>
+        give the value of the given tag for the given
+        player for the given turn
+        '''
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name
@@ -546,7 +637,7 @@ class CivController(CivPropController):
         if self.clstate.client_is_observer():
             self.send_end_turn()
             return
-        
+
         self.unit_ctrl.reset_keep_activity_state()
         pplayer = self.player_ctrl.my_player
         fc_logger.debug(f'Receiving begin turn packets: {packet}')

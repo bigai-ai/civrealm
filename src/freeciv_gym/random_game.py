@@ -26,7 +26,6 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 def main():
     env = gymnasium.make('freeciv/FreecivCode-v0')
     agent = LanguageAgent()
-
     observations, info = env.reset()
     done = False
     while not done:
@@ -36,8 +35,16 @@ def main():
             done = terminated or truncated
         except Exception as e:
             fc_logger.warning(repr(e))
-            env.end_game()
+            break
+    env.end_game()
     env.close()
+
+    '''
+    players, tags, turns, evaluations = env.evaluate_game()
+    '''
+    env.plot_game_scores()
+    game_results = env.get_game_results()
+    print('game results:', game_results)
 
 
 if __name__ == '__main__':

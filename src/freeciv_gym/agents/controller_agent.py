@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -18,6 +18,8 @@ import random
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
+import ray
+
 
 class ControllerAgent(BaseAgent):
     def __init__(self):
@@ -62,19 +64,19 @@ class ControllerAgent(BaseAgent):
         return self.sample_action_by_prob(action_probabilities)
 
     def calculate_unit_actions(self, action_dict):
-        desired_actions = {#'explore': 1.0,
-                           'goto': random.random()*0.2,
-                           # 'autosettlers': 1.0,
-                           'road': random.random()*0.2,
-                           'irrigation': random.random()*0.2,
-                           'mine': random.random()*0.2,
-                           'cultivate': random.random()*0.2,
-                           'plant': random.random()*0.2,
-                           'pillage': random.random()*0.2,
-                           'fortress': random.random()*0.2,
-                           'railroad': random.random()*0.2,
-                           'airbase': random.random()*0.2,
-                           'build': 1.0,}
+        desired_actions = {  # 'explore': 1.0,
+            'goto': random.random()*0.2,
+            # 'autosettlers': 1.0,
+            'road': random.random()*0.2,
+            'irrigation': random.random()*0.2,
+            'mine': random.random()*0.2,
+            'cultivate': random.random()*0.2,
+            'plant': random.random()*0.2,
+            'pillage': random.random()*0.2,
+            'fortress': random.random()*0.2,
+            'railroad': random.random()*0.2,
+            'airbase': random.random()*0.2,
+            'build': 1.0, }
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_city_actions(self, action_dict):
@@ -118,3 +120,9 @@ class ControllerAgent(BaseAgent):
                            'increase_tax': random.random(),
                            'decrease_tax': random.random(), }
         return self.sample_desired_actions(action_dict, desired_actions)
+
+
+@ray.remote
+class ParallelControllerAgent(ControllerAgent):
+    def __init__(self):
+        super().__init__()

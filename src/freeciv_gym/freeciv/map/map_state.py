@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -20,6 +20,7 @@ from BitVector import BitVector
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.configs import fc_args
 
 
 class MapState(PlainState):
@@ -34,6 +35,7 @@ class MapState(PlainState):
         self._state['status'] = None
         self._state['terrain'] = None
         self._state['extras'] = None
+        self._state['tile_owner'] = None
 
     @property
     def tiles(self):
@@ -51,6 +53,7 @@ class MapState(PlainState):
         """
         self._state['status'] = np.zeros((x_size, y_size), dtype=np.ubyte)
         self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
 
         for y in range(y_size):
             for x in range(x_size):
@@ -100,14 +103,18 @@ class MapState(PlainState):
         self.state['extras'][
             self.tiles[ptile]['x'],
             self.tiles[ptile]['y'], :] = tile_packet['extras']
+        self.state['tile_owner'][
+            self.tiles[ptile]['x'],
+            self.tiles[ptile]['y']] = tile_packet['owner']
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
         extras_shape = self._state['extras'].shape
         self._observation_space = gymnasium.spaces.Dict({
             'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
-            'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains), shape=map_shape, dtype=int),
+            'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
             'extras': gymnasium.spaces.Box(low=0, high=1, shape=extras_shape, dtype=int),
+            'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
         })
         return self._observation_space
 

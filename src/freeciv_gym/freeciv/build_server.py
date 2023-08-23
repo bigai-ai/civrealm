@@ -76,7 +76,7 @@ def update_docker_image():
 
     # Rebuild the web server
     run_bash_command(
-        f'docker exec -it {docker_image_name} bash -c "cd /docker/freeciv-web/; sh build.sh"')
+        f'docker exec -it {docker_image_name} bash -c "cd /docker/freeciv-web/; source build.sh"')
 
     # Commit the modified docker image
     run_bash_command(f'docker commit {docker_image_name} freeciv/{docker_image_name}')

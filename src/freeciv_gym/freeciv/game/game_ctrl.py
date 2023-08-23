@@ -19,6 +19,7 @@ from freeciv_gym.freeciv.game.info_states import GameState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -32,9 +33,12 @@ class GameCtrl(CivPropController):
         self.calendar_info = {}
         self.scenario_info = {}
         self.page_msg = {}
-
+        self.ws_client = ws_client
         self.prop_state = GameState(self.scenario_info, self.calendar_info)
         self.prop_actions = NoActions(ws_client)
+        self.end_game_player_packet = None
+        self.end_game_report = None
+        self.game_results = dict()
 
     def register_all_handlers(self):
         self.register_handler(13, "handle_scenario_description")
@@ -58,6 +62,7 @@ class GameCtrl(CivPropController):
         self.register_handler(219, "handle_edit_object_created")
 
         self.register_handler(223, "handle_endgame_player")
+        self.register_handler(12, "handle_endgame_report")
         self.register_handler(238, "handle_achievement_info")
         self.register_handler(245, "handle_play_music")
 
@@ -118,8 +123,16 @@ class GameCtrl(CivPropController):
             self.page_msg = {}
 
     def handle_endgame_player(self, packet):
-        # /* TODO: implement */
-        return
+        self.end_game_player_packet = packet
+        player_id = packet['player_id']
+        self.game_results[player_id] = dict()
+        self.game_results[player_id]['winner'] = packet['winner']
+        self.game_results[player_id]['score'] = packet['score']
+        self.game_results[player_id]['category_score'] = packet['category_score']
+        self.ws_client.stop_ioloop()
+
+    def handle_endgame_report(self, packet):
+        self.end_game_report = packet
 
     def handle_play_music(self, packet):
         pass
@@ -148,3 +161,48 @@ class GameCtrl(CivPropController):
     def handle_edit_object_created(self, packet):
         # /* TODO: implement */
         pass
+
+    def get_game_scores(self, game_scores):
+        start_turn = 0
+        score_items = game_scores.split("\n")
+        players = {}
+        turns = {}
+        tags = {}
+        evaluations = {}
+
+        for score_item in score_items:
+            scores = score_item.split(" ")
+            if len(scores) >= 3:
+
+                if scores[0] == 'tag':
+                    ptag = int(scores[1])
+                    tags[ptag] = scores[2] + '-' + EVALUATION_TAGS[ptag]
+
+                elif scores[0] == 'turn':
+                    pturn = int(scores[1])
+                    turn_name = " ".join(scores[3:])
+                    turns[pturn] = turn_name
+
+                elif scores[0] == 'addplayer':
+                    player_id = int(scores[2])
+                    players[player_id] = {}
+                    player_name = " ".join(scores[3:])
+                    players[player_id]['name'] = player_name
+                    players[player_id]['start_turn'] = start_turn
+
+                elif scores[0] == 'data':
+                    ptag = int(scores[2])
+                    ptag_name = EVALUATION_TAGS[ptag]
+                    pplayer = int(scores[3])
+                    value = int(scores[4])
+
+                    if ptag_name not in evaluations:
+                        evaluations[ptag_name] = dict()
+                    if pplayer not in evaluations[ptag_name]:
+                        evaluations[ptag_name][pplayer] = []
+
+                    evaluations[ptag_name][pplayer].append(value)
+
+        return players, tags, turns, evaluations
+
+

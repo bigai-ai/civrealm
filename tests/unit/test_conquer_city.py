@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
+    controller.set_parameter('debug.load_game', 'testcontroller_T134_2023-08-17-03_37_sabotage')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -33,48 +33,48 @@ def controller():
     controller.close()
 
 
-def test_spy_steal_tech(controller):
-    fc_logger.info("test_spy_steal_tech")
+def test_conquer_city(controller):
+    fc_logger.info("test_conquer_city")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
     unit_opt = options['unit']
-    player_opt = options['player']
     test_action_list = []
-    diplomat_id = 915
+    musketeer_id = 814
     
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == diplomat_id:
+        if unit_id == musketeer_id:
             print(
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
+            test_action_list.append(valid_actions[f'conquer_city_{map_const.DIR8_SOUTHWEST}'])
+            target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
+            assert (not unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)['owner'] == unit_opt.player_ctrl.my_player_id)
             break
         else:
             pass
-    print('Steal technology from the city on the south tile')
-    techs_researched_before = player_opt.players[0]['techs_researched']
-    assert (True)
-    # Perform spy_steal_tech action of the diplomat
+    print('Conquer the city on southwest tile')
+    # Perform conquer city action
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    options = controller.get_info()['available_actions']
     controller.get_observation()
+    options = controller.get_info()['available_actions']
     unit_opt = options['unit']
-    player_opt = options['player']
-    techs_researched_after = player_opt.players[0]['techs_researched']
-    assert (techs_researched_after == techs_researched_before + 1)
+    punit = unit_opt.unit_ctrl.units[musketeer_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    # The enemy city is now under our rule
+    assert (unit_opt.unit_ctrl.city_ctrl.tile_city(unit_tile)['owner'] == unit_opt.player_ctrl.my_player_id)
     import time
     time.sleep(2)
     
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
-    test_spy_steal_tech(controller)
+    controller.set_parameter('debug.load_game', 'testcontroller_T134_2023-08-17-03_37_sabotage')
+    test_conquer_city(controller)
 
 
 if __name__ == '__main__':

@@ -68,7 +68,6 @@ class RulesetCtrl(CivPropController):
 
     def register_all_handlers(self):
         self.register_handler(9, "handle_ruleset_tech_class")
-        self.register_handler(12, "handle_endgame_report")
 
         self.register_handler(140, "handle_ruleset_unit")
         self.register_handler(141, "handle_ruleset_game")
@@ -164,9 +163,6 @@ class RulesetCtrl(CivPropController):
             self.ruleset_description = packet['text']
         else:
             self.ruleset_description += packet['text']
-
-    def handle_endgame_report(self, packet):
-        pass
 
     def handle_ruleset_unit(self, packet):
         if packet['name'] != None:

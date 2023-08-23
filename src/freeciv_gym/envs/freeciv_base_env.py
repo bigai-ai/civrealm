@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -15,13 +15,16 @@
 
 import os
 import json
+import matplotlib.pyplot as plt
 
 import gymnasium
 from gymnasium import utils
+import ray
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
@@ -29,10 +32,16 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     metadata = {'render_modes': ['human']}
 
     def __init__(self):
-        self.civ_controller = CivController(username=fc_args['username'])
+        self.civ_controller = CivController(
+            username=fc_args['username'],
+            host=fc_args['host'],
+            client_port=fc_args['client_port'])
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
+
+    def set_client_port(self, port):
+        self.civ_controller.set_client_port(port)
 
     def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
@@ -90,26 +99,59 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        # We put _get_info() before _get_observation() because the actions of new units will be initialized in _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        '''
+        We put _get_info() before _get_observation() because the actions of new units will be initialized in 
+        _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the 
+        corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from 
+        server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        '''
         info = self._get_info()
-        observation = self._get_observation()        
+        observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
-        
+
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
 
         return observation, reward, terminated, truncated, info
 
     def reset(self):
-        self.civ_controller.init_network()        
+        self.civ_controller.init_network()
         info = self._get_info()
         observation = self._get_observation()
         return observation, info
 
     def end_game(self):
         self.civ_controller.end_game()
+
+    def get_game_results(self):
+        game_results = self.civ_controller.game_ctrl.game_results
+        return dict(sorted(game_results.items()))
+
+    def evaluate_game(self):
+        game_scores = self.civ_controller.request_scorelog()
+        return self.civ_controller.game_ctrl.get_game_scores(game_scores)
+
+    def plot_game_scores(self):
+        plot_game_scores_folder = 'plot_game_scores'
+        if not os.path.exists(plot_game_scores_folder):
+            os.mkdir(plot_game_scores_folder)
+
+        players, tags, turns, evaluations = self.evaluate_game()
+        player_colors = self.civ_controller.player_ctrl.get_player_colors()
+        for ptag in EVALUATION_TAGS:
+            plt.figure()
+            for player_id in evaluations[ptag].keys():
+                scores = evaluations[ptag][player_id]
+                x_1 = players[player_id]['start_turn']
+                x_axis = range(x_1 + x_1 + len(scores))
+                plt.plot(x_axis, scores, color=player_colors[player_id], label='player' + '_' + str(player_id))
+
+            plt.legend()
+            pfile = os.path.join(plot_game_scores_folder, ptag + '.png')
+            plt.savefig(pfile)
+            plt.close()
 
     def render(self):
         """Render the environment based on freeciv-web.
@@ -119,3 +161,26 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
+
+
+@ray.remote
+class FreecivParallelBaseEnv(FreecivBaseEnv):
+    def __init__(self):
+        super().__init__()
+
+    def step(self, action):
+        self.civ_controller.perform_action(action)
+        info = self._get_info()
+        observation = self._get_observation()
+        reward = self._get_reward()
+        terminated = self._get_terminated()
+        truncated = self._get_truncated()
+
+        # TODO: observation, reward, terminated, truncated, info
+        return self.civ_controller.get_turn(), 0, False, False, self.civ_controller.get_turn()
+
+    def reset(self):
+        self.civ_controller.init_network()
+        info = self._get_info()
+        observation = self._get_observation()
+        return self.civ_controller.get_turn(), self.civ_controller.get_turn()

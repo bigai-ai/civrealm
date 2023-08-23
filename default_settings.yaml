@@ -14,7 +14,7 @@ wait_for_observer: False
 # The seed used to generate a map
 mapseed: 88
 # Number of AI players
-aifill: 0
+aifill: 4
 # The maximum number of players
 maxplayers: 10
 # The minimum number of players that allows the game to start
@@ -41,7 +41,10 @@ debug:
   gameseed: 1729
   # set agentseed to fix the action sequence when game/map are fixed
   agentseed: 1729
-  
+
+# The ruleset to be used
+ruleset: classic
+
 
 trainer:
   epoch: 300

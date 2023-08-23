@@ -34,6 +34,7 @@ from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_
     ACTIVITY_FORTIFYING, ACTION_FOUND_CITY, packet_unit_orders, ORDER_MOVE,\
     ACTIVITY_LAST, ACTION_COUNT, ACTION_SPY_STEAL_TECH_ESC,\
     ACTION_SPY_INCITE_CITY_ESC, ACTION_SPY_STEAL_TECH,\
+    ACTION_SPY_SABOTAGE_CITY, ACTION_SPY_SABOTAGE_CITY_ESC,\
     ACTION_SPY_TARGETED_STEAL_TECH, ACTION_SPY_BRIBE_UNIT,\
     packet_unit_action_query, packet_unit_get_actions, ACTION_SPY_INCITE_CITY,\
     ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
@@ -291,7 +292,7 @@ class UnitActions(ActionList):
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
-        for act_class in [ActGoto, ActAttack, ActSpyBribeUnit, ActSpyStealTech, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace, ActEmbassyStay, ActInvestigateSpend]:
+        for act_class in [ActGoto, ActAttack, ActConquerCity, ActSpyBribeUnit, ActSpyStealTech, ActSpySabotageCity, ActHutEnter, ActDisembark, ActTradeRoute, ActMarketplace, ActEmbassyStay, ActInvestigateSpend]:
             for dir8 in map_const.DIR8_ORDER:
                 self.add_action(unit_id, act_class(unit_focus, dir8))
         
@@ -1298,29 +1299,19 @@ class DiplomaticAction(UnitAction):
         raise Exception("Not implemented - should be overwritten by %s" % self.__class__)
 
 
-# class ActSpySteal(DiplomaticAction):
-class ActSpyStealTech(DiplomaticAction):
-    """ The player may change his mind after selecting targeted tech theft and
-        * go for the untargeted version after concluding that no listed tech is
-        * worth the extra risk. """
-    action_key = 'spy_steal_tech'
-    action_id = ACTION_SPY_STEAL_TECH
-
-    def __init__(self, cur_focus, dir8):
-        super().__init__(cur_focus)
-        # self.tech_id = None
+class ActSpyCityAction(DiplomaticAction):
+    """Spy on city"""
+    action_key = None
+    action_id = None
+    
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
         self.action_key += "_%i" % dir8
         self.dir8 = dir8
 
     def is_dipl_action_valid(self):
-        # if self.focus.pcity is None or self.focus.action_probabilities is None:
-        #     return False
-        # return action_prob_possible(self.focus.action_probabilities[self.action_id])
+        # return self.focus.pcity != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
         return action_prob_possible(self.focus.action_prob[self.dir8][self.action_id])
-
-    # def set_target_tech(self, tech_id):
-    #     """Select technology that should be targeted by spy"""
-    #     self.tech_id = tech_id
 
     def _action_packet(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
@@ -1333,16 +1324,33 @@ class ActSpyStealTech(DiplomaticAction):
         #                              self.action_id)
         packet = self.unit_do_action(self.focus.punit["id"], self.target_city_id,
                                      self.action_id)
+        # packet = {"pid": packet_unit_action_query,
+        #           "diplomat_id": self.focus.punit['id'],
+        #           "target_id": self.focus.pcity['id'],
+        #           "action_type": self.action_id
+        #           }
+        
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
 
+# class ActSpySteal(DiplomaticAction):
+class ActSpyStealTech(ActSpyCityAction):
+    """ The player may change his mind after selecting targeted tech theft and
+        * go for the untargeted version after concluding that no listed tech is
+        * worth the extra risk. """
+    action_key = 'spy_steal_tech'
+    action_id = ACTION_SPY_STEAL_TECH
 
-class ActSpyStealESC(ActSpyStealTech):
-    """Action to steal technology - unspecific"""
+
+class ActSpyStealTechESC(ActSpyStealTech):
+    """Action to steal technology and then escape- unspecific"""
+    action_key = 'spy_steal_tech_esc'
     action_id = ACTION_SPY_STEAL_TECH_ESC
+    
 
-
-class ActSpyStealTargeted(ActSpyStealTech):
+class ActSpyStealTechTargeted(ActSpyStealTech):
     """Action to steal specific technology"""
+    action_key = 'sply_steal_tech_targeted'
     action_id = ACTION_SPY_TARGETED_STEAL_TECH
 
     def __init__(self, cur_focus):
@@ -1383,43 +1391,31 @@ class ActSpyStealTargeted(ActSpyStealTech):
         return packet
 
 
-class ActSpyStealTargetedESC(ActSpyStealTargeted):
+class ActSpyStealTechTargetedESC(ActSpyStealTechTargeted):
+    action_key = 'spy_steal_tech_targeted_esc'
     action_id = ACTION_SPY_TARGETED_STEAL_TECH_ESC
-
-
-class ActSpyCityAction(DiplomaticAction):
-    """Spy on city"""
-    action_id = None
-
-    def is_dipl_action_valid(self):
-        return self.focus.pcity != None and action_prob_possible(self.focus.action_probabilities[self.action_id])
-
-    def _action_packet(self):
-        packet = {"pid": packet_unit_action_query,
-                  "diplomat_id": self.focus.punit['id'],
-                  "target_id": self.focus.pcity['id'],
-                  "action_type": self.action_id
-                  }
-        return packet
-
 
 class ActSpySabotageCity(ActSpyCityAction):
     """Sabotage City"""
-    action_id = ACTION_SPY_TARGETED_SABOTAGE_CITY
+    action_key = 'spy_sabotage_city'
+    action_id = ACTION_SPY_SABOTAGE_CITY
 
 
 class ActSpySabotageCityESC(ActSpyCityAction):
     """Sabotage City"""
-    action_id = ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC
+    action_key = 'spy_sabotage_city_esc'
+    action_id = ACTION_SPY_SABOTAGE_CITY_ESC
 
 
 class ActSpyInciteCity(ActSpyCityAction):
     """Incite City"""
+    action_key = 'spy_incite_city'
     action_id = ACTION_SPY_INCITE_CITY
 
 
 class ActSpyInciteCityESC(ActSpyCityAction):
     """Incite City"""
+    action_key = 'spy_incite_city_esc'
     action_id = ACTION_SPY_INCITE_CITY_ESC
 
 
@@ -1451,6 +1447,8 @@ class ActSpyUnitAction(DiplomaticAction):
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_unit_id,
                                      self.action_id)
+        
+        self.wait_for_pid = (63, self.focus.punit['id'])
         return packet
 
 
@@ -1881,6 +1879,31 @@ class ActAttack(UnitAction):
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
                                      ACTION_ATTACK)
+        
+        self.wait_for_pid = (63, self.focus.punit['id'])
+        return packet
+
+class ActConquerCity(UnitAction):
+    """Conquer city on target tile"""
+    action_key = "conquer_city"
+    
+    def __init__(self, focus, dir8):
+        super().__init__(focus)
+        self.action_key += "_%i" % dir8
+        self.dir8 = dir8
+        
+    def is_action_valid(self):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CONQUER_CITY):
+            return False
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_CONQUER_CITY])
+    
+    def _action_packet(self):
+        newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
+        pcity = self.focus.city_ctrl.tile_city(newtile)
+        self.target_city_id = pcity['id']
+        packet = self.unit_do_action(self.focus.punit['id'],
+                                     self.target_city_id,
+                                     fc_types.ACTION_CONQUER_CITY)
         
         self.wait_for_pid = (63, self.focus.punit['id'])
         return packet

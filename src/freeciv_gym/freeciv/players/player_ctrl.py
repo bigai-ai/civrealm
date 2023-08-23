@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.players.player_actions import PlayerOptions
 from freeciv_gym.freeciv.city.city_state import CityState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.utility import format_hex
 
 
 # from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
@@ -53,8 +54,8 @@ class PlayerCtrl(CivPropController):
         self.register_handler(50, "handle_player_remove")
         self.register_handler(51, "handle_player_info")
         self.register_handler(58, "handle_player_attribute_chunk")
-        self.register_handler(60, "handle_player_research_info")
-        self.register_handler(259, "handle_web_player_addition_info")
+        self.register_handler(60, "handle_research_info")
+        self.register_handler(259, "handle_web_player_info_addition")
 
     @staticmethod
     def get_player_connection_status(pplayer):
@@ -86,6 +87,9 @@ class PlayerCtrl(CivPropController):
             if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
                 return False
         return True
+    
+    def total_players(self):
+        return len(self.players)
 
     def player_is_myself(self, player_id):
         return player_id == self.my_player_id
@@ -224,7 +228,7 @@ class PlayerCtrl(CivPropController):
         packet['gives_shared_tiles'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_tiles']))
         playerno = packet["playerno"]
         # Update player information
-        if not playerno in self.players.keys() or self.players[playerno] is None:
+        if playerno not in self.players.keys() or self.players[playerno] is None:
             self.players[playerno] = packet
         else:
             self.players[playerno].update(packet)
@@ -237,10 +241,12 @@ class PlayerCtrl(CivPropController):
         # update_player_info_pregame()
         # update_tech_screen()
 
-    def handle_web_player_addition_info(self, packet):
-        fc_logger.debug(packet)
+    def handle_web_player_info_addition(self, packet):
+        # Currently there is only one additional field expected_income
+        del packet['pid']
+        self.players[packet['playerno']].update(packet)
 
-    def handle_player_research_info(self, packet):
+    def handle_research_info(self, packet):
         old_inventions = None
         if packet['id'] in self.research_data:
             old_inventions = self.research_data[packet['id']]['inventions']
@@ -305,3 +311,13 @@ class PlayerCtrl(CivPropController):
             nation_adj = nations[pplayer['nation']]['adjective']
             message += (i+1) + ": The " + nation_adj + " ruler " + pplayer['name'] + " scored " + info['score'] + " points" + "<br>"
     """
+
+    def get_player_colors(self):
+        player_colors = dict()
+        for player_id in self.players:
+            color_red = self.players[player_id]['color_red']
+            color_green = self.players[player_id]['color_green']
+            color_blue = self.players[player_id]['color_blue']
+            player_colors[player_id] = '#' + format_hex(color_red) + format_hex(color_green) + format_hex(color_blue)
+        return player_colors
+

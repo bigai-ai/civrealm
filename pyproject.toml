@@ -38,6 +38,7 @@ dependencies = [
     "pinecone-client",
     "func-timeout",
     "requests",
+    "ipdb",
     # The following packages are for the tensor-based agent
     "torch",
     "matplotlib"

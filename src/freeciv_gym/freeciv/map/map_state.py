@@ -59,7 +59,7 @@ class MapState(PlainState):
         self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['city_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
-        self._state['unit'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['unit'] = np.zeros((x_size, y_size, len(UNIT_TYPES)), dtype=np.ushort)
         self._state['unit_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
 
         for y in range(y_size):
@@ -123,7 +123,7 @@ class MapState(PlainState):
             'extras': gymnasium.spaces.Box(low=0, high=1, shape=extras_shape, dtype=int),
             'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
             'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-            'unit': gymnasium.spaces.Box(low=0, high=len(UNIT_TYPES), shape=map_shape, dtype=int),
+            'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),
             'unit_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
         })
         return self._observation_space
@@ -142,5 +142,10 @@ class MapState(PlainState):
         for _, city in cities.items():
             city_tile = self.tiles[city['tile']]
             self._state['city_owner'][city_tile['x'], city_tile['y']] = city_tile['owner']
+
+        for _, unit in units.items():
+            unit_tile = self.tiles[unit['tile']]
+            self._state['unit'][unit_tile['x'], unit_tile['y'], unit['type']] = 1
+            self._state['unit_owner'][unit_tile['x'], unit_tile['y']] = unit['owner']
 
         return

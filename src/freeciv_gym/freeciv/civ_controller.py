@@ -196,6 +196,7 @@ class CivController(CivPropController):
         try:
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
+            # fc_logger.info('lock_control exception')
             self.delete_save_game()
             self.end_game()
             self.ws_client.close()
@@ -264,6 +265,7 @@ class CivController(CivPropController):
             action.trigger_action(self.ws_client)
 
     def get_observation(self):
+        # fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         self.lock_control()
         return self.turn_manager.get_observation()
@@ -272,6 +274,7 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward()
 
     def get_info(self):
+        # fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
         return info
@@ -289,6 +292,7 @@ class CivController(CivPropController):
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
         """
+        # fc_logger.debug(f"game_has_truncated: {self.turn_manager.turn > fc_args['max_turns']}")
         return self.turn_manager.turn > fc_args['max_turns']
 
     def game_has_terminated(self) -> bool:
@@ -319,6 +323,8 @@ class CivController(CivPropController):
                     pid_info = (packet['pid'], packet['unit_id'])
                 elif packet['pid'] == 249:
                     pid_info = (packet['pid'], packet['city'])
+                elif packet['pid'] == 223:
+                    pid_info = (packet['pid'], packet['player_id'])
                 else:
                     if 'id' in packet:
                         pid_info = (packet['pid'], packet['id'])
@@ -430,36 +436,41 @@ class CivController(CivPropController):
         Delete the save game on the server (docker).
         Saved games are in '/var/lib/tomcat10/webapps/data/savegames/{username}'
         """
-        url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
-        response = requests.post(url)
-        save_list = response.text.split(';')
+        # Check whether save_game() has been called.
+        if len(self.game_saving_time_range) >0:
+            # fc_logger.info('delete_save_game')
+            url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
+            response = requests.post(url)
+            save_list = response.text.split(';')
 
-        real_saved_name = ''
-        for saving_time in self.game_saving_time_range:
-            possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-            for saved_name in save_list:
-                # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
-                if possible_saved_name in saved_name:
-                    real_saved_name = possible_saved_name
-                    break
-
-        if real_saved_name == '':
-            fc_logger.warning('Failed to find saved game file to delete.')
+            real_saved_name = ''
             for saving_time in self.game_saving_time_range:
                 possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-                fc_logger.warning(f'Possible save name: {possible_saved_name}')
-            for saved_name in save_list:
-                fc_logger.warning(f'Save name in List: {saved_name}')
-            return
+                for saved_name in save_list:
+                    # Note that we should not let real_save_name=save_name because save_name may have a suffix, e.g., .sav.zst.
+                    if possible_saved_name in saved_name:
+                        real_saved_name = possible_saved_name
+                        break
 
-        # If use savegame=ALL, it will delete all saves under the given username.
-        sha_password = self.clstate.get_password()
-        url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
-        response = requests.post(url)
-        if response.text != '':
-            fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
-        else:
-            fc_logger.debug(f'Deleting unnecessary saved game.')
+            if real_saved_name == '':
+                fc_logger.warning('Failed to find saved game file to delete.')
+                for saving_time in self.game_saving_time_range:
+                    possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
+                    fc_logger.warning(f'Possible save name: {possible_saved_name}')
+                for saved_name in save_list:
+                    fc_logger.warning(f'Save name in List: {saved_name}')
+                return
+
+            # If use savegame=ALL, it will delete all saves under the given username.
+            sha_password = self.clstate.get_password()
+            url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
+            response = requests.post(url)
+            if response.text != '':
+                fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
+            else:
+                fc_logger.debug(f'Deleting unnecessary saved game.')
+
+            self.game_saving_time_range.clear()
 
     def load_game(self, save_name):
         load_username = save_name.split('_')[0]
@@ -652,10 +663,12 @@ class CivController(CivPropController):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
         # Delete saved game in the end of turn.
+        # fc_logger.info('handle_end_turn')
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         # Set delete_save for the next turn
         self.delete_save = True
+        
         self.turn_manager.turn += 1
 
     def handle_conn_info(self, packet):

@@ -32,13 +32,23 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 def main():
     ray.init(local_mode=True)
-    process_num = 3
+    epoch_num = 2
+    process_num = 1
+    port = 6300
+    pool = Pool()
+    for i in range(epoch_num):
+        # pool.apply(run, (process_num, port+i*process_num))
+        run(process_num, port+i*process_num)
+        import time
+        time.sleep(1)
+
+def run(process_num, port):
+    print(f'Port: {port}')
     agent = ControllerAgent()
     env_list = []
     observation_list = []
     info_list = []
     done_list = [False]*process_num
-    port = 6300
     # Initialize environments
     for i in range(process_num):
         temp_port = port+i
@@ -72,7 +82,7 @@ def main():
                 observations = observation_list[i]
                 info = info_list[i]
                 import random
-                if random.random() < 0.1:
+                if random.random() < 0.01:
                     action = 'pass'
                 else:
                     action = None
@@ -93,7 +103,8 @@ def main():
                 # The result is a list (length is one) of tuple.
                 observation_list[env_id] = result[0][0]
                 info_list[env_id] = result[0][4]
-                # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3],
+                done_list[env_id] = result[0][3]
+                # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
             except Exception as e:
                 fc_logger.warning(repr(e))
                 done_list[env_id] = True
@@ -105,23 +116,31 @@ def main():
             env_id = index_id_map[index]
             # print(f'env_id: {env_id}')
             try:
-                # print('=============')
                 result = ray.get(ready)
                 observation_list[env_id] = result[0][0]
                 info_list[env_id] = result[0][4]
+                done_list[env_id] = result[0][3]
             except Exception as e:
-                # print('$$$$$$$$$$$$$')
                 fc_logger.warning(repr(e))
                 done_list[env_id] = True
 
         print(observation_list)
         # print(info_list)
+        result_ids = []
         for i in range(process_num):
             if done_list[i]:
-                env_list[i].end_game.remote()
-                env_list[i].close.remote()
+                result_ids.append(env_list[i].end_game.remote())
+
+        ray.get(result_ids)
+
+        result_ids = []
+        for i in range(process_num):
+            if done_list[i]:
+                result_ids.append(env_list[i].close.remote())
                 # env_list[i].x.end_game.remote()
                 # env_list[i].x.close.remote()
+        
+        ray.get(result_ids)
 
         all_done = all(done_list)
         if all_done:

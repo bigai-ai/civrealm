@@ -103,7 +103,8 @@ class LanguageAgent(ControllerAgent):
                     DIRECTION_TO_NUM_ACTION_DICT[current_avail_actions_list[-1]] = temp_name
 
                 obs_input_prompt = f"""The unit is {current_unit_name}, observation is {current_obs}. Your available action list is {current_avail_actions_list}. """
-                print('current unit:', current_unit_name)
+                
+                print('current unit:', current_unit_name, '; unit id:', valid_actor_id)
                 
                 exec_action_name = None
                 while exec_action_name is None:

@@ -26,18 +26,12 @@ from langchain.chains.question_answering import load_qa_chain
 warnings.filterwarnings('ignore')
 
 USE_API2D = False
-
-
-if USE_API2D:
-    url = "https://openai.api2d.net/v1/chat/completions"
-    headers = {
+url = "https://openai.api2d.net/v1/chat/completions"
+headers = {
       'Content-Type': 'application/json',
-      'x-api2d-no-cache': '1',
-      'Authorization': 'Bearer fkxxxx'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
+    #   'x-api2d-no-cache': '1',  # whether to use cache, 1 for not
+      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
     }
-else:
-    url = ""
-    headers = {"":""}
 
 
 cwd = os.getcwd()
@@ -76,6 +70,7 @@ class GPTAgent:
         self.state_prompt = self._load_state_prompt()
         self.task_prompt = self._load_task_prompt()
         self.update_key()
+        self.USE_API2D = USE_API2D
 
         llm = ChatOpenAI(temperature=0.0, openai_api_key = openai.api_key)
         self.memory = ConversationSummaryBufferMemory(llm=llm, max_token_limit=500)
@@ -98,7 +93,13 @@ class GPTAgent:
 
     def get_answer(self, query):
         similar_docs = self.get_similiar_docs(query)
-        answer = self.chain.run(input_documents=similar_docs, question=query)
+        while True:
+            try:
+                answer = self.chain.run(input_documents=similar_docs, question=query)
+                break
+            except Exception as e:
+                print(e)
+                self.update_key()
         return answer
         
     @staticmethod
@@ -173,6 +174,7 @@ class GPTAgent:
             exec_action = command_input['action']
 
             if command_input['action'] not in current_avail_actions:
+                print('Not in the available action list, retrying...')
                 # Here is the most time taking place.
                 if random.random() > 0.5:
                     self.update_dialogue(obs_input_prompt + ' CAUTION: You can only answer action from the available action list!', pop_num = 2)
@@ -202,7 +204,7 @@ class GPTAgent:
                 self.dialogue.append({'role': 'user', 'content': answer})
                 self.taken_actions_list = []
             else:
-                query = command_input['ask']
+                query = command_input['question']
                 answer = self.get_answer(query)
                 print('answer:', answer)
                 if random.random() > 0.5:
@@ -220,16 +222,16 @@ class GPTAgent:
             self.taken_actions_list.append('askCurrentGameInformation')
             return None
         
-        elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_for']:
+        elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_up']:
             print(command_input)
             
-            if self.check_if_the_taken_actions_list_needed_update('look_for', 3, 0):
+            if self.check_if_the_taken_actions_list_needed_update('look_up', 3, 0):
                 answer = 'Too many look for! Now You should give me an action at once!'
                 print(answer)
                 self.dialogue.append({'role': 'user', 'content': answer})
                 self.taken_actions_list = []
             else:
-                query = command_input['look_for']
+                query = command_input['look_up']
                 answer = self.get_answer(query)
                 print('answer:', answer)
                 if random.random() > 0.5:
@@ -238,7 +240,7 @@ class GPTAgent:
                     self.dialogue.append({'role': 'user', 'content': answer})
             
             self.memory.save_context({'assistant': query}, {'user': answer})
-            self.taken_actions_list.append('look_for')
+            self.taken_actions_list.append('look_up')
 
             return None
         else:
@@ -260,7 +262,7 @@ class GPTAgent:
         self.update_key()
         
         if self.model in ['gpt-3.5-turbo-0301', 'gpt-3.5-turbo']:
-            if USE_API2D:
+            if self.USE_API2D:
                 data = {
                   "model": self.model,
                   "messages": self.dialogue
@@ -269,10 +271,7 @@ class GPTAgent:
             else:
                 response = openai.ChatCompletion.create(
                     model=self.model,
-                    messages=self.dialogue,
-                    temperature=temperature,
-                    n = 1,
-                    top_p = 0.95
+                    messages=self.dialogue
                 )
         elif self.model in ['gpt-4-0314', 'gpt-4']:
             
@@ -307,7 +306,7 @@ class GPTAgent:
     # @staticmethod
     def parse_response(self, response):
         if self.model in ['gpt-3.5-turbo-0301', 'gpt-3.5-turbo', 'gpt-4', 'gpt-4-0314']:
-            if USE_API2D:
+            if self.USE_API2D:
                 return response.json()["choices"][0]["message"]
             else:
                 
@@ -337,9 +336,14 @@ class GPTAgent:
             while len(self.dialogue) >= 3:
                 self.dialogue.pop(-1)
 
-            self.dialogue.append({'role': 'user', 'content': 'The former chat history can be summarized as: \n' + self.memory.load_memory_variables({})['history']})
+            while True:
+                try:
+                    self.dialogue.append({'role': 'user', 'content': 'The former chat history can be summarized as: \n' + self.memory.load_memory_variables({})['history']})
+                    break
+                except Exception as e:
+                    print(e)
+                    self.update_key()
             
-
             if user_tag == 1:
                 self.dialogue.append(temp_message)
                 user_tag = 0
@@ -349,14 +353,17 @@ class GPTAgent:
         self.dialogue.append({"role": "user", "content": content})
         while True:
             try:
-                while True:
-                    try:
-                        raw_response = func_timeout(20, self.query)
-                        break
-                    except FunctionTimedOut as e:
-                        print(e, endl = '')
-                        print('query timeout, retrying...')
-                # raw_response = self.query()
+                # while True:
+                #     try:
+                #         raw_response = func_timeout(20, self.query)
+                #         break
+                #     except FunctionTimedOut as e:
+                #         print(e)
+                #         print('query timeout, retrying...')
+                #         self.USE_API2D = not self.USE_API2D
+                if random.random() < 0.2:
+                    self.USE_API2D = not self.USE_API2D
+                raw_response = self.query()
                 self.message = self.parse_response(raw_response)
                 self.dialogue.append(self.message)
 
@@ -372,6 +379,7 @@ class GPTAgent:
                     self.dialogue.append({"role": "user", \
                         "content": "You should only respond in JSON format as described"})
                     print('Not response json, retrying...')
+                    
                     continue
                 break
 

@@ -219,7 +219,7 @@ class ClientState(CivPropController):
         # This setting allows human to take the control of the agent in the middle of the game
         self.ws_client.send_message(f"/set allowtake {fc_args['allowtake']}")
         self.ws_client.send_message(f"/set autotoggle {fc_args['autotoggle']}")
-        self.ws_client.send_message("/set timeout 600")
+        self.ws_client.send_message("/set timeout 0")
         self.ws_client.send_message("/set netwait 15")
         # self.ws_client.send_message("/set nettimeout 120")
         self.ws_client.send_message("/set pingtime 30")

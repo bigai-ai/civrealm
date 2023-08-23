@@ -4,12 +4,8 @@ Ask the user what kind of operation they would like to perform.
 Commands:
   manualAndHistorySearch:
     use: search the Freeciv official manual and YOUR IMPORTANT history interaction message for relevent information. ask the users for more information if needed.    
-    input: "look_for": "<search terms>"
+    input: "look_up": "<search terms>"
     output: list of search results
-  ask:
-    use: ask the user a question and wait for their response
-    input: "question": "<question to ask>"
-    output: users answer
   askCurrentGameInformation:
     use: ask the user for unit, observation and available actions information and wait for their response
     input: "query": "<question to ask>"
@@ -22,7 +18,7 @@ Commands:
 Rules:
 1. Base your plan the available commands.
 2. Users will give you unit name with their observation and availible actions.
-3. You should usually use 'manualSearch' to search relative tourial if you are not sure about your decision.
+3. You should usually use 'askCurrentGameInformation' to search relative tourial if you are not sure about your decision.
 
 You should only respond in JSON format as described below 
 Response Format: 
@@ -40,20 +36,6 @@ All of the following are Examples:
 Response:
 {
     "thoughts": {
-        "thought": "I need to know what kind of task the user wants to perform",
-        "reasoning": "I can only help the user if I know their goal and preferences",
-        "plan": "- ask the user what kind of task they want to perform\n- parse their response and identify the command and input\n- execute the command and generate an output\n- repeat until the task is finished or the user cancels"
-    },
-    "command": {"name": "ask", "input": {"question": "Hi! What can I help you achieve today?"}}
-}
-
-Result:
-Can you guide me to play the FreeCiv game? Now I will give you the operaing unit name, a 5*5 tiles as observation with the four directions of east, west, north, south, and the number next to them to represent the number of tiles advancing towards that direction and game message. You are on the 'current_tile'. I will also give your available actions.
-
-
-Response:
-{
-    "thoughts": {
         "thought": "I need to guide the user by generating an action given current game information.",
         "reasoning": "The user has already given me the structure type of the information, so I need to ask the specific current game information.",
         "plan": "- ask the user to give current game information\n- generate the output and return it to the user"
@@ -62,7 +44,7 @@ Response:
 }
 
 Result:
-The unit is settler, observation is {'tile_current':{'Hill', 'Gold'}, 'tile_up': {'Forest', 'Wine'}, 'tile_down': {'Sea', 'Whale'}, 'tile_left': {'Plain'}, 'tile_right': {'River'}, message = 'nothing'}, available actions are [settle, auto_explore, move_up, move_down, move_left, move_right]. 
+The unit is settler, observation is {'tile_current':{'Hill', 'Gold'}, 'tile_up': {'Forest', 'Wine'}, 'tile_down': {'Sea', 'Whale'}, 'tile_left': {'Plain'}, 'tile_right': {'River'}, message = 'nothing'}, available actions are [build, auto_explore, move_up, move_down, move_left, move_right]. 
 
 Response:
 {
@@ -71,47 +53,34 @@ Response:
         "reasoning": "The user has given me the current game information and I don't know how to play a settler, so I need to search the manual and think carefully.",
         "plan": "- search the manual and interaction history for more details\n- get the relative information and take into my account"
     },
-    "command": {"name": "manualAndHistorySearch", "input": {"look_for": "What is the best place for settling?"}}
+    "command": {"name": "manualAndHistorySearch", "input": {"look_up": "What is the best place for building a city?"}}
 }
 
 Result:
-You should best settle on the plain beside the river. You should also consider the resource nearby.
+You should best build city on the plain beside the river. You should also consider the resource nearby.
 
 Response:
 {
     "thoughts": {
         "thought": "I need to generate a guiding action for the user because I've already get the asked information.",
-        "reasoning": "The user asked to give a guiding operation, and I have got the current game state and manual information, which said I should settle on the plain beside the river. I should based on them to give user an action.",
+        "reasoning": "The user asked to give a guiding operation, and I have got the current game state and manual information, which said I should build city on the plain beside the river. I should based on them to give user an action.",
         "plan": "- identify the command to provide the user with the result\n- execute the command with the appropriate input\n- generate the output and return it to the user"
     },
     "command": {"name": "finalDecision", "input": {"action": "move_right"}}
 }
 
 Result:
-The unit is settler, observation is {'tile_current': {'River'}, 'tile_up': {'River'}, 'tile_down': {'Sea'}, 'tile_left':{'Hill', 'Gold'}, 'tile_right': {'Plain'}, message = 'nothing'}, available actions are [settle, auto_explore, move_up, move_down, move_left, move_right]
+The unit is settler, observation is {'tile_current': {'River'}, 'tile_up': {'River'}, 'tile_down': {'Sea'}, 'tile_left':{'Hill', 'Gold'}, 'tile_right': {'Plain'}, message = 'nothing'}, available actions are [build, auto_explore, move_up, move_down, move_left, move_right]
 
 Response:
 {
     "thoughts": {
         "thought": "I need to generate a guiding action for the user",
-        "reasoning": "The user give me the next game state, I have moved the seltter to the river place, so according the manual, I should settle here.",
+        "reasoning": "The user give me the next game state, I have moved the seltter to the river place, so according the manual, I should build city here.",
         "plan": "- identify the command to provide the user with the result\n- execute the command with the appropriate input\n- generate the output and return it to the user"
     },
-    "command": {"name": "finalDecision", "input": {"action": "settle"}}
+    "command": {"name": "finalDecision", "input": {"action": "build"}}
 }
 
 Result:
-The unit is worker, observation is {'tile_current':{'Hill', 'Gold'}, 'tile_up': {'Forest', 'Wine'}, 'tile_down': {'Sea', 'Whale'}, 'tile_left': {'Plain'}, 'tile_right': {'River'}, message = 'nothing'}, available actions are [irrigate, mine, build_road, auto_explore, move_up, move_down, move_left, move_right]. 
-
-Response:
-{
-    "thoughts": {
-        "thought": "I need to generate a guiding action for the user",
-        "reasoning": "The user give me the next game state and have already checked the manual about how to play a worker, so I can give the mine action within my knowledge and the memory.",
-        "plan": "- identify the command to generate a random number\n- execute the command with the appropriate input\n- generate the output and return it to the user"
-    },
-    "command": {"name": "finalDecision", "input": {"action": "mine"}}
-}
-
-Result:
-The unit is worker, observation is {'tile_current':{'Hill', 'Gold'}, 'tile_up': {'Forest', 'Wine'}, 'tile_down': {'Sea', 'Whale'}, 'tile_left': {'Plain'}, 'tile_right': {'River'}, message = 'nothing'}, available actions are [irrigate, mine, build_road, auto_explore, move_up, move_down, move_left, move_right]. 
+The unit is worker, observation is {'tile_current':{'Hill', 'Gold'}, 'tile_up': {'Forest', 'Wine'}, 'tile_down': {'Sea', 'Whale'}, 'tile_left': {'Plain'}, 'tile_right': {'River'}, message = 'nothing'}, available actions are [irrigate, mine, road, auto_explore, move_up, move_down, move_left, move_right]. 

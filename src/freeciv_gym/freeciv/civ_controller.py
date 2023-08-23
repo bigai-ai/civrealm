@@ -196,10 +196,7 @@ class CivController(CivPropController):
         try:
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
-            # fc_logger.info('lock_control exception')
-            self.delete_save_game()
             self.end_game()
-            self.ws_client.close()
 
     def init_game(self):
         """
@@ -213,26 +210,28 @@ class CivController(CivPropController):
 
     def get_turn(self):
         return self.turn_manager.turn
+    
+    def should_wait(self):
+        if not self.player_ctrl.previous_player_finished():
+            return True
+
+        if self.ws_client.is_waiting_for_responses():
+            return True
+        
+        return False
 
     def ready_to_act(self):
         """
-        TODO: make sure the condition is correct
-        turn_active is true after receving PACKET_BEGIN_TURN
+        TODO: make sure the condition is correct, and incorporate this logic with the logic in the turn manager.
+        - In a non-concurrent setting, the player should wait for the players with smaller player numbers to end their phase. 
+        - turn_active is set to True after receving PACKET_BEGIN_TURN. It is set to False after our player has completed its phase.
+        - In our player's phase, it should also wait for responses of actions performed in the previous step from the server to be ready to act. 
         """
-        return self.turn_manager.turn_active and self.if_not_waiting()
+        return self.turn_manager.turn_active and not self.should_wait()
 
-    def if_not_alive(self):
+    def my_player_is_alive(self):
         if self.player_ctrl.my_player_id in self.player_ctrl.players:
-            if not self.player_ctrl.my_player['is_alive']:
-                return True
-
-    def if_not_waiting(self):
-        """
-        wait for the players with a smaller playerno to end their phase.
-        FIXME: incorporate this logic with the logic in the turn manager
-        """
-        if self.player_ctrl.others_finished():
-            return not self.ws_client.is_waiting_for_responses()
+            return self.player_ctrl.my_player['is_alive']
 
     def maybe_grant_control_to_player(self):
         """
@@ -244,9 +243,13 @@ class CivController(CivPropController):
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
+            return
 
-        if self.if_not_waiting() and self.if_not_alive():
+        if (not self.should_wait()) and (not self.my_player_is_alive()):
             self.ws_client.stop_ioloop()
+            return
+        
+        return
 
     @property
     def action_space(self):
@@ -355,11 +358,14 @@ class CivController(CivPropController):
                   'message': f"/endgame"}
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
-        self.ws_client.start_ioloop()
+        # Listen to the server to get final scores
+        self.lock_control()
 
     def close(self):
+        self.end_game()
         if self.visualize:
             self.monitor.stop_monitor()
+        self.delete_save_game()
         self.ws_client.close()
 
     def end_game_packet_list(self):
@@ -369,20 +375,7 @@ class CivController(CivPropController):
         return wait_for_pid_list
 
     def request_scorelog(self):
-        game_scores = None
-
-        for ptry in range(MAX_REQUESTS):
-            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
-            if response.status_code == 200:
-                fc_logger.debug(f'Request of game_scores succeed')
-                game_scores = response.text
-                break
-            else:
-                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
-                time.sleep(SLEEP_TIME)
-        return game_scores
-
-    '''
+        """
         Format description of the scorelog format version 2
         ===================================================
 
@@ -420,7 +413,19 @@ class CivController(CivPropController):
         data <turn> <tag-id> <player-id> <value>
         give the value of the given tag for the given
         player for the given turn
-        '''
+        """
+        game_scores = None
+
+        for ptry in range(MAX_REQUESTS):
+            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
+            if response.status_code == 200:
+                fc_logger.debug(f'Request of game_scores succeed')
+                game_scores = response.text
+                break
+            else:
+                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
+                time.sleep(SLEEP_TIME)
+        return game_scores
 
     def save_game(self):
         # We keep the time interval in case the message delay causes the first or second save_name is different from the real save_name

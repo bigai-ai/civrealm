@@ -37,7 +37,6 @@ def main():
         except Exception as e:
             fc_logger.warning(repr(e))
             raise e
-    env.end_game()
     env.close()
 
     '''

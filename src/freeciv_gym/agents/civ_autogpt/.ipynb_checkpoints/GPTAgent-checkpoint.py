@@ -9,6 +9,7 @@ from func_timeout import func_timeout
 from func_timeout import FunctionTimedOut
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
+from freeciv_gym.agents.civ_autogpt.utils.interact_with_llm import send_message_to_llama
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
 from langchain.memory import ConversationSummaryBufferMemory
@@ -49,7 +50,8 @@ TOKEN_LIMIT_TABLE = {
     "gpt-3.5-turbo": 4096,
     "text-davinci-003": 4080,
     "code-davinci-002": 8001,
-    "text-davinci-002": 2048
+    "text-davinci-002": 2048,
+    "vicuna-33B": 2048
 }
 
 
@@ -93,7 +95,13 @@ class GPTAgent:
 
     def get_answer(self, query):
         similar_docs = self.get_similiar_docs(query)
-        answer = self.chain.run(input_documents=similar_docs, question=query)
+        while True:
+            try:
+                answer = self.chain.run(input_documents=similar_docs, question=query)
+                break
+            except Exception as e:
+                print(e)
+                self.update_key()
         return answer
         
     @staticmethod
@@ -277,6 +285,9 @@ class GPTAgent:
             response = requests.post(url, headers=headers, json=data)
             
             time.sleep(15)
+        elif self.model in ['vicuna-33B', 'llama2-13B-chat']:
+            local_config = {'temperature':0.7, 'top_p': 0.95, 'repetition_penalty': 1.1}
+            response = send_message_to_llama(self.dialogue, local_config)
         else:
             response = openai.Completion.create(
                         model=self.model,
@@ -307,6 +318,8 @@ class GPTAgent:
                 return dict(response["choices"][0]["message"])
             
             # return response.json()["choices"][0]["message"]
+        elif self.model in ['vicuna-33B']:
+            return {'role': 'assistant', 'content': response}
         else:
             # self.model in ['text-davinci-003', 'code-davinci-002']
             
@@ -330,9 +343,14 @@ class GPTAgent:
             while len(self.dialogue) >= 3:
                 self.dialogue.pop(-1)
 
-            self.dialogue.append({'role': 'user', 'content': 'The former chat history can be summarized as: \n' + self.memory.load_memory_variables({})['history']})
+            while True:
+                try:
+                    self.dialogue.append({'role': 'user', 'content': 'The former chat history can be summarized as: \n' + self.memory.load_memory_variables({})['history']})
+                    break
+                except Exception as e:
+                    print(e)
+                    self.update_key()
             
-
             if user_tag == 1:
                 self.dialogue.append(temp_message)
                 user_tag = 0
@@ -342,15 +360,17 @@ class GPTAgent:
         self.dialogue.append({"role": "user", "content": content})
         while True:
             try:
-                while True:
-                    try:
-                        raw_response = func_timeout(20, self.query)
-                        break
-                    except FunctionTimedOut as e:
-                        print(e)
-                        print('query timeout, retrying...')
-                        self.USE_API2D = not self.USE_API2D
-                # raw_response = self.query()
+                # while True:
+                #     try:
+                #         raw_response = func_timeout(20, self.query)
+                #         break
+                #     except FunctionTimedOut as e:
+                #         print(e)
+                #         print('query timeout, retrying...')
+                #         self.USE_API2D = not self.USE_API2D
+                if random.random() < 0.2:
+                    self.USE_API2D = not self.USE_API2D
+                raw_response = self.query()
                 self.message = self.parse_response(raw_response)
                 self.dialogue.append(self.message)
 
@@ -359,7 +379,7 @@ class GPTAgent:
                 # print('response:', response)
 
                 try:
-                    json.loads(response)
+                    response = json.loads(response)
                 except Exception as e:
                     # self.dialogue.pop(-1)
                     print(e)

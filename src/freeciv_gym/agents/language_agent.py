@@ -109,9 +109,9 @@ class LanguageAgent(ControllerAgent):
                 exec_action_name = None
                 while exec_action_name is None:
                     response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
-
-                    self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': response})
-                    response = json.loads(response)
+                    self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': str(response)})
+                    if isinstance(response, str):
+                        response = json.loads(response)
 
                     exec_action_name = self.ga.process_command(response['command'], obs_input_prompt, current_unit_name, current_avail_actions_list)
 

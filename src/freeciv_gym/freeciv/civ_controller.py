@@ -59,7 +59,8 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username, host, client_port, visualize=False):
+    def __init__(self, username=fc_args['username'], host=fc_args['host'],
+                 client_port=fc_args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
 
@@ -213,15 +214,16 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def ready_to_act(self):
-
-        if not self.player_ctrl.my_player['is_alive']:
-            return True
-
-        '''
+        """
         TODO: make sure the condition is correct
         turn_active is true after receving PACKET_BEGIN_TURN
-        '''
+        """
         return self.turn_manager.turn_active and self.if_not_waiting()
+
+    def if_not_alive(self):
+        if self.player_ctrl.my_player_id in self.player_ctrl.players:
+            if not self.player_ctrl.my_player['is_alive']:
+                return True
 
     def if_not_waiting(self):
         """
@@ -237,9 +239,12 @@ class CivController(CivPropController):
         """
         # TODO: Check the triggering conditions. Now it is only called when the contoller has processed a batch of packets.
         if self.ready_to_act():
-            if self.player_ctrl.my_player['is_alive'] and not self.clstate.begin_logged:
+            if not self.clstate.begin_logged:
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
+            self.ws_client.stop_ioloop()
+
+        if self.if_not_waiting() and self.if_not_alive():
             self.ws_client.stop_ioloop()
 
     @property

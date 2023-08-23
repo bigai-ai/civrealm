@@ -17,6 +17,7 @@ import gymnasium
 import numpy as np
 from BitVector import BitVector
 
+from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
@@ -36,6 +37,9 @@ class MapState(PlainState):
         self._state['terrain'] = None
         self._state['extras'] = None
         self._state['tile_owner'] = None
+        self._state['city_owner'] = None
+        self._state['unit'] = None
+        self._state['unit_owner'] = None
 
     @property
     def tiles(self):
@@ -54,6 +58,9 @@ class MapState(PlainState):
         self._state['status'] = np.zeros((x_size, y_size), dtype=np.ubyte)
         self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['city_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['unit'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['unit_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
 
         for y in range(y_size):
             for x in range(x_size):
@@ -89,23 +96,23 @@ class MapState(PlainState):
             extras_shape = (x_size, y_size, len(tile_packet['extras']))
             self.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
 
-        ptile = tile_packet['tile']
+        tile_index = tile_packet['tile']
         assert self.tiles != None
-        assert self.tiles[ptile] != None
+        assert self.tiles[tile_index] != None
 
-        self.tiles[ptile].update(tile_packet)
+        self.tiles[tile_index].update(tile_packet)
         self.state['status'][
-            self.tiles[ptile]['x'],
-            self.tiles[ptile]['y']] = tile_packet['known']
+            self.tiles[tile_index]['x'],
+            self.tiles[tile_index]['y']] = tile_packet['known']
         self.state['terrain'][
-            self.tiles[ptile]['x'],
-            self.tiles[ptile]['y']] = tile_packet['terrain']
+            self.tiles[tile_index]['x'],
+            self.tiles[tile_index]['y']] = tile_packet['terrain']
         self.state['extras'][
-            self.tiles[ptile]['x'],
-            self.tiles[ptile]['y'], :] = tile_packet['extras']
+            self.tiles[tile_index]['x'],
+            self.tiles[tile_index]['y'], :] = tile_packet['extras']
         self.state['tile_owner'][
-            self.tiles[ptile]['x'],
-            self.tiles[ptile]['y']] = tile_packet['owner']
+            self.tiles[tile_index]['x'],
+            self.tiles[tile_index]['y']] = tile_packet['owner']
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
@@ -115,11 +122,25 @@ class MapState(PlainState):
             'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
             'extras': gymnasium.spaces.Box(low=0, high=1, shape=extras_shape, dtype=int),
             'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
+            'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
+            'unit': gymnasium.spaces.Box(low=0, high=len(UNIT_TYPES), shape=map_shape, dtype=int),
+            'unit_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
         })
         return self._observation_space
 
     def encode_to_json(self):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
 
-    def _update_state(self, pplayer):
+    def _update_state(self, pplayer, *args):
+        cities = args[0]
+        units = args[1]
+
+        self._state['city_owner'].fill(255)
+        self._state['unit'].fill(0)
+        self._state['unit_owner'].fill(255)
+
+        for _, city in cities.items():
+            city_tile = self.tiles[city['tile']]
+            self._state['city_owner'][city_tile['x'], city_tile['y']] = city_tile['owner']
+
         return

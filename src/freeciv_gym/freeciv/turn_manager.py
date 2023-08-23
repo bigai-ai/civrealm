@@ -95,7 +95,7 @@ class TurnManager(object):
                 # TODO: add observation spaces for all controllers
                 observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
             else:
-                observation_space[ctrl_type] = ctrl.get_observation_space(self._turn_player)
+                observation_space[ctrl_type] = ctrl.get_observation_space()
 
         return gymnasium.spaces.Dict(observation_space)
 
@@ -103,8 +103,15 @@ class TurnManager(object):
         fc_logger.debug("Acquiring state for: ")
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
-            self._turn_state[ctrl_type] = ctrl.get_current_state(
-                self._turn_player)
+            if ctrl_type == 'map':
+                # Add city map and unit map to observations
+                cities = self._turn_ctrls['city'].cities
+                units = self._turn_ctrls['unit'].units
+                self._turn_state[ctrl_type] = ctrl.get_current_state(
+                    self._turn_player, cities, units)
+            else:
+                self._turn_state[ctrl_type] = ctrl.get_current_state(
+                    self._turn_player)
         return self._turn_state
 
     def get_available_actions(self):

@@ -140,7 +140,7 @@ class CivConnection(CivWSClient):
         self._restarting_server = False
         self._cur_retry = 0
         self._retry_connection = retry_connection
-    
+
     def set_client_port(self, port):
         self.client_port = port
 

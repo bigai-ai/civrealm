@@ -54,8 +54,8 @@ class PropState(ABC):
     def _state_has_locked_properties(self):
         raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
 
-    def update(self, pplayer):
-        self._update_state(pplayer)
+    def update(self, pplayer, *args):
+        self._update_state(pplayer, *args)
         if self._locked_props == []:
             self._lock_properties()
             self._locked_set = set(self._locked_props)

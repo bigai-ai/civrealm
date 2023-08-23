@@ -198,6 +198,8 @@ class CivController(CivPropController):
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
             self.end_game()
+            # If not need to see the game score after KeyboardInterrupt, can call close() instead.
+            # self.close()
 
     def init_game(self):
         """
@@ -361,7 +363,9 @@ class CivController(CivPropController):
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
         # Listen to the server to get final scores
-        self.lock_control()
+        # Using lock_control() will lead to recursive calling of end_game() during KeyboardInterrupt
+        # self.lock_control()
+        self.ws_client.start_ioloop()
 
     def close(self):
         self.end_game()

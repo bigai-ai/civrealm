@@ -56,7 +56,7 @@ class CivWSClient(WebSocketClient):
             self.read_packs = []
             self.clear_send_queue()
         except Exception as e:
-            self.close()
+            # self.close()
             fc_logger.error(f"{str(e)}")
             # assert False, f"{str(e)}"
             raise Exception("Exception occurred in on_message_callback")

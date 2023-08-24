@@ -7,20 +7,25 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import sys
-from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.tech.tech_helpers import recreate_old_tech_req
 from BitVector import BitVector
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
-from freeciv_gym.freeciv.game.info_states import RuleState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
+from freeciv_gym.freeciv.game.info_states import RuleState
+from freeciv_gym.freeciv.tech.tech_helpers import recreate_old_tech_req
 
 """
 Freeciv Web Client.
@@ -29,7 +34,7 @@ This file contains the handling-code for packets from the civserver.
 
 
 class RulesetCtrl(CivPropController):
-    def __init__(self, ws_client):
+    def __init__(self, ws_client: CivConnection):
         super().__init__(ws_client)
 
         self.terrains = {}
@@ -64,7 +69,11 @@ class RulesetCtrl(CivPropController):
 
         self.air_units = ['Fighter', 'Bomber', 'AWACS', 'Helicopter', 'Stealth_Fighter', 'Stealth_Bomber']
         self.missile_units = ['Cruise_Missile', 'Nuclear']
-        self.ground_units = ['Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archers', 'Legion', 'Pikemen', 'Musketeers', 'Partisan', 'Alpine_Troops', 'Riflemen', 'Marines', 'Paratroopers', 'Mech._Inf.', 'Horsemen', 'Chariot', 'Knights', 'Dragoons', 'Cavalry', 'Armor', 'Catapult', 'Cannon', 'Artillery', 'Howitzer', 'Diplomat', 'Spy', 'Caravan', 'Freight', 'Explorer']
+        self.ground_units = [
+            'Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archers', 'Legion', 'Pikemen', 'Musketeers',
+            'Partisan', 'Alpine_Troops', 'Riflemen', 'Marines', 'Paratroopers', 'Mech._Inf.', 'Horsemen', 'Chariot',
+            'Knights', 'Dragoons', 'Cavalry', 'Armor', 'Catapult', 'Cannon', 'Artillery', 'Howitzer', 'Diplomat', 'Spy',
+            'Caravan', 'Freight', 'Explorer']
 
     def register_all_handlers(self):
         self.register_handler(9, "handle_ruleset_tech_class")
@@ -187,7 +196,7 @@ class RulesetCtrl(CivPropController):
     def handle_ruleset_tech(self, packet):
         packet['name'] = packet['name'].replace("?tech:", "")
         self.techs[packet['id']] = packet
-        recreate_old_tech_req(packet)    
+        recreate_old_tech_req(packet)
 
     def handle_ruleset_tech_class(self, packet):
         pass
@@ -205,7 +214,7 @@ class RulesetCtrl(CivPropController):
 
         # /* Separate since it is easier understand what SINGLE_MOVE means than to
         # * understand what terrain_control['move_fragments'] means. */
-        self.SINGLE_MOVE = self.terrain_control['move_fragments']        
+        self.SINGLE_MOVE = self.terrain_control['move_fragments']
 
     def handle_ruleset_nation_groups(self, packet):
         self.nation_groups = packet['groups']
@@ -417,12 +426,12 @@ class RulesetCtrl(CivPropController):
 
     def get_improvement_requirements(self, improvement):
         """returns list of tech ids which are a requirement for the given improvement"""
-        result = []        
+        result = []
         if improvement != None and improvement['reqs'] != None:
             for req in improvement['reqs']:
                 if req['kind'] == 1 and req['present']:
                     result.append(req['value'])
-        return result    
+        return result
 
     @staticmethod
     def universal_build_shield_cost(target):

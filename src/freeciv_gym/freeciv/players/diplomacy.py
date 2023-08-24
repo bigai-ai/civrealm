@@ -7,20 +7,26 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.base_state import PlainState
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.base_action import NoActions
-# from freeciv_gym.freeciv.connectivity.client_state import ClientState
+
 import freeciv_gym.freeciv.players.player_const as player_const
 
+
 class DiplomacyState(PlainState):
-    def __init__(self, diplstates):
+    def __init__(self, diplstates: dict):
         super().__init__()
         self.diplstates = diplstates
 
@@ -35,14 +41,13 @@ class DiplomacyState(PlainState):
 
 
 class DiplomacyCtrl(CivPropController):
-    # def __init__(self, ws_client, clstate: ClientState, ruleset, dipl_evaluator=None):
-    def __init__(self, ws_client, clstate, ruleset, dipl_evaluator=None):
+    def __init__(self, ws_client: CivConnection, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_evaluator=None):
         super().__init__(ws_client)
         self.diplstates = {}
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}
         self.active_diplomacy_meeting_id = None
-        self.ruleset = ruleset
+        self.rule_ctrl = rule_ctrl
         self.clstate = clstate
         self.prop_state = DiplomacyState(self.diplstates)
         self.prop_actions = NoActions(ws_client)
@@ -59,7 +64,7 @@ class DiplomacyCtrl(CivPropController):
 
     # Check whether the given nation is barbarian or pirate.
     def _is_barbarian_pirate(self, nation_id):
-        return self.ruleset.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
+        return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
 
     def get_current_state(self, counterpart):
         player_id = counterpart["playerno"]

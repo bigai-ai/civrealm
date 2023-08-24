@@ -13,25 +13,27 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import os
+
 import json
 import matplotlib.pyplot as plt
-
+import ray
 import gymnasium
 from gymnasium import utils
-import ray
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
+
+from freeciv_gym.configs import fc_args
 
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render_modes': ['human']}
 
-    def __init__(self, client_port=fc_args['client_port']):
+    def __init__(self, client_port: int = fc_args['client_port']):
         self.civ_controller = CivController(client_port=client_port)
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
@@ -156,9 +158,10 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
 @ray.remote
 class FreecivParallelBaseEnv(FreecivBaseEnv):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, client_port: int = fc_args['client_port']):
+        super().__init__(client_port)
         # self.unwrapped.spec = self
+
     def step(self, action):
         self.civ_controller.perform_action(action)
         info = self._get_info()
@@ -168,7 +171,7 @@ class FreecivParallelBaseEnv(FreecivBaseEnv):
         truncated = self._get_truncated()
         # TODO: observation, reward, terminated, truncated, info
         return self.civ_controller.get_turn(), 0, False, truncated, self.civ_controller.get_turn()
-    
+
     def reset(self):
         self.civ_controller.init_network()
         info = self._get_info()

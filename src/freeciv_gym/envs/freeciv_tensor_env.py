@@ -13,14 +13,17 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
+
+from freeciv_gym.configs import fc_args
 
 
 class FreecivTensorEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
 
-    def __init__(self, **kwargs):
-        super().__init__(kwargs)
+    def __init__(self, client_port: int = fc_args['client_port']):
+        super().__init__(client_port)
 
     def _get_observation(self):
         self.civ_controller.lock_control()

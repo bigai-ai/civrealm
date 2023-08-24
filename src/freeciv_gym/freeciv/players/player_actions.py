@@ -19,13 +19,11 @@ from freeciv_gym.freeciv.utils.fc_types import packet_player_rates,\
     packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
 import freeciv_gym.freeciv.players.player_const as player_const
+import freeciv_gym.freeciv.players.player_helpers as player_helpers
 
-from freeciv_gym.freeciv.players.government import GovernmentCtrl
 from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES
-# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-# from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
@@ -33,7 +31,6 @@ MAX_GOLD = 10
 
 
 class PlayerOptions(ActionList):
-    # def __init__(self, ws_client, rule_ctrl: RulesetCtrl, players, clstate: ClientState):
     def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players, clstate):
         super().__init__(ws_client)
         self.players = players
@@ -63,7 +60,7 @@ class PlayerOptions(ActionList):
                 self.update_counterpart_options(self.clstate, self.dipl_ctrl, counter_id, pplayer, counterpart)
 
     def update_player_options(self, counter_id, pplayer):
-        maxrate = GovernmentCtrl.government_max_rate(pplayer['government'])
+        maxrate = player_helpers.government_max_rate(pplayer['government'])
         cur_state = {"playerno": pplayer['playerno'], "tax": pplayer['tax'], "sci": pplayer["science"],
                      "lux": pplayer["luxury"], "max_rate": maxrate}
 

@@ -15,14 +15,21 @@
 
 from BitVector.BitVector import BitVector
 
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.game.options_ctrl import OptionCtrl
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
+from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
+
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
+from freeciv_gym.freeciv.units.spacerace import SpaceCtrl
+from freeciv_gym.freeciv.units.action_dialog import action_prob_possible
 from freeciv_gym.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
     ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_ACTIVE, ACT_DEC_NOTHING,\
     ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\
     USSDT_UNQUEUE, USSDT_QUEUE, ACTION_FOUND_CITY
-
-from freeciv_gym.freeciv.units.spacerace import SpaceCtrl
-from freeciv_gym.freeciv.units.action_dialog import action_prob_possible
 
 from freeciv_gym.freeciv.game.game_ctrl import IDENTITY_NUMBER_ZERO
 import freeciv_gym.freeciv.players.player_const as player_const
@@ -44,7 +51,7 @@ REQEST_BACKGROUND_FAST_AUTO_ATTACK = 2
 
 
 class UnitCtrl(CivPropController):
-    def __init__(self, ws_client, rule_ctrl, map_ctrl, player_ctrl, city_ctrl, dipl_ctrl, option_ctrl):
+    def __init__(self, ws_client: CivConnection, option_ctrl: OptionCtrl, rule_ctrl: RulesetCtrl, map_ctrl: MapCtrl, player_ctrl: PlayerCtrl, city_ctrl: CityCtrl, dipl_ctrl: DiplomacyCtrl):
         super().__init__(ws_client)
         self.units = {}
         self.rule_ctrl = rule_ctrl

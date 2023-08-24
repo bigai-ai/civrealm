@@ -13,36 +13,43 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from typing import Dict
 from BitVector import BitVector
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
-from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientState
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
+from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
+
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 
-import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.players.player_state import PlayerState
 from freeciv_gym.freeciv.players.player_actions import PlayerOptions
-
 from freeciv_gym.freeciv.city.city_state import CityState
-import freeciv_gym.freeciv.tech.tech_const as tech_const
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.utility import format_hex
 
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
-# from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
-# from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+import freeciv_gym.freeciv.players.player_const as player_const
+import freeciv_gym.freeciv.tech.tech_const as tech_const
+from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING
 
 
 class PlayerCtrl(CivPropController):
-    # def __init__(self, ws_client, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_ctrl: DiplomacyCtrl):
-    def __init__(self, ws_client, clstate: ClientState, city_ctrl, rule_ctrl, dipl_ctrl):
+    def __init__(
+            self, ws_client: CivConnection, clstate: ClientState, city_ctrl: CityCtrl, rule_ctrl: RulesetCtrl,
+            dipl_ctrl: DiplomacyCtrl):
         super().__init__(ws_client)
 
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.dipl_ctrl = dipl_ctrl
-        self.players = {}
+        self.players: Dict[int, Dict] = {}
         # Include the data of the Player himself and the other players who have been met.
         self.research_data = {}
         self.endgame_player_info = []
@@ -81,8 +88,8 @@ class PlayerCtrl(CivPropController):
     def my_player(self):
         return self.prop_state.my_player
 
-    # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
     def previous_players_finished(self) -> bool:
+        # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
         for playerno in self.players:
             if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
                 return False

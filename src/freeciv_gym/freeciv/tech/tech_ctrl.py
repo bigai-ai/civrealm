@@ -7,19 +7,22 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 from freeciv_gym.freeciv.misc.freeciv_wiki import freeciv_wiki_docs
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.tech.tech_state import TechState
 from freeciv_gym.freeciv.tech.tech_actions import TechActions
-from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 
 """
 /*
@@ -38,7 +41,7 @@ typedef int Tech_type_id
 
 
 class TechCtrl(CivPropController):
-    def __init__(self, ws_client, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
+    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
@@ -51,7 +54,7 @@ class TechCtrl(CivPropController):
 
     def register_all_handlers(self):
         pass
-    
+
     def get_wiki_tech_info(self, tech_name):
         if freeciv_wiki_docs is None or freeciv_wiki_docs[tech_name] is None:
             return None, None
@@ -74,4 +77,3 @@ class TechCtrl(CivPropController):
             tech_info["helptext"] = self.rule_ctrl.improvements[improvement_id]['helptext']
 
         return tech_info
-    

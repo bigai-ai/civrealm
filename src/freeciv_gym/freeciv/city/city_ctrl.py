@@ -13,9 +13,17 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from collections import defaultdict
+
 import urllib
+from typing import Dict
+from collections import defaultdict
 from BitVector import BitVector
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.connectivity.client_state import ClientState
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.game.game_ctrl import GameCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import MAX_NUM_ITEMS
@@ -37,22 +45,23 @@ INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
 
 
 class CityCtrl(CivPropController):
-    def __init__(self, ws_client=None, ruleset=None, clstate=None, game_ctrl=None,
-                 map_ctrl=None):
+    def __init__(
+            self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, clstate: ClientState, game_ctrl: GameCtrl,
+            map_ctrl: MapCtrl):
         super().__init__(ws_client)
 
-        # self.register_handler(13, "handle_scenario_description")
-        self.cities = {}
+        self.cities: Dict[int, Dict] = {}
         self.city_trade_routes = {}
         self.game_ctrl = game_ctrl
-        self.rulectrl = ruleset
+        self.rule_ctrl = rule_ctrl
         self.map_ctrl = map_ctrl
         self.clstate = clstate
 
-        self.prop_state = CityState(ruleset, self.cities)
-        self.prop_actions = CityActions(ws_client, ruleset, self.cities, map_ctrl)
+        self.prop_state = CityState(rule_ctrl, self.cities)
+        self.prop_actions = CityActions(ws_client, rule_ctrl, self.cities, map_ctrl)
 
     def register_all_handlers(self):
+        # self.register_handler(13, "handle_scenario_description")
         self.register_handler(30, "handle_city_remove")
         self.register_handler(31, "handle_city_info")
         self.register_handler(32, "handle_city_short_info")
@@ -112,7 +121,7 @@ class CityCtrl(CivPropController):
             if tcity_id == 0 or tcity_id is None:
                 continue
 
-            good = self.rulectrl.goods[routes[i]['goods']]
+            good = self.rule_ctrl.goods[routes[i]['goods']]
             if good is None:
                 fc_logger.info("Missing good type " + routes[i]['goods'])
                 good = {'name': "Unknown"}
@@ -204,7 +213,7 @@ class CityCtrl(CivPropController):
             self.cities[packet['id']].update(packet)
 
     def city_can_buy(self, pcity):
-        improvement = self.rulectrl.improvements[pcity['production_value']]
+        improvement = self.rule_ctrl.improvements[pcity['production_value']]
 
         return (not pcity['did_buy'] and
                 pcity['turn_founded'] != self.game_ctrl.game_info['turn'] and

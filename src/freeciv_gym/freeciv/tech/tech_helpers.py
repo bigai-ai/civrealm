@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.utils.fc_types import VUT_ADVANCE
 

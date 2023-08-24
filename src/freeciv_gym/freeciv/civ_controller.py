@@ -154,10 +154,10 @@ class CivController(CivPropController):
         self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl, self.dipl_ctrl)
         self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
 
-        self.unit_ctrl = UnitCtrl(self.ws_client, self.rule_ctrl, self.map_ctrl,
-                                  self.player_ctrl, self.city_ctrl, self.dipl_ctrl, self.opt_ctrl)
+        self.unit_ctrl = UnitCtrl(self.ws_client, self.opt_ctrl, self.rule_ctrl, self.map_ctrl,
+                                  self.player_ctrl, self.city_ctrl, self.dipl_ctrl)
 
-        self.gov_ctrl = GovernmentCtrl(self.ws_client, self.player_ctrl, self.rule_ctrl)
+        self.gov_ctrl = GovernmentCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
 
         self.controller_list = {"game": self.game_ctrl,
                                 "rules": self.rule_ctrl,

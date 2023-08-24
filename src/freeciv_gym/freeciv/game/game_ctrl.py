@@ -14,12 +14,14 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.game.info_states import GameState
-from freeciv_gym.freeciv.utils.base_action import NoActions
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
+
+from freeciv_gym.freeciv.game.info_states import GameState
 
 # see handle_ruleset_extra, where EXTRA_* variables are defines dynamically.
 EXTRA_NONE = -1
@@ -27,7 +29,7 @@ IDENTITY_NUMBER_ZERO = 0
 
 
 class GameCtrl(CivPropController):
-    def __init__(self, ws_client):
+    def __init__(self, ws_client: CivConnection):
         super().__init__(ws_client)
 
         self.calendar_info = {}

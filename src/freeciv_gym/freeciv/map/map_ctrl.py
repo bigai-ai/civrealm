@@ -13,18 +13,19 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 from math import floor, sqrt
 import functools
 import numpy as np
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.utility import FC_WRAP, sign
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.map.map_state import MapState
 import freeciv_gym.freeciv.map.map_const as map_const
-from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-
-from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 

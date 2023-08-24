@@ -13,11 +13,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import time
 import hashlib
 import urllib
 import requests
 from math import ceil, floor
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
@@ -35,7 +39,7 @@ C_S_OVER = 3  # /* Connected with game over. */
 
 
 class ClientState(CivPropController):
-    def __init__(self, username, ws_client, rule_ctrl):
+    def __init__(self, username: str, ws_client: CivConnection, rule_ctrl: RulesetCtrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
         self.civclient_state = C_S_INITIAL

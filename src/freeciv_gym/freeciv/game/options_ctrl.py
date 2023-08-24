@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -19,10 +19,15 @@ You can look up a setting by its name or by its id number. */
 """
 
 
+from typing import Dict
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+
 from freeciv_gym.freeciv.utils.fc_types import TRUE, FALSE
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.game.info_states import ServerState
 from freeciv_gym.freeciv.utils.base_action import NoActions
+
+from freeciv_gym.freeciv.game.info_states import GameState, ServerState
 
 
 class OptionCtrl(CivPropController):
@@ -32,9 +37,9 @@ class OptionCtrl(CivPropController):
         and global worklists.
     """
 
-    def __init__(self, ws_client):
+    def __init__(self, ws_client: CivConnection):
         super().__init__(ws_client)
-        self.server_settings = {}
+        self.server_settings: Dict[int, Dict] = {}
         self.prop_state = ServerState(self.server_settings)
         self.prop_actions = NoActions(ws_client)
 

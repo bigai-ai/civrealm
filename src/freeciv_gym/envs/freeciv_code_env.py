@@ -13,11 +13,14 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import gymnasium
+
 import numpy as np
 
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
+
+from freeciv_gym.configs import fc_args
+
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 RADIUS = 2
 MAP_SIZE = RADIUS * 2 + 1
@@ -26,8 +29,8 @@ MAP_SIZE = RADIUS * 2 + 1
 class FreecivCodeEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
 
-    def __init__(self, **kwargs):
-        super().__init__(kwargs)
+    def __init__(self, client_port: int = fc_args['client_port']):
+        super().__init__(client_port)
 
     def get_mini_map_info(self, utype, moves, ptile):
         mini_map_info = {}
@@ -110,6 +113,3 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 observations[ctrl_type] = turn_manager._turn_state[ctrl_type]
 
         return observations
-
-
-

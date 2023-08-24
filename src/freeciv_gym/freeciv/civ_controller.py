@@ -269,15 +269,22 @@ class CivController(CivPropController):
         # fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         self.lock_control()
+        if self.my_player_is_defeated():
+            return None
+
         return self.turn_manager.get_observation()
 
     def get_reward(self):
-        return self.turn_manager.get_reward()
+        return self.player_ctrl.my_player['score']
 
     def get_info(self):
         # fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
-        info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
+        if self.my_player_is_defeated():
+            info = {'turn': self.turn_manager.turn, 'available_actions': None}
+        else:
+            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
+
         return info
 
     def send_end_turn(self):

@@ -123,10 +123,13 @@ class TurnManager(object):
 
         return self._turn_opts
 
+    """
+    not callable if my player is not alive
     def get_reward(self):
         # FIXME: this function gets called every time the agent takes an action.
         # However, the reward should only be given at the end of the turn.
         return self._turn_state["player"]["my_score"]
+    """
 
     def end_turn(self):
         fc_logger.info(

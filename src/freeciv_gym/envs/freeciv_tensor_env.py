@@ -19,8 +19,8 @@ from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 class FreecivTensorEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(kwargs)
 
     def _get_observation(self):
         self.civ_controller.lock_control()

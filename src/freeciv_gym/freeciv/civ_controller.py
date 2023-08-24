@@ -95,20 +95,16 @@ class CivController(CivPropController):
 
         # Host address
         self.host = host
+        if fc_args['multiplayer_game']:
+            assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
         self.client_port = client_port
+        self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
+
         self.username = username
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
         self.init_controllers(username)
-        self.url = f"http://localhost:8080/data/scorelogs/score-{client_port}.log"
-
-    def set_client_port(self, port):
-        if fc_args['multiplayer_game']:
-            assert port in PORT_LIST, f'Multiplayer game port {port} is invalid.'
-        self.client_port = port
-        self.url = f"http://localhost:8080/data/scorelogs/score-{self.client_port}.log"
-        self.ws_client.set_client_port(port)
 
     def reset(self):
         self.ws_client = CivConnection(self.host, self.client_port)
@@ -420,7 +416,7 @@ class CivController(CivPropController):
         game_scores = None
 
         for ptry in range(MAX_REQUESTS):
-            response = requests.get(self.url, headers={"Cache-Control": "no-cache"})
+            response = requests.get(self.score_log_url, headers={"Cache-Control": "no-cache"})
             if response.status_code == 200:
                 fc_logger.debug(f'Request of game_scores succeed')
                 game_scores = response.text

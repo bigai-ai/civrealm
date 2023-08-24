@@ -142,11 +142,6 @@ class CivConnection(CivWSClient):
         self._cur_retry = 0
         self._retry_connection = retry_connection
 
-    def set_client_port(self, port):
-        self.client_port = port
-        self.proxyport = 1000 + self.client_port
-        self.ws_address = f'ws://{self.host}:8080/civsocket/{self.proxyport}'
-
     def _retry(self):
         self._cur_retry += 1
         sleep(self._retry_interval)

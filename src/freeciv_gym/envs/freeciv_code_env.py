@@ -26,8 +26,8 @@ MAP_SIZE = RADIUS * 2 + 1
 class FreecivCodeEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, **kwargs):
+        super().__init__(kwargs)
 
     def get_mini_map_info(self, utype, moves, ptile):
         mini_map_info = {}

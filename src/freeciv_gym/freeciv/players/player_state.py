@@ -145,7 +145,7 @@ class PlayerState(PlainState):
             self._state[op_id + "invention_%i" % tech_id] = research['inventions'][tech_id] == tech_const.TECH_KNOWN
 
     def get_score_text(self, player):
-        if (player['score'] > 0 or self.clstate.client_is_observer()
+        if (player['score'] >= 0 or self.clstate.client_is_observer()
                 or player['playerno'] == self.my_player_id):
             return player['score']
         else:
@@ -168,13 +168,11 @@ class PlayerState(PlainState):
         """
 
         love_sizes = [-90, -70, -50, -25, -10, 10, 25, 50, 70, 90]
-        love_tags = ["Genocidal", "Belligerent", "Hostile", "Uncooperative",
-                     "Uneasy", "Neutral", "Respectful", "Helpful",
-                     "Enthusiastic", "Admiring"]
+        love_tags = player_const.ATTITUDE_TXT[: -1]
         for lsize, ltag in zip(love_sizes, love_tags):
             if love <= player_const.MAX_AI_LOVE * lsize / 100:
                 return ltag
-        return "Worshipful"
+        return player_const.ATTITUDE_TXT[-1]
 
     def get_embassy_text(self, player_id):
         if self.clstate.client_is_observer():

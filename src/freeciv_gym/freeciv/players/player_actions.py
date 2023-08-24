@@ -23,6 +23,7 @@ import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
 from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
 import freeciv_gym.freeciv.tech.tech_const as tech_const
+from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES
 # from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 # from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
@@ -86,10 +87,7 @@ class PlayerOptions(ActionList):
         self.update_clause_options(dipl_ctrl, cur_player['playerno'], counter_id, counter_id)
 
     def update_clause_options(self, dipl_ctrl, counter_index, pplayer_id, counter_id):
-        base_clauses = [player_const.CLAUSE_MAP, player_const.CLAUSE_SEAMAP, player_const.CLAUSE_VISION,
-                        player_const.CLAUSE_EMBASSY, player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE,
-                        player_const.CLAUSE_ALLIANCE]
-        for ctype in base_clauses:
+        for ctype in BASE_CLAUSES:
             self.add_action(counter_id, AddClause(ctype, 1, pplayer_id, counter_index, dipl_ctrl, counter_id))
             self.add_action(counter_id, RemoveClause(ctype, 1, pplayer_id, counter_index, dipl_ctrl, counter_id))
 

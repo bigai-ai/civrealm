@@ -27,6 +27,9 @@ CLAUSE_ALLIANCE = 7
 CLAUSE_VISION = 8
 CLAUSE_EMBASSY = 9
 
+BASE_CLAUSES = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
+                CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
+
 CLAUSE_TXT = ["Advance", "TradeGold", "ShareMap", "ShareSeaMap", "TradeCity",
               "Ceasefire", "Peace", "Alliance", "Vision", "Embassy"]
 
@@ -40,6 +43,8 @@ DS_TEAM = 6
 DS_LAST = 7
 
 DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "Team", "Last"]
+ATTITUDE_TXT = ["Genocidal", "Belligerent", "Hostile", "Uncooperative", "Uneasy", "Neutral",
+                "Respectful", "Helpful", "Enthusiastic", "Admiring", "Worshipful"]
 
 # Player state related
 MAX_NUM_PLAYERS = 30

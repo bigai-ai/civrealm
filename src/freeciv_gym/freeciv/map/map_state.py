@@ -145,7 +145,7 @@ class MapState(PlainState):
 
         for _, unit in units.items():
             unit_tile = self.tiles[unit['tile']]
-            self._state['unit'][unit_tile['x'], unit_tile['y'], unit['type']] = 1
+            self._state['unit'][unit_tile['x'], unit_tile['y'], unit['type']] += 1
             self._state['unit_owner'][unit_tile['x'], unit_tile['y']] = unit['owner']
 
         return

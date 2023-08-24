@@ -32,8 +32,8 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 def main():
     ray.init(local_mode=True)
-    epoch_num = 2
-    process_num = 1
+    epoch_num = 1
+    process_num = 2
     port = 6300
     pool = Pool()
     for i in range(epoch_num):

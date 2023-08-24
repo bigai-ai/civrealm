@@ -194,7 +194,10 @@ class CivController(CivPropController):
         """
         Lock the control of the game. This is a blocking function, should be called when the player is waiting for the server to respond and should not be able to act.
         """
-        self.ws_client.start_ioloop()
+        try:
+            self.ws_client.start_ioloop()
+        except KeyboardInterrupt:
+            self.close()
 
     def init_game(self):
         """
@@ -358,7 +361,8 @@ class CivController(CivPropController):
                   'message': f"/endgame"}
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
-        self.lock_control()
+        # Listen to the server to get final scores. We use start_ioloop() here since using lock_control() will lead to recursive calling of end_game() during KeyboardInterrupt.
+        self.ws_client.start_ioloop()
 
     def close(self):
         self.end_game()

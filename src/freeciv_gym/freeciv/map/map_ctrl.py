@@ -302,7 +302,7 @@ def dxy_to_center_index(dx, dy, r):
 class CityTileMap():
     """Builds city_tile_map info for a given squared city radius."""
 
-    def __init__(self, radius_sq, map_ctrl: MapCtrl):
+    def __init__(self, radius_sq: int, map_ctrl: MapCtrl):
         self.radius_sq = radius_sq
         self.radius = None
         self.base_sorted = None

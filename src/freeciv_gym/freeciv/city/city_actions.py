@@ -14,7 +14,11 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from math import floor, sqrt
-import urllib
+
+from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
+
 from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 from freeciv_gym.freeciv.utils.fc_types import packet_city_make_specialist,\
     packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
@@ -29,10 +33,10 @@ MAX_SPECIALISTS = 20
 
 
 class CityActions(ActionList):
-    def __init__(self, ws_client, rulectrl, city_list, map_ctrl):
+    def __init__(self, ws_client: CivConnection, city_list: list, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__(ws_client)
-        self.rulectrl = rulectrl
         self.cities = city_list
+        self.rulectrl = rulectrl
         self.map_ctrl = map_ctrl
         self.city_map = CityTileMap(1, map_ctrl)
 
@@ -93,7 +97,7 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap):
         super().__init__()
         self.dx = dx
         self.dy = dy

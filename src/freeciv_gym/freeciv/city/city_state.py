@@ -13,9 +13,13 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
+
 from freeciv_gym.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
-from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+
 from math import floor
 from freeciv_gym.freeciv.utils.base_state import ListState
 
@@ -32,10 +36,11 @@ citizen_types = ["angry", "unhappy", "content", "happy"]
 
 
 class CityState(ListState):
-    def __init__(self, ruleset, city_list):
+    def __init__(self, city_list: list, ruleset: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__()
-        self.rulectrl = ruleset
         self.city_list = city_list
+        self.rule_ctrl = ruleset
+        self.map_ctrl = map_ctrl
 
     def _update_state(self, pplayer):
         for city_id in self.city_list:
@@ -49,7 +54,7 @@ class CityState(ListState):
     def _get_city_state(self, pcity):
         cur_state = {}
 
-        for cp in ["id", "size", "food_stock", "granary_size",
+        for cp in ["id",  "size", "food_stock", "granary_size",
                    "granary_turns", "production_kind", "production_value"]:
             if cp in pcity:
                 cur_state[cp] = pcity[cp] if pcity[cp] != None else -1
@@ -57,6 +62,10 @@ class CityState(ListState):
                 cur_state[cp] = -1
 
         # cur_state["name"] = pcity['name']
+
+        tile = self.map_ctrl.index_to_tile(pcity['tile'])
+        cur_state['x'] = tile['x']
+        cur_state['y'] = tile['y']
 
         cur_state["luxury"] = pcity['prod'][O_LUXURY]
         cur_state["science"] = pcity['prod'][O_SCIENCE]
@@ -84,8 +93,8 @@ class CityState(ListState):
             if pcity[cur_citizen] != None:
                 cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
 
-        for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
-            tech_tag = "impr_int_%s_%i" % (self.rulectrl.improvements[z]["name"], z)
+        for z in range(self.rule_ctrl.ruleset_control["num_impr_types"]):
+            tech_tag = "impr_int_%s_%i" % (self.rule_ctrl.improvements[z]["name"], z)
             cur_state[tech_tag] = False
 
             if 'improvements' in pcity and pcity['improvements'][z] == 1:
@@ -119,11 +128,11 @@ class CityState(ListState):
         if pcity is None or 'improvements' not in pcity:
             return False
 
-        for z in range(self.rulectrl.ruleset_control["num_impr_types"]):
+        for z in range(self.rule_ctrl.ruleset_control["num_impr_types"]):
             if (pcity['improvements'] is not None
                     and pcity['improvements'][z] == 1
-                    and self.rulectrl.improvements[z] is not None
-                    and self.rulectrl.improvements[z]['name'] == improvement_name):
+                    and self.rule_ctrl.improvements[z] is not None
+                    and self.rule_ctrl.improvements[z]['name'] == improvement_name):
                 return True
         return False
 
@@ -152,11 +161,11 @@ class CityState(ListState):
             return FC_INFINITY
 
         if pcity['production_kind'] == VUT_UTYPE:
-            punit_type = self.rulectrl.unit_types[pcity['production_value']]
+            punit_type = self.rule_ctrl.unit_types[pcity['production_value']]
             return self.city_turns_to_build(pcity, punit_type, True)
 
         if pcity['production_kind'] == VUT_IMPROVEMENT:
-            improvement = self.rulectrl.improvements[pcity['production_value']]
+            improvement = self.rule_ctrl.improvements[pcity['production_value']]
             if improvement['name'] == "Coinage":
                 return FC_INFINITY
             return self.city_turns_to_build(pcity, improvement, True)
@@ -206,11 +215,11 @@ class CityState(ListState):
             return FC_INFINITY
 
         if pcity['production_kind'] == VUT_UTYPE:
-            punit_type = self.rulectrl.unit_types[pcity['production_value']]
+            punit_type = self.rule_ctrl.unit_types[pcity['production_value']]
             return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(punit_type)
 
         if pcity['production_kind'] == VUT_IMPROVEMENT:
-            improvement = self.rulectrl.improvements[pcity['production_value']]
+            improvement = self.rule_ctrl.improvements[pcity['production_value']]
             if improvement['name'] == "Coinage":
                 return FC_INFINITY
             return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)

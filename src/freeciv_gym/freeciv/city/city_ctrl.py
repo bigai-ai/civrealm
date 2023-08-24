@@ -57,8 +57,8 @@ class CityCtrl(CivPropController):
         self.map_ctrl = map_ctrl
         self.clstate = clstate
 
-        self.prop_state = CityState(rule_ctrl, self.cities)
-        self.prop_actions = CityActions(ws_client, rule_ctrl, self.cities, map_ctrl)
+        self.prop_state = CityState(self.cities, rule_ctrl, map_ctrl)
+        self.prop_actions = CityActions(ws_client, self.cities, rule_ctrl, map_ctrl)
 
     def register_all_handlers(self):
         # self.register_handler(13, "handle_scenario_description")

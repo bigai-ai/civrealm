@@ -275,7 +275,8 @@ class CivController(CivPropController):
         return self.turn_manager.get_observation()
 
     def get_reward(self):
-        return self.player_ctrl.my_player['score']
+        current_score = self.player_ctrl.my_player['score']
+        return self.turn_manager.get_reward(current_score)
 
     def get_info(self):
         # fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')

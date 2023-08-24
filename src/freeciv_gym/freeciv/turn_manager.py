@@ -25,6 +25,7 @@ class TurnManager(object):
     def __init__(self) -> None:
         # NOTE: The server counts the turn number from 1.
         self._turn = 1
+        self._last_score = 0
         self._sleep_time_after_turn = fc_args['debug.sleep_time_after_turn']
 
         self._turn_active = False
@@ -123,13 +124,11 @@ class TurnManager(object):
 
         return self._turn_opts
 
-    """
-    not callable if my player is not alive
-    def get_reward(self):
-        # FIXME: this function gets called every time the agent takes an action.
-        # However, the reward should only be given at the end of the turn.
-        return self._turn_state["player"]["my_score"]
-    """
+    def get_reward(self, current_score):
+        # FIXME: this function gets called every time the agent takes an action. However, the score only changes between turns.
+        reward = current_score - self._last_score
+        self._last_score = current_score
+        return reward
 
     def end_turn(self):
         fc_logger.info(

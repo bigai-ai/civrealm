@@ -63,7 +63,7 @@ class UnitCtrl(CivPropController):
 
         self.base_action = UnitAction(None)
 
-        self.prop_state = UnitState(self, rule_ctrl, city_ctrl)
+        self.prop_state = UnitState(self, rule_ctrl, map_ctrl, city_ctrl)
         self.prop_actions = UnitActions(ws_client, self, rule_ctrl, player_ctrl, map_ctrl, city_ctrl)
 
         self.space_ctrl = SpaceCtrl(ws_client, player_ctrl)

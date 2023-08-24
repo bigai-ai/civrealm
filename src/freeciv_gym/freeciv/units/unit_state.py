@@ -13,16 +13,22 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
+from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
+from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
+
 from freeciv_gym.freeciv.utils.base_state import ListState
 from freeciv_gym.freeciv.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
 
 class UnitState(ListState):
-    def __init__(self, unit_ctrl, rule_ctrl, city_ctrl):
+    def __init__(self, unit_ctrl, rule_ctrl: RulesetCtrl, map_ctrl: MapCtrl, city_ctrl: CityCtrl):
         super().__init__()
         self.unit_ctrl = unit_ctrl
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
+        self.map_ctrl = map_ctrl
 
     def _update_state(self, pplayer):
         """ 
@@ -42,6 +48,11 @@ class UnitState(ListState):
                           "convert_time", "converted_to", "hp", "move_rate", "vision_radius_sq",
                           "worker"]:
             unit_state["type_"+type_desc] = ptype[type_desc]
+
+        tile = self.map_ctrl.index_to_tile(aunit['tile'])
+        unit_state['x'] = tile['x']
+        unit_state['y'] = tile['y']
+
         unit_state["can_transport"] = ptype['transport_capacity'] > 0
         unit_state["home_city"] = self.city_ctrl.get_unit_homecity_name(aunit)
         if unit_state["home_city"] == None:

@@ -29,6 +29,7 @@ class MapState(PlainState):
         super().__init__()
 
         self.rule_ctrl = rule_ctrl
+        self._extra_num = 0
         self._tiles = []
 
         # Type: dict[str, np.ndarray]
@@ -55,8 +56,12 @@ class MapState(PlainState):
             Uses current map.xsize and map.ysize.
             NOTE: generate_city_map_indices() and generate_map_indices() are not implemented in freeciv-web
         """
+        # The "extras" variable in the ruleset controller stores duplicated extra types, keys are the extra names and extra ids.
+        self._extra_num = len(self.rule_ctrl.extras)//2
+
         self._state['status'] = np.zeros((x_size, y_size), dtype=np.ubyte)
         self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['extras'] = np.zeros((x_size, y_size, self._extra_num), dtype=np.bool_)
         self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['city_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['unit'] = np.zeros((x_size, y_size, len(UNIT_TYPES)), dtype=np.ushort)
@@ -91,10 +96,6 @@ class MapState(PlainState):
     def update_tile(self, tile_packet):
         # Transform 16-bytes extra data to 128-bits data
         tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
-        if self.state['extras'] is None:
-            x_size, y_size = self._state['status'].shape
-            extras_shape = (x_size, y_size, len(tile_packet['extras']))
-            self.state['extras'] = np.zeros(extras_shape, dtype=np.bool_)
 
         tile_index = tile_packet['tile']
         assert self.tiles != None
@@ -109,18 +110,17 @@ class MapState(PlainState):
             self.tiles[tile_index]['y']] = tile_packet['terrain']
         self.state['extras'][
             self.tiles[tile_index]['x'],
-            self.tiles[tile_index]['y'], :] = tile_packet['extras']
+            self.tiles[tile_index]['y'], :] = tile_packet['extras'][:self._extra_num]
         self.state['tile_owner'][
             self.tiles[tile_index]['x'],
             self.tiles[tile_index]['y']] = tile_packet['owner']
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
-        extras_shape = self._state['extras'].shape
         self._observation_space = gymnasium.spaces.Dict({
             'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
             'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
-            'extras': gymnasium.spaces.Box(low=0, high=1, shape=extras_shape, dtype=int),
+            'extras': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, self._extra_num), dtype=int),
             'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
             'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
             'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),

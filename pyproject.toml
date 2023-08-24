@@ -11,6 +11,9 @@ authors = [
     {name = "Yifan Zhong", email = "zhongyifan@bigai.ai"},
     {name = "Zhaowei Zhang", email = "zhangzhaowei@bigai.ai"},
     {name = "Yexin Li", email = "liyexin@bigai.ai"},
+    {name = "Ping Huang", email = "huangping@bigai.ai"},
+    {name = "Bangcheng Yang", email = "yangbangcheng@bigai.ai"},
+    {name = "Xiaoyuan Zhang", email = "zhangxiaoyuan@bigai.ai"},
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}

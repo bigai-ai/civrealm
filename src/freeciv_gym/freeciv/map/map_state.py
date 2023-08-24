@@ -17,7 +17,7 @@ import gymnasium
 import numpy as np
 from BitVector import BitVector
 
-from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
+from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl

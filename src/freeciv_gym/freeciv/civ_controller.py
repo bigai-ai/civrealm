@@ -45,7 +45,6 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
-from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
 
 MAX_REQUESTS = 10
 SLEEP_TIME = 1

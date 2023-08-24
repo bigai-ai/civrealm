@@ -24,7 +24,7 @@ from gymnasium import utils
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
+from freeciv_gym.freeciv.utils.eval_tags import EVALUATION_TAGS
 
 from freeciv_gym.configs import fc_args
 

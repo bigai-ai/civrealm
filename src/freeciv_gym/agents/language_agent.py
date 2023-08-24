@@ -22,7 +22,7 @@ from freeciv_gym.agents.controller_agent import ControllerAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES, DIR8_NAMES
-from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
+from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.agents.civ_autogpt.GPTAgent import GPTAgent
 
 

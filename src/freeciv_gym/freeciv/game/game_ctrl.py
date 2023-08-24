@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.base_action import NoActions
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.freeciv.utils.type_const import EVALUATION_TAGS
+from freeciv_gym.freeciv.utils.eval_tags import EVALUATION_TAGS
 
 from freeciv_gym.freeciv.game.info_states import GameState
 

@@ -17,7 +17,7 @@
 import numpy as np
 
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
-from freeciv_gym.freeciv.utils.type_const import UNIT_TYPES
+from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 from freeciv_gym.configs import fc_args
 

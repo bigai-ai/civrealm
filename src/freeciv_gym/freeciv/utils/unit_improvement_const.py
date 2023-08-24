@@ -1,3 +1,18 @@
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the Free
+# Software Foundation, either version 3 of the License, or (at your option)
+# any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 UNIT_TYPES = ['Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archers', 'Legion',
               'Pikemen', 'Musketeers', 'Partisan', 'Alpine Troops', 'Riflemen', 'Marines',
               'Paratroopers', 'Mech. Inf.', 'Horsemen', 'Chariot', 'Knights', 'Dragoons', 'Cavalry',
@@ -10,6 +25,10 @@ UNIT_TYPES = ['Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archer
 UNIT_COSTS = [40, 30, 40, 10, 20, 30, 40, 20, 30, 50, 50, 40, 60, 60, 50, 20, 30, 40, 50,
               60, 80, 40, 40, 50, 70, 60, 120, 100, 80, 160, 40, 40, 40, 50, 60, 60, 80,
               100, 160, 50, 160, 50, 60, 160, 30, 30, 50, 50, 30, 10, 40, 140]
+
+UNIT_COST_DICT = dict()
+for unit_id, unit_name in enumerate(UNIT_TYPES):
+    UNIT_COST_DICT[unit_name] = UNIT_COSTS[unit_id]
 
 IMPR_TYPES = ['Airport', 'Aqueduct', 'Bank', 'Barracks', 'Barracks II', 'Barracks III', 'Cathedral',
               'City Walls', 'Coastal Defense', 'Colosseum', 'Courthouse', 'Factory', 'Granary', 'Harbor',
@@ -31,10 +50,7 @@ IMPR_COSTS = [120, 60, 80, 30, 30, 30, 80, 60, 60, 70, 60, 140, 40, 40, 180, 60,
               100, 300, 300, 200, 600, 300, 400, 150, 400, 200, 400, 600, 200, 400,
               100, 200, 600, 200, 400, 300, 600, 600, 999]
 
-EVALUATION_TAGS = ['score', 'population', 'economics', 'production', 'cities', 'techs',
-                   'military units', 'wonders', 'tech output', 'land area', 'settled area',
-                   'gold', 'units built', 'units killed', 'units lost', 'units used']
+IMPR_COST_DICT = dict()
+for impr_id, impr_name in enumerate(IMPR_TYPES):
+    IMPR_COST_DICT[impr_name] = IMPR_COSTS[impr_id]
 
-RESULT_TAGS = ['Population', 'Trade', 'Production', 'Cities', 'Technologies', 'Military Service',
-               'Wonders', 'Research Speed', 'Land Area', 'Settled Area', 'Literacy', 'Culture',
-               'Spaceship', 'Built Units', 'Killed Units', 'Unit Losses', 'Units Used']

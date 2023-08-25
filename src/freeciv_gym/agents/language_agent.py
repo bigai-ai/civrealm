@@ -24,8 +24,7 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES, DIR8_NAMES
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.agents.civ_autogpt.GPTAgent import GPTAgent
-
-
+from freeciv_gym.freeciv.players.player_const import DS_TXT
 
 
 RADIUS = 2
@@ -212,12 +211,17 @@ class LanguageAgent(ControllerAgent):
             if extra is not None:
                 tile_info[ptile].append(extra)
 
-            units, units_owner = self.get_units_on_tile(observation_num, pdir)
+            units, units_owner, ds_of_units = self.get_units_on_tile(observation_num, pdir)
             if len(units) > 0:
                 tile_info[ptile].extend(units)
 
-            if units_owner is not None:
-                tile_info[ptile].append('Units belong to player_' + str(int(units_owner)))
+            if units_owner is not None and ds_of_units is not None:
+                ds_of_units = int(ds_of_units)
+                units_owner = int(units_owner)
+                if ds_of_units > 0:
+                    tile_info[ptile].append('Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(units_owner))
+                elif ds_of_units == -1:
+                    tile_info[ptile].append('Units belong to myself player_' + str(units_owner))
 
             tile_id += 1
         return tile_info
@@ -245,6 +249,7 @@ class LanguageAgent(ControllerAgent):
     def get_units_on_tile(self, observation_num, pdir):
         units_str = []
         units_owner = None
+        ds_of_units = None
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
@@ -257,7 +262,8 @@ class LanguageAgent(ControllerAgent):
                 units_str.append(str(int(punit_number)) + ' ' + punit_name)
 
             units_owner = observation_num['units_owner'][dx, dy]
-        return units_str, units_owner
+            ds_of_units = observation_num['ds_of_units'][dx, dy]
+        return units_str, units_owner, ds_of_units
 
     def get_actor_action(self, info, ctrl_type, actor_id, action_name):
         valid_action_dict = self.get_valid_actions(info, ctrl_type, actor_id)
@@ -271,16 +277,16 @@ class LanguageAgent(ControllerAgent):
 
 
 '''
-tile_info = {'current_tile': ['Forest', '1 Explorer', 'Units belong to player_0'],
-             'tile_north_1': ['Tundra', 'Road', '1 Warriors', 'Units belong to player_0'],
+tile_info = {'current_tile': ['Forest', '1 Explorer', 'Units belong to myself player_0'],
+             'tile_north_1': ['Tundra', 'Road', '1 Warriors', 'Units belong to myself player_0'],
              'tile_south_1': ['Plains', 'Buffalo'],
              'tile_east_1': ['Mountains'],
              'tile_west_1': ['Hills'],
-             'tile_north_1_east_1': ['Swamp', '1 Warriors', 'Units belong to player_0'],
+             'tile_north_1_east_1': ['Swamp', '1 Warriors', 'Units belong to myself player_0'],
              'tile_north_1_west_1': ['Forest'],
-             'tile_south_1_east_1': ['Forest', '1 Workers', 'Units belong to player_0'],
+             'tile_south_1_east_1': ['Forest', '1 Workers', 'Units belong to myself player_0'],
              'tile_south_1_west_1': ['Plains'],
-             'tile_north_2': ['Mountains', '1 Workers', 'Units belong to player_0'],
+             'tile_north_2': ['Mountains', '1 Workers', 'Units belong to myself player_0'],
              'tile_north_2_east_1': ['Swamp'],
              'tile_north_2_west_1': ['Swamp'],
              'tile_north_2_east_2': ['Hills'],

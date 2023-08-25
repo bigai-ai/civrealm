@@ -47,8 +47,10 @@ class FreecivCodeEnv(FreecivBaseEnv):
             elif ptype == 'extras':
                 mini_map_info[ptype] = extra_info
             else:
-                mini_map_info[ptype], units_owner = self.get_units_on_mini_map(ptile)
+                mini_map_info[ptype], units_owner, ds_of_units = self.get_units_on_mini_map(ptile)
                 mini_map_info['units_owner'] = units_owner
+                mini_map_info['ds_of_units'] = ds_of_units
+
         return mini_map_info
 
     def get_meta_info_of_mini_map(self, ptile):
@@ -75,13 +77,13 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return terrain_info, extra_info
 
     def get_units_on_mini_map(self, ptile):
-        units_owner = None
 
         x = ptile['x']
         y = ptile['y']
         number_of_unit_types = len(UNIT_TYPES)
         units_on_mini_map = np.zeros((MAP_SIZE, MAP_SIZE, number_of_unit_types))
-        units_owner = - np.ones((MAP_SIZE, MAP_SIZE))
+        units_owner = -np.ones((MAP_SIZE, MAP_SIZE))
+        ds_of_units = -np.ones((MAP_SIZE, MAP_SIZE))
 
         for dx in range(-RADIUS, RADIUS+1):
             for dy in range(-RADIUS, RADIUS+1):
@@ -92,12 +94,17 @@ class FreecivCodeEnv(FreecivBaseEnv):
                     if len(units_on_ntile) == 0:
                         continue
 
-                    units_owner[RADIUS + dx, RADIUS + dy] = units_on_ntile[0]['owner']
+                    owner_id = units_on_ntile[0]['owner']
+                    units_owner[RADIUS + dx, RADIUS + dy] = owner_id
+                    if owner_id != self.civ_controller.clstate.player_num():
+                        dipl_state = self.civ_controller.dipl_ctrl.diplstates[owner_id]
+                        ds_of_units[RADIUS + dx, RADIUS + dy] = dipl_state
+
                     for punit in units_on_ntile:
                         punit_type = punit['type']
                         units_on_mini_map[RADIUS + dx, RADIUS + dy, punit_type] += 1
 
-        return units_on_mini_map, units_owner
+        return units_on_mini_map, units_owner, ds_of_units
 
     def _get_observation(self):
         self.civ_controller.lock_control()

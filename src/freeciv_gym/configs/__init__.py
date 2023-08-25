@@ -57,7 +57,7 @@ def parse_args():
                 parser.add_argument('--' + key, default=opt[key], type=boolean_string)
             else:
                 parser.add_argument('--' + key, default=opt[key], type=type(opt[key]))
-    args = parser.parse_args(remaining_argv)
+    args, remaining_argv = parser.parse_known_args(remaining_argv)
 
     return vars(args)
 

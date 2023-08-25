@@ -18,6 +18,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -45,7 +46,7 @@ def test_build_road(controller):
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
@@ -67,7 +68,7 @@ def test_build_road(controller):
     controller.send_end_turn()
     controller.get_observation()
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     # The unit has move in new turn, the build should be valid
     assert (not build_tile['extras'][EXTRA_ROAD] == 1)
     assert (build_action.is_action_valid())
@@ -79,7 +80,7 @@ def test_build_road(controller):
         controller.get_observation()
     # Get updated state
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (build_tile['extras'][EXTRA_ROAD] == 1)
     import time
     time.sleep(2)

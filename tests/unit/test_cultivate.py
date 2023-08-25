@@ -17,6 +17,7 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -44,7 +45,7 @@ def test_cultivate(controller):
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         # print(terrain)
         assert (terrain['cultivate_time'] == 0)
         # Get valid actions
@@ -69,7 +70,7 @@ def test_cultivate(controller):
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         terrain = unit_opt.rule_ctrl.tile_terrain(unit_tile)
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         if unit_id == 139:
             # Forest's cultivate is larger than 0.
             assert (terrain['cultivate_time'] > 0)

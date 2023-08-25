@@ -18,6 +18,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_RAILROAD
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -44,7 +45,7 @@ def test_build_railroad(controller):
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
 
@@ -53,7 +54,7 @@ def test_build_railroad(controller):
             assert (not build_tile['extras'][EXTRA_RAILROAD] == 1)
             # worker on a tile with road, should be able to build railroad
             print(
-                f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+                f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
             assert ('railroad' in valid_actions)
             print(f'unit_id: {unit_id} build railroad.')
             valid_actions['railroad'].trigger_action(controller.ws_client)
@@ -91,7 +92,7 @@ def test_build_railroad(controller):
         build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         if unit_id == 109:
             print(
-                f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+                f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
             assert (build_tile['extras'][EXTRA_RAILROAD] == 1)
 
     import time

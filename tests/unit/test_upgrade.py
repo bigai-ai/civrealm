@@ -16,6 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -44,7 +45,7 @@ def test_upgrade(controller):
     assert (punit['type'] == 6 and 'upgrade' in valid_actions.keys())
     unit_action = valid_actions['upgrade']
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
     print(f"Upgrade unit {unit_id} from Legion to Musketeers")

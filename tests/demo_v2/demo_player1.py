@@ -21,6 +21,7 @@ import time
 
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
@@ -31,7 +32,7 @@ PORT = 6001
 FILE = 'myagent_T50_2023-08-09-08_30_03'
 SCRIPT_LIST = [
     # 旁白：路途中间有非常多的敌方建筑物。三个机器人士兵分别对当前的情况生成自己的方案。
-    "TARGET_CITY_DISCOVERY", 
+    "TARGET_CITY_DISCOVERY",
     # 旁白：突然出现了敌方的隐形飞机（突如其来的敌军伏兵）。这时士兵灵活的进行战略的调整。【体现灵活性与可靠性】
     "TARGET_PLANE_DISCOVERY",
     # 旁白：消灭敌军之后，发现前方有平原和森林两种地形，3个士兵提出各自方案。
@@ -47,14 +48,14 @@ UNITS_TRACK = {
         "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_NORTHWEST}']*5+[f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_WEST}']*3,
         # 机器人3：我希望通过平原前往目标，因为敌人已消灭，可以安全前进。
         "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHEAST}']+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
-    }, 
+    },
     # leftmost x, y = 24, 25
     108: {
         # 机器人2：我希望往更远的未知区域探索，因为提供更多已知信息可能会对后续任务有益
         "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_EAST}']+[f'goto_{map_const.DIR8_NORTH}'],
         # 机器人2：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 2】，因为战略不但需要根据情况灵活变化，而且2号机器人的方案符合指挥官意图。)
-        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_SOUTHWEST}']+[f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHWEST}']+\
-                    [f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_EAST}']*5+[f'goto_{map_const.DIR8_NORTHEAST}'],
+        "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_SOUTHWEST}']+[f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHWEST}'] +\
+        [f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_EAST}']*5+[f'goto_{map_const.DIR8_NORTHEAST}'],
         # 机器人2：我希望通过平原前往目标，尽快抵达目的地；
         "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTHEAST}']*2+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
     },
@@ -68,6 +69,7 @@ UNITS_TRACK = {
         "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTHEAST}']*2+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
     }
 }
+
 
 def configure_test_logger():
     # Close and remove all old handlers and add a new one with the test name
@@ -88,6 +90,7 @@ def configure_test_logger():
             handler.close()
         fc_logger.removeHandler(handler)
     fc_logger.addHandler(file_handler_with_id)
+
 
 def test_move_to(controller):
     configure_test_logger()
@@ -129,7 +132,8 @@ def test_move_to(controller):
                     print("Exception : \n", ex)
                     continue
 
-                print(f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, step: {step}.")
+                print(
+                    f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, step: {step}.")
 
                 action = UNITS_TRACK[unit_id][script][step]
 
@@ -138,7 +142,7 @@ def test_move_to(controller):
                 # Append action
                 test_action_list.append(valid_actions[action])
                 unit_step_pointer[unit_id] += 1
-            
+
             # Break Loop if not valid actions
             if len(test_action_list) == 0:
                 break
@@ -151,14 +155,15 @@ def test_move_to(controller):
             options = controller.get_info()['available_actions']
             controller.get_observation()
             unit_opt = options['unit']
-        
+
             time.sleep(0.5)
         time.sleep(3)
+
 
 def main():
     fc_args['username'] = 'myagent'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', FILE)#
+    controller.set_parameter('debug.load_game', FILE)
     controller.set_parameter('minp', '2')
     test_move_to(controller)
     # Delete gamesave saved in handle_begin_turn

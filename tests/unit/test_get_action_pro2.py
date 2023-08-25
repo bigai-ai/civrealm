@@ -17,11 +17,11 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
-import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.utility import byte_to_bit_array, find_set_bits
 from BitVector import BitVector
 
@@ -62,7 +62,7 @@ def test_get_action_pro2(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
         # print(
-        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+        #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
         if unit_id == 140:
             # The agent cannot move to sea.
             assert (unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})

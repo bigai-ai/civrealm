@@ -17,6 +17,7 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -44,7 +45,7 @@ def test_embark_disembark(controller):
         ptile = unit_focus.ptile
         if ptile['x'] == 47 and ptile['y'] == 28:
             print(
-                f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(unit_focus.punit)}.")
+                f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
 
     # Plane is in (47, 28)
     plane_id = 1841
@@ -69,7 +70,7 @@ def test_embark_disembark(controller):
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # if unit_id == 886:
@@ -105,7 +106,7 @@ def test_embark_disembark(controller):
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
@@ -127,7 +128,7 @@ def test_embark_disembark(controller):
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         # if unit_id == 886:
@@ -177,7 +178,7 @@ def test_embark_disembark(controller):
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (unit_tile['x'] == 47 and unit_tile['y'] == 26)
     # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)

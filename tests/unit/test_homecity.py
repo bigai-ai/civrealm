@@ -15,6 +15,7 @@
 
 
 import pytest
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -66,7 +67,7 @@ def test_homecity(controller):
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     unit_action = valid_actions['homecity']
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
     print(f"Change the homecity of unit {unit_id} to the current garissoned city")
@@ -77,7 +78,7 @@ def test_homecity(controller):
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
 
     unit_id = 248
     unit_focus = unit_opt.unit_data[unit_id]
@@ -89,7 +90,7 @@ def test_homecity(controller):
     assert (len(valid_actions) > 0)
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}, home city: {punit['homecity']}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
 
     import time
     time.sleep(2)

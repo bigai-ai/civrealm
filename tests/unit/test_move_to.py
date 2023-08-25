@@ -17,6 +17,7 @@
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -44,7 +45,7 @@ def test_move_to(controller):
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -80,15 +81,15 @@ def test_move_to(controller):
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         old_position = origin_position[unit_id]
         new_position = (unit_tile['x'], unit_tile['y'])
-        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140 or unit_id == 189:
             assert (valid_actions != {})
-            assert (unit_opt.unit_ctrl.get_unit_moves_left(punit) != '0')
+            assert (unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit) != '0')
         else:
             assert (valid_actions == {})
-            assert (unit_opt.unit_ctrl.get_unit_moves_left(punit) == '0')
+            assert (unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit) == '0')
 
         if unit_id == 140:
             # EAST

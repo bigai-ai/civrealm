@@ -18,6 +18,7 @@ import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_AIRBASE, EXTRA_FORTRESS
 import freeciv_gym.freeciv.map.map_const as map_const
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
@@ -47,7 +48,7 @@ def test_airbase(controller):
     # print(unit_opt.unit_ctrl.units[475])
     # print(unit_opt.unit_ctrl.units[467])
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('airbase' in valid_actions)

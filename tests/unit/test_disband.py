@@ -15,6 +15,7 @@
 
 
 import pytest
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -43,7 +44,7 @@ def test_disband(controller):
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     unit_action = valid_actions['disband']
     print(
-        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
     print(f"Disband unit {unit_id}")

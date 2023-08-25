@@ -15,6 +15,7 @@
 
 
 import pytest
+import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.fc_types import EXTRA_FORTRESS
 import freeciv_gym.freeciv.map.map_const as map_const
@@ -46,7 +47,7 @@ def test_fortress(controller):
     punit = unit_opt.unit_ctrl.units[worker_id]
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (not (build_tile['extras'][EXTRA_FORTRESS] == 1))
     # The unit has move in this turn, the fortress should be valid
     assert (build_action.is_action_valid())
@@ -66,7 +67,7 @@ def test_fortress(controller):
         controller.get_observation()
     # Get updated state
     print(
-        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_opt.unit_ctrl.get_unit_moves_left(punit)}.")
+        f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (build_tile['extras'][EXTRA_FORTRESS] == 1)
 
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)

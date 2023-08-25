@@ -23,7 +23,7 @@ def get_first_observation_option(controller, client_port=None):
     except Exception as e:
         fc_logger.error(f'get_first_observation_option error: {repr(e)}')
         # Sleep for a random time and try again
-        time.sleep(random.uniform(3, 10))
+        time.sleep(random.uniform(3, 5))
         obs, opt = get_first_observation_option(controller, client_port)
 
     return obs, opt

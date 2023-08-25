@@ -35,20 +35,20 @@ FEELING_NATIONALITY = 3  # /* after citizen nationality effects */
 FEELING_MARTIAL = 4  # /* after units enforce martial order */
 FEELING_FINAL = 5  # /* after wonders (final result) */
 
-citizen_types = ["angry", "unhappy", "content", "happy"]
+citizen_types = ['angry', 'unhappy', 'content', 'happy']
 
 
 class CityState(ListState):
-    def __init__(self, city_list: list, ruleset: RulesetCtrl, map_ctrl: MapCtrl):
+    def __init__(self, city_dict: Dict[int, Dict], ruleset: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__()
-        self.city_list = city_list
+        self.city_dict = city_dict
         self.rule_ctrl = ruleset
         self.map_ctrl = map_ctrl
 
     def _update_state(self, pplayer):
-        for city_id in self.city_list:
-            pcity = self.city_list[city_id]
-            self._state[city_id] = self._get_city_state(pcity, pcity["owner"] == pplayer["playerno"])
+        for city_id in self.city_dict:
+            pcity = self.city_dict[city_id]
+            self._state[city_id] = self._get_city_state(pcity, pcity['owner'] == pplayer['playerno'])
 
     def _get_city_state(self, pcity, city_owned):
         city_state = {}
@@ -71,33 +71,33 @@ class CityState(ListState):
                 'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
                     'ppl_happy']:
                 city_state[property] = -1
-            city_state['improvements'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control["num_impr_types"])
+            city_state['improvements'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control['num_impr_types'])
 
         return city_state
 
     def _get_own_city_state(self, pcity):
         city_state = {}
-        for cp in ["food_stock", "granary_size", "granary_turns", "production_kind", "production_value"]:
+        for cp in ['food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value']:
             city_state[cp] = pcity[cp]
 
-        city_state["luxury"] = pcity['prod'][O_LUXURY]
-        city_state["science"] = pcity['prod'][O_SCIENCE]
+        city_state['luxury'] = pcity['prod'][O_LUXURY]
+        city_state['science'] = pcity['prod'][O_SCIENCE]
 
-        for str_item, o_item in [("food", O_FOOD), ("gold", O_GOLD), ("shield", O_SHIELD), ("trade", O_TRADE)]:
-            city_state["prod_"+str_item] = pcity['prod'][o_item]
-            city_state["surplus_"+str_item] = pcity['surplus'][o_item]
+        for str_item, o_item in [('food', O_FOOD), ('gold', O_GOLD), ('shield', O_SHIELD), ('trade', O_TRADE)]:
+            city_state['prod_'+str_item] = pcity['prod'][o_item]
+            city_state['surplus_'+str_item] = pcity['surplus'][o_item]
 
-        city_state["bulbs"] = pcity["prod"][O_SHIELD]
-        city_state["city_waste"] = pcity['waste'][O_SHIELD]
-        city_state["city_corruption"] = pcity['waste'][O_TRADE]
-        city_state["city_pollution"] = pcity['pollution']
-        city_state["state"] = CityState.get_city_state(pcity)
-        if "granary_turns" in pcity:
-            city_state["growth_in"] = CityState.city_turns_to_growth_text(pcity)
+        city_state['bulbs'] = pcity['prod'][O_SHIELD]
+        city_state['city_waste'] = pcity['waste'][O_SHIELD]
+        city_state['city_corruption'] = pcity['waste'][O_TRADE]
+        city_state['city_pollution'] = pcity['pollution']
+        city_state['state'] = CityState.get_city_state(pcity)
+        if 'granary_turns' in pcity:
+            city_state['growth_in'] = CityState.city_turns_to_growth_text(pcity)
         else:
-            city_state["growth_in"] = -1
-        city_state["turns_to_prod_complete"] = self.get_city_production_time(pcity)
-        city_state["prod_process"] = self.get_production_progress(pcity)
+            city_state['growth_in'] = -1
+        city_state['turns_to_prod_complete'] = self.get_city_production_time(pcity)
+        city_state['prod_process'] = self.get_production_progress(pcity)
 
         for citizen in citizen_types:
             cur_citizen = 'ppl_' + citizen
@@ -105,16 +105,16 @@ class CityState(ListState):
             if pcity[cur_citizen] != None:
                 city_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
 
-        city_state["improvements"] = pcity['improvements']
+        city_state['improvements'] = pcity['improvements']
         return city_state
 
     @staticmethod
     def get_named_city_improvements(self, pcity):
         city_state: Dict[str, bool] = {}
-        for z in range(self.rule_ctrl.ruleset_control["num_impr_types"]):
-            tech_tag = "impr_int_%s_%i" % (self.rule_ctrl.improvements[z]["name"], z)
+        for improvement_i in range(self.rule_ctrl.ruleset_control['num_impr_types']):
+            tech_tag = 'impr_int_%s_%i' % (self.rule_ctrl.improvements[improvement_i]['name'], improvement_i)
             city_state[tech_tag] = False
-            if 'improvements' in pcity and pcity['improvements'][z] == 1:
+            if 'improvements' in pcity and pcity['improvements'][improvement_i] == 1:
                 city_state[tech_tag] = True
         return city_state
 
@@ -126,9 +126,9 @@ class CityState(ListState):
             zip(pcity['output_food'],
                 pcity['output_shield'],
                 pcity['output_trade'])):
-            city_state["pos_output_food_%i" % tile_num] = output_food
-            city_state["pos_output_shield_%i" % tile_num] = output_shield
-            city_state["pos_output_trade_%i" % tile_num] = output_trade
+            city_state['pos_output_food_%i' % tile_num] = output_food
+            city_state['pos_output_shield_%i' % tile_num] = output_shield
+            city_state['pos_output_trade_%i' % tile_num] = output_trade
         return city_state
 
     @staticmethod
@@ -149,7 +149,7 @@ class CityState(ListState):
         if pcity is None or 'improvements' not in pcity:
             return False
 
-        for z in range(self.rule_ctrl.ruleset_control["num_impr_types"]):
+        for z in range(self.rule_ctrl.ruleset_control['num_impr_types']):
             if (pcity['improvements'] is not None
                     and pcity['improvements'][z] == 1
                     and self.rule_ctrl.improvements[z] is not None
@@ -187,7 +187,7 @@ class CityState(ListState):
 
         if pcity['production_kind'] == VUT_IMPROVEMENT:
             improvement = self.rule_ctrl.improvements[pcity['production_value']]
-            if improvement['name'] == "Coinage":
+            if improvement['name'] == 'Coinage':
                 return FC_INFINITY
             return self.city_turns_to_build(pcity, improvement, True)
 
@@ -199,13 +199,13 @@ class CityState(ListState):
         turns = pcity['granary_turns']
 
         if turns == 0:
-            return "blocked"
+            return 'blocked'
         elif turns > 1000000:
-            return "never"
+            return 'never'
         elif turns < 0:
-            return "Starving in " + str(turns) + " turns"
+            return 'Starving in ' + str(turns) + ' turns'
         else:
-            return str(turns) + " turns"
+            return str(turns) + ' turns'
 
     @staticmethod
     def city_population(pcity):
@@ -219,11 +219,11 @@ class CityState(ListState):
         if pcity is None:
             return -1
         if pcity['was_happy'] and pcity['size'] >= 3:
-            return 3  # "Celebrating"
-        elif "unhappy" in pcity and pcity['unhappy']:
-            return 1  # "Disorder"
+            return 3  # 'Celebrating'
+        elif 'unhappy' in pcity and pcity['unhappy']:
+            return 1  # 'Disorder'
         else:
-            return 2  # "Peace"
+            return 2  # 'Peace'
 
     @staticmethod
     def is_wonder(improvement):
@@ -241,7 +241,7 @@ class CityState(ListState):
 
         if pcity['production_kind'] == VUT_IMPROVEMENT:
             improvement = self.rule_ctrl.improvements[pcity['production_value']]
-            if improvement['name'] == "Coinage":
+            if improvement['name'] == 'Coinage':
                 return FC_INFINITY
             return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)
 

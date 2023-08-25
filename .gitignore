@@ -16,3 +16,4 @@ __pycache__/
 .VSCodeCounter/
 *.log
 plot_game_scores/
+tmp.prof

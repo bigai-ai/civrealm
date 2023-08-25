@@ -171,25 +171,6 @@ class UnitCtrl(CivPropController):
             # We set the state for all units (including the enemy units). This state is useless for enemy units.
             self.units[unit_id]['keep_activity'] = False
 
-    def get_unit_moves_left(self, punit):
-        """Returns a string saying how many moves a unit has left."""
-        if punit is None:
-            return 0
-
-        return self.move_points_text(punit['movesleft'])
-
-    def move_points_text(self, moves):
-        result = ""
-        SINGLE_MOVE = self.rule_ctrl.SINGLE_MOVE
-        if (moves % SINGLE_MOVE) != 0:
-            if moves // SINGLE_MOVE > 0:
-                result = f'{moves // SINGLE_MOVE} {moves % SINGLE_MOVE}/{SINGLE_MOVE}'
-            else:
-                result = f'{moves % SINGLE_MOVE}/{SINGLE_MOVE}'
-        else:
-            result = f'{moves // SINGLE_MOVE}'
-        return result
-
     def unit_has_goto(self, punit):
         """ don't show goto activity for enemy units. I'm not 100% sure this is correct."""
         pplayer = self.player_ctrl.cur_player

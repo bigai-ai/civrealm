@@ -34,7 +34,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
     def get_mini_map_info(self, utype, moves, ptile):
         mini_map_info = {}
-        info_keys = ['utype', 'moves', 'terrain', 'extras', 'units']
+        info_keys = ['utype', 'moves', 'terrain', 'extras', 'units', 'cities']
         terrain_info, extra_info = self.get_meta_info_of_mini_map(ptile)
 
         for ptype in info_keys:
@@ -46,10 +46,12 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 mini_map_info[ptype] = terrain_info
             elif ptype == 'extras':
                 mini_map_info[ptype] = extra_info
-            else:
+            elif ptype == 'units':
                 mini_map_info[ptype], units_owner, ds_of_units = self.get_units_on_mini_map(ptile)
                 mini_map_info['units_owner'] = units_owner
                 mini_map_info['ds_of_units'] = ds_of_units
+            else:
+                mini_map_info[ptype] = self.get_cities_on_mini_map(ptile)
 
         return mini_map_info
 
@@ -105,6 +107,20 @@ class FreecivCodeEnv(FreecivBaseEnv):
                         units_on_mini_map[RADIUS + dx, RADIUS + dy, punit_type] += 1
 
         return units_on_mini_map, units_owner, ds_of_units
+
+    def get_cities_on_mini_map(self, ptile):
+
+        x = ptile['x']
+        y = ptile['y']
+        cities_on_mini_map = -np.ones((MAP_SIZE, MAP_SIZE))
+        for dx in range(-RADIUS, RADIUS+1):
+            for dy in range(-RADIUS, RADIUS+1):
+                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+                    pcity = self.civ_controller.city_ctrl.tile_city(ntile)
+                    if pcity is not None:
+                        cities_on_mini_map[RADIUS + dx, RADIUS + dy] = pcity['owner']
+        return cities_on_mini_map
 
     def _get_observation(self):
         self.civ_controller.lock_control()

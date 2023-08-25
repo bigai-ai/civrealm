@@ -82,8 +82,7 @@ class CivController(CivPropController):
 
         self.ai_skill_level = 3
         self.nation_select_id = -1
-        self.turn_manager = TurnManager()
-
+        
         if fc_args['multiplayer_game']:
             assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
 
@@ -99,6 +98,8 @@ class CivController(CivPropController):
         self.client_port = client_port
         self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
 
+        self.turn_manager = TurnManager(self.client_port)
+
         self.username = username
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
@@ -112,7 +113,7 @@ class CivController(CivPropController):
         self.hdict = {}
         # Register key in hdict
         self.register_all_handlers()
-        self.turn_manager = TurnManager()
+        self.turn_manager = TurnManager(self.client_port)
         self.delete_save = True
         self.game_saving_time_range = []
         self.init_controllers(self.username)
@@ -193,6 +194,11 @@ class CivController(CivPropController):
             self.ws_client.start_ioloop()
         except KeyboardInterrupt:
             self.close()
+        # except RuntimeError as e:
+        #     if str(e) == 'This event loop is already running':
+        #         pass
+        #     else:
+        #         raise e
 
     def init_game(self):
         """
@@ -266,7 +272,7 @@ class CivController(CivPropController):
             action.trigger_action(self.ws_client)
 
     def get_observation(self):
-        # fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
+        fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         self.lock_control()
         if self.my_player_is_defeated():
@@ -279,7 +285,7 @@ class CivController(CivPropController):
         return self.turn_manager.get_reward(current_score)
 
     def get_info(self):
-        # fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
+        fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         if self.my_player_is_defeated():
             info = {'turn': self.turn_manager.turn, 'available_actions': None}
@@ -293,7 +299,7 @@ class CivController(CivPropController):
         if self.rule_ctrl.game_info == {}:
             return
         self.clstate.begin_logged = False
-        fc_logger.info('Ending turn {}'.format(self.rule_ctrl.game_info['turn']))
+        fc_logger.info(f"Ending turn {self.rule_ctrl.game_info['turn']}. Port: {self.client_port}")
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         self.turn_manager.end_turn()
@@ -350,12 +356,10 @@ class CivController(CivPropController):
                     else:
                         pid_info = (packet['pid'], None)
                 self.ws_client.stop_waiting(pid_info)
-                # self.ws_client.stop_waiting(packet['pid'])
                 self.handle_pack(packet['pid'], packet)
-                # if 31 in self.ws_client.wait_for_packs:
-                #     pass
 
-            self.maybe_grant_control_to_player()
+            if not self.clstate.client_frozen:
+                self.maybe_grant_control_to_player()
         except Exception:
             raise
 
@@ -626,7 +630,7 @@ class CivController(CivPropController):
                 return
 
         packet['message'] = message
-        fc_logger.info("chat_msg: ", packet)
+        fc_logger.info(f'chat_msg: {packet}')
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""

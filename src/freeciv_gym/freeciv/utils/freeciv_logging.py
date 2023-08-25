@@ -21,3 +21,18 @@ from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 # # You can set the level to logging.DEBUG or logging.WARN if you want to change the amount of output.
 logging.config.dictConfig(LOGGING_CONFIG)
 fc_logger = logging.getLogger('freecivGym')
+
+
+# class DummyLogger():
+#     def __init__(self) -> None:
+#         self.handlers = ['']
+#     def info(self, msg):
+#         pass
+#     def debug(self, msg):
+#         pass
+#     def warning(self, msg):
+#         pass
+#     def error(self, msg):
+#         pass
+
+# fc_logger = DummyLogger()

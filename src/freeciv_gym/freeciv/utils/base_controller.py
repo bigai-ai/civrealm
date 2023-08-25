@@ -49,6 +49,7 @@ class CivPropController(ABC):
                            175, 232, 151, 150, 149, 240, 512, 145, 230, 227, 252, 228, 177}
 
         info_packets = {15, 51}
+        # info_packets = {15, 51, 90}
         self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
 
     @abstractmethod

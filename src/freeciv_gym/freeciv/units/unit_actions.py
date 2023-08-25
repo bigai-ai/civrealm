@@ -781,6 +781,12 @@ class ActIrrigation(EngineerAction):
         if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
             return False
         
+        # if self.focus.action_prob == {}:
+        #     fc_logger.info(self.focus.punit)
+        #     print(self.focus.punit)
+        #     print(self.focus.ptype)
+        #     print(f"({self.focus.ptile['x']}, {self.focus.ptile['y']})")
+
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_IRRIGATE])
 
     def _eng_packet(self):

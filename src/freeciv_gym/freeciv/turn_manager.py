@@ -22,7 +22,7 @@ from freeciv_gym.configs import fc_args
 
 
 class TurnManager(object):
-    def __init__(self) -> None:
+    def __init__(self, port) -> None:
         # NOTE: The server counts the turn number from 1.
         self._turn = 1
         self._last_score = 0
@@ -34,6 +34,7 @@ class TurnManager(object):
         self._turn_state = None
         self._turn_opts = None
         self._turn_history = []
+        self.client_port = port
 
     @property
     def turn(self):
@@ -50,7 +51,7 @@ class TurnManager(object):
     def log_begin_turn(self):
         fc_logger.info('==============================================')
         fc_logger.info(
-            f'============== Begin turn: {self._turn:04d} ==============')
+            f'============== Begin turn: {self._turn:04d}. Port: {self.client_port} ==============')
         fc_logger.info('==============================================')
         # print(f'\nBegin turn: {self._turn:04d}\n')
 

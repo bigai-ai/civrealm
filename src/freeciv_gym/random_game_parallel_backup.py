@@ -32,7 +32,7 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 def main():
     # ray.init(local_mode=True)
-    ray.init(local_mode=False, num_cpus=5)
+    ray.init()
 #     epoch_num = 1
 #     process_num = 1
 #     port = 6300
@@ -248,7 +248,7 @@ def run(port):
     while not done:
         try:
             action = agent.act(observations, info)
-            if port != 6301 and port != 6302:
+            if port == 6301:
                 action = 'pass'
             # action = ray.get(agent.x1().act.remote(observations, info))
             # print(action)

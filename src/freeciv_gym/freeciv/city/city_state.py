@@ -14,6 +14,9 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from typing import Dict
+from BitVector import BitVector
+
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 
@@ -45,70 +48,88 @@ class CityState(ListState):
     def _update_state(self, pplayer):
         for city_id in self.city_list:
             pcity = self.city_list[city_id]
-            if pcity["owner"] == pplayer["playerno"]:
-                self._state[city_id] = self._get_city_state(pcity)
-                # player_cities[city_id].update(self.get_city_traderoutes(pcity))
+            self._state[city_id] = self._get_city_state(pcity, pcity["owner"] == pplayer["playerno"])
 
-        # player_cities["civ_pop"] = self.civ_population(self.clstate.player_num())
+    def _get_city_state(self, pcity, city_owned):
+        city_state = {}
 
-    def _get_city_state(self, pcity):
-        cur_state = {}
-
-        for cp in ["id",  "size", "food_stock", "granary_size",
-                   "granary_turns", "production_kind", "production_value"]:
-            if cp in pcity:
-                cur_state[cp] = pcity[cp] if pcity[cp] != None else -1
-            else:
-                cur_state[cp] = -1
-
-        # cur_state["name"] = pcity['name']
+        city_state['id'] = pcity['id']
+        city_state['owner'] = pcity['owner']
+        city_state['size'] = pcity['size']
 
         tile = self.map_ctrl.index_to_tile(pcity['tile'])
-        cur_state['x'] = tile['x']
-        cur_state['y'] = tile['y']
+        city_state['x'] = tile['x']
+        city_state['y'] = tile['y']
 
-        cur_state["luxury"] = pcity['prod'][O_LUXURY]
-        cur_state["science"] = pcity['prod'][O_SCIENCE]
-
-        for str_item, o_item in [("food", O_FOOD), ("gold", O_GOLD),
-                                 ("shield", O_SHIELD), ("trade", O_TRADE)]:
-            cur_state["prod_"+str_item] = pcity['prod'][o_item]
-            cur_state["surplus_"+str_item] = pcity['surplus'][o_item]
-
-        cur_state["bulbs"] = pcity["prod"][O_SHIELD]
-        cur_state["city_waste"] = pcity['waste'][O_SHIELD]
-        cur_state["city_corruption"] = pcity['waste'][O_TRADE]
-        cur_state["city_pollution"] = pcity['pollution']
-        cur_state["state"] = CityState.get_city_state(pcity)
-        if "granary_turns" in pcity:
-            cur_state["growth_in"] = CityState.city_turns_to_growth_text(pcity)
+        if city_owned:
+            city_state.update(self._get_own_city_state(pcity))
         else:
-            cur_state["growth_in"] = -1
-        cur_state["turns_to_prod_complete"] = self.get_city_production_time(pcity)
-        cur_state["prod_process"] = self.get_production_progress(pcity)
+            for property in [
+                'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
+                'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
+                'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
+                'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
+                    'ppl_happy']:
+                city_state[property] = -1
+            city_state['improvements'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control["num_impr_types"])
+
+        return city_state
+
+    def _get_own_city_state(self, pcity):
+        city_state = {}
+        for cp in ["food_stock", "granary_size", "granary_turns", "production_kind", "production_value"]:
+            city_state[cp] = pcity[cp]
+
+        city_state["luxury"] = pcity['prod'][O_LUXURY]
+        city_state["science"] = pcity['prod'][O_SCIENCE]
+
+        for str_item, o_item in [("food", O_FOOD), ("gold", O_GOLD), ("shield", O_SHIELD), ("trade", O_TRADE)]:
+            city_state["prod_"+str_item] = pcity['prod'][o_item]
+            city_state["surplus_"+str_item] = pcity['surplus'][o_item]
+
+        city_state["bulbs"] = pcity["prod"][O_SHIELD]
+        city_state["city_waste"] = pcity['waste'][O_SHIELD]
+        city_state["city_corruption"] = pcity['waste'][O_TRADE]
+        city_state["city_pollution"] = pcity['pollution']
+        city_state["state"] = CityState.get_city_state(pcity)
+        if "granary_turns" in pcity:
+            city_state["growth_in"] = CityState.city_turns_to_growth_text(pcity)
+        else:
+            city_state["growth_in"] = -1
+        city_state["turns_to_prod_complete"] = self.get_city_production_time(pcity)
+        city_state["prod_process"] = self.get_production_progress(pcity)
 
         for citizen in citizen_types:
             cur_citizen = 'ppl_' + citizen
-            cur_state[cur_citizen] = 0
+            city_state[cur_citizen] = 0
             if pcity[cur_citizen] != None:
-                cur_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
+                city_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
 
+        city_state["improvements"] = pcity['improvements']
+        return city_state
+
+    @staticmethod
+    def get_named_city_improvements(self, pcity):
+        city_state: Dict[str, bool] = {}
         for z in range(self.rule_ctrl.ruleset_control["num_impr_types"]):
             tech_tag = "impr_int_%s_%i" % (self.rule_ctrl.improvements[z]["name"], z)
-            cur_state[tech_tag] = False
-
+            city_state[tech_tag] = False
             if 'improvements' in pcity and pcity['improvements'][z] == 1:
-                cur_state[tech_tag] = True
-        # logger.info("_get_city_state. pcity.keys(): ", pcity.keys())
-        # logger.info("_get_city_state. pcity: ", pcity)
-        for tile_num, (output_food, output_shield, output_trade) in enumerate(zip(pcity['output_food'],
-                                                                                  pcity['output_shield'],
-                                                                                  pcity['output_trade'])):
-            cur_state["pos_output_food_%i" % tile_num] = output_food
-            cur_state["pos_output_shield_%i" % tile_num] = output_shield
-            cur_state["pos_output_trade_%i" % tile_num] = output_trade
+                city_state[tech_tag] = True
+        return city_state
 
-        return cur_state
+    @staticmethod
+    def get_city_tile_outputs(pcity):
+        city_state = {}
+        # The following information will be available in the maps, hence we currently omit them in the individual city states
+        for tile_num, (output_food, output_shield, output_trade) in enumerate(
+            zip(pcity['output_food'],
+                pcity['output_shield'],
+                pcity['output_trade'])):
+            city_state["pos_output_food_%i" % tile_num] = output_food
+            city_state["pos_output_shield_%i" % tile_num] = output_shield
+            city_state["pos_output_trade_%i" % tile_num] = output_trade
+        return city_state
 
     @staticmethod
     def is_city_center(city, tile):

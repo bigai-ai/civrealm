@@ -36,9 +36,9 @@ class UnitState(ListState):
         """
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
-            self._state[unit_id] = self._get_unit_infos(punit, pplayer)
+            self._state[unit_id] = self._get_unit_state(punit, punit['owner'] == pplayer['playerno'])
 
-    def _get_unit_infos(self, punit, pplayer):
+    def _get_unit_state(self, punit, unit_owned):
         """Returns a dictionary of all infos relevant for unit_state."""
         unit_state = {}
         unit_state['owner'] = punit['owner']
@@ -59,7 +59,7 @@ class UnitState(ListState):
         unit_state['type_can_transport'] = ptype['transport_capacity'] > 0
 
         # Info that differs between own and foreign units
-        if punit['owner'] == pplayer['playerno']:
+        if unit_owned:
             # Can use self.city_ctrl.get_unit_homecity_name(punit) to get a string of the home city name
             unit_state['home_city'] = punit['homecity']
             # Can use unit_helpers.get_unit_moves_left(self.rule_ctrl, punit) to get a string of the moves left

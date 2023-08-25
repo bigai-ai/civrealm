@@ -67,6 +67,10 @@ MOVE_NAMES = {'goto_0': 'move NorthWest', 'goto_1': 'move North', 'goto_2': 'mov
               'goto_6': 'move South', 'goto_7': 'move SouthEast'}
 INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 
+NUM_TO_DIRECTION_DICT = {'0': 'northwest', '1': 'north', '2': 'northeast', '3': 'west', '4': 'east',
+                         '5': 'southwest', '6': 'south', '7': 'southeast'}
+DIRECTION_TO_NUM_ACTION_DICT = dict()
+
 
 class LanguageAgent(ControllerAgent):
     def __init__(self, LLM_model = 'gpt-3.5-turbo'):
@@ -88,11 +92,9 @@ class LanguageAgent(ControllerAgent):
                     continue
                 
                 current_unit_name = valid_actor_name
-                current_obs = tile_info = self.get_tiles_info(observations[ctrl_type], valid_actor_id)
+                current_obs = self.get_tiles_info(observations[ctrl_type], valid_actor_id)
+                print('current obs:', current_obs)
                 current_avail_actions_list = []
-
-                NUM_TO_DIRECTION_DICT = {'0':'northwest', '1':'north', '2':'northeast', '3':'west', '4':'east', '5':'southwest', '6':'south', '7':'southeast'}
-                DIRECTION_TO_NUM_ACTION_DICT = {}
 
                 for action_name in valid_action_dict.keys():
                     temp_name = action_name
@@ -210,9 +212,12 @@ class LanguageAgent(ControllerAgent):
             if extra is not None:
                 tile_info[ptile].append(extra)
 
-            units = self.get_units_on_tile(observation_num, pdir)
+            units, units_owner = self.get_units_on_tile(observation_num, pdir)
             if len(units) > 0:
                 tile_info[ptile].extend(units)
+
+            if units_owner is not None:
+                tile_info[ptile].append('Units belong to player_' + str(int(units_owner)))
 
             tile_id += 1
         return tile_info
@@ -238,7 +243,8 @@ class LanguageAgent(ControllerAgent):
         return extra_str
 
     def get_units_on_tile(self, observation_num, pdir):
-        unit_str = []
+        units_str = []
+        units_owner = None
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
@@ -248,8 +254,10 @@ class LanguageAgent(ControllerAgent):
             for punit in unit_index:
                 punit_number = observation_num['units'][dx, dy, punit]
                 punit_name = UNIT_TYPES[punit]
-                unit_str.append(str(int(punit_number)) + ' ' + punit_name)
-        return unit_str
+                units_str.append(str(int(punit_number)) + ' ' + punit_name)
+
+            units_owner = observation_num['units_owner'][dx, dy]
+        return units_str, units_owner
 
     def get_actor_action(self, info, ctrl_type, actor_id, action_name):
         valid_action_dict = self.get_valid_actions(info, ctrl_type, actor_id)
@@ -263,16 +271,16 @@ class LanguageAgent(ControllerAgent):
 
 
 '''
-tile_info = {'current_tile': ['Forest', '1 Explorer'],
-             'tile_north_1': ['Tundra', 'Road', '1 Warriors'],
+tile_info = {'current_tile': ['Forest', '1 Explorer', 'Units belong to player_0'],
+             'tile_north_1': ['Tundra', 'Road', '1 Warriors', 'Units belong to player_0'],
              'tile_south_1': ['Plains', 'Buffalo'],
              'tile_east_1': ['Mountains'],
              'tile_west_1': ['Hills'],
-             'tile_north_1_east_1': ['Swamp', '1 Warriors'],
+             'tile_north_1_east_1': ['Swamp', '1 Warriors', 'Units belong to player_0'],
              'tile_north_1_west_1': ['Forest'],
-             'tile_south_1_east_1': ['Forest', '1 Workers'],
+             'tile_south_1_east_1': ['Forest', '1 Workers', 'Units belong to player_0'],
              'tile_south_1_west_1': ['Plains'],
-             'tile_north_2': ['Mountains', '1 Workers'],
+             'tile_north_2': ['Mountains', '1 Workers', 'Units belong to player_0'],
              'tile_north_2_east_1': ['Swamp'],
              'tile_north_2_west_1': ['Swamp'],
              'tile_north_2_east_2': ['Hills'],
@@ -305,5 +313,4 @@ unit_dict = {'Settlers 101': {'max_move': 0, 'avail_actions': []},
                                                                'move South', 'move SouthEast']}
              }
 '''
-
 

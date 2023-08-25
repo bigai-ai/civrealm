@@ -33,7 +33,7 @@ debug:
   autosave: True
   # Password used to login to the freeciv web account
   password: freecivgym
-  load_game: "testcontroller_T200_2023-07-31-01_51"
+  load_game: ""
   # game-reproducer
   # set mapseed for generating a fixed map, can overwrite the above mapseed
   mapseed: 1729

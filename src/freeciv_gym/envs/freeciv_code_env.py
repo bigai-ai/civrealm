@@ -123,23 +123,24 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return cities_on_mini_map
 
     def _get_observation(self):
-        self.civ_controller.lock_control()
-        self.civ_controller.turn_manager.get_observation()
-        turn_manager = self.civ_controller.turn_manager
+        base_observations = self.civ_controller.get_observation()
 
-        observations = {}
-        for ctrl_type, ctrl in turn_manager._turn_ctrls.items():
-            if ctrl_type == 'unit':
-                observations[ctrl_type] = {}
-                units = self.civ_controller.controller_list['unit'].units
-                for punit in units:
-                    if units[punit]['owner'] != self.civ_controller.controller_list['player'].my_player_id:
-                        continue
+        observations = dict()
+        if base_observations is None:
+            observations = None
+        else:
+            for ctrl_type in base_observations:
+                if ctrl_type == 'unit':
+                    observations[ctrl_type] = {}
+                    units = self.civ_controller.controller_list['unit'].units
+                    for punit in units:
+                        if units[punit]['owner'] != self.civ_controller.controller_list['player'].my_player_id:
+                            continue
 
-                    ptile = self.civ_controller.controller_list['map'].index_to_tile(units[punit]['tile'])
-                    mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
-                    observations[ctrl_type][punit] = mini_map_info
-            else:
-                observations[ctrl_type] = turn_manager._turn_state[ctrl_type]
+                        ptile = self.civ_controller.controller_list['map'].index_to_tile(units[punit]['tile'])
+                        mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
+                        observations[ctrl_type][punit] = mini_map_info
+                else:
+                    observations[ctrl_type] = base_observations[ctrl_type]
 
         return observations

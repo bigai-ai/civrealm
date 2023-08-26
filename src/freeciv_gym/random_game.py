@@ -35,7 +35,7 @@ def main():
             observations, reward, terminated, truncated, info = env.step(action)
             done = terminated or truncated
         except Exception as e:
-            fc_logger.warning(repr(e))
+            fc_logger.error(repr(e))
             raise e
     env.close()
 

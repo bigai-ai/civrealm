@@ -37,6 +37,7 @@ class MapState(PlainState):
         self._state['status'] = None
         self._state['terrain'] = None
         self._state['extras'] = None
+        self._state['output'] = None
         self._state['tile_owner'] = None
         self._state['city_owner'] = None
         self._state['unit'] = None
@@ -45,10 +46,6 @@ class MapState(PlainState):
     @property
     def tiles(self):
         return self._tiles
-
-    @property
-    def state(self):
-        return self._state
 
     def map_allocate(self, x_size, y_size):
         """
@@ -62,6 +59,7 @@ class MapState(PlainState):
         self._state['status'] = np.zeros((x_size, y_size), dtype=np.ubyte)
         self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['extras'] = np.zeros((x_size, y_size, self._extra_num), dtype=np.bool_)
+        self._state['output'] = np.zeros((x_size, y_size, 6), dtype=np.ushort)
         self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['city_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
         self._state['unit'] = np.zeros((x_size, y_size, len(UNIT_TYPES)), dtype=np.ushort)
@@ -101,19 +99,20 @@ class MapState(PlainState):
         assert self.tiles != None
         assert self.tiles[tile_index] != None
 
+        x = self.tiles[tile_index]['x']
+        y = self.tiles[tile_index]['y']
+
         self.tiles[tile_index].update(tile_packet)
-        self.state['status'][
-            self.tiles[tile_index]['x'],
-            self.tiles[tile_index]['y']] = tile_packet['known']
-        self.state['terrain'][
-            self.tiles[tile_index]['x'],
-            self.tiles[tile_index]['y']] = tile_packet['terrain']
-        self.state['extras'][
-            self.tiles[tile_index]['x'],
-            self.tiles[tile_index]['y'], :] = tile_packet['extras'][:self._extra_num]
-        self.state['tile_owner'][
-            self.tiles[tile_index]['x'],
-            self.tiles[tile_index]['y']] = tile_packet['owner']
+        self._state['status'][x, y] = tile_packet['known']
+        self._state['terrain'][x, y] = tile_packet['terrain']
+        self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
+        self._state['tile_owner'][x, y] = tile_packet['owner']
+
+        # Compute output for the tile without improvements.
+        self._state['output'][x, y, :] = self.rule_ctrl.terrains[tile_packet['terrain']]['output']
+        # Tiles with no resource will have resource value 128.
+        if tile_packet['resource'] != 128:
+            self._state['output'][x, y, :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
@@ -121,6 +120,7 @@ class MapState(PlainState):
             'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
             'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
             'extras': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, self._extra_num), dtype=int),
+            'output': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, 6), dtype=int),
             'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
             'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
             'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),

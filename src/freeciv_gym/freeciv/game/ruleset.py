@@ -15,6 +15,7 @@
 
 
 import sys
+import numpy as np
 from BitVector import BitVector
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -139,9 +140,11 @@ class RulesetCtrl(CivPropController):
             packet['graphic_str'] = "tundra"
 
         self.terrains[packet['id']] = packet
+        self.terrains[packet['id']]['output'] = np.array(self.terrains[packet['id']]['output'], dtype=np.ushort)
 
     def handle_ruleset_resource(self, packet):
         self.resources[packet['id']] = packet
+        self.resources[packet['id']]['output'] = np.array(self.resources[packet['id']]['output'], dtype=np.ushort)
 
     def handle_ruleset_control(self, packet):
         """

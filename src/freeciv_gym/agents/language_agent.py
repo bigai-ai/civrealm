@@ -176,6 +176,7 @@ class LanguageAgent(ControllerAgent):
 
         return None, None, None
 
+
     def get_actors_info(self, observations, ctrl_type, info):
         unit_dict = {}
         units = list(info['available_actions'][ctrl_type].get_actors())
@@ -223,9 +224,11 @@ class LanguageAgent(ControllerAgent):
                 elif ds_of_units == -1:
                     tile_info[ptile].append('Units belong to myself player_' + str(units_owner))
 
-            player_of_city_str = self.get_city_on_tile(observation_num, pdir)
-            if player_of_city_str is not None:
-                tile_info[ptile].append(player_of_city_str)
+            player_of_city, ds_of_city = self.get_city_on_tile(observation_num, pdir)
+            if player_of_city > 0 and ds_of_city > 0:
+                tile_info[ptile].append('1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(player_of_city))
+            elif player_of_city == 0:
+                tile_info[ptile].append('1 city belongs to myself player_' + str(player_of_city))
 
             tile_id += 1
         return tile_info
@@ -270,14 +273,12 @@ class LanguageAgent(ControllerAgent):
         return units_str, units_owner, ds_of_units
 
     def get_city_on_tile(self, observation_num, pdir):
-        player_of_city_str = None
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
-        player_id = int(observation_num['cities'][dx, dy])
-        if 0 <= player_id:
-            player_of_city_str = 'tile belongs to player_' + str(player_id)
-        return player_of_city_str
+        player_of_city = observation_num['cities'][dx, dy]
+        ds_of_city = observation_num['ds_of_cities'][dx, dy]
+        return player_of_city, ds_of_city
 
     def get_actor_action(self, info, ctrl_type, actor_id, action_name):
         valid_action_dict = self.get_valid_actions(info, ctrl_type, actor_id)
@@ -333,4 +334,5 @@ unit_dict = {'Settlers 101': {'max_move': 0, 'avail_actions': []},
                                                                'move South', 'move SouthEast']}
              }
 '''
+
 

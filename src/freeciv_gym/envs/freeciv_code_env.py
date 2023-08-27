@@ -51,7 +51,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 mini_map_info['units_owner'] = units_owner
                 mini_map_info['ds_of_units'] = ds_of_units
             else:
-                mini_map_info[ptype] = self.get_cities_on_mini_map(ptile)
+                mini_map_info[ptype], ds_of_cites = self.get_cities_on_mini_map(ptile)
+                mini_map_info['ds_of_cities'] = ds_of_cites
 
         return mini_map_info
 
@@ -113,14 +114,22 @@ class FreecivCodeEnv(FreecivBaseEnv):
         x = ptile['x']
         y = ptile['y']
         cities_on_mini_map = -np.ones((MAP_SIZE, MAP_SIZE))
+        ds_of_cities = -np.ones((MAP_SIZE, MAP_SIZE))
         for dx in range(-RADIUS, RADIUS+1):
             for dy in range(-RADIUS, RADIUS+1):
                 if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
                     ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
                     pcity = self.civ_controller.city_ctrl.tile_city(ntile)
                     if pcity is not None:
-                        cities_on_mini_map[RADIUS + dx, RADIUS + dy] = pcity['owner']
-        return cities_on_mini_map
+
+                        owner_id = pcity['owner']
+                        cities_on_mini_map[RADIUS + dx, RADIUS + dy] = owner_id
+
+                        if owner_id != self.civ_controller.clstate.player_num():
+                            dipl_state = self.civ_controller.dipl_ctrl.diplstates[owner_id]
+                            ds_of_cities[RADIUS + dx, RADIUS + dy] = dipl_state
+
+        return cities_on_mini_map, ds_of_cities
 
     def _get_observation(self):
         base_observations = self.civ_controller.get_observation()

@@ -63,7 +63,7 @@ class UnitState(ListState):
             # Can use self.city_ctrl.get_unit_homecity_name(punit) to get a string of the home city name
             unit_state['home_city'] = punit['homecity']
             # Can use unit_helpers.get_unit_moves_left(self.rule_ctrl, punit) to get a string of the moves left
-            unit_state['moves_left'] = punit['movesleft'] / self.rule_ctrl.SINGLE_MOVE
+            unit_state['moves_left'] = punit['movesleft']
             unit_state['upkeep_food'] = punit['upkeep'][O_FOOD]
             unit_state['upkeep_shield'] = punit['upkeep'][O_SHIELD]
             unit_state['upkeep_gold'] = punit['upkeep'][O_GOLD]

@@ -199,6 +199,8 @@ class CityBuyProduction(Action):
             return False
         if self.pcity['production_kind'] == VUT_IMPROVEMENT and self.pcity['production_value'] == 67:
             return False
+        if self.pcity['changed_from_kind'] == 0 and self.pcity['changed_from_value'] == 0:
+            return False
 
         return self.pplayer['gold'] >= self.pcity['buy_cost'] > 0
 

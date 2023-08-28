@@ -15,7 +15,7 @@
 
 import random
 import numpy as np
-import openai
+import time
 import json
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.agents.controller_agent import ControllerAgent
@@ -71,13 +71,12 @@ NUM_TO_DIRECTION_DICT = {'0': 'northwest', '1': 'north', '2': 'northeast', '3': 
 DIRECTION_TO_NUM_ACTION_DICT = dict()
 KEYWORDS = ['change_unit_prod', 'change_improve_prod']
 
-
 class LanguageAgent(ControllerAgent):
     def __init__(self, LLM_model = 'gpt-3.5-turbo'):
         super().__init__()
         if "debug.agentseed" in fc_args:
             self.set_agent_seed(fc_args["debug.agentseed"])
-        self.ga = GPTAgent(model = LLM_model)
+        self.gpt_agent = GPTAgent(model = LLM_model)
 
     def act(self, observations, info):
         available_actions = info['available_actions']
@@ -109,14 +108,18 @@ class LanguageAgent(ControllerAgent):
                 print('current unit:', current_unit_name, '; unit id:', valid_actor_id)
                 
                 exec_action_name = None
+                start_time = time.time()
                 while exec_action_name is None:
-                    response = self.ga.communicate(obs_input_prompt, parse_choice_tag = False)
-                    self.ga.memory.save_context({'user': obs_input_prompt}, {'assistant': str(response)})
-                    if isinstance(response, str):
-                        response = json.loads(response)
-
-                    exec_action_name = self.ga.process_command(response['command'], obs_input_prompt,
-                                                               current_unit_name, current_avail_actions_list)
+                    end_time = time.time()
+                    if (end_time - start_time) >= 120:
+                        exec_action_name = random.choice(current_avail_actions_list)
+                        self.gpt_agent.dialogue.pop(-1)
+                        self.gpt_agent.dialogue.pop(-1)
+                        print('overtime, randomly choose:', exec_action_name)
+                        break
+                    response = self.gpt_agent.communicate(obs_input_prompt, parse_choice_tag = False)
+                    self.gpt_agent.memory.save_context({'user': obs_input_prompt}, {'assistant': str(response)})
+                    exec_action_name = self.gpt_agent.process_command(response, obs_input_prompt, current_unit_name, current_avail_actions_list)
 
                 exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[exec_action_name]
                 if exec_action_name:
@@ -126,14 +129,40 @@ class LanguageAgent(ControllerAgent):
                 city_dict = get_actors_info(observations, ctrl_type, info)
                 fc_logger.debug(f'city_dict: {city_dict}')
 
-                valid_actor_id, valid_actor_name, valid_action_dict = self.get_next_valid_actor(observations, info,
+                valid_city_id, current_city_name, valid_city_actions_list = self.get_next_valid_actor(observations, info,
                                                                                                 city_dict, ctrl_type)
-
-                if not valid_actor_id:
+                
+                if not valid_city_id:
                     continue
 
-                current_obs = get_tiles_info(observations, ctrl_type, valid_actor_id)
-                fc_logger.debug(f'city current obs: {current_obs}')
+                current_city_obs = get_tiles_info(observations, ctrl_type, valid_city_id)
+
+                current_city_avail_actions_list = [action_name for action_name in valid_city_actions_list.keys()]
+                if 'city_buy_production' in current_city_avail_actions_list:
+                    current_city_avail_actions_list.remove('city_buy_production')
+
+                obs_input_prompt = f"""The city is {current_city_name}, observation is {current_city_obs}. Your available action list is {current_city_avail_actions_list}. """
+                print('current city:', current_city_name, '; city id:', valid_city_id)
+
+                fc_logger.debug(f'city current obs: {current_city_obs}')
+
+                exec_action_name = None
+                start_time = time.time()
+                while exec_action_name is None:
+                    end_time = time.time()
+                    if (end_time - start_time) >= 120:
+                        exec_action_name = random.choice(current_city_avail_actions_list)
+                        self.gpt_agent.dialogue.pop(-1)
+                        self.gpt_agent.dialogue.pop(-1)
+                        print('overtime, randomly choose:', exec_action_name)
+                        break
+                    response = self.gpt_agent.communicate(obs_input_prompt, parse_choice_tag = False)
+                    self.gpt_agent.update_key()
+                    self.gpt_agent.memory.save_context({'user': obs_input_prompt}, {'assistant': str(response)})
+                    exec_action_name = self.gpt_agent.process_command(response, obs_input_prompt, current_city_name, current_city_avail_actions_list)
+
+                if exec_action_name:
+                    return valid_city_actions_list[exec_action_name]
 
             else:
                 continue
@@ -159,19 +188,20 @@ class LanguageAgent(ControllerAgent):
             for actor_id in action_list.get_actors():
                 # TODO: We need to write the choosing mechanism in the following version.
                 if actor_id in self.planned_actor_ids:
-                    # We have planned an action for this actor in this turn.
-                    continue_flag = 0
-                    for id in unit_dict.keys():
-                        if actor_id == int(id.split(' ')[-1]):
-                            # For those not explorer, we only let them move once.
-                            if id.split(' ')[0] != 'Explorer':
-                                continue_flag = 1
-                                break
-                            if unit_dict[id]['max_move'] <= 0:
-                                continue_flag = 1
-                                break
-                    if continue_flag == 1:
-                        continue
+                    # # We have planned an action for this actor in this turn.
+                    # continue_flag = 0
+                    # for id in unit_dict.keys():
+                    #     if actor_id == int(id.split(' ')[-1]):
+                    #         # For those not explorer, we only let them move once.
+                    #         if id.split(' ')[0] != 'Explorer':
+                    #             continue_flag = 1
+                    #             break
+                    #         if unit_dict[id]['max_move'] <= 0:
+                    #             continue_flag = 1
+                    #             break
+                    # if continue_flag == 1:
+                    #     continue
+                    continue
 
                 if action_list._can_actor_act(actor_id):
                     fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')

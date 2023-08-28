@@ -9,6 +9,8 @@ from func_timeout import func_timeout
 from func_timeout import FunctionTimedOut
 
 from freeciv_gym.agents.civ_autogpt.utils.num_tokens_from_messages import num_tokens_from_messages
+from freeciv_gym.agents.civ_autogpt.utils.interact_with_llm import send_message_to_llama, send_message_to_vicuna
+from freeciv_gym.agents.civ_autogpt.utils.extract_json import extract_json
 from freeciv_gym.agents.civ_autogpt.utils.interact_with_llm import send_message_to_llama
 from langchain.chat_models import ChatOpenAI
 from langchain.chains import ConversationChain
@@ -26,13 +28,7 @@ from langchain.chains.question_answering import load_qa_chain
 
 warnings.filterwarnings('ignore')
 
-USE_API2D = False
-url = "https://openai.api2d.net/v1/chat/completions"
-headers = {
-      'Content-Type': 'application/json',
-    #   'x-api2d-no-cache': '1',  # whether to use cache, 1 for not
-      'Authorization': 'Bearer fk197355-JjePlHbuNVLQWD1Tp6dGGVeF857kxtxV'#'Bearer fkxxxx' # <-- 把 fkxxxxx 替换成你自己的 Forward Key，注意前面的 Bearer 要保留，并且和 Key 中间有一个空格。
-    }
+
 
 
 cwd = os.getcwd()
@@ -48,13 +44,14 @@ TOKEN_LIMIT_TABLE = {
     "gpt-4-32k-0314": 32768,
     "gpt-3.5-turbo-0301": 4096,
     "gpt-3.5-turbo": 4096,
+    "gpt-35-turbo": 4096,
     "text-davinci-003": 4080,
     "code-davinci-002": 8001,
     "text-davinci-002": 2048,
-    "vicuna-33B": 2048
+    "vicuna-33B": 2048,
+    "Llama2-70B-chat": 2048,
+    "gpt-35-turbo-16k": 16384
 }
-
-
 
 
 class GPTAgent:
@@ -72,16 +69,16 @@ class GPTAgent:
         self.state_prompt = self._load_state_prompt()
         self.task_prompt = self._load_task_prompt()
         self.update_key()
-        self.USE_API2D = USE_API2D
 
-        llm = ChatOpenAI(temperature=0.0, openai_api_key = openai.api_key)
+        llm = ChatOpenAI(temperature=0.7, openai_api_key = openai.api_key)
         self.memory = ConversationSummaryBufferMemory(llm=llm, max_token_limit=500)
 
-        self.chain = load_qa_chain(OpenAI(model_name=model), chain_type="stuff")
+        self.chain = load_qa_chain(OpenAI(model_name="gpt-3.5-turbo"), chain_type="stuff")
 
         pinecone.init(
-            api_key="a0f60dc9-dd3e-40d3-ab5d-983421854662", environment="asia-southeast1-gcp-free"
+            api_key=os.environ["MY_PINECONE_API_KEY"], environment=os.environ["MY_PINECONE_ENV"]
         )
+        
         # embeddings = OpenAIEmbeddings(model="text-embedding-ada-002")
         self.index = Pinecone.from_existing_index(index_name='langchain-demo', embedding=OpenAIEmbeddings(model="text-embedding-ada-002"))
 
@@ -103,6 +100,18 @@ class GPTAgent:
                 print(e)
                 self.update_key()
         return answer
+
+    def change_api_base(self, to_type):
+        if to_type == 'azure':
+            openai.api_type = os.environ["ASURE_OPENAI_API_TYPE"]
+            openai.api_version = os.environ["ASURE_OPENAI_API_VERSION"]
+            openai.api_base = os.environ["ASURE_OPENAI_API_BASE"]
+            openai.api_key = os.environ["ASURE_OPENAI_API_KEY"]
+        else:
+            openai.api_type = "open_ai"
+            openai.api_version = ""
+            openai.api_base = 'https://api.openai.com/v1'
+            self.update_key()
         
     @staticmethod
     def load_openai_keys():
@@ -123,9 +132,8 @@ class GPTAgent:
         # print("reading task prompt from {}".format(task_prompt_file))
         with open(task_prompt_file, "r") as f:
             self.task_prompt = f.read()
-        # self.dialogue.append({"role": "user", "content": self.task_prompt})
         self.dialogue.append({"role": "user", "content": self.task_prompt})
-        # self.dialogue.append(self.parse_response(self.query()))
+
 
 
     def update_key(self):
@@ -164,15 +172,24 @@ class GPTAgent:
     def process_command(self, command_json, obs_input_prompt, current_unit_name, current_avail_actions):
         '''
         manualAndHistorySearch
-        ask
         askCurrentGameInformation
         finalDecision
         '''
-        # command_name = command_json['name']
-        command_input = command_json['input']
-        if (command_json['name'] == 'finalDecision') and command_input['action']:
+        try:
+            command_input = command_json['command']['input']
+            command_name = command_json['command']['name']
+        except Exception as e:
+            print(e)
+            print('Not in given json format, retrying...')
+            if random.random() > 0.5:
+                self.update_dialogue(obs_input_prompt + ' CAUTION: You should strictly follow the JSON format as described above!', pop_num = 2)
+                return None
+            else:
+                self.update_dialogue(obs_input_prompt, pop_num = 2)
+                return None
+        if (command_name == 'finalDecision') and command_input['action']:
             # Here to implement controller
-            print(command_json)
+            print(command_input)
             exec_action = command_input['action']
 
             if command_input['action'] not in current_avail_actions:
@@ -196,35 +213,13 @@ class GPTAgent:
                 else:
                     print('exec_action:', exec_action)
                     return exec_action
-
-        elif command_json['name'] == 'ask' and command_input['question']:
-            print(command_input)
-            
-            if self.check_if_the_taken_actions_list_needed_update('ask', 3, 0):
-                answer = 'Too many ask! Now You should give me an action at once!'
-                print(answer)
-                self.dialogue.append({'role': 'user', 'content': answer})
-                self.taken_actions_list = []
-            else:
-                query = command_input['question']
-                answer = self.get_answer(query)
-                print('answer:', answer)
-                if random.random() > 0.5:
-                    self.dialogue.append({'role': 'user', 'content': answer + ' Now you get the needed information from the manual, give me your action answer.'})
-                else:
-                    self.dialogue.append({'role': 'user', 'content': answer})
-            
-            self.memory.save_context({'assistant': query}, {'user': answer})
-            self.taken_actions_list.append('ask')
-
-            return None
         
-        elif command_json['name'] == 'askCurrentGameInformation' and command_input['query']:
+        elif command_name == 'askCurrentGameInformation' and command_input['query']:
             print(command_input)
             self.taken_actions_list.append('askCurrentGameInformation')
             return None
         
-        elif command_json['name'] == 'manualAndHistorySearch' and command_input['look_up']:
+        elif command_name == 'manualAndHistorySearch' and command_input['look_up']:
             print(command_input)
             
             if self.check_if_the_taken_actions_list_needed_update('look_up', 3, 0):
@@ -258,36 +253,34 @@ class GPTAgent:
             return None
 
 
-    def query(self, stop = None, temperature = 0.1):
+    def query(self, stop = None, temperature = 0.7, top_p = 0.95):
         self.restrict_dialogue()
         # TODO add retreat mech to cope with rate limit
         self.update_key()
         
         if self.model in ['gpt-3.5-turbo-0301', 'gpt-3.5-turbo']:
-            if self.USE_API2D:
-                data = {
-                  "model": self.model,
-                  "messages": self.dialogue
-                }
-                response = requests.post(url, headers=headers, json=data)
-            else:
-                response = openai.ChatCompletion.create(
-                    model=self.model,
+            response = openai.ChatCompletion.create(
+                model=self.model,
+                messages=self.dialogue,
+                temperature = temperature,
+                top_p = top_p
+            )
+        elif self.model in ["gpt-35-turbo", "gpt-35-turbo-16k"]:
+            self.change_api_base('azure')
+            response = openai.ChatCompletion.create(
+                    engine=self.model,
                     messages=self.dialogue
                 )
-        elif self.model in ['gpt-4-0314', 'gpt-4']:
-            
-            data = {
-              "model": self.model,
-              "messages": self.dialogue,
-              "max_tokens": 128
-            }
-            response = requests.post(url, headers=headers, json=data)
-            
-            time.sleep(15)
-        elif self.model in ['vicuna-33B', 'llama2-13B-chat']:
-            local_config = {'temperature':0.7, 'top_p': 0.95, 'repetition_penalty': 1.1}
+            self.change_api_base('open_ai')
+
+        elif self.model in ['vicuna-33B']:
+            local_config = {'temperature':temperature, 'top_p': top_p, 'repetition_penalty': 1.1}
+            response = send_message_to_vicuna(self.dialogue, local_config)
+
+        elif self.model in ['Llama2-70B-chat']:
+            local_config = {'temperature':temperature, 'top_p': top_p, 'repetition_penalty': 1.1}
             response = send_message_to_llama(self.dialogue, local_config)
+
         else:
             response = openai.Completion.create(
                         model=self.model,
@@ -296,7 +289,7 @@ class GPTAgent:
                         stop=stop,
                         temperature=temperature,
                         n = 1,
-                        top_p = 0.95
+                        top_p = top_p
                     )
 
         return response
@@ -311,15 +304,18 @@ class GPTAgent:
     # @staticmethod
     def parse_response(self, response):
         if self.model in ['gpt-3.5-turbo-0301', 'gpt-3.5-turbo', 'gpt-4', 'gpt-4-0314']:
-            if self.USE_API2D:
-                return response.json()["choices"][0]["message"]
-            else:
-                
-                return dict(response["choices"][0]["message"])
-            
-            # return response.json()["choices"][0]["message"]
-        elif self.model in ['vicuna-33B']:
-            return {'role': 'assistant', 'content': response}
+            return dict(response["choices"][0]["message"])
+        
+        elif self.model in ["gpt-35-turbo", "gpt-35-turbo-16k"]:
+            try:
+                ans = json.dumps(eval(extract_json(response['choices'][0]['message']['content'])))
+            except:
+                return response["choices"][0]["message"]
+            return {'role': 'assistant', 'content': ans}
+        
+        elif self.model in ['vicuna-33B', 'Llama2-70B-chat']:
+            return {'role': 'assistant', 'content': extract_json(response)}
+        
         else:
             # self.model in ['text-davinci-003', 'code-davinci-002']
             
@@ -360,16 +356,6 @@ class GPTAgent:
         self.dialogue.append({"role": "user", "content": content})
         while True:
             try:
-                # while True:
-                #     try:
-                #         raw_response = func_timeout(20, self.query)
-                #         break
-                #     except FunctionTimedOut as e:
-                #         print(e)
-                #         print('query timeout, retrying...')
-                #         self.USE_API2D = not self.USE_API2D
-                if random.random() < 0.2:
-                    self.USE_API2D = not self.USE_API2D
                 raw_response = self.query()
                 self.message = self.parse_response(raw_response)
                 self.dialogue.append(self.message)

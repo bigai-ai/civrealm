@@ -375,7 +375,7 @@ class CivController(CivPropController):
         self.end_game()
         if self.visualize:
             self.monitor.stop_monitor()
-        self.delete_save_game()
+        # self.delete_save_game()
         self.ws_client.close()
 
     def end_game_packet_list(self):
@@ -679,6 +679,7 @@ class CivController(CivPropController):
         # reset_unit_anim_list()
         # Delete saved game in the end of turn.
         # fc_logger.info('handle_end_turn')
+
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         # Set delete_save for the next turn

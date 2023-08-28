@@ -138,8 +138,6 @@ class LanguageAgent(ControllerAgent):
                 current_city_obs = get_tiles_info(observations, ctrl_type, valid_city_id)
 
                 current_city_avail_actions_list = [action_name for action_name in valid_city_actions_list.keys()]
-                if 'city_buy_production' in current_city_avail_actions_list:
-                    current_city_avail_actions_list.remove('city_buy_production')
 
                 obs_input_prompt = f"""The city is {current_city_name}, observation is {current_city_obs}. Your available action list is {current_city_avail_actions_list}. """
                 print('current city:', current_city_name, '; city id:', valid_city_id)

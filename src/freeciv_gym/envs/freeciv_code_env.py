@@ -33,7 +33,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
         super().__init__(client_port)
 
     def get_mini_map_info(self, utype, moves, ptile):
-        mini_map_info = {}
+        mini_map_info = dict()
         info_keys = ['utype', 'moves', 'terrain', 'extras', 'units', 'cities']
         terrain_info, extra_info = self.get_meta_info_of_mini_map(ptile)
 
@@ -59,47 +59,43 @@ class FreecivCodeEnv(FreecivBaseEnv):
     def get_meta_info_of_mini_map(self, ptile):
         x = ptile['x']
         y = ptile['y']
-        terrain_info = np.zeros((MAP_SIZE, MAP_SIZE))
-        extra_info = np.zeros((MAP_SIZE, MAP_SIZE))
+        terrain_info = -np.ones((MAP_SIZE, MAP_SIZE))
+        extra_info = -np.ones((MAP_SIZE, MAP_SIZE, len(EXTRA_NAMES)))
 
         for dx in range(-RADIUS, RADIUS+1):
             for dy in range(-RADIUS, RADIUS+1):
-                terrain = -1
-                extra = -1
 
-                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
-                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
-                    terrain = ntile['terrain']
-                    for extra_id in range(len(EXTRA_NAMES)):
+                if not self.civ_controller.map_ctrl.if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
+                    terrain_info[RADIUS + dx, RADIUS + dy] = ntile['terrain']
+
+                    for extra_id, extra_name in enumerate(EXTRA_NAMES):
                         if ntile['extras'][extra_id] == 1:
-                            extra = extra_id
-                            break
+                            extra_info[RADIUS + dx, RADIUS + dy, extra_id] = 1
 
-                terrain_info[RADIUS+dx, RADIUS+dy] = terrain
-                extra_info[RADIUS+dx, RADIUS+dy] = extra
         return terrain_info, extra_info
 
     def get_units_on_mini_map(self, ptile):
-
         x = ptile['x']
         y = ptile['y']
-        number_of_unit_types = len(UNIT_TYPES)
-        units_on_mini_map = np.zeros((MAP_SIZE, MAP_SIZE, number_of_unit_types))
+        units_on_mini_map = np.zeros((MAP_SIZE, MAP_SIZE, len(UNIT_TYPES)))
         units_owner = -np.ones((MAP_SIZE, MAP_SIZE))
         ds_of_units = -np.ones((MAP_SIZE, MAP_SIZE))
 
         for dx in range(-RADIUS, RADIUS+1):
             for dy in range(-RADIUS, RADIUS+1):
-                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
-                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+
+                if not self.civ_controller.map_ctrl.if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
 
                     units_on_ntile = ntile['units']
                     if len(units_on_ntile) == 0:
                         continue
 
+                    # TODO: check if units on the same tile belong to the same owner
                     owner_id = units_on_ntile[0]['owner']
                     units_owner[RADIUS + dx, RADIUS + dy] = owner_id
-                    if owner_id != self.civ_controller.clstate.player_num():
+                    if owner_id != self.civ_controller.player_ctrl.my_player_id:
                         dipl_state = self.civ_controller.dipl_ctrl.diplstates[owner_id]
                         ds_of_units[RADIUS + dx, RADIUS + dy] = dipl_state
 
@@ -110,22 +106,23 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return units_on_mini_map, units_owner, ds_of_units
 
     def get_cities_on_mini_map(self, ptile):
-
         x = ptile['x']
         y = ptile['y']
         cities_on_mini_map = -np.ones((MAP_SIZE, MAP_SIZE))
         ds_of_cities = -np.ones((MAP_SIZE, MAP_SIZE))
+
         for dx in range(-RADIUS, RADIUS+1):
             for dy in range(-RADIUS, RADIUS+1):
-                if not self.civ_controller.controller_list['map'].if_out_mapsize(x + dx, y + dy):
-                    ntile = self.civ_controller.controller_list['map'].map_pos_to_tile(x + dx, y + dy)
+
+                if not self.civ_controller.map_ctrl.if_out_mapsize(x + dx, y + dy):
+                    ntile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
                     pcity = self.civ_controller.city_ctrl.tile_city(ntile)
                     if pcity is not None:
 
                         owner_id = pcity['owner']
                         cities_on_mini_map[RADIUS + dx, RADIUS + dy] = owner_id
 
-                        if owner_id != self.civ_controller.clstate.player_num():
+                        if owner_id != self.civ_controller.player_ctrl.my_player_id:
                             dipl_state = self.civ_controller.dipl_ctrl.diplstates[owner_id]
                             ds_of_cities[RADIUS + dx, RADIUS + dy] = dipl_state
 
@@ -140,13 +137,13 @@ class FreecivCodeEnv(FreecivBaseEnv):
         else:
             for ctrl_type in base_observations:
                 if ctrl_type == 'unit':
-                    observations[ctrl_type] = {}
+                    observations[ctrl_type] = dict()
                     units = self.civ_controller.controller_list['unit'].units
                     for punit in units:
-                        if units[punit]['owner'] != self.civ_controller.controller_list['player'].my_player_id:
+                        if units[punit]['owner'] != self.civ_controller.player_ctrl.my_player_id:
                             continue
 
-                        ptile = self.civ_controller.controller_list['map'].index_to_tile(units[punit]['tile'])
+                        ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
                         mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
                         observations[ctrl_type][punit] = mini_map_info
                 else:

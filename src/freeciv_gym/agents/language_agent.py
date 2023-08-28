@@ -176,7 +176,6 @@ class LanguageAgent(ControllerAgent):
 
         return None, None, None
 
-
     def get_actors_info(self, observations, ctrl_type, info):
         unit_dict = {}
         units = list(info['available_actions'][ctrl_type].get_actors())
@@ -197,7 +196,7 @@ class LanguageAgent(ControllerAgent):
 
     def get_tiles_info(self, observations, actor_id):
         observation_num = observations[actor_id]
-        tile_info = {}
+        tile_info = dict()
         tile_id = 0
 
         for ptile in TILE_INFO_TEMPLATE:
@@ -209,26 +208,18 @@ class LanguageAgent(ControllerAgent):
                 tile_info[ptile].append(terrain)
 
             extra = self.get_tile_extra(observation_num, pdir)
-            if extra is not None:
-                tile_info[ptile].append(extra)
+            if len(extra) > 0:
+                tile_info[ptile].extend(extra)
 
-            units, units_owner, ds_of_units = self.get_units_on_tile(observation_num, pdir)
-            if len(units) > 0:
-                tile_info[ptile].extend(units)
+            units_str, units_dsp = self.get_units_on_tile(observation_num, pdir)
+            if len(units_str) > 0:
+                tile_info[ptile].extend(units_str)
+            if units_dsp is not None:
+                tile_info[ptile].append(units_dsp)
 
-            if units_owner is not None and ds_of_units is not None:
-                ds_of_units = int(ds_of_units)
-                units_owner = int(units_owner)
-                if ds_of_units > 0:
-                    tile_info[ptile].append('Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(units_owner))
-                elif ds_of_units == -1:
-                    tile_info[ptile].append('Units belong to myself player_' + str(units_owner))
-
-            player_of_city, ds_of_city = self.get_city_on_tile(observation_num, pdir)
-            if player_of_city > 0 and ds_of_city > 0:
-                tile_info[ptile].append('1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(player_of_city))
-            elif player_of_city == 0:
-                tile_info[ptile].append('1 city belongs to myself player_' + str(player_of_city))
+            player_of_city, city_dsp = self.get_city_on_tile(observation_num, pdir)
+            if city_dsp is not None:
+                tile_info[ptile].append(city_dsp)
 
             tile_id += 1
         return tile_info
@@ -244,19 +235,18 @@ class LanguageAgent(ControllerAgent):
         return terrain_str
 
     def get_tile_extra(self, observation_num, pdir):
-        extra_str = None
+        extra_str = []
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
-        extra = int(observation_num['extras'][dx, dy])
-        if 0 <= extra < len(EXTRA_NAMES):
-            extra_str = EXTRA_NAMES[extra]
+        for extra_id, extra_name in enumerate(EXTRA_NAMES):
+            if observation_num['extras'][dx, dy][extra_id] == 1:
+                extra_str.append(extra_name)
         return extra_str
 
     def get_units_on_tile(self, observation_num, pdir):
         units_str = []
-        units_owner = None
-        ds_of_units = None
+        units_dsp = None
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
@@ -270,15 +260,33 @@ class LanguageAgent(ControllerAgent):
 
             units_owner = observation_num['units_owner'][dx, dy]
             ds_of_units = observation_num['ds_of_units'][dx, dy]
-        return units_str, units_owner, ds_of_units
+
+            if ds_of_units >= 0:
+                ds_of_units = int(ds_of_units)
+                units_dsp = 'Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(units_owner))
+            else:
+                units_dsp = 'Units belong to myself player_' + str(int(units_owner))
+
+        return units_str, units_dsp
 
     def get_city_on_tile(self, observation_num, pdir):
+        player_of_city = None
+        city_dsp = None
         dx = RADIUS + pdir[0]
         dy = RADIUS + pdir[1]
 
-        player_of_city = observation_num['cities'][dx, dy]
+        city_owner = observation_num['cities'][dx, dy]
         ds_of_city = observation_num['ds_of_cities'][dx, dy]
-        return player_of_city, ds_of_city
+        if city_owner >= 0:
+            player_of_city = int(city_owner)
+
+            if ds_of_city >= 0:
+                ds_of_city = int(ds_of_city)
+                city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(player_of_city)
+            else:
+                city_dsp = '1 city belongs to myself player_' + str(player_of_city)
+
+        return player_of_city, city_dsp
 
     def get_actor_action(self, info, ctrl_type, actor_id, action_name):
         valid_action_dict = self.get_valid_actions(info, ctrl_type, actor_id)
@@ -291,7 +299,7 @@ class LanguageAgent(ControllerAgent):
             raise Exception("Invalid Action !")
 
 
-'''
+"""
 tile_info = {'current_tile': ['Forest', '1 Explorer', 'Units belong to myself player_0'],
              'tile_north_1': ['Tundra', 'Road', '1 Warriors', 'Units belong to myself player_0'],
              'tile_south_1': ['Plains', 'Buffalo'],
@@ -301,7 +309,8 @@ tile_info = {'current_tile': ['Forest', '1 Explorer', 'Units belong to myself pl
              'tile_north_1_west_1': ['Forest'],
              'tile_south_1_east_1': ['Forest', '1 Workers', 'Units belong to myself player_0'],
              'tile_south_1_west_1': ['Plains'],
-             'tile_north_2': ['Mountains', '1 Workers', 'Units belong to myself player_0'],
+             'tile_north_2': ['Mountains', '1 Workers', 'Units belong to myself player_0', 
+                              '1 city belongs to myself player_0'],
              'tile_north_2_east_1': ['Swamp'],
              'tile_north_2_west_1': ['Swamp'],
              'tile_north_2_east_2': ['Hills'],
@@ -333,6 +342,5 @@ unit_dict = {'Settlers 101': {'max_move': 0, 'avail_actions': []},
                                                                'move West', 'move East', 'move SouthWest', 
                                                                'move South', 'move SouthEast']}
              }
-'''
-
+"""
 

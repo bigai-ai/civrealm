@@ -69,6 +69,7 @@ INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 NUM_TO_DIRECTION_DICT = {'0': 'northwest', '1': 'north', '2': 'northeast', '3': 'west', '4': 'east',
                          '5': 'southwest', '6': 'south', '7': 'southeast'}
 DIRECTION_TO_NUM_ACTION_DICT = dict()
+KEYWORDS = ['change_unit_prod', 'change_improve_prod']
 
 
 class LanguageAgent(ControllerAgent):
@@ -83,18 +84,19 @@ class LanguageAgent(ControllerAgent):
         for ctrl_type in available_actions.keys():
             if ctrl_type == 'unit':
 
-                unit_dict = self.get_actors_info(observations[ctrl_type], ctrl_type, info)
-
-                valid_actor_id, valid_actor_name, valid_action_dict = self.get_next_valid_actor(observations, info, unit_dict, ctrl_type)
+                unit_dict = get_actors_info(observations, ctrl_type, info)
+                fc_logger.debug(f'unit_dict: {unit_dict}')
+                valid_actor_id, valid_actor_name, valid_action_dict = self.get_next_valid_actor(observations, info,
+                                                                                                unit_dict, ctrl_type)
                 
                 if not valid_actor_id:
                     continue
                 
                 current_unit_name = valid_actor_name
-                current_obs = self.get_tiles_info(observations[ctrl_type], valid_actor_id)
-                print('current obs:', current_obs)
-                current_avail_actions_list = []
+                current_obs = get_tiles_info(observations, ctrl_type, valid_actor_id)
+                fc_logger.debug(f'unit current obs: {current_obs}')
 
+                current_avail_actions_list = []
                 for action_name in valid_action_dict.keys():
                     temp_name = action_name
                     if action_name[-1] in NUM_TO_DIRECTION_DICT.keys():
@@ -104,7 +106,6 @@ class LanguageAgent(ControllerAgent):
                     DIRECTION_TO_NUM_ACTION_DICT[current_avail_actions_list[-1]] = temp_name
 
                 obs_input_prompt = f"""The unit is {current_unit_name}, observation is {current_obs}. Your available action list is {current_avail_actions_list}. """
-                
                 print('current unit:', current_unit_name, '; unit id:', valid_actor_id)
                 
                 exec_action_name = None
@@ -114,11 +115,25 @@ class LanguageAgent(ControllerAgent):
                     if isinstance(response, str):
                         response = json.loads(response)
 
-                    exec_action_name = self.ga.process_command(response['command'], obs_input_prompt, current_unit_name, current_avail_actions_list)
+                    exec_action_name = self.ga.process_command(response['command'], obs_input_prompt,
+                                                               current_unit_name, current_avail_actions_list)
 
                 exec_action_name = DIRECTION_TO_NUM_ACTION_DICT[exec_action_name]
                 if exec_action_name:
                     return valid_action_dict[exec_action_name]
+
+            elif ctrl_type == 'city':
+                city_dict = get_actors_info(observations, ctrl_type, info)
+                fc_logger.debug(f'city_dict: {city_dict}')
+
+                valid_actor_id, valid_actor_name, valid_action_dict = self.get_next_valid_actor(observations, info,
+                                                                                                city_dict, ctrl_type)
+
+                if not valid_actor_id:
+                    continue
+
+                current_obs = get_tiles_info(observations, ctrl_type, valid_actor_id)
+                fc_logger.debug(f'city current obs: {current_obs}')
 
             else:
                 continue
@@ -176,127 +191,148 @@ class LanguageAgent(ControllerAgent):
 
         return None, None, None
 
-    def get_actors_info(self, observations, ctrl_type, info):
-        unit_dict = {}
-        units = list(info['available_actions'][ctrl_type].get_actors())
-        for punit in units:
-            unit_name = UNIT_TYPES[observations[punit]['utype']] + ' ' + str(punit)
-            unit_dict[unit_name] = {}
-            unit_dict[unit_name]['max_move'] = observations[punit]['moves']
 
-            valid_action_dict = self.get_valid_actions(info, ctrl_type, punit)
-            avail_actions = list(valid_action_dict.keys())
+def get_actors_info(observations, ctrl_type, info):
+    observation_ctrl = observations[ctrl_type]
+    actor_dict = dict()
+    actors = list(info['available_actions'][ctrl_type].get_actors())
+    for pactor in actors:
+        actor_name = None
+        if ctrl_type == 'unit':
+            actor_name = UNIT_TYPES[observation_ctrl[pactor]['utype']] + ' ' + str(pactor)
+        elif ctrl_type == 'city':
+            actor_name = 'city' + ' ' + str(pactor)
 
+        actor_dict[actor_name] = dict()
+        actor_dict[actor_name]['max_move'] = observation_ctrl[pactor]['moves']
+
+        valid_action_dict = action_mask(get_valid_actions(info, ctrl_type, pactor))
+        avail_actions = list(valid_action_dict.keys())
+
+        if ctrl_type == 'unit':
             for action_id, action_name in enumerate(avail_actions):
                 if action_name in MOVE_NAMES:
                     avail_actions[action_id] = MOVE_NAMES[action_name]
 
-            unit_dict[unit_name]['avail_actions'] = avail_actions
-        return unit_dict
+        actor_dict[actor_name]['avail_actions'] = avail_actions
+    return actor_dict
 
-    def get_tiles_info(self, observations, actor_id):
-        observation_num = observations[actor_id]
-        tile_info = dict()
-        tile_id = 0
 
-        for ptile in TILE_INFO_TEMPLATE:
-            tile_info[ptile] = []
-            pdir = DIR[tile_id]
+def get_valid_actions(info, ctrl_type, actor_id):
+    available_actions = info['available_actions']
+    action_list = available_actions[ctrl_type]
 
-            terrain = self.get_tile_terrain(observation_num, pdir)
-            if terrain is not None:
-                tile_info[ptile].append(terrain)
+    valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
+    return valid_action_dict
 
-            extra = self.get_tile_extra(observation_num, pdir)
-            if len(extra) > 0:
-                tile_info[ptile].extend(extra)
 
-            units_str, units_dsp = self.get_units_on_tile(observation_num, pdir)
-            if len(units_str) > 0:
-                tile_info[ptile].extend(units_str)
-            if units_dsp is not None:
-                tile_info[ptile].append(units_dsp)
+def action_mask(valid_action_dict):
+    action_names = dict()
+    for act in valid_action_dict:
+        for keyword in KEYWORDS:
+            if keyword in act:
+                action_names[act] = valid_action_dict[act]
+    return action_names
 
-            player_of_city, city_dsp = self.get_city_on_tile(observation_num, pdir)
+
+def get_tiles_info(observations, ctrl_type, actor_id):
+    observation_num = observations[ctrl_type][actor_id]
+    tile_info = dict()
+    tile_id = 0
+
+    for ptile in TILE_INFO_TEMPLATE:
+        tile_info[ptile] = []
+        pdir = DIR[tile_id]
+
+        terrain = get_tile_terrain(observation_num, pdir)
+        if terrain is not None:
+            tile_info[ptile].append(terrain)
+
+        extra = get_tile_extra(observation_num, pdir)
+        if len(extra) > 0:
+            tile_info[ptile].extend(extra)
+
+        units_str, units_dsp = get_units_on_tile(observation_num, pdir)
+        if len(units_str) > 0:
+            tile_info[ptile].extend(units_str)
+        if units_dsp is not None:
+            tile_info[ptile].append(units_dsp)
+
+        if ctrl_type == 'unit':
+            player_of_city, city_dsp = get_city_on_tile(observation_num, pdir)
             if city_dsp is not None:
                 tile_info[ptile].append(city_dsp)
 
-            tile_id += 1
-        return tile_info
+        tile_id += 1
+    return tile_info
 
-    def get_tile_terrain(self, observation_num, pdir):
-        terrain_str = None
-        dx = RADIUS + pdir[0]
-        dy = RADIUS + pdir[1]
 
-        terrain = int(observation_num['terrain'][dx, dy])
-        if 0 <= terrain < len(TERRAIN_NAMES):
-            terrain_str = TERRAIN_NAMES[terrain]
-        return terrain_str
+def get_tile_terrain(observation_num, pdir):
+    terrain_str = None
+    dx = RADIUS + pdir[0]
+    dy = RADIUS + pdir[1]
 
-    def get_tile_extra(self, observation_num, pdir):
-        extra_str = []
-        dx = RADIUS + pdir[0]
-        dy = RADIUS + pdir[1]
+    terrain = int(observation_num['terrain'][dx, dy])
+    if 0 <= terrain < len(TERRAIN_NAMES):
+        terrain_str = TERRAIN_NAMES[terrain]
+    return terrain_str
 
-        for extra_id, extra_name in enumerate(EXTRA_NAMES):
-            if observation_num['extras'][dx, dy][extra_id] == 1:
-                extra_str.append(extra_name)
-        return extra_str
 
-    def get_units_on_tile(self, observation_num, pdir):
-        units_str = []
-        units_dsp = None
-        dx = RADIUS + pdir[0]
-        dy = RADIUS + pdir[1]
+def get_tile_extra(observation_num, pdir):
+    extra_str = []
+    dx = RADIUS + pdir[0]
+    dy = RADIUS + pdir[1]
 
-        units = observation_num['units'][dx, dy, :]
-        unit_index = list(np.where(units > 0)[0])
-        if len(unit_index) > 0:
-            for punit in unit_index:
-                punit_number = observation_num['units'][dx, dy, punit]
-                punit_name = UNIT_TYPES[punit]
-                units_str.append(str(int(punit_number)) + ' ' + punit_name)
+    for extra_id, extra_name in enumerate(EXTRA_NAMES):
+        if observation_num['extras'][dx, dy][extra_id] == 1:
+            extra_str.append(extra_name)
+    return extra_str
 
-            units_owner = observation_num['units_owner'][dx, dy]
-            ds_of_units = observation_num['ds_of_units'][dx, dy]
 
-            if ds_of_units >= 0:
-                ds_of_units = int(ds_of_units)
-                units_dsp = 'Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(units_owner))
-            else:
-                units_dsp = 'Units belong to myself player_' + str(int(units_owner))
+def get_units_on_tile(observation_num, pdir):
+    units_str = []
+    units_dsp = None
+    dx = RADIUS + pdir[0]
+    dy = RADIUS + pdir[1]
 
-        return units_str, units_dsp
+    units = observation_num['units'][dx, dy, :]
+    unit_index = list(np.where(units > 0)[0])
+    if len(unit_index) > 0:
+        for punit in unit_index:
+            punit_number = observation_num['units'][dx, dy, punit]
+            punit_name = UNIT_TYPES[punit]
+            units_str.append(str(int(punit_number)) + ' ' + punit_name)
 
-    def get_city_on_tile(self, observation_num, pdir):
-        player_of_city = None
-        city_dsp = None
-        dx = RADIUS + pdir[0]
-        dy = RADIUS + pdir[1]
+        units_owner = observation_num['units_owner'][dx, dy]
+        ds_of_units = observation_num['ds_of_units'][dx, dy]
 
-        city_owner = observation_num['cities'][dx, dy]
-        ds_of_city = observation_num['ds_of_cities'][dx, dy]
-        if city_owner >= 0:
-            player_of_city = int(city_owner)
-
-            if ds_of_city >= 0:
-                ds_of_city = int(ds_of_city)
-                city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(player_of_city)
-            else:
-                city_dsp = '1 city belongs to myself player_' + str(player_of_city)
-
-        return player_of_city, city_dsp
-
-    def get_actor_action(self, info, ctrl_type, actor_id, action_name):
-        valid_action_dict = self.get_valid_actions(info, ctrl_type, actor_id)
-        if action_name in INVERSE_MOVE_NAMES:
-            action_name = INVERSE_MOVE_NAMES[action_name]
-
-        if action_name in valid_action_dict:
-            return valid_action_dict[action_name]
+        if ds_of_units >= 0:
+            ds_of_units = int(ds_of_units)
+            units_dsp = 'Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(units_owner))
         else:
-            raise Exception("Invalid Action !")
+            units_dsp = 'Units belong to myself player_' + str(int(units_owner))
+
+    return units_str, units_dsp
+
+
+def get_city_on_tile(observation_num, pdir):
+    player_of_city = None
+    city_dsp = None
+    dx = RADIUS + pdir[0]
+    dy = RADIUS + pdir[1]
+
+    city_owner = observation_num['cities'][dx, dy]
+    ds_of_city = observation_num['ds_of_cities'][dx, dy]
+    if city_owner >= 0:
+        player_of_city = int(city_owner)
+
+        if ds_of_city >= 0:
+            ds_of_city = int(ds_of_city)
+            city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(player_of_city)
+        else:
+            city_dsp = '1 city belongs to myself player_' + str(player_of_city)
+
+    return player_of_city, city_dsp
 
 
 """
@@ -342,5 +378,36 @@ unit_dict = {'Settlers 101': {'max_move': 0, 'avail_actions': []},
                                                                'move West', 'move East', 'move SouthWest', 
                                                                'move South', 'move SouthEast']}
              }
-"""
 
+city_dict: {'city 121': {'max_move': 0, 'avail_actions': ['change_unit_prod_Settlers_0',
+                                                          'change_improve_prod_Barracks_3']},
+            'city 129': {'max_move': 0, 'avail_actions': ['change_unit_prod_Settlers_0',
+                                                          'change_improve_prod_Barracks_3']}
+            }
+
+city_tile_info: {'current_tile': ['Plains', 'Road', 'Wheat'],
+                 'tile_north_1': ['Forest'], 
+                 'tile_south_1': ['Forest'], 
+                 'tile_east_1': ['Ocean'],
+                 'tile_west_1': ['Grassland'], 
+                 'tile_north_1_east_1': ['Forest', 'Minor Tribe Village'],
+                 'tile_north_1_west_1': ['Plains'],
+                 'tile_south_1_east_1': ['Ocean'],
+                 'tile_south_1_west_1': ['Swamp'],
+                 'tile_north_2': ['Plains'],
+                 'tile_north_2_east_1': ['Ocean'],
+                 'tile_north_2_west_1': ['Forest'], 'tile_north_2_east_2': ['Ocean'],
+                 'tile_north_2_west_2': ['Swamp'],
+                 'tile_south_2': ['Grassland'],
+                 'tile_south_2_east_1': ['Ocean', 'Fish'],
+                 'tile_south_2_west_1': ['Forest', 'Pheasant'],
+                 'tile_south_2_east_2': ['Grassland'],
+                 'tile_south_2_west_2': ['Grassland'],
+                 'tile_east_2': ['Ocean'],
+                 'tile_north_1_east_2': ['Grassland', 'Resources'],
+                 'tile_south_1_east_2': ['Ocean'],
+                 'tile_west_2': ['Mountains'],
+                 'tile_north_1_west_2': ['Mountains'],
+                 'tile_south_1_west_2': ['Grassland']
+                 }
+"""

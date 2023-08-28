@@ -32,13 +32,13 @@ class FreecivCodeEnv(FreecivBaseEnv):
     def __init__(self, client_port: int = fc_args['client_port']):
         super().__init__(client_port)
 
-    def get_mini_map_info(self, utype, moves, ptile):
+    def get_mini_map_info(self, ctrl_type, ptile, moves=0, utype=None):
         mini_map_info = dict()
         info_keys = ['utype', 'moves', 'terrain', 'extras', 'units', 'cities']
         terrain_info, extra_info = self.get_meta_info_of_mini_map(ptile)
 
         for ptype in info_keys:
-            if ptype == 'utype':
+            if ctrl_type == 'unit' and ptype == 'utype':
                 mini_map_info[ptype] = utype
             elif ptype == 'moves':
                 mini_map_info[ptype] = moves
@@ -50,7 +50,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 mini_map_info[ptype], units_owner, ds_of_units = self.get_units_on_mini_map(ptile)
                 mini_map_info['units_owner'] = units_owner
                 mini_map_info['ds_of_units'] = ds_of_units
-            else:
+            elif ctrl_type == 'unit' and ptype == 'cities':
                 mini_map_info[ptype], ds_of_cites = self.get_cities_on_mini_map(ptile)
                 mini_map_info['ds_of_cities'] = ds_of_cites
 
@@ -138,15 +138,32 @@ class FreecivCodeEnv(FreecivBaseEnv):
             for ctrl_type in base_observations:
                 if ctrl_type == 'unit':
                     observations[ctrl_type] = dict()
-                    units = self.civ_controller.controller_list['unit'].units
+                    units = self.civ_controller.unit_ctrl.units
                     for punit in units:
                         if units[punit]['owner'] != self.civ_controller.player_ctrl.my_player_id:
                             continue
 
                         ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
-                        mini_map_info = self.get_mini_map_info(units[punit]['type'], units[punit]['movesleft'], ptile)
-                        observations[ctrl_type][punit] = mini_map_info
+                        unit_mini_map_info = self.get_mini_map_info(ctrl_type, ptile,
+                                                                    units[punit]['movesleft'], units[punit]['type'])
+                        observations[ctrl_type][punit] = unit_mini_map_info
+
+                elif ctrl_type == 'city':
+                    observations[ctrl_type] = dict()
+                    cities = self.civ_controller.city_ctrl.cities
+                    for pcity in cities:
+                        if cities[pcity]['owner'] != self.civ_controller.player_ctrl.my_player_id:
+                            continue
+
+                        ptile = self.civ_controller.map_ctrl.index_to_tile(cities[pcity]['tile'])
+                        if self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1:
+                            city_mini_map_info = self.get_mini_map_info(ctrl_type, ptile, 1)
+                        else:
+                            city_mini_map_info = self.get_mini_map_info(ctrl_type, ptile)
+                        observations[ctrl_type][pcity] = city_mini_map_info
+
                 else:
                     observations[ctrl_type] = base_observations[ctrl_type]
 
         return observations
+

@@ -680,10 +680,10 @@ class CivController(CivPropController):
         # Delete saved game in the end of turn.
         # fc_logger.info('handle_end_turn')
 
-        if fc_args['debug.autosave'] and self.delete_save:
-            self.delete_save_game()
-        # Set delete_save for the next turn
-        self.delete_save = True
+        # if fc_args['debug.autosave'] and self.delete_save:
+        #     self.delete_save_game()
+        # # Set delete_save for the next turn
+        # self.delete_save = True
 
         self.turn_manager.turn += 1
 

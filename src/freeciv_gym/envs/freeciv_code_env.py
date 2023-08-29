@@ -18,8 +18,8 @@ from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
-from freeciv_gym.freeciv.utils.language_agent_utility import RADIUS, MAP_SIZE, TILE_INFO_TEMPLATE, DIR, MOVE_NAMES, KEYWORDS
-from freeciv_gym.freeciv.utils.language_agent_utility import get_tile_terrain, get_units_on_tile
+from freeciv_gym.freeciv.utils.language_agent_utility import TILE_INFO_TEMPLATE, DIR
+from freeciv_gym.freeciv.utils.language_agent_utility import get_tile_terrain, get_units_on_tile, action_mask
 from freeciv_gym.freeciv.players.player_const import DS_TXT
 
 
@@ -44,7 +44,10 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
         action_dict = self.info['available_actions'][ctrl_type]
         avail_action_dict = action_dict.get_actions(actor_id, valid_only=True)
-        actor_info[actor_name]['avail_actions'] = list(avail_action_dict.keys())
+        if ctrl_type == 'unit':
+            actor_info[actor_name]['avail_actions'] = list(avail_action_dict.keys())
+        elif ctrl_type == 'city':
+            actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
 
         return actor_info
 

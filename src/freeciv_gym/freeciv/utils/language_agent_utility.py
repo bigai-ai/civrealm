@@ -55,15 +55,16 @@ MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'mov
               'goto_3': 'move_West', 'goto_4': 'move_East', 'goto_5': 'move_SouthWest',
               'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
 INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
+
 KEYWORDS = ['change_unit_prod', 'change_improve_prod']
 
 
 def action_mask(valid_action_dict):
-    action_names = dict()
-    for act in valid_action_dict:
+    action_names = []
+    for act in valid_action_dict.keys():
         for keyword in KEYWORDS:
             if keyword in act:
-                action_names[act] = valid_action_dict[act]
+                action_names.append(act)
     return action_names
 
 
@@ -87,7 +88,6 @@ def get_units_on_tile(units):
         if units_num > 0:
             units_on_tile.append(str(int(units_num)) + ' ' + unit_name)
     return units_on_tile
-
 
 
 

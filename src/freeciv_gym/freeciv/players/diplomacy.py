@@ -69,13 +69,14 @@ class DiplomacyCtrl(CivPropController):
     def get_current_state(self, counterpart):
         player_id = counterpart["playerno"]
         return {"diplstates%i" % player_id: self.diplstates[player_id]}
-        """
-        for counterpart in self.players:
+
+    """
+    for counterpart in self.players:
             if counterpart == cur_player:
                 state.update(self.dipl_ctrl.get_current_state(counterpart))
 
         state["shared_vision"] = 0
-        
+
         if (pplayer['diplstates'] !== undefined) {
             pplayer['diplstates'].forEach(function (st, i) {
               if (st['state'] !== DS_NO_CONTACT && i !== pplayer['playerno']) {
@@ -100,7 +101,7 @@ class DiplomacyCtrl(CivPropController):
                 state["shared_vision"] += 1 # "To you"
             if cur_player['gives_shared_vision'].isSet(player_id):
                 state["shared_vision"] += 2 # "To Them
-        """
+    """
 
     def handle_player_diplstate(self, packet):
         cur_playerno = self.clstate.player_num()
@@ -140,7 +141,7 @@ class DiplomacyCtrl(CivPropController):
         """
 
     def handle_diplomacy_init_meeting(self, packet):
-        if not (packet['counterpart'] in self.diplomacy_request_queue):
+        if packet['counterpart'] not in self.diplomacy_request_queue:
             self.diplomacy_request_queue.append(packet['counterpart'])
 
         self.diplomacy_clause_map[packet['counterpart']] = []
@@ -149,23 +150,26 @@ class DiplomacyCtrl(CivPropController):
     def handle_diplomacy_cancel_meeting(self, packet):
         counterpart = packet['counterpart']
 
-        if self.active_diplomacy_meeting_id == counterpart:
-            self.active_diplomacy_meeting_id = None
-
         if counterpart in self.diplomacy_request_queue:
             del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
         # setTimeout(refresh_diplomacy_request_queue, 1000)
 
+        if self.active_diplomacy_meeting_id == counterpart:
+            self.refresh_diplomacy_request_queue()
+
+        if counterpart in self.diplomacy_clause_map:
+            del self.diplomacy_clause_map[counterpart]
+
     def refresh_diplomacy_request_queue(self):
-        if self.diplomacy_request_queue != []:
+        if self.diplomacy_request_queue:
             next_meeting = self.diplomacy_request_queue[0]
-            if next_meeting != None and next_meeting != self.active_diplomacy_meeting_id:
+            if next_meeting is not None:
                 self.active_diplomacy_meeting_id = next_meeting
         else:
             self.active_diplomacy_meeting_id = None
 
     def handle_diplomacy_create_clause(self, packet):
-        if (self.diplomacy_clause_map[packet['counterpart']] == None):
+        if self.diplomacy_clause_map[packet['counterpart']] is None:
             self.diplomacy_clause_map[packet['counterpart']] = []
         self.diplomacy_clause_map[packet['counterpart']].append(packet)
 
@@ -173,10 +177,9 @@ class DiplomacyCtrl(CivPropController):
         clause_list = self.diplomacy_clause_map[packet['counterpart']]
         for i, check_clause in enumerate(clause_list):
             if (packet['counterpart'] == check_clause['counterpart'] and
-                packet['giver'] == check_clause['giver'] and
+                    packet['giver'] == check_clause['giver'] and
                     packet['type'] == check_clause['type'] and
                     packet['value'] == check_clause['value']):
-
                 del clause_list[i]
                 break
 
@@ -186,10 +189,14 @@ class DiplomacyCtrl(CivPropController):
         other_accepted = packet['other_accepted']
 
         if myself_accepted and other_accepted:
+            if counterpart in self.diplomacy_request_queue:
+                del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
+
             if self.active_diplomacy_meeting_id == counterpart:
                 self.refresh_diplomacy_request_queue()
-            elif counterpart in self.diplomacy_request_queue:
-                del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
+
+            if counterpart in self.diplomacy_clause_map:
+                del self.diplomacy_clause_map[counterpart]
         '''
         if not self.active_diplomacy_meeting_id == counterpart and myself_accepted and other_accepted:
             if counterpart in self.diplomacy_request_queue:
@@ -226,17 +233,17 @@ class DiplomacyCtrl(CivPropController):
     def get_diplstate_text(state_id):
         if player_const.DS_ARMISTICE == state_id:
             return "Armistice"
-        elif (player_const.DS_WAR == state_id):
+        elif player_const.DS_WAR == state_id:
             return "War"
-        elif (player_const.DS_CEASEFIRE == state_id):
+        elif player_const.DS_CEASEFIRE == state_id:
             return "Ceasefire"
-        elif (player_const.DS_PEACE == state_id):
+        elif player_const.DS_PEACE == state_id:
             return "Peace"
-        elif (player_const.DS_ALLIANCE == state_id):
+        elif player_const.DS_ALLIANCE == state_id:
             return "Alliance"
-        elif (player_const.DS_NO_CONTACT == state_id):
+        elif player_const.DS_NO_CONTACT == state_id:
             return "No contact"
-        elif (player_const.DS_TEAM == state_id):
+        elif player_const.DS_TEAM == state_id:
             return "Team"
         else:
             return "Unknown state"
@@ -269,3 +276,4 @@ class DiplomacyCtrl(CivPropController):
                       "value" : gold}
             self.ws_client.send_request(packet)
     """
+

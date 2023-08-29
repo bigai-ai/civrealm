@@ -94,8 +94,10 @@ class WebSocketClient(object):
             # raise RuntimeError('Web socket connection is already closed.')
         
         print(f'Url: {self.url}')
-        loop = ioloop.IOLoop.current() 
+        loop = ioloop.IOLoop.current()
+        print(f'_ws_connection: {hex(id(self._ws_connection))}')
         print(f'loop: {hex(id(loop))}\n *******')
+        
 
         self._connection_closed = True
         self._on_connection_close()

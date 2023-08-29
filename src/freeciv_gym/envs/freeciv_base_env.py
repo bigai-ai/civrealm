@@ -161,7 +161,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
-        return None
 
 @ray.remote
 class FreecivParallelEnv():

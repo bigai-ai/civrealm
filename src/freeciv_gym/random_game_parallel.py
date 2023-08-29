@@ -31,13 +31,17 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 
 def main():
-    process_num = 5
+    process_num = 10
     port = 6300
     port_list = []
     env_list = []
     observation_list = []
     info_list = []
+    # Store whether an env has terminated
     done_list = [False]*process_num
+    # Store whether an env has closed its connection
+    closed_list = [False]*process_num
+
     ray.init(local_mode=False)
    
     agent = ControllerAgent()
@@ -67,16 +71,20 @@ def main():
             if not done_list[i]:
                 observations = observation_list[i]
                 info = info_list[i]
-                # import random
+                import random
+                if random.random() < 0.3:
+                    action = 'pass'
+                else:
+                    action = None
                 # if port_list[i] != 6301 and port_list[i] != 6302:
                 #     action = 'pass'
                 # else:
                     # action = agent.act(observations, info)
-                if port_list[i] != 6301 and port_list[i] != 6302:
-                    action = 'pass'
-                else:
-                    action = None
-                action = None
+                # if port_list[i] != 6301 and port_list[i] != 6302:
+                #     action = 'pass'
+                # else:
+                #     action = None
+                # action = None
                 # action = 'pass'
                 id = env_list[i].step.remote(action)
                 result_ids.append(id)
@@ -120,8 +128,9 @@ def main():
 
         result_ids = []
         for i in range(process_num):
-            if done_list[i]:
+            if done_list[i] and not closed_list[i]:
                 result_ids.append(env_list[i].close.remote())
+                closed_list[i] = True
         
         ray.get(result_ids)
 

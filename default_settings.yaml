@@ -1,7 +1,7 @@
 # username: testcontroller
 username: myagent
 # Max number of turns per game
-max_turns: 100
+max_turns: 10
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
@@ -24,6 +24,9 @@ minp: 1
 allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
 autotoggle: False
+
+# The type of runner
+runner: ''
 
 debug:
   # Records the game state and available actions at every step.

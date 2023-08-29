@@ -33,9 +33,9 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 def main():
     # ray.init(local_mode=True)
     ray.init()
-#     epoch_num = 1
-#     process_num = 1
-#     port = 6300
+    epoch_num = 1
+    process_num = 1
+    port = 6300
 
 #     agent = ControllerAgent()
 #     actors = []
@@ -69,15 +69,15 @@ def main():
 #     #     import time
 #     #     time.sleep(1)
     
-#     # for i in range(epoch_num):
-#     #     results = []
-#     #     for j in range(process_num):
-#     #         # results.append(pool.apply_async(run_single, (port+i*process_num+j,)))
-#     #         results.append(run_single.remote(port+i*process_num+j))
-#     #     ray.get(results)
-#     #     # print(result.get() for result in results)
-#     #     import time
-#     #     time.sleep(1)
+#     for i in range(epoch_num):
+#         results = []
+#         for j in range(process_num):
+#             # results.append(pool.apply_async(run_single, (port+i*process_num+j,)))
+#             results.append(run_single.remote(port+i*process_num+j))
+#         ray.get(results)
+#         # print(result.get() for result in results)
+#         import time
+#         time.sleep(1)
 
 # @ray.remote
 # def run_single(port):

@@ -22,6 +22,7 @@ from tornado import httpclient
 from tornado import httputil
 from tornado import websocket
 from tornado import ioloop
+import asyncio
 
 APPLICATION_JSON = 'application/json'
 
@@ -45,6 +46,7 @@ class WebSocketClient(object):
         """Connect to the server.
         :param str url: server URL.
         """
+        self.url = url
         headers = httputil.HTTPHeaders({'Content-Type': APPLICATION_JSON})
         request = httpclient.HTTPRequest(url=url,
                                          connect_timeout=self.connect_timeout,
@@ -90,6 +92,10 @@ class WebSocketClient(object):
         if self._connection_closed:
             return
             # raise RuntimeError('Web socket connection is already closed.')
+        
+        print(f'Url: {self.url}')
+        loop = ioloop.IOLoop.current() 
+        print(f'loop: {hex(id(loop))}\n *******')
 
         self._connection_closed = True
         self._on_connection_close()

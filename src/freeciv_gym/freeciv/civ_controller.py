@@ -267,7 +267,7 @@ class CivController(CivPropController):
         if action == None:
             self.send_end_turn()
         elif action == 'pass':
-            pass
+            self.ws_client.send_message(f"Debug.Do nothing for this step.")
         else:
             action.trigger_action(self.ws_client)
 
@@ -686,6 +686,8 @@ class CivController(CivPropController):
         # self.delete_save = True
 
         self.turn_manager.turn += 1
+        # if self.client_port == 6301:
+        #     self.close()
 
     def handle_conn_info(self, packet):
         """

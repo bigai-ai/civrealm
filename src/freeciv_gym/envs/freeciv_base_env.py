@@ -15,18 +15,21 @@
 
 
 import os
-
 import json
 import matplotlib.pyplot as plt
-import ray
+
 import gymnasium
 from gymnasium import utils
 
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.eval_tags import EVALUATION_TAGS
-
 from freeciv_gym.configs import fc_args
+
+# Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
+os.environ['RAY_DEDUP_LOGS'] = '0'
+import ray
+
 
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
@@ -38,6 +41,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
+        utils.EzPickle.__init__(self, client_port)
 
     def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
@@ -157,20 +161,26 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def close(self):
         self.civ_controller.close()
-
-import asyncio
+        return None
 
 @ray.remote
 class FreecivParallelEnv():
-    def __init__(self, env_name, port):
-        self.env = gymnasium.make(env_name, client_port=port)
+    # def __init__(self, env_name, port):
+    #     # self.env = gymnasium.make(env_name, client_port=port)
+    #     # if env_name == 'freeciv/FreecivBase-v0':
+    #     self.env = FreecivBaseEnv(client_port=port)
+    #     self.port = port
+
+    def __init__(self, env, port):
+        self.env = env
         self.port = port
-        # a = fc_args['node_ip_address']
-        # breakpoint()
-    async def step(self, action):
+    
+    def step(self, action):
+        # import time
+        # time.sleep(3)
         # return self.env.step(action)
         
-        observation, reward, terminated, truncated, info = await self.env.step(action)
+        observation, reward, terminated, truncated, info = self.env.step(action)
 
         # self.env.civ_controller.perform_action(action)
         # info = self._get_info()
@@ -194,113 +204,28 @@ class FreecivParallelEnv():
     def close(self):
         self.env.close()
 
-    async def rollout(self, agent):
-        print(f'Port: {self.port}')
-        done = False
-        # Initialize environments
-        results = await self.env.reset()
-        observation = results[0]
-        observation = self.env.civ_controller.get_turn()
-        info = results[1]
-        print(f'Port: {self.port}, observation: {observation}')
-        while True:
-            # Start the parallel running
-            result_ids = []
-            index = 0
-            # key: index of result_ids, value: id of env
-            index_id_map = {}
-            if not done:
-                import random
-                if random.random() < 0.01:
-                    action = 'pass'
-                else:
-                    action = None
-                # action = agent(observation, info)
-                try:
-                    result = await self.env.step(action)
-                    observation = result[0]
-                    observation = self.env.civ_controller.get_turn()
-                    info = result[4]
-                    done = result[3]
-                    # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
-                except Exception as e:
-                    fc_logger.warning(repr(e))
-                    done = True
-
-            print(f'Port: {self.port}, observation: {observation}')
-            
-            if done:
-                await self.env.close()
-                break
-
-# @ray.remote
-# class FreecivParallelEnv():
-#     def __init__(self, env_name, port):
-#         self.env = gymnasium.make(env_name, client_port=port)
-#         self.port = port
+@ray.remote
+class FreecivDummyEnv(FreecivBaseEnv):
+    def __init__(self, port):
+        super().__init__(port)
+        self.port = port
+        # self.num = 0
     
-#     def step(self, action):
-#         # return self.env.step(action)
-        
-#         observation, reward, terminated, truncated, info = self.env.step(action)
-
-#         # self.env.civ_controller.perform_action(action)
-#         # info = self._get_info()
-#         # observation = self._get_observation()
-#         # reward = self._get_reward()
-#         # terminated = self._get_terminated()
-#         # truncated = self.env.get_truncated()
-#         # TODO: observation, reward, terminated, truncated, info
-#         return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
+    def step(self, action):
+        self.num += (self.port % 6300)
+        import time
+        if self.port == 6301:
+            time.sleep(1)
+        if self.port == 6303:
+            time.sleep(2)
+        return self.num, self.num, self.num, False, self.num
     
-#     def reset(self):
-#         # return self.env.reset()
-        
-#         observation, info = self.env.reset()
+    def reset(self):
+        self.num = 1
+        return self.num, self.num
 
-#         # self.env.civ_controller.init_network()
-#         # info = self._get_info()
-#         # observation = self._get_observation()
-#         return self.env.civ_controller.get_turn(), self.env.civ_controller.get_turn()
+    def close(self):
+        pass
 
-#     def close(self):
-#         self.env.close()
-
-#     def rollout(self, agent):
-#         print(f'Port: {self.port}')
-#         done = False
-#         # Initialize environments
-#         results = self.env.reset()
-#         observation = results[0]
-#         observation = self.env.civ_controller.get_turn()
-#         info = results[1]
-#         print(f'Port: {self.port}, observation: {observation}')
-#         while True:
-#             # Start the parallel running
-#             result_ids = []
-#             index = 0
-#             # key: index of result_ids, value: id of env
-#             index_id_map = {}
-#             if not done:
-#                 import random
-#                 if random.random() < 0.01:
-#                     action = 'pass'
-#                 else:
-#                     action = None
-#                 # action = agent(observation, info)
-#                 try:
-#                     result = self.env.step(action)
-#                     observation = result[0]
-#                     observation = self.env.civ_controller.get_turn()
-#                     info = result[4]
-#                     done = result[3]
-#                     # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
-#                 except Exception as e:
-#                     fc_logger.warning(repr(e))
-#                     done = True
-
-#             print(f'Port: {self.port}, observation: {observation}')
-            
-#             if done:
-#                 self.env.close()
-#                 break
+    def get_port(self):
+        return self.port

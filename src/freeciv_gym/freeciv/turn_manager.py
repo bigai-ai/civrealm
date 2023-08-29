@@ -14,8 +14,12 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import time
+from typing import Dict
 
 import gymnasium
+
+from freeciv_gym.freeciv.utils.base_controller import CivPropController
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList, NoActions
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
@@ -32,7 +36,8 @@ class TurnManager(object):
         self._turn_player = None
         self._turn_ctrls = None
         self._turn_state = None
-        self._turn_opts = None
+        self._turn_actions = None
+        self._turn_info = None
         self._turn_history = []
         self.client_port = port
 
@@ -55,19 +60,19 @@ class TurnManager(object):
         fc_logger.info('==============================================')
         # print(f'\nBegin turn: {self._turn:04d}\n')
 
-    def begin_turn(self, pplayer, info_controllers):
+    def begin_turn(self, pplayer, info_controllers: Dict[str, CivPropController]):
         self._turn_active = True
-        self._turn_ctrls = info_controllers
         self._turn_player = pplayer
-        self._turn_state = dict()
-        self._turn_opts = dict()
+        self._turn_ctrls: Dict[str, CivPropController] = info_controllers
+        self._turn_state: Dict[str, Dict] = dict()
+        self._turn_actions: Dict[str, ActionList] = dict()
+        self._turn_info: Dict[str, Dict] = dict()
         if self._turn == 1 and fc_args['wait_for_observer']:
             import time
             time.sleep(8)
 
     @property
     def action_space(self):
-        # return gymnasium.spaces.Discrete(1)
         if self._turn_ctrls is None:
             return gymnasium.spaces.Discrete(1)
 
@@ -85,7 +90,6 @@ class TurnManager(object):
 
     @property
     def observation_space(self):
-        # return gymnasium.spaces.Discrete(1)
         if self._turn_ctrls is None:
             return gymnasium.spaces.Discrete(1)
 
@@ -118,12 +122,16 @@ class TurnManager(object):
 
     def get_available_actions(self):
         fc_logger.debug("Acquiring action for: ")
-        for ctrl_type, ctrl in self._turn_ctrls.items():
+        for ctrl_type in self._turn_ctrls.keys():
             fc_logger.debug(f'....: {ctrl_type}')
-            self._turn_opts[ctrl_type] = ctrl.get_current_options(
-                self._turn_player)
+            controller: CivPropController = self._turn_ctrls[ctrl_type]
+            action_list: ActionList = controller.get_current_options(self._turn_player)
+            self._turn_actions[ctrl_type] = action_list
 
-        return self._turn_opts
+            action_info = action_list.get_action_info()
+            if len(action_info) > 0:
+                self._turn_info[ctrl_type] = action_info
+        return self._turn_actions
 
     def get_reward(self, current_score):
         # FIXME: this function gets called every time the agent takes an action. However, the score only changes between turns.
@@ -136,8 +144,9 @@ class TurnManager(object):
             f'============== Finish turn {self._turn:04d} ==============')
         fc_logger.info(f'Sleeping for {self._sleep_time_after_turn} seconds')
         self._turn_active = False
-        self._turn_ctrls = None
         self._turn_player = None
+        self._turn_ctrls = None
         self._turn_state = None
-        self._turn_opts = None
+        self._turn_actions = None
+        self._turn_info = None
         time.sleep(self._sleep_time_after_turn)

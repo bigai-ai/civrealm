@@ -208,6 +208,16 @@ class ActionList(object):
         a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
         return a_actor.keys()
 
+    def get_action_info(self):
+        action_info = {}
+        for actor_id in self._action_dict:
+            action_info[actor_id] = {}
+            for action_key in self._action_dict[actor_id]:
+                try:
+                    action_info[actor_id][action_key] = self._action_dict[actor_id][action_key].is_action_valid()
+                except Exception:
+                    continue
+        return action_info
 
 class NoActions(ActionList):
     def update(self, pplayer):

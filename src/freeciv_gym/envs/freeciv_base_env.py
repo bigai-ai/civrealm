@@ -40,7 +40,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
-        # return
         self._record_step_count = 0
         self.recording_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
@@ -68,11 +67,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
 
     def _record_observation(self, observations):
-        # return
         self._record_to_file('state', observations, lambda x: x.tolist())
 
     def _record_action(self, available_actions, action):
-        # return
         self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
         if action:
             self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())

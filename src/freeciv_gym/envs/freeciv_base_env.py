@@ -26,11 +26,6 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.eval_tags import EVALUATION_TAGS
 from freeciv_gym.configs import fc_args
 
-# Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
-os.environ['RAY_DEDUP_LOGS'] = '0'
-import ray
-
-
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
@@ -162,69 +157,30 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def close(self):
         self.civ_controller.close()
 
-@ray.remote
-class FreecivParallelEnv():
-    # def __init__(self, env_name, port):
-    #     # self.env = gymnasium.make(env_name, client_port=port)
-    #     # if env_name == 'freeciv/FreecivBase-v0':
-    #     self.env = FreecivBaseEnv(client_port=port)
-    #     self.port = port
 
-    def __init__(self, env, port):
-        self.env = env
-        self.port = port
+# Only for testing purpose
+# @ray.remote
+# class FreecivDummyEnv(FreecivBaseEnv):
+#     def __init__(self, port):
+#         super().__init__(port)
+#         self.port = port
+#         # self.num = 0
     
-    def step(self, action):
-        # import time
-        # time.sleep(3)
-        # return self.env.step(action)
-        
-        observation, reward, terminated, truncated, info = self.env.step(action)
-
-        # self.env.civ_controller.perform_action(action)
-        # info = self._get_info()
-        # observation = self._get_observation()
-        # reward = self._get_reward()
-        # terminated = self._get_terminated()
-        # truncated = self.env.get_truncated()
-        # TODO: observation, reward, terminated, truncated, info
-        return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
+#     def step(self, action):
+#         self.num += (self.port % 6300)
+#         import time
+#         if self.port == 6301:
+#             time.sleep(1)
+#         if self.port == 6303:
+#             time.sleep(2)
+#         return self.num, self.num, self.num, False, self.num
     
-    def reset(self):
-        # return self.env.reset()
-        
-        observation, info = self.env.reset()
+#     def reset(self):
+#         self.num = 1
+#         return self.num, self.num
 
-        # self.env.civ_controller.init_network()
-        # info = self._get_info()
-        # observation = self._get_observation()
-        return self.env.civ_controller.get_turn(), self.env.civ_controller.get_turn()
+#     def close(self):
+#         pass
 
-    def close(self):
-        self.env.close()
-
-@ray.remote
-class FreecivDummyEnv(FreecivBaseEnv):
-    def __init__(self, port):
-        super().__init__(port)
-        self.port = port
-        # self.num = 0
-    
-    def step(self, action):
-        self.num += (self.port % 6300)
-        import time
-        if self.port == 6301:
-            time.sleep(1)
-        if self.port == 6303:
-            time.sleep(2)
-        return self.num, self.num, self.num, False, self.num
-    
-    def reset(self):
-        self.num = 1
-        return self.num, self.num
-
-    def close(self):
-        pass
-
-    def get_port(self):
-        return self.port
+#     def get_port(self):
+#         return self.port

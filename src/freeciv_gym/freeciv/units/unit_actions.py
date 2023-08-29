@@ -1049,17 +1049,33 @@ class ActPillage(UnitAction):
             self.focus.pcity) == self.focus.pplayer["playerno"]:
             return False
         
-        can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_FARMLAND) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
-            TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
-        return can_pillage_extra
+        extra_num = 0
+        for extra in [EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
+            if TileState.tile_has_extra(self.focus.ptile, extra):
+                extra_num += 1
+        if extra_num == 0:
+            return False
+        
+        pillage_num = 0
+        units = FocusUnit.tile_units(self.focus.ptile)
+        for unit in units:
+            if unit['activity'] == fc_types.ACTIVITY_PILLAGE:
+                pillage_num += 1
+        
+        if pillage_num == extra_num:
+            return False
+        # can_pillage_extra = TileState.tile_has_extra(self.focus.ptile, EXTRA_IRRIGATION) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_MINE) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_OIL_MINE) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_FARMLAND) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_FORTRESS) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_BUOY) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
+        #     TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+
+        return True
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])

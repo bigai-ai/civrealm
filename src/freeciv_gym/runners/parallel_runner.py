@@ -1,15 +1,16 @@
 import gymnasium
 import freeciv_gym
-from freeciv_gym.freeciv.utils.freeciv_logging import logger_setup
+from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.configs import fc_args
 import ray
 import copy
 
+
 class ParallelRunner:
     def __init__(self, env_name, agent, logger, epoch_num):
-        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": logger_setup})
-        self.logger = logger_setup()
+        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
+        self.logger = ray_logger_setup()
 
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']
@@ -17,10 +18,10 @@ class ParallelRunner:
 
         # Initialize envs
         self.envs = []
-        
+
         port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
-            temp_port = port_start+epoch_num%2*self.batch_size_run+i
+            temp_port = port_start+epoch_num % 2*self.batch_size_run+i
             env_core = gymnasium.make(env_name, client_port=temp_port)
             env = FreecivParallelEnv.remote(env_core, temp_port)
             self.envs.append(env)
@@ -52,7 +53,7 @@ class ParallelRunner:
         for i in range(self.batch_size_run):
             observations.append(results[i][0])
             infos.append(results[i][1])
-        
+
         self.batchs.append((observations, infos, rewards, dones))
 
         self.t = 0
@@ -63,7 +64,7 @@ class ParallelRunner:
         episode_returns = [0 for _ in range(self.batch_size_run)]
         episode_lengths = [0 for _ in range(self.batch_size_run)]
         # self.agent.init_hidden(batch_size=self.batch_size_run)
-        
+
         all_terminated = False
         # Store whether an env has terminated
         dones = [False]*self.batch_size_run
@@ -109,7 +110,7 @@ class ParallelRunner:
                     id_env_map[id] = i
                     if not test_mode:
                         self.env_steps_this_run += 1
-            
+
             # The num_returns=1 ensures ready length is 1.
             ready, unready = ray.wait(result_ids, num_returns=1)
             while unready:
@@ -125,7 +126,7 @@ class ParallelRunner:
                     truncated = result[3]
                     infos[env_id] = result[4]
                     dones[env_id] = terminated or truncated
-                    # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3], 
+                    # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3],
                 except Exception as e:
                     print(str(e))
                     self.logger.warning(repr(e))
@@ -155,13 +156,13 @@ class ParallelRunner:
 
             # Update envs_not_terminated
             envs_not_terminated = [b_idx for b_idx, termed in enumerate(dones) if not termed]
-            
+
             result_ids = []
             for i in range(self.batch_size_run):
                 if dones[i] and not closed_envs[i]:
                     result_ids.append(self.envs[i].close.remote())
                     closed_envs[i] = True
-            
+
             ray.get(result_ids)
 
             all_terminated = all(dones)
@@ -171,9 +172,7 @@ class ParallelRunner:
             # Move onto the next timestep
             self.t += 1
 
-
         if not test_mode:
             self.t_env += self.env_steps_this_run
 
         return self.batchs
-

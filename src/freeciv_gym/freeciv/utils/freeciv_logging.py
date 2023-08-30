@@ -47,8 +47,7 @@ def set_parallel_logging(log_dir_name, log_file_suffix):
     fc_logger.addHandler(file_handler_with_suffix)
 
 
-def logger_setup():
-    print(f'reset_logger in pid: {os.getpid()}')
+def ray_logger_setup():
     set_parallel_logging('parallel', os.getpid())
     return fc_logger
 

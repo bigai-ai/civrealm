@@ -39,7 +39,7 @@ port_start: 6300
 debug:
   # Records the game state and available actions at every step.
   # **Warning**: generates many log files if True. Turned off by default.
-  record: True
+  record: False
   sleep_time_after_turn: 0.0
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True

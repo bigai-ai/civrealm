@@ -110,7 +110,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         return observation, reward, terminated, truncated, info
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         # self.civ_controller.reset()
         self.civ_controller.init_network()
         info, observation = self._get_info_and_observation()

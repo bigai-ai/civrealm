@@ -24,8 +24,6 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 
 def main():
-    assert fc_args['batch_size_run'] == 1, 'batch_size_run must be 1 for random_game.py. Please use random_game_parallel.py for batch_size_run > 1.'
-
     env = gymnasium.make('freeciv/FreecivBase-v0')
     agent = ControllerAgent()
 

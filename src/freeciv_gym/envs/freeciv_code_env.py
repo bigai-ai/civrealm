@@ -42,30 +42,37 @@ class FreecivCodeEnv(FreecivBaseEnv):
         actor_info[actor_name] = dict()
         actor_info[actor_name]['max_moves'] = moves
 
-        action_dict = self.info['available_actions'][ctrl_type]
-        avail_action_dict = action_dict.get_actions(actor_id, valid_only=True)
+        avail_action_set = self.get_valid_actor_actions(ctrl_type, actor_id)
 
-        if not avail_action_dict:
+        if not avail_action_set:
             return dict()
         else:
             if ctrl_type == 'unit':
                 """
                 remove keep_activity actions
-                need to check later
+                TODO： check later
                 """
 
-                if len(list(avail_action_dict.keys())) == 1 and 'keep_activity' in avail_action_dict:
+                if len(avail_action_set) == 1 and 'keep_activity' in avail_action_set:
                     return dict()
-                if 'keep_activity' in avail_action_dict:
-                    del avail_action_dict['keep_activity']
-                actor_info[actor_name]['avail_actions'] = list(avail_action_dict.keys())
+                if 'keep_activity' in avail_action_set:
+                    avail_action_set.remove('keep_activity')
+                actor_info[actor_name]['avail_actions'] = avail_action_set
             elif ctrl_type == 'city':
                 if moves > 0:
-                    actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
+                    actor_info[actor_name]['avail_actions'] = action_mask(avail_action_set)
                 else:
                     return dict()
 
         return actor_info
+
+    def get_valid_actor_actions(self, ctrl_type, actor_id):
+        action_dict = self.info[ctrl_type]
+        avail_action_set = []
+        for actor_act in action_dict[actor_id]:
+            if action_dict[actor_id][actor_act]:
+                avail_action_set.append(actor_act)
+        return avail_action_set
 
     def get_mini_map_info(self, ctrl_type, ptile):
         x = ptile['x']
@@ -172,10 +179,9 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        info = self._get_info()
+        info, observation = self._get_info_and_observation()
         self.info = info
 
-        observation = self._get_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
@@ -186,10 +192,11 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return observation, reward, terminated, truncated, info
 
     def reset(self):
+        # self.civ_controller.reset()
         self.civ_controller.init_network()
-        info = self._get_info()
+        info, observation = self._get_info_and_observation()
         self.info = info
 
-        observation = self._get_observation()
         return observation, info
+
 

@@ -1,38 +1,32 @@
-from envs import REGISTRY as env_REGISTRY
-from functools import partial
-from components.episode_buffer import EpisodeBatch
-from multiprocessing import Pipe, Process
-import numpy as np
-import torch as th
+import gymnasium
+import freeciv_gym
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
+from freeciv_gym.configs import fc_args
+import ray
+import copy
 
-
-# Based (very) heavily on SubprocVecEnv from OpenAI Baselines
-# https://github.com/openai/baselines/blob/master/baselines/common/vec_env/subproc_vec_env.py
 class ParallelRunner:
-
-    def __init__(self, args, logger):
-        self.args = args
+    def __init__(self, env_name, agent, logger):
+        ray.init(local_mode=False)
+        # Number of envs that run simultaneously
+        self.batch_size_run = fc_args['batch_size_run']
+        self.agent = agent
         self.logger = logger
-        self.batch_size = self.args.batch_size_run
 
-        # Make subprocesses for the envs
-        self.parent_conns, self.worker_conns = zip(*[Pipe() for _ in range(self.batch_size)])
-        env_fn = env_REGISTRY[self.args.env]
-        self.ps = [Process(target=env_worker, args=(worker_conn, CloudpickleWrapper(partial(env_fn, **self.args.env_args))))
-                            for worker_conn in self.worker_conns]
-
-        for p in self.ps:
-            p.daemon = True
-            p.start()
-
-        self.parent_conns[0].send(("get_env_info", None))
-        self.env_info = self.parent_conns[0].recv()
-        self.episode_limit = self.env_info["episode_limit"]
+        # Initialize envs
+        self.envs = []
+        port_start = fc_args['port_start']
+        for i in range(self.batch_size_run):
+            temp_port = port_start+i
+            env_core = gymnasium.make(env_name, client_port=temp_port)
+            env = FreecivParallelEnv.remote(env_core, temp_port)
+            self.envs.append(env)
 
         self.t = 0
-
         self.t_env = 0
 
+        self.batchs = []
         self.train_returns = []
         self.test_returns = []
         self.train_stats = {}
@@ -40,228 +34,137 @@ class ParallelRunner:
 
         self.log_train_stats_t = -100000
 
-    def setup(self, scheme, groups, preprocess, mac):
-        self.new_batch = partial(EpisodeBatch, scheme, groups, self.batch_size, self.episode_limit + 1,
-                                 preprocess=preprocess, device=self.args.device)
-        self.mac = mac
-        self.scheme = scheme
-        self.groups = groups
-        self.preprocess = preprocess
-
-    def get_env_info(self):
-        return self.env_info
-
-    def save_replay(self):
-        pass
-
-    def close_env(self):
-        for parent_conn in self.parent_conns:
-            parent_conn.send(("close", None))
+    def close(self):
+        ray.shutdown()
 
     def reset(self):
-        self.batch = self.new_batch()
+        self.batchs = []
+        observations = []
+        infos = []
+        rewards = [0]*self.batch_size_run
+        dones = [False]*self.batch_size_run
 
         # Reset the envs
-        for parent_conn in self.parent_conns:
-            parent_conn.send(("reset", None))
-
-        pre_transition_data = {
-            "state": [],
-            "avail_actions": [],
-            "obs": []
-        }
-        # Get the obs, state and avail_actions back
-        for parent_conn in self.parent_conns:
-            data = parent_conn.recv()
-            pre_transition_data["state"].append(data["state"])
-            pre_transition_data["avail_actions"].append(data["avail_actions"])
-            pre_transition_data["obs"].append(data["obs"])
-
-        self.batch.update(pre_transition_data, ts=0)
+        result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
+        results = ray.get(result_ids)
+        for i in range(self.batch_size_run):
+            observations.append(results[i][0])
+            infos.append(results[i][1])
+        
+        self.batchs.append((observations, infos, rewards, dones))
 
         self.t = 0
         self.env_steps_this_run = 0
 
     def run(self, test_mode=False):
         self.reset()
-
+        episode_returns = [0 for _ in range(self.batch_size_run)]
+        episode_lengths = [0 for _ in range(self.batch_size_run)]
+        # self.agent.init_hidden(batch_size=self.batch_size_run)
+        
         all_terminated = False
-        episode_returns = [0 for _ in range(self.batch_size)]
-        episode_lengths = [0 for _ in range(self.batch_size)]
-        self.mac.init_hidden(batch_size=self.batch_size)
-        terminated = [False for _ in range(self.batch_size)]
-        envs_not_terminated = [b_idx for b_idx, termed in enumerate(terminated) if not termed]
-        final_env_infos = []  # may store extra stats like battle won. this is filled in ORDER OF TERMINATION
+        # Store whether an env has terminated
+        dones = [False]*self.batch_size_run
+        # Store whether an env has closed its connection
+        closed_envs = [False]*self.batch_size_run
+
+        envs_not_terminated = [b_idx for b_idx, done in enumerate(dones) if not done]
+        # final_env_infos = []  # may store extra stats like battle won. this is filled in ORDER OF TERMINATION
 
         while True:
-
             # Pass the entire batch of experiences up till now to the agents
             # Receive the actions for each agent at this timestep in a batch for each un-terminated env
-            actions = self.mac.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, bs=envs_not_terminated, test_mode=test_mode)
-            cpu_actions = actions.to("cpu").numpy()
+            # actions = self.agent.select_actions(self.batch, t_ep=self.t, t_env=self.t_env, bs=envs_not_terminated, test_mode=test_mode)
 
-            # Update the actions taken
-            actions_chosen = {
-                "actions": actions.unsqueeze(1)
-            }
-            self.batch.update(actions_chosen, bs=envs_not_terminated, ts=self.t, mark_filled=False)
+            # # Update the actions taken
+            # actions_chosen = {
+            #     "actions": actions.unsqueeze(1)
+            # }
+            # self.batch.update(actions_chosen, bs=envs_not_terminated, ts=self.t, mark_filled=False)
 
-            # Send actions to each env
-            action_idx = 0
-            for idx, parent_conn in enumerate(self.parent_conns):
-                if idx in envs_not_terminated: # We produced actions for this env
-                    if not terminated[idx]: # Only send the actions to the env if it hasn't terminated
-                        parent_conn.send(("step", cpu_actions[action_idx]))
-                    action_idx += 1 # actions is not a list over every env
-
-            # Update envs_not_terminated
-            envs_not_terminated = [b_idx for b_idx, termed in enumerate(terminated) if not termed]
-            all_terminated = all(terminated)
-            if all_terminated:
-                break
-
-            # Post step data we will insert for the current timestep
-            post_transition_data = {
-                "reward": [],
-                "terminated": []
-            }
-            # Data for the next step we will insert in order to select an action
-            pre_transition_data = {
-                "state": [],
-                "avail_actions": [],
-                "obs": []
-            }
-
-            # Receive data back for each unterminated env
-            for idx, parent_conn in enumerate(self.parent_conns):
-                if not terminated[idx]:
-                    data = parent_conn.recv()
-                    # Remaining data for this current timestep
-                    post_transition_data["reward"].append((data["reward"],))
-
-                    episode_returns[idx] += data["reward"]
-                    episode_lengths[idx] += 1
+            observations = [None] * self.batch_size_run
+            infos = [None] * self.batch_size_run
+            rewards = [0]*self.batch_size_run
+            # Start the parallel running
+            result_ids = []
+            # key: index of result_ids, value: id of env
+            id_env_map = {}
+            for i in range(self.batch_size_run):
+                if not dones[i]:
+                    observation = self.batchs[self.t][0][i]
+                    info = self.batchs[self.t][1][i]
+                    import random
+                    if random.random() < 0.3:
+                        action = 'pass'
+                    else:
+                        action = None
+                    
+                    id = self.envs[i].step.remote(action)
+                    result_ids.append(id)
+                    id_env_map[id] = i
                     if not test_mode:
                         self.env_steps_this_run += 1
+            
+            # The num_returns=1 ensures ready length is 1.
+            ready, unready = ray.wait(result_ids, num_returns=1)
+            while unready:
+                # Get the env id corresponds to the given result id
+                env_id = id_env_map[ready[0]]
+                # print(f'env_id: {env_id}')
+                try:
+                    result = ray.get(ready[0])
+                    # print(result)
+                    observations[env_id] = result[0]
+                    infos[env_id] = result[4]
+                    dones[env_id] = result[3]
+                    rewards[env_id] = result[1]
+                    # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
+                except Exception as e:
+                    print(str(e))
+                    fc_logger.warning(repr(e))
+                    dones[env_id] = True
+                ready, unready = ray.wait(unready, num_returns=1)
 
-                    env_terminated = False
-                    if data["terminated"]:
-                        final_env_infos.append(data["info"])
-                    if data["terminated"] and not data["info"].get("episode_limit", False):
-                        env_terminated = True
-                    terminated[idx] = data["terminated"]
-                    post_transition_data["terminated"].append((env_terminated,))
+            # Handle the last ready result
+            if ready:
+                env_id = id_env_map[ready[0]]
+                # print(f'env_id: {env_id}')
+                try:
+                    result = ray.get(ready[0])
+                    # print(result)
+                    observations[env_id] = result[0]
+                    infos[env_id] = result[4]
+                    dones[env_id] = result[3]
+                    rewards[env_id] = result[1]
+                except Exception as e:
+                    fc_logger.warning(repr(e))
+                    dones[env_id] = True
 
-                    # Data for the next timestep needed to select an action
-                    pre_transition_data["state"].append(data["state"])
-                    pre_transition_data["avail_actions"].append(data["avail_actions"])
-                    pre_transition_data["obs"].append(data["obs"])
+            self.batchs.append((observations, infos, rewards, copy.deepcopy(dones)))
+            # print(f'done_list: {done_list}')
+            # print(f'observation_list: {observation_list}')
 
-            # Add post_transiton data into the batch
-            self.batch.update(post_transition_data, bs=envs_not_terminated, ts=self.t, mark_filled=False)
+            # Update envs_not_terminated
+            envs_not_terminated = [b_idx for b_idx, termed in enumerate(dones) if not termed]
+            
+            result_ids = []
+            for i in range(self.batch_size_run):
+                if dones[i] and not closed_envs[i]:
+                    result_ids.append(self.envs[i].close.remote())
+                    closed_envs[i] = True
+            
+            ray.get(result_ids)
+
+            all_terminated = all(dones)
+            if all_terminated:
+                break
 
             # Move onto the next timestep
             self.t += 1
 
-            # Add the pre-transition data
-            self.batch.update(pre_transition_data, bs=envs_not_terminated, ts=self.t, mark_filled=True)
 
         if not test_mode:
             self.t_env += self.env_steps_this_run
 
-        # Get stats back for each env
-        for parent_conn in self.parent_conns:
-            parent_conn.send(("get_stats",None))
-
-        env_stats = []
-        for parent_conn in self.parent_conns:
-            env_stat = parent_conn.recv()
-            env_stats.append(env_stat)
-
-        cur_stats = self.test_stats if test_mode else self.train_stats
-        cur_returns = self.test_returns if test_mode else self.train_returns
-        log_prefix = "test_" if test_mode else ""
-        infos = [cur_stats] + final_env_infos
-        cur_stats.update({k: sum(d.get(k, 0) for d in infos) for k in set.union(*[set(d) for d in infos])})
-        cur_stats["n_episodes"] = self.batch_size + cur_stats.get("n_episodes", 0)
-        cur_stats["ep_length"] = sum(episode_lengths) + cur_stats.get("ep_length", 0)
-
-        cur_returns.extend(episode_returns)
-
-        n_test_runs = max(1, self.args.test_nepisode // self.batch_size) * self.batch_size
-        if test_mode and (len(self.test_returns) == n_test_runs):
-            self._log(cur_returns, cur_stats, log_prefix)
-        elif self.t_env - self.log_train_stats_t >= self.args.runner_log_interval:
-            self._log(cur_returns, cur_stats, log_prefix)
-            if hasattr(self.mac.action_selector, "epsilon"):
-                self.logger.log_stat("epsilon", self.mac.action_selector.epsilon, self.t_env)
-            self.log_train_stats_t = self.t_env
-
-        return self.batch
-
-    def _log(self, returns, stats, prefix):
-        self.logger.log_stat(prefix + "return_mean", np.mean(returns), self.t_env)
-        self.logger.log_stat(prefix + "return_std", np.std(returns), self.t_env)
-        returns.clear()
-
-        for k, v in stats.items():
-            if k != "n_episodes":
-                self.logger.log_stat(prefix + k + "_mean" , v/stats["n_episodes"], self.t_env)
-        stats.clear()
-
-
-def env_worker(remote, env_fn):
-    # Make environment
-    env = env_fn.x()
-    while True:
-        cmd, data = remote.recv()
-        if cmd == "step":
-            actions = data
-            # Take a step in the environment
-            reward, terminated, env_info = env.step(actions)
-            # Return the observations, avail_actions and state to make the next action
-            state = env.get_state()
-            avail_actions = env.get_avail_actions()
-            obs = env.get_obs()
-            remote.send({
-                # Data for the next timestep needed to pick an action
-                "state": state,
-                "avail_actions": avail_actions,
-                "obs": obs,
-                # Rest of the data for the current timestep
-                "reward": reward,
-                "terminated": terminated,
-                "info": env_info
-            })
-        elif cmd == "reset":
-            env.reset()
-            remote.send({
-                "state": env.get_state(),
-                "avail_actions": env.get_avail_actions(),
-                "obs": env.get_obs()
-            })
-        elif cmd == "close":
-            env.close()
-            remote.close()
-            break
-        elif cmd == "get_env_info":
-            remote.send(env.get_env_info())
-        elif cmd == "get_stats":
-            remote.send(env.get_stats())
-        else:
-            raise NotImplementedError
-
-
-class CloudpickleWrapper():
-    """
-    Uses cloudpickle to serialize contents (otherwise multiprocessing tries to use pickle)
-    """
-    def __init__(self, x):
-        self.x = x
-    def __getstate__(self):
-        import cloudpickle
-        return cloudpickle.dumps(self.x)
-    def __setstate__(self, ob):
-        import pickle
-        self.x = pickle.loads(ob)
+        return self.batchs
 

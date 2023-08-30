@@ -75,7 +75,8 @@ class ControllerAgent(BaseAgent):
             'fortress': random.random()*0.2,
             'railroad': random.random()*0.2,
             'airbase': random.random()*0.2,
-            'build': 1.0, }
+            'build': 1.0, 
+            'keep_activity': 1.0}
         return self.sample_desired_actions(action_dict, desired_actions)
 
     def calculate_city_actions(self, action_dict):

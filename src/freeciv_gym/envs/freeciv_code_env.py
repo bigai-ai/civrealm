@@ -48,15 +48,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
             return dict()
         else:
             if ctrl_type == 'unit':
-                """
-                remove keep_activity actions
-                TODO： check later
-                """
-
-                if len(avail_action_set) == 1 and 'keep_activity' in avail_action_set:
-                    return dict()
-                if 'keep_activity' in avail_action_set:
-                    avail_action_set.remove('keep_activity')
                 actor_info[actor_name]['avail_actions'] = avail_action_set
             elif ctrl_type == 'city':
                 if moves > 0:

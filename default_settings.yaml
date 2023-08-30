@@ -32,7 +32,7 @@ runner_type: "parallel"
 # How many epoch to run. Each epoch runs batch_size_run envs.
 epoch_num: 2
 # How many envs run simultaneously to sample experience
-batch_size_run: 2
+batch_size_run: 1
 # The port used by the first env, the other parallel envs use those ports following this port
 port_start: 6300
 

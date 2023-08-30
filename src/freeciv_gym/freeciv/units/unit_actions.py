@@ -405,7 +405,9 @@ class ActKeepActivity(Action):
         return 'keep_activity'
 
     def trigger_action(self, ws_client):
+        ws_client.send_message(f"Unit {self.focus.punit['id']} keeps activity.")
         self.focus.punit['keep_activity'] = True
+
 
 
 class UnitAction(Action):

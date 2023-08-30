@@ -131,7 +131,7 @@ class CityWorkTile(Action):
         packet = {"pid": packet_city_make_worker,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = (31, self.pcity['tile'])
+        self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
         # self.wait_for_pid = 31
         return packet
 
@@ -151,7 +151,7 @@ class CityUnworkTile(CityWorkTile):
         packet = {"pid": packet_city_make_specialist,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = (31, self.pcity['tile'])
+        self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
         # self.wait_for_pid = 31
         return packet
 

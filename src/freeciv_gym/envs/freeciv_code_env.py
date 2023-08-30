@@ -50,7 +50,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
             if moves > 0:
                 actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
             else:
-                actor_info[actor_name]['avail_actions'] = []
+                del actor_info[actor_name]
 
         return actor_info
 
@@ -142,7 +142,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
                             continue
                         ptile = self.civ_controller.map_ctrl.index_to_tile(cities[pcity]['tile'])
 
-                        if self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1:
+                        if (self.civ_controller.turn_manager.turn == 1 or
+                                self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1):
                             actor_info = self.get_actor_info(ctrl_type, pcity, 1)
                         else:
                             actor_info = self.get_actor_info(ctrl_type, pcity)

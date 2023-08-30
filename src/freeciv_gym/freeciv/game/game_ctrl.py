@@ -13,7 +13,8 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
+import os
+import json
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -204,6 +205,18 @@ class GameCtrl(CivPropController):
                         evaluations[ptag_name][pplayer] = []
 
                     evaluations[ptag_name][pplayer].append(value)
+
+        game_scores_folder = 'game_scores'
+        if not os.path.exists(game_scores_folder):
+            os.mkdir(game_scores_folder)
+
+        file_1 = os.path.join(game_scores_folder, 'players.json')
+        with open(file_1, 'w') as f:
+            json.dump(players, f)
+
+        file_2 = os.path.join(game_scores_folder, 'evaluations.json')
+        with open(file_2, 'w') as f:
+            json.dump(evaluations, f)
 
         return players, tags, turns, evaluations
 

@@ -47,7 +47,10 @@ class FreecivCodeEnv(FreecivBaseEnv):
         if ctrl_type == 'unit':
             actor_info[actor_name]['avail_actions'] = list(avail_action_dict.keys())
         elif ctrl_type == 'city':
-            actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
+            if moves > 0:
+                actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
+            else:
+                actor_info[actor_name]['avail_actions'] = []
 
         return actor_info
 
@@ -102,7 +105,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
             tile_id += 1
         return mini_map_info
-
 
     def _get_observation(self):
         base_observations = self.civ_controller.get_observation()

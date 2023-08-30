@@ -33,7 +33,7 @@ dependencies = [
     "pytest-xdist",
     "filelock",
     # The following packages are for parallel training
-    "ray",
+    "ray==2.6.3",
     # The following packages are for the LLM agent
     "tiktoken",
     "openai",

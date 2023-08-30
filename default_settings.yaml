@@ -1,7 +1,7 @@
 # username: testcontroller
 username: myagent
 # Max number of turns per game
-max_turns: 10
+max_turns: 100
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
@@ -26,7 +26,7 @@ allowtake: HAhadOo
 autotoggle: False
 
 # The type of runner
-runner: 'parallel'
+runner_type: "parallel"
 
 # Parameters for parallel running
 # How many epoch to run. Each epoch runs batch_size_run envs.
@@ -39,7 +39,7 @@ port_start: 6300
 debug:
   # Records the game state and available actions at every step.
   # **Warning**: generates many log files if True. Turned off by default.
-  record: False
+  record: True
   sleep_time_after_turn: 0.0
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True

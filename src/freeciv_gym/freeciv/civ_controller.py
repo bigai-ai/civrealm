@@ -82,7 +82,7 @@ class CivController(CivPropController):
 
         self.ai_skill_level = 3
         self.nation_select_id = -1
-        
+
         if fc_args['multiplayer_game']:
             assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
 
@@ -268,10 +268,23 @@ class CivController(CivPropController):
             self.send_end_turn()
         elif action == 'pass':
             self.ws_client.send_message(f"Debug.Do nothing for this step.")
-        else:         
+        else:
             self.turn_manager.perform_action(action, self.ws_client)
 
-    def get_observation(self):
+    def _get_info(self):
+        fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
+        self.lock_control()
+        if self.my_player_is_defeated():
+            info = {'turn': self.turn_manager.turn, 'available_actions': None}
+        else:
+            self.turn_manager.get_available_actions()
+            # Wait for and process probabilities of actions from server.
+            self.lock_control()
+            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_info()}
+
+        return info
+
+    def _get_observation(self):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         if self.my_player_is_defeated():
@@ -279,21 +292,20 @@ class CivController(CivPropController):
 
         return self.turn_manager.get_observation()
 
+    def get_info_and_observation(self):
+        '''
+        We put _get_info() before _get_observation() because the actions of new units will be initialized in 
+        _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the 
+        corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from 
+        server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
+        '''
+        info = self._get_info()
+        observation = self._get_observation()
+        return info, observation
+
     def get_reward(self):
         current_score = self.player_ctrl.my_player['score']
         return self.turn_manager.get_reward(current_score)
-
-    def get_info(self):
-        fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
-        self.lock_control()
-        if self.my_player_is_defeated():
-            info = {'turn': self.turn_manager.turn, 'available_actions': None}
-        else:
-            self.turn_manager.get_available_actions()
-            self.lock_control()
-            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_info()}
-
-        return info
 
     def send_end_turn(self):
         """Ends the current turn."""
@@ -378,7 +390,7 @@ class CivController(CivPropController):
             self.monitor.stop_monitor()
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
-        
+
         self.ws_client.close()
 
     def end_game_packet_list(self):

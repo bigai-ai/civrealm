@@ -66,14 +66,19 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         with open(f'{self._recording_base_filename}_{name}.json', 'w') as f:
             json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
 
-    def _record_observation(self, observations):
-        self._record_to_file('state', observations, lambda x: x.tolist())
+    def _record_observation(self, observation):
+        self._record_to_file('state', observation, lambda x: x.tolist())
 
     def _record_action(self, available_actions, action):
         self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
         if action:
             self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())
         self._record_step_count += 1
+
+    def _get_info_and_observation(self):
+        info, observation = self.civ_controller.get_info_and_observation()
+        self._record_observation(observation)
+        return info, observation
 
     def _get_observation(self):
         observations = self.civ_controller.get_observation()
@@ -94,14 +99,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        '''
-        We put _get_info() before _get_observation() because the actions of new units will be initialized in 
-        _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the 
-        corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from 
-        server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
-        '''
-        info = self._get_info()
-        observation = self._get_observation()
+        info, observation = self._get_info_and_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
@@ -113,8 +111,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def reset(self):
         self.civ_controller.init_network()
-        info = self._get_info()
-        observation = self._get_observation()
+        info, observation = self._get_info_and_observation()
         return observation, info
 
     def get_game_results(self):

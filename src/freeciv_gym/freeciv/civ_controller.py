@@ -268,13 +268,12 @@ class CivController(CivPropController):
             self.send_end_turn()
         elif action == 'pass':
             self.ws_client.send_message(f"Debug.Do nothing for this step.")
-        else:
-            action.trigger_action(self.ws_client)
+        else:         
+            self.turn_manager.perform_action(action, self.ws_client)
 
     def get_observation(self):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
-        self.lock_control()
         if self.my_player_is_defeated():
             return None
 
@@ -290,7 +289,9 @@ class CivController(CivPropController):
         if self.my_player_is_defeated():
             info = {'turn': self.turn_manager.turn, 'available_actions': None}
         else:
-            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_available_actions()}
+            self.turn_manager.get_available_actions()
+            self.lock_control()
+            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_info()}
 
         return info
 

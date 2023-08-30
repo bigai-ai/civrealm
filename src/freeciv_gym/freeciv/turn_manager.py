@@ -48,6 +48,10 @@ class TurnManager(object):
     @property
     def turn_active(self):
         return self._turn_active
+    
+    @property
+    def turn_actions(self):
+        return self._turn_actions
 
     @turn.setter
     def turn(self, value):
@@ -121,17 +125,33 @@ class TurnManager(object):
         return self._turn_state
 
     def get_available_actions(self):
+        """This function will send queries to the server to get the probabilities for probabilistic actions.
+        """
         fc_logger.debug("Acquiring action for: ")
         for ctrl_type in self._turn_ctrls.keys():
             fc_logger.debug(f'....: {ctrl_type}')
             controller: CivPropController = self._turn_ctrls[ctrl_type]
             action_list: ActionList = controller.get_current_options(self._turn_player)
             self._turn_actions[ctrl_type] = action_list
-
+        return self._turn_actions
+    
+    def get_info(self):
+        """This function will return a dictionary of the availability information about the actions for each controller.
+        NOTE: This function should be called after get_available_actions has sent probability queries, and we have processed the responses by civ_controller (using lock_control()). Otherwise, the availability information will be missing.
+        """
+        fc_logger.debug("Acquiring info for: ")
+        for ctrl_type in self._turn_ctrls.keys():
+            fc_logger.debug(f'....: {ctrl_type}')
+            action_list: ActionList = self._turn_actions[ctrl_type]
             action_info = action_list.get_action_info()
             if len(action_info) > 0:
                 self._turn_info[ctrl_type] = action_info
-        return self._turn_actions
+        return self._turn_info
+    
+    def perform_action(self, action, ws_client):
+        ctrl_type, valid_actor_id, action_name = action
+        self._turn_actions[ctrl_type].trigger_single_action(valid_actor_id, action_name)
+        return
 
     def get_reward(self, current_score):
         # FIXME: this function gets called every time the agent takes an action. However, the score only changes between turns.

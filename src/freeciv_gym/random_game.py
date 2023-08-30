@@ -25,7 +25,7 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
-    agent = ControllerAgent()
+    agent = RandomAgent()
 
     observations, info = env.reset()
     done = False

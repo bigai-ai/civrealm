@@ -27,7 +27,9 @@ class RandomAgent(BaseAgent):
         # Assume input actions are valid, and return a random choice of the actions whose name contains the input name.
         action_choices = [key for key in valid_action_dict.keys() if name in key]
         if action_choices:
-            return valid_action_dict[random.choice(action_choices)]
+            return random.choice(action_choices)
+        else:
+            return None
 
     def act(self, observations, info):
         unit_actor, unit_action_dict = self.get_next_valid_actor(observations, info, 'unit')
@@ -38,7 +40,7 @@ class RandomAgent(BaseAgent):
         # Try to build a city
         build_action = self.random_action_by_name(unit_action_dict, 'build')
         if build_action and random.random() > 0.2:
-            return build_action
+            return 'unit', unit_actor, build_action
 
         # Try to move
-        return self.random_action_by_name(unit_action_dict, 'goto')
+        return 'unit', unit_actor, self.random_action_by_name(unit_action_dict, 'goto')

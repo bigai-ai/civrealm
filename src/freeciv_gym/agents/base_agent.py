@@ -52,22 +52,18 @@ class BaseAgent(ABC):
             if desired_ctrl_type and desired_ctrl_type != ctrl_type:
                 continue
 
-            action_list = available_actions[ctrl_type]
-            for actor_id in action_list.get_actors():
+            for actor_id, action_dict in available_actions[ctrl_type].items():
                 if actor_id in self.planned_actor_ids:
                     # We have planned an action for this actor in this turn.
                     continue
+                fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl, actions: {action_dict}')
 
-                if action_list._can_actor_act(actor_id):
-                    fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl')
-                    valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
-                    if not valid_action_dict:
-                        continue
+                for action_name in list(action_dict.keys()):
+                    if not action_dict[action_name]:
+                        del action_dict[action_name]
 
-                    fc_logger.debug(
-                        f'{ctrl_type}_ctrl: Valid actor_id {actor_id} with valid actions found {valid_action_dict}')
-                    self.planned_actor_ids.append(actor_id)
-                    return actor_id, valid_action_dict
+                self.planned_actor_ids.append(actor_id)
+                return actor_id, action_dict
 
         return None, None
 

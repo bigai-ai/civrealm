@@ -211,12 +211,11 @@ class ActionList(object):
     def get_action_info(self):
         action_info = {}
         for actor_id in self._action_dict:
+            if not self._can_actor_act(actor_id):
+                continue
             action_info[actor_id] = {}
-            for action_key in self._action_dict[actor_id]:
-                try:
-                    action_info[actor_id][action_key] = self._action_dict[actor_id][action_key].is_action_valid()
-                except Exception:
-                    continue
+            for action_key, action in self._action_dict[actor_id].items():
+                action_info[actor_id][action_key] = action.is_action_valid()
         return action_info
 
 class NoActions(ActionList):

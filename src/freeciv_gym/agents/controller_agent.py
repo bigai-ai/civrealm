@@ -31,13 +31,13 @@ class ControllerAgent(BaseAgent):
         available_actions = info['available_actions']
         for ctrl_type in available_actions.keys():
             valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations, info, ctrl_type)
-            if not valid_actor_id:
+            if valid_actor_id is None:
                 continue
 
             calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
             action_name = calculate_func(valid_action_dict)
-            if action_name:
-                return valid_action_dict[action_name]
+            if action_name is not None:
+                return (ctrl_type, valid_actor_id, action_name)
         return None
 
     def sample_action_by_prob(self, action_probabilities):

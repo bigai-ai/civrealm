@@ -42,7 +42,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
         actor_info[actor_name] = dict()
         actor_info[actor_name]['max_moves'] = moves
 
-        avail_action_set = self.get_valid_actor_actions(ctrl_type, actor_id)
+        avail_action_set = self.get_valid_actions(ctrl_type, actor_id)
 
         if not avail_action_set:
             return dict()
@@ -57,9 +57,10 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
         return actor_info
 
-    def get_valid_actor_actions(self, ctrl_type, actor_id):
-        action_dict = self.info[ctrl_type]
+    def get_valid_actions(self, ctrl_type, actor_id):
+        action_dict = self.info['available_actions'][ctrl_type]
         avail_action_set = []
+
         for actor_act in action_dict[actor_id]:
             if action_dict[actor_id][actor_act]:
                 avail_action_set.append(actor_act)
@@ -117,34 +118,35 @@ class FreecivCodeEnv(FreecivBaseEnv):
             tile_id += 1
         return mini_map_info
 
-    def _get_observation(self):
-        base_observations = self.civ_controller.get_observation()
+    def get_code_observations(self, base_observation):
 
-        observations = dict()
-        if base_observations is None:
-            observations = None
+        observation = dict()
+        if base_observation is None:
+            observation = None
         else:
-            for ctrl_type in base_observations:
+            for ctrl_type in base_observation:
                 if ctrl_type == 'unit':
-                    observations[ctrl_type] = dict()
+                    observation[ctrl_type] = dict()
                     units = self.civ_controller.unit_ctrl.units
                     unit_dict = dict()
 
-                    for punit in units:
-                        if units[punit]['owner'] != self.civ_controller.player_ctrl.my_player_id:
-                            continue
-                        ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
+                    if ctrl_type in self.info['available_actions']:
+                        for punit in self.info['available_actions'][ctrl_type]:
+                            if units[punit]['owner'] != self.civ_controller.player_ctrl.my_player_id:
+                                continue
+                            ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
 
-                        utype = units[punit]['type']
-                        moves = units[punit]['movesleft']
-                        actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
-                        unit_dict.update(actor_info)
+                            utype = units[punit]['type']
+                            moves = units[punit]['movesleft']
+                            actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
+                            unit_dict.update(actor_info)
 
-                        observations[ctrl_type][punit] = self.get_mini_map_info(ctrl_type, ptile)
-                    observations[ctrl_type]['unit_dict'] = unit_dict
+                            observation[ctrl_type][punit] = self.get_mini_map_info(ctrl_type, ptile)
+
+                    observation[ctrl_type]['unit_dict'] = unit_dict
 
                 elif ctrl_type == 'city':
-                    observations[ctrl_type] = dict()
+                    observation[ctrl_type] = dict()
                     cities = self.civ_controller.city_ctrl.cities
                     city_dict = dict()
 
@@ -160,19 +162,20 @@ class FreecivCodeEnv(FreecivBaseEnv):
                             actor_info = self.get_actor_info(ctrl_type, pcity)
                         city_dict.update(actor_info)
 
-                        observations[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
-                    observations[ctrl_type]['city_dict'] = city_dict
+                        observation[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
+                    observation[ctrl_type]['city_dict'] = city_dict
 
                 else:
-                    observations[ctrl_type] = base_observations[ctrl_type]
+                    observation[ctrl_type] = base_observation[ctrl_type]
 
-        return observations
+        return observation
 
     def step(self, action):
         self.civ_controller.perform_action(action)
-        info, observation = self._get_info_and_observation()
+        info, base_observation = self._get_info_and_observation()
         self.info = info
 
+        observation = self.get_code_observations(base_observation)
         reward = self._get_reward()
         terminated = self._get_terminated()
         truncated = self._get_truncated()
@@ -182,12 +185,13 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
         return observation, reward, terminated, truncated, info
 
-    def reset(self):
+    def reset(self, seed=None, options=None):
         # self.civ_controller.reset()
         self.civ_controller.init_network()
-        info, observation = self._get_info_and_observation()
+        info, base_observation = self._get_info_and_observation()
         self.info = info
 
+        observation = self.get_code_observations(base_observation)
         return observation, info
 
 

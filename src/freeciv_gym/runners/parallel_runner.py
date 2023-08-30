@@ -1,6 +1,6 @@
 import gymnasium
 import freeciv_gym
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.freeciv_logging import logger_setup
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.configs import fc_args
 import ray
@@ -8,11 +8,12 @@ import copy
 
 class ParallelRunner:
     def __init__(self, env_name, agent, logger, epoch_num):
-        ray.init(local_mode=False)
+        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": logger_setup})
+        self.logger = logger_setup()
+
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']
         self.agent = agent
-        self.logger = logger
 
         # Initialize envs
         self.envs = []
@@ -127,7 +128,7 @@ class ParallelRunner:
                     # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3], 
                 except Exception as e:
                     print(str(e))
-                    fc_logger.warning(repr(e))
+                    self.logger.warning(repr(e))
                     dones[env_id] = True
                 ready, unready = ray.wait(unready, num_returns=1)
 
@@ -145,7 +146,7 @@ class ParallelRunner:
                     infos[env_id] = result[4]
                     dones[env_id] = terminated or truncated
                 except Exception as e:
-                    fc_logger.warning(repr(e))
+                    self.logger.warning(repr(e))
                     dones[env_id] = True
 
             self.batchs.append((observations, infos, rewards, copy.deepcopy(dones)))

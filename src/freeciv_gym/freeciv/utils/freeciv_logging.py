@@ -13,6 +13,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+import os
+import filelock
+
 import logging
 import logging.config
 
@@ -21,6 +25,32 @@ from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 # # You can set the level to logging.DEBUG or logging.WARN if you want to change the amount of output.
 logging.config.dictConfig(LOGGING_CONFIG)
 fc_logger = logging.getLogger('freecivGym')
+
+
+def set_parallel_logging(log_dir_name, log_file_suffix):
+    logger_filename = LOGGING_CONFIG['handlers']['freecivFileHandler']['filename']
+    log_dir = os.path.join(os.path.dirname(logger_filename), log_dir_name)
+    with filelock.FileLock(f'/tmp/freeciv-gym_{log_dir_name}_logger_setup.lock'):
+        if not os.path.exists(log_dir):
+            os.makedirs(log_dir)
+
+    basename, ext = os.path.splitext(os.path.basename(logger_filename))
+    logger_filename = os.path.join(log_dir, f'{basename}_{log_file_suffix}{ext}')
+    file_handler_with_suffix = logging.FileHandler(logger_filename, 'w')
+    formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
+    file_handler_with_suffix.setFormatter(formatter)
+
+    for handler in fc_logger.handlers[:]:
+        if isinstance(handler, logging.FileHandler):
+            handler.close()
+        fc_logger.removeHandler(handler)
+    fc_logger.addHandler(file_handler_with_suffix)
+
+
+def logger_setup():
+    print(f'reset_logger in pid: {os.getpid()}')
+    set_parallel_logging('parallel', os.getpid())
+    return fc_logger
 
 
 # class DummyLogger():

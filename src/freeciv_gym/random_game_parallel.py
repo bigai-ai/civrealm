@@ -13,7 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
 

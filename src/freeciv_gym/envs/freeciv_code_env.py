@@ -46,15 +46,24 @@ class FreecivCodeEnv(FreecivBaseEnv):
         avail_action_dict = action_dict.get_actions(actor_id, valid_only=True)
 
         if not avail_action_dict:
-            del actor_info[actor_name]
+            return dict()
         else:
             if ctrl_type == 'unit':
+                """
+                remove keep_activity actions
+                need to check later
+                """
+
+                if len(list(avail_action_dict.keys())) == 1 and 'keep_activity' in avail_action_dict:
+                    return dict()
+                if 'keep_activity' in avail_action_dict:
+                    del avail_action_dict['keep_activity']
                 actor_info[actor_name]['avail_actions'] = list(avail_action_dict.keys())
             elif ctrl_type == 'city':
                 if moves > 0:
                     actor_info[actor_name]['avail_actions'] = action_mask(avail_action_dict)
                 else:
-                    del actor_info[actor_name]
+                    return dict()
 
         return actor_info
 

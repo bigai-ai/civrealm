@@ -152,8 +152,8 @@ def test_move_to(controller):
                 action.trigger_action(controller.ws_client)
 
             # Get unit new state and check
-            options = controller.get_info()['available_actions']
-            controller.get_observation()
+            options = controller.turn_manager.turn_actions
+            controller.get_info_and_observation()
             unit_opt = options['unit']
 
             time.sleep(0.5)

@@ -91,8 +91,8 @@ def test_get_action_pro(controller):
 
     controller.send_end_turn()
     print('end turn')
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]
@@ -103,8 +103,8 @@ def test_get_action_pro(controller):
 
     controller.send_end_turn()
     print('end turn')
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]

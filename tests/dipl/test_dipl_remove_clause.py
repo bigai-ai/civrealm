@@ -52,7 +52,7 @@ def test_dipl_remove_clause(controller):
     len_1 = len(clauses)
 
     remove_clause_act.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
     len_2 = len(clauses)
 

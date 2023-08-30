@@ -58,7 +58,7 @@ def test_city_change_unit_prod(controller):
         prod_value_1 = pcity['production_value']
 
         unit_prod_action.trigger_action(controller.ws_client)
-        controller.get_observation()
+        controller.get_info_and_observation()
         prod_kind_2 = pcity['production_kind']
         prod_value_2 = pcity['production_value']
 

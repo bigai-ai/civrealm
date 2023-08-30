@@ -57,8 +57,8 @@ def test_attack(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    controller.get_observation()
-    unit_opt = controller.get_info()['available_actions']['unit']
+    controller.get_info_and_observation()
+    unit_opt = controller.turn_manager.turn_actions['unit']
     assert (389 not in unit_opt.unit_ctrl.units.keys())
     import time
     time.sleep(2)

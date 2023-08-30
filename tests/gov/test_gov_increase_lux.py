@@ -53,7 +53,7 @@ def test_gov_increase_lux(controller):
     lux_1 = pplayer['luxury']
 
     increase_lux_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     lux_2 = pplayer['luxury']
 
     assert (lux_2 - lux_1 == 10)

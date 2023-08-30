@@ -61,7 +61,7 @@ def test_city_change_improve_prod(controller):
 
         improve_prod_action.trigger_action(controller.ws_client)
         controller.send_end_turn()
-        controller.get_observation()
+        controller.get_info_and_observation()
         prod_kind_2 = pcity['production_kind']
 
         assert (prod_kind_1 != prod_kind_2)

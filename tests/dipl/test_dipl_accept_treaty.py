@@ -52,7 +52,7 @@ def test_dipl_accept_treaty(controller):
     emb_1 = player_opt.players[3]['real_embassy'][0]
 
     accept_treaty_act.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     emb_2 = player_opt.players[3]['real_embassy'][0]
 
     assert (emb_1 == 0 and emb_2 == 1)

@@ -53,7 +53,7 @@ def test_gov_increase_sci(controller):
     sci_1 = pplayer['science']
 
     increase_sci_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     sci_2 = pplayer['science']
 
     assert (sci_2 - sci_1 == 10)

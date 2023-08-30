@@ -62,8 +62,8 @@ def test_spy_steal_tech(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     player_opt = options['player']
     techs_researched_after = player_opt.players[0]['techs_researched']

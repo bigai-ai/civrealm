@@ -63,7 +63,7 @@ def test_city_buy_prod(controller):
 
         city_buy_action.trigger_action(controller.ws_client)
         controller.send_end_turn()
-        controller.get_observation()
+        controller.get_info_and_observation()
 
         improvement_2 = pcity['improvements'][city_buy_action.value]
 

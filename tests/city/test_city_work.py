@@ -78,7 +78,7 @@ def test_city_work(controller):
         if_work_1 = wtile["worked"]
 
         work_action.trigger_action(controller.ws_client)
-        controller.get_observation()
+        controller.get_info_and_observation()
         if_work_2 = wtile["worked"]
 
         assert (if_work_1 == 0 and if_work_2 == city_id)

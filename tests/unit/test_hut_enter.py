@@ -66,10 +66,9 @@ def test_hut_enter(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    # options = controller.get_info()['available_actions']
+    # options = controller.turn_manager.turn_actions
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     # After enter hut, the extra disappears.
     assert (target_tile['extras'][EXTRA_HUT] == 0)
     for unit_id in unit_opt.unit_ctrl.units.keys():
@@ -85,8 +84,7 @@ def test_hut_enter(controller):
             target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTH)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     # After enter hut, the extra disappears.
     assert (target_tile['extras'][EXTRA_HUT] == 0)
 

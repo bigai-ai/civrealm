@@ -52,7 +52,7 @@ def test_dipl_cancel_vision(controller):
     vs_1 = player_opt.players[0]['gives_shared_vision'][4]
 
     cancel_vision_act.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     vs_2 = player_opt.players[0]['gives_shared_vision'][4]
 
     assert (vs_1 == 1 and vs_2 == 0)

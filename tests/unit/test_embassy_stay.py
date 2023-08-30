@@ -62,8 +62,7 @@ def test_embassy_stay(controller):
 
     print('Establish embassy')
     valid_actions['embassy_stay_0'].trigger_action(controller.ws_client)
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     # The unit has been consumed.
     assert (unit_id not in unit_opt.unit_data)

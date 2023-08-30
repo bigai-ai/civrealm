@@ -52,8 +52,7 @@ def test_fortify(controller):
     unit_action.trigger_action(controller.ws_client)
     print(f"Fortify unit {unit_id}")
     # Get unit info after the performed action
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(valid_actions.keys())
     punit = unit_opt.unit_ctrl.units[unit_id]
@@ -63,8 +62,7 @@ def test_fortify(controller):
 
     # End the turn
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[unit_id]
     # Unit activity becomes to FORTIFIED in the next turn
     assert (punit['activity'] == ACTIVITY_FORTIFIED)

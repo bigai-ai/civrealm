@@ -53,7 +53,7 @@ def test_gov_increase_tax(controller):
     tax_1 = pplayer['tax']
 
     increase_tax_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     tax_2 = pplayer['tax']
 
     assert (tax_2 - tax_1 == 10)

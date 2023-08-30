@@ -57,7 +57,7 @@ def test_city_sell_improvement(controller):
         improvement_exist_1 = pcity['improvements'][improve_id]
 
         sell_improve_action.trigger_action(controller.ws_client)
-        controller.get_observation()
+        controller.get_info_and_observation()
         improvement_exist_2 = pcity['improvements'][improve_id]
 
         assert (improvement_exist_1 == 1 and improvement_exist_2 == 0)

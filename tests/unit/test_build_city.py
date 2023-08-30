@@ -64,8 +64,8 @@ def test_build_city(controller):
 
     controller.send_end_turn()
     # Get unit new state
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     for unit_id in unit_opt.unit_data.keys():
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
@@ -82,6 +82,6 @@ def test_build_city(controller):
     city_num = len(controller.city_ctrl.cities)
     build_action.trigger_action(controller.ws_client)
     # # Get unit new state
-    controller.get_observation()
+    controller.get_info_and_observation()
     # Building a new city increases the city number
     assert (len(controller.city_ctrl.cities) == city_num+1)

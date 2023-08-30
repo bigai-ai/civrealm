@@ -97,8 +97,7 @@ def test_embark_disembark(controller):
 
     print('Embark the boat.')
     # controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     # Show the state of boat 1549 after eight units embark.
     print(unit_opt.unit_ctrl.units[1549])
 
@@ -121,8 +120,7 @@ def test_embark_disembark(controller):
     valid_actions['cancel_order'].trigger_action(controller.ws_client)
     print('Cancel unit 886 order.')
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
@@ -159,8 +157,7 @@ def test_embark_disembark(controller):
 
     print('Unit 886 embark the boat.')
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
     print(f"Unit {886}'s move left before disembark: {unit_opt.unit_data[886].punit['movesleft']}")
@@ -171,8 +168,7 @@ def test_embark_disembark(controller):
     print(f'Unit 319, valid action keys: {valid_actions.keys()}')
 
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     unit_id = 886
     punit = unit_opt.unit_ctrl.units[unit_id]

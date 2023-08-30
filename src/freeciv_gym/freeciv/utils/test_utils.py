@@ -16,9 +16,8 @@ def get_first_observation_option(controller: CivController, client_port=None):
     # Handle port conflict if exist
     try:
         controller.init_network()
-        controller.get_info()
+        _, observation = controller.get_info_and_observation()
         options = controller.turn_manager.turn_actions
-        observation = controller.get_observation()
         # controller.clstate.set_multiplayer_game()
         return observation, options
     except Exception as e:

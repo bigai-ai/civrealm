@@ -74,8 +74,8 @@ def test_get_action_pro3(controller):
 
     for turn_i in range(10):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Plant')
 
     unit_focus = unit_opt.unit_data[138]
@@ -90,8 +90,7 @@ def test_get_action_pro3(controller):
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print("Move south")
 
     ptile = unit_focus.ptile
@@ -107,8 +106,8 @@ def test_get_action_pro3(controller):
     valid_actions['mine'].trigger_action(controller.ws_client)
     for turn_i in range(11):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Mine')
 
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -123,8 +122,8 @@ def test_get_action_pro3(controller):
     valid_actions['pillage'].trigger_action(controller.ws_client)
     for turn_i in range(1):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Pillage')
 
     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
@@ -136,8 +135,7 @@ def test_get_action_pro3(controller):
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print("Move south")
 
     ptile = unit_focus.ptile
@@ -151,8 +149,8 @@ def test_get_action_pro3(controller):
     valid_actions['mine'].trigger_action(controller.ws_client)
     for turn_i in range(10):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Mine')
 
     build_tile = unit_opt.map_ctrl.index_to_tile(unit_focus.punit['tile'])
@@ -167,8 +165,8 @@ def test_get_action_pro3(controller):
     valid_actions['road'].trigger_action(controller.ws_client)
     for turn_i in range(6):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Road')
 
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
@@ -182,8 +180,8 @@ def test_get_action_pro3(controller):
     valid_actions['pillage'].trigger_action(controller.ws_client)
     for turn_i in range(1):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Pillage')
 
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
@@ -198,8 +196,8 @@ def test_get_action_pro3(controller):
     # Wait for 15 turns (until the work is done)
     for turn_i in range(1):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Pillage')
 
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
@@ -239,9 +237,9 @@ def test_get_action_pro3(controller):
     print('Move north')
 
     controller.send_end_turn()
-    controller.get_info()
+    controller.get_info_and_observation()
     print(unit_focus.action_prob)
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     ptile = unit_focus.ptile
     print(f"Location: ({ptile['x']}, {ptile['y']})")

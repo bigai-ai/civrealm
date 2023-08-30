@@ -60,7 +60,7 @@ def test_city_change_specialist(controller):
         specialists_1 = pcity['specialists']
 
         change_specialist_action.trigger_action(controller.ws_client)
-        controller.get_observation()
+        controller.get_info_and_observation()
         specialists_2 = pcity['specialists']
 
         assert (specialists_1[0] == 1 and specialists_1[1] == 0 and specialists_1[2] == 0 and

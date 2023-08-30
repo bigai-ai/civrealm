@@ -52,8 +52,7 @@ def test_homecity(controller):
     # Go to north
     valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # The unit is not in the city tile, cannot change home city.
     assert ('homecity' not in valid_actions.keys())
@@ -61,8 +60,7 @@ def test_homecity(controller):
     # Go back to city tile
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     unit_action = valid_actions['homecity']
@@ -72,8 +70,7 @@ def test_homecity(controller):
     unit_action.trigger_action(controller.ws_client)
     print(f"Change the homecity of unit {unit_id} to the current garissoned city")
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)

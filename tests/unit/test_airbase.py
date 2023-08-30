@@ -55,8 +55,7 @@ def test_airbase(controller):
     # Choose airbase action
     valid_actions['airbase'].trigger_action(controller.ws_client)
     print(f"Activity: {punit['activity']}")
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print(f"Activity: {punit['activity']}")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # Already performing airbase. The airbase action is invalid.
@@ -68,8 +67,8 @@ def test_airbase(controller):
     # Wait for airbase finish.
     for _ in range(3):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('Airbase built')
 
     assert (unit_tile['extras'][EXTRA_AIRBASE] == 1)
@@ -81,8 +80,7 @@ def test_airbase(controller):
     # Start to build fortress
     valid_actions['fortress'].trigger_action(controller.ws_client)
     print(f"Activity: {punit['activity']}")
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print(f"Activity: {punit['activity']}")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('fortress' not in valid_actions)
@@ -93,8 +91,8 @@ def test_airbase(controller):
     # Wait for fortress finish.
     for _ in range(3):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print('fortress built')
 
     assert (unit_tile['extras'][EXTRA_AIRBASE] == 1)

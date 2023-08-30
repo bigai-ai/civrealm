@@ -66,13 +66,11 @@ def test_build_railroad(controller):
             # non-worker unit, shouldn't be able to build railroad
             # cancel fortify orders
             valid_actions['cancel_order'].trigger_action(controller.ws_client)
-            controller.get_info()
-            controller.get_observation()
+            controller.get_info_and_observation()
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             # move to northeast tile which has road
             valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'].trigger_action(controller.ws_client)
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -84,8 +82,8 @@ def test_build_railroad(controller):
     # wait until railroad is built
     for turn_i in range(3):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
         # print(unit_opt.unit_ctrl.units[109])
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]

@@ -48,54 +48,50 @@ def test_pillage(controller):
             f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        
+
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
         # pillage is valid for all works
-        assert('pillage' in valid_actions)
+        assert ('pillage' in valid_actions)
         if worker == 138:
             # Trigger pillage action for 138 worker
             valid_actions['pillage'].trigger_action(controller.ws_client)
-    
+
     # Update state
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     worker_id = [139, 269]
 
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
         # pillage is valid for all works
-        assert('pillage' in valid_actions)
+        assert ('pillage' in valid_actions)
         if worker == 139:
             # Trigger pillage action for 138 worker
             valid_actions['pillage'].trigger_action(controller.ws_client)
 
     # Update state
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     worker_id = 269
 
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # The current tile has two extras and there are already two workers are doing pillage, so pillage is not valid for the remaining worker.
-    assert('pillage' not in valid_actions)
+    assert ('pillage' not in valid_actions)
 
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[worker_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    
-    # Currently has two extras 
+
+    # Currently has two extras
     assert (unit_tile['extras'][EXTRA_ROAD] == 1)
     assert (unit_tile['extras'][EXTRA_IRRIGATION] == 1)
-    
+
     print('Begin pillaging, needs one turn to finish ...')
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     # Pillage remove extras
     assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
     assert (not (unit_tile['extras'][EXTRA_IRRIGATION] == 1))
-    
 
 
 def main():

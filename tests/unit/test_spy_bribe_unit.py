@@ -65,8 +65,8 @@ def test_spy_bribe_unit(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    controller.get_observation()
-    unit_opt = controller.get_info()['available_actions']['unit']
+    controller.get_info_and_observation()
+    unit_opt = controller.turn_manager.turn_actions['unit']
     newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
     if len(newtile['units']) > 0:
         target_id = newtile['units'][0]['id']

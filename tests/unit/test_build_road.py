@@ -59,14 +59,14 @@ def test_build_road(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    controller.get_observation()
+    controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[worker_id]
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     # The unit has no move left, the build should be invalid
     assert (build_action is None or not build_action.is_action_valid())
     # End turn
     controller.send_end_turn()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     # The unit has move in new turn, the build should be valid
@@ -77,7 +77,7 @@ def test_build_road(controller):
     # Wait for 5 turns (until the work is done)
     for turn_i in range(5):
         controller.send_end_turn()
-        controller.get_observation()
+        controller.get_info_and_observation()
     # Get updated state
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")

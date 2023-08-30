@@ -93,8 +93,8 @@ def test_move_to(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]

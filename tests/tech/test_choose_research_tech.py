@@ -57,7 +57,7 @@ def test_choose_research_tech(controller):
     tech_1 = tech_data[tech_opt.player_ctrl.my_player_id]['researching']
 
     research_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     tech_2 = tech_data[tech_opt.player_ctrl.my_player_id]['researching']
 
     assert (tech_1 != tech_2)

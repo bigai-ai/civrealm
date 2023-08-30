@@ -59,8 +59,7 @@ def test_irrigation(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[worker_id]
     build_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     assert (not (build_tile['extras'][EXTRA_IRRIGATION] == 1))
@@ -70,8 +69,7 @@ def test_irrigation(controller):
 
     # End turn
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     # The unit has move in new turn, the build should be valid
@@ -83,8 +81,8 @@ def test_irrigation(controller):
     # Wait for 5 turns (until the work is done)
     for _ in range(5):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     # Get updated state
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
@@ -94,8 +92,7 @@ def test_irrigation(controller):
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # There is an irrigated area in the west, the irrigation action becomes valid.
     assert ('irrigation' in valid_actions)
@@ -110,8 +107,8 @@ def test_irrigation(controller):
     # Wait for 5 turns (until the work is done)
     for _ in range(5):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (build_tile['extras'][EXTRA_IRRIGATION] == 1)

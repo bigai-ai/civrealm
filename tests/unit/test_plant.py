@@ -65,8 +65,7 @@ def test_plant(controller):
     # Get unit new state
     controller.send_end_turn()
     # # Tile info won't update unless options get assigned here
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -87,8 +86,7 @@ def test_plant(controller):
     # Get unit new state
     controller.send_end_turn()
     # # Tile info won't update unless options get assigned here
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -105,8 +103,8 @@ def test_plant(controller):
     # One terrain needs 10 turns to finish plant.
     for _ in range(10):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
 
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
@@ -125,8 +123,8 @@ def test_plant(controller):
     # Wait for another 5 turns.
     for _ in range(5):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
 
     for unit_id in worker_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]

@@ -53,7 +53,7 @@ def test_change_government(controller):
     gov_1 = pplayer['government']
 
     change_gov_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     gov_2 = pplayer['government']
 
     assert (gov_1 == 1 and gov_2 == 0)

@@ -81,7 +81,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return info, observation
 
     def _get_observation(self):
-        observations = self.civ_controller.get_observation()
+        observations = self.civ_controller.get_info_and_observation()
         self._record_observation(observations)
         return observations
 
@@ -159,7 +159,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 #         super().__init__(port)
 #         self.port = port
 #         # self.num = 0
-    
+
 #     def step(self, action):
 #         self.num += (self.port % 6300)
 #         import time
@@ -168,7 +168,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 #         if self.port == 6303:
 #             time.sleep(2)
 #         return self.num, self.num, self.num, False, self.num
-    
+
 #     def reset(self):
 #         self.num = 1
 #         return self.num, self.num

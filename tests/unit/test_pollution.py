@@ -58,8 +58,8 @@ def test_pollution(controller):
     # Wait for 5 turns to finish pollution
     for _ in range(5):
         controller.send_end_turn()
-        controller.get_info()
-        controller.get_observation()
+        controller.get_info_and_observation()
+        controller.get_info_and_observation()
 
     unit_id = 564
     punit = unit_opt.unit_ctrl.units[unit_id]

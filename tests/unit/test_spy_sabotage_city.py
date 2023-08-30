@@ -59,8 +59,8 @@ def test_spy_sabotage(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     # The diplomat should have been comsumed
     assert not (diplomat_id in unit_opt.unit_ctrl.units.keys())

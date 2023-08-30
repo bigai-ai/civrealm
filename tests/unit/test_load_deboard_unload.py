@@ -86,8 +86,7 @@ def test_load_deboard_unload(controller):
             assert ('board' not in valid_actions)
 
     # controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
@@ -118,8 +117,7 @@ def test_load_deboard_unload(controller):
 
     print('Unit 1549 unloads its units.')
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     unit_focus = unit_opt.unit_data[1549]
     print(f"Boat {1549}'s move left after unload: {unit_focus.punit['movesleft']}")
@@ -138,8 +136,7 @@ def test_load_deboard_unload(controller):
         # print(unit_focus.punit)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
@@ -154,8 +151,7 @@ def test_load_deboard_unload(controller):
         valid_actions['deboard'].trigger_action(controller.ws_client)
 
     print('All units deboard.')
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]

@@ -82,8 +82,7 @@ def test_trade_route_market(controller):
             valid_actions['homecity'].trigger_action(controller.ws_client)
 
     # controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
@@ -118,8 +117,7 @@ def test_trade_route_market(controller):
     # The trade route is empty before 1912 build one.
     assert (city_id not in controller.city_ctrl.city_trade_routes)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     # Unit 1912 has built a trade route.
     assert (controller.city_ctrl.city_trade_routes[city_id] != {})
@@ -155,8 +153,7 @@ def test_trade_route_market(controller):
             print('Unit 1964 performs marketplace action.')
             valid_actions['marketplace_6'].trigger_action(controller.ws_client)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     # Unit 1964 has been removed due to market action.
     assert (1964 not in unit_opt.unit_data)

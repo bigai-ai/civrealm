@@ -50,8 +50,8 @@ def test_upgrade(controller):
     unit_action.trigger_action(controller.ws_client)
     print(f"Upgrade unit {unit_id} from Legion to Musketeers")
     controller.send_end_turn()
-    options = controller.get_info()['available_actions']
-    controller.get_observation()
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[unit_id]
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)

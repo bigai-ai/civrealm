@@ -65,8 +65,7 @@ def test_investigate_spend(controller):
 
     print('Investigate city.')
     valid_actions['investigate_spend_0'].trigger_action(controller.ws_client)
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
 
     # This info of the target_city has been investigated.
     assert ('can_build_improvement' in target_city)

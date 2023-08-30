@@ -50,8 +50,8 @@ def test_disband(controller):
     print(f"Disband unit {unit_id}")
     for turn_i in range(1):
         controller.send_end_turn()
-        options = controller.get_info()['available_actions']
-        controller.get_observation()
+        options = controller.turn_manager.turn_actions
+        controller.get_info_and_observation()
     unit_opt = options['unit']
     assert not (unit_id in unit_opt.unit_ctrl.units.keys())
     import time

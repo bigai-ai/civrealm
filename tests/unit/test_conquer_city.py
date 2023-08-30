@@ -62,8 +62,8 @@ def test_conquer_city(controller):
         action.trigger_action(controller.ws_client)
     # Get unit new state
     controller.send_end_turn()
-    controller.get_observation()
-    options = controller.get_info()['available_actions']
+    controller.get_info_and_observation()
+    options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[musketeer_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])

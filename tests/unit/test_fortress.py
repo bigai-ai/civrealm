@@ -54,7 +54,7 @@ def test_fortress(controller):
     # Trigger fortress action will change the activity state of the unit.
     build_action.trigger_action(controller.ws_client)
     # Get unit new info
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     # Already performing fortress, the fortress action should be invalid.
     assert ('fortress' not in valid_actions)
@@ -64,7 +64,7 @@ def test_fortress(controller):
     # Wait for 3 turns (until job is done)
     for turn_i in range(3):
         controller.send_end_turn()
-        controller.get_observation()
+        controller.get_info_and_observation()
     # Get updated state
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_FORTRESS]: {build_tile['extras'][EXTRA_FORTRESS]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")

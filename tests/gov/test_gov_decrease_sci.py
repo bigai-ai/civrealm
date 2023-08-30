@@ -20,6 +20,7 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 
+
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
@@ -52,9 +53,7 @@ def test_gov_decrease_sci(controller):
     sci_1 = pplayer['science']
 
     decrease_sci_action.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     sci_2 = pplayer['science']
 
     assert (sci_1 - sci_2 == 10)
-
-

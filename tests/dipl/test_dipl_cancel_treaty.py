@@ -52,7 +52,7 @@ def test_dipl_cancel_treaty(controller):
     ds_1 = controller.controller_list['dipl'].diplstates[4]
 
     cancel_treaty_act.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     ds_2 = controller.controller_list['dipl'].diplstates[4]
 
     assert (ds_1 == player_const.DS_ALLIANCE and ds_2 == player_const.DS_ARMISTICE)

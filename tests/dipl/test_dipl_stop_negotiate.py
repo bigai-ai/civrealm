@@ -51,7 +51,7 @@ def test_dipl_stop_negotiate(controller):
     meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
 
     stop_negotiate_act.trigger_action(controller.ws_client)
-    controller.get_observation()
+    controller.get_info_and_observation()
     meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
 
     assert (meeting_id_1 == 4 and meeting_id_2 is None)

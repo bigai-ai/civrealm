@@ -7,7 +7,7 @@
 # #
 # # This program is distributed in the hope that it will be useful, but
 # # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License 
+# # or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 # #
 # # You should have received a copy of the GNU General Public License along
@@ -88,7 +88,7 @@ def test_get_first_obs_fail_with_underscore_in_name():
     controller = CivController('test_controller')
     controller.init_network()
     with pytest.raises(Exception):
-        controller.get_observation()
+        controller.get_info_and_observation()
         controller.end_game()
         # controller.lock_control()
 

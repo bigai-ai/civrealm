@@ -55,8 +55,7 @@ def test_cancel_order(controller):
             print(f'unit_id: {unit_id} do fortify.')
             valid_actions['fortify'].trigger_action(controller.ws_client)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in unit_ids:
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 139:
@@ -71,8 +70,7 @@ def test_cancel_order(controller):
     # End the turn
     print('End Turn')
     controller.send_end_turn()
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in unit_ids:
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 139:
@@ -88,8 +86,7 @@ def test_cancel_order(controller):
             print(f'unit_id: {unit_id} cancel order.')
             valid_actions['cancel_order'].trigger_action(controller.ws_client)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     for unit_id in unit_ids:
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 139:
@@ -113,8 +110,7 @@ def test_cancel_order(controller):
             assert ('cancel_order' not in valid_actions)
             print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     unit_id = 139
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
@@ -122,16 +118,14 @@ def test_cancel_order(controller):
     print(f'unit_id: {unit_id} do road.')
     valid_actions['road'].trigger_action(controller.ws_client)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
     # Cancel order
     print(f'unit_id: {unit_id} cancel order.')
     valid_actions['cancel_order'].trigger_action(controller.ws_client)
 
-    controller.get_info()
-    controller.get_observation()
+    controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
 

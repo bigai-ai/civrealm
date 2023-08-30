@@ -53,7 +53,7 @@ def test_dipl_add_clause(controller):
 
     add_clause_act.trigger_action(controller.ws_client)
     controller.send_end_turn()
-    controller.get_observation()
+    controller.get_info_and_observation()
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]
     len_2 = len(clauses)
 

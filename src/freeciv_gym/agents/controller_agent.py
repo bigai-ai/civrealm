@@ -43,13 +43,13 @@ class ControllerAgent(BaseAgent):
     def sample_action_by_prob(self, action_probabilities):
         action_list = list(action_probabilities.keys())
         action_probabilities = list(action_probabilities.values())
-        try:
-            action_name = random.choices(action_list, weights=action_probabilities, k=1)[0]
-            fc_logger.info(f'Action sampled: {action_name}')
-            return action_name
-        except ValueError:
-            # This happens when all action_probabilities are 0.0.
+
+        if len(action_probabilities) == 0 or sum(action_probabilities) == 0.0:
             return None
+
+        action_name = random.choices(action_list, weights=action_probabilities, k=1)[0]
+        fc_logger.debug(f'Action sampled: {action_name}')
+        return action_name
 
     def sample_desired_actions(self, action_dict, desired_actions):
         # Use desired_actions = {'': 0.0} for random sample

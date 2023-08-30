@@ -17,6 +17,7 @@
 import os
 import json
 import matplotlib.pyplot as plt
+from BitVector import BitVector
 
 import gymnasium
 from gymnasium import utils
@@ -67,7 +68,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
 
     def _record_observation(self, observation):
-        self._record_to_file('state', observation, lambda x: x.tolist())
+        self._record_to_file('state', observation, lambda x: x.get_bitvector_in_ascii() if isinstance(x, BitVector) else x.tolist())
 
     def _record_action(self, available_actions, action):
         self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
@@ -110,6 +111,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return observation, reward, terminated, truncated, info
 
     def reset(self):
+        self.civ_controller.reset()
         self.civ_controller.init_network()
         info, observation = self._get_info_and_observation()
         return observation, info

@@ -366,6 +366,8 @@ class CivController(CivPropController):
                         pid_info = (packet['pid'], packet['counterpart'])
                     elif 'plr1' in packet:
                         pid_info = (packet['pid'], (packet['plr1'], packet['plr2']))
+                    elif 'tile' in packet:
+                        pid_info = (packet['pid'], packet['tile'])
                     else:
                         pid_info = (packet['pid'], None)
                 self.ws_client.stop_waiting(pid_info)

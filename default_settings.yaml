@@ -29,8 +29,10 @@ autotoggle: False
 runner: 'parallel'
 
 # Parameters for parallel running
+# How many epoch to run. Each epoch runs batch_size_run envs.
+epoch_num: 2
 # How many envs run simultaneously to sample experience
-batch_size_run: 8
+batch_size_run: 2
 # The port used by the first env, the other parallel envs use those ports following this port
 port_start: 6300
 

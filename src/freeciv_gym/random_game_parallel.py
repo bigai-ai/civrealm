@@ -32,16 +32,17 @@ warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*
 
 
 def main():
-    epoch_num = 2
-    agent = ControllerAgent()
-    runner = r_REGISTRY[fc_args['runner']]('freeciv/FreecivBase-v0', agent, None)
+    epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
+        agent = ControllerAgent()
+        runner = r_REGISTRY[fc_args['runner']]('freeciv/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         for batch in batchs:
             print(batch)
+        
+        runner.close()
         import time
-        time.sleep(10)
-    runner.close()
+        time.sleep(3)
 
 if __name__ == '__main__':
     main()

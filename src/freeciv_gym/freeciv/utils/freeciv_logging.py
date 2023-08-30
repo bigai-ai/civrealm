@@ -25,7 +25,7 @@ fc_logger = logging.getLogger('freecivGym')
 
 # class DummyLogger():
 #     def __init__(self) -> None:
-#         self.handlers = ['']
+#         self.handlers = [DummyFolderName()]
 #     def info(self, msg):
 #         pass
 #     def debug(self, msg):
@@ -34,5 +34,9 @@ fc_logger = logging.getLogger('freecivGym')
 #         pass
 #     def error(self, msg):
 #         pass
+
+# class DummyFolderName():
+#     def __init__(self) -> None:
+#         self.baseFilename = 'logs'
 
 # fc_logger = DummyLogger()

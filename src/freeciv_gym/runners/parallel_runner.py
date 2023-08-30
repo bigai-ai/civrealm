@@ -7,7 +7,7 @@ import ray
 import copy
 
 class ParallelRunner:
-    def __init__(self, env_name, agent, logger):
+    def __init__(self, env_name, agent, logger, epoch_num):
         ray.init(local_mode=False)
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']
@@ -16,9 +16,10 @@ class ParallelRunner:
 
         # Initialize envs
         self.envs = []
+        
         port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
-            temp_port = port_start+i
+            temp_port = port_start+epoch_num%2*self.batch_size_run+i
             env_core = gymnasium.make(env_name, client_port=temp_port)
             env = FreecivParallelEnv.remote(env_core, temp_port)
             self.envs.append(env)
@@ -93,12 +94,15 @@ class ParallelRunner:
                 if not dones[i]:
                     observation = self.batchs[self.t][0][i]
                     info = self.batchs[self.t][1][i]
-                    import random
-                    if random.random() < 0.3:
-                        action = 'pass'
-                    else:
-                        action = None
-                    
+                    # import random
+                    # if random.random() < 0.3:
+                    #     action = 'pass'
+                    # else:
+                    #     action = None
+                    action = self.agent.act(observation, info)
+                    # print(observation)
+                    # print(info)
+                    # print(action)
                     id = self.envs[i].step.remote(action)
                     result_ids.append(id)
                     id_env_map[id] = i
@@ -115,10 +119,12 @@ class ParallelRunner:
                     result = ray.get(ready[0])
                     # print(result)
                     observations[env_id] = result[0]
-                    infos[env_id] = result[4]
-                    dones[env_id] = result[3]
                     rewards[env_id] = result[1]
-                    # , reward, terminated, truncated, info_list[env_id] = result[0], result[1], result[2], result[3], 
+                    terminated = result[2]
+                    truncated = result[3]
+                    infos[env_id] = result[4]
+                    dones[env_id] = terminated or truncated
+                    # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3], 
                 except Exception as e:
                     print(str(e))
                     fc_logger.warning(repr(e))
@@ -133,9 +139,11 @@ class ParallelRunner:
                     result = ray.get(ready[0])
                     # print(result)
                     observations[env_id] = result[0]
-                    infos[env_id] = result[4]
-                    dones[env_id] = result[3]
                     rewards[env_id] = result[1]
+                    terminated = result[2]
+                    truncated = result[3]
+                    infos[env_id] = result[4]
+                    dones[env_id] = terminated or truncated
                 except Exception as e:
                     fc_logger.warning(repr(e))
                     dones[env_id] = True

@@ -18,7 +18,7 @@ from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
 
 from freeciv_gym.configs import fc_args
-from freeciv_gym.runners import ParallelRunner
+from freeciv_gym.runners import ParallelRunner, A3CRunner
 
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
@@ -32,7 +32,8 @@ def main():
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
         agent = ControllerAgent()
-        runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
+        # runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
+        runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         for batch in batchs:
             print(batch)

@@ -35,8 +35,9 @@ def main():
         # runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
         runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
-        for batch in batchs:
-            print(batch)
+        print(f'Batch length: {len(batchs)}')
+        # for batch in batchs:
+        #     print(batch)
 
         runner.close()
         import time

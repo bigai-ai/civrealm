@@ -99,6 +99,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.get_info()
 
     def step(self, action):
+        import time
+        start_time = time.time()
+
         self.civ_controller.perform_action(action)
         info, observation = self._get_info_and_observation()
         reward = self._get_reward()
@@ -107,6 +110,13 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
+        
+        end_time = time.time()
+        elapsed_time = end_time - start_time
+        # If running is too slow, we stop the program.
+        if elapsed_time > 15:
+            fc_logger.debug('Running too slow.')
+            assert(False)
 
         return observation, reward, terminated, truncated, info
 

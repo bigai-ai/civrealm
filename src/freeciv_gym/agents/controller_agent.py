@@ -14,6 +14,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import random
+import os
 
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -23,8 +24,13 @@ from freeciv_gym.configs import fc_args
 class ControllerAgent(BaseAgent):
     def __init__(self):
         super().__init__()
-        if "debug.agentseed" in fc_args:
-            self.set_agent_seed(fc_args["debug.agentseed"])
+        if fc_args["debug.random_seed"]:
+            random.seed(os.getpid())
+            agentseed = random.randint(0, 999999)
+            self.set_agent_seed(agentseed)
+        else:
+            if "debug.agentseed" in fc_args:
+                self.set_agent_seed(fc_args["debug.agentseed"])
 
     # Each act() lets one actor perform an action.
     def act(self, observations, info):

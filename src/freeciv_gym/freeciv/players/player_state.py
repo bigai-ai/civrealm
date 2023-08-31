@@ -34,6 +34,12 @@ class PlayerState(PlainState):
         self.diplstates = diplstates
         self.players = players
 
+        self.player_fields = ["culture", "researching_cost", "gold", "government", "is_alive",
+                              "luxury", "mood", "nation", "net_income", "revolution_finishes",
+                              "science", "science_cost", "score", "target_government", "tax",
+                              "tech_goal", "tech_upkeep", "techs_researched", "total_bulbs_prod",
+                              "turns_alive"]
+
     @property
     def my_player_id(self):
         return self.clstate.player_num()
@@ -43,16 +49,12 @@ class PlayerState(PlainState):
         return self.players[self.my_player_id]
 
     def _update_state(self, player):
-        player_fields = ["culture", "researching_cost", "gold", "government", "is_alive",
-                         "luxury", "mood", "nation", "net_income", "revolution_finishes",
-                         "science", "science_cost", "score", "target_government", "tax",
-                         "tech_goal", "tech_upkeep", "techs_researched", "total_bulbs_prod",
-                         "turns_alive"]
         if self._state == {}:
-            self._state.update(dict([("my_" + key, None) for key in player_fields]))
+            self._state.update(dict([("my_" + key, None) for key in self.player_fields]))
 
+        self._state['my_player_id'] = self.my_player_id
         self._state.update(
-            dict([("my_" + key, value) for key, value in self.my_player.items() if key in player_fields]))
+            dict([("my_" + key, value) for key, value in self.my_player.items() if key in self.player_fields]))
         no_humans = 0
         no_ais = 0
 
@@ -60,7 +62,7 @@ class PlayerState(PlainState):
             opponent = self.players[opp_id]
             if opponent == self.my_player:
                 continue
-            self._update_opponent_state(self.my_player, opponent, "opponent_%i" % pnum)
+            self._update_opponent_state(self.my_player, opponent, "opponent_%i_" % pnum)
             if opponent["is_alive"]:
                 if opponent['flags'][player_const.PLRF_AI] != 0:
                     no_ais += 1
@@ -95,12 +97,12 @@ class PlayerState(PlainState):
         self._state.update(dict([(op_id + "invention_%i" % tech_id, None)
                                  for tech_id in self.rule_ctrl.techs]))
 
-        self._state[op_id + "_col_love"] = self.col_love(opponent)
-        self._state[op_id + "_plr_score"] = self.get_score_text(opponent)
+        self._state[op_id + "col_love"] = self.col_love(opponent)
+        self._state[op_id + "plr_score"] = self.get_score_text(opponent)
         if opponent['flags'][player_const.PLRF_AI] != 0:
-            self._state[op_id + "_plr_type"] = self.get_ai_level_text(opponent) + " AI"
+            self._state[op_id + "plr_type"] = self.get_ai_level_text(opponent) + " AI"
         else:
-            self._state[op_id + "_plr_type"] = "Human"
+            self._state[op_id + "plr_type"] = "Human"
 
         if pplayer["real_embassy"][opponent["playerno"]]:
             self.show_intelligence_report_embassy(opponent, op_id)

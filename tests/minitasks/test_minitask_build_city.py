@@ -27,17 +27,33 @@ from freeciv_gym.freeciv.build_server import run_bash_command
 def test_build_city(controller):
     # configure_test_logger()
     fc_logger.info("test_build_city")
-    time.sleep(10)
+    steps = 0
     _, options = get_first_observation_option(controller, 6001)
-    # Class: UnitActions
     unit_opt = options['unit']
+    while steps < 3:
+        print(" ----------- STEPS ------------ ", steps)
+        start = time.time()
+        # Class: UnitActions
 
-    for unit_id in unit_opt.unit_data.keys():
-        print("UNIT_ID: ", unit_id)
-    controller.send_end_turn()
+        # for unit_id in unit_opt.unit_data.keys():
+        #     print("UNIT_ID: ", unit_id)
+        print("REWARD: ", controller.get_reward())
+        # Get unit new state and check
+        options = controller.turn_manager.turn_actions
+        print("turn_manager.turn_actions wasted time: ", time.time() - start)
+        info, observation = controller.get_info_and_observation()
+        print("info: ", info)
+        print("observation: ", observation)
+        #unit_opt = options['unit']
+        steps += 1
+        print("get_info_and_observation wasted time: ", time.time() - start)
+        controller.send_end_turn()
+        print("send_end_turn wasted time: ", time.time() - start)
+        controller.handle_end_turn(None)
+        print("handle_end_turn wasted time: ", time.time() - start)
 
 def run_command(cmd):
-    pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)#executable='/bin/bash'
+    pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
     return [sav.strip().split(".sav")[0] for sav in pi.stdout.read().decode("utf8").strip().split("\n")]
 
 def get_minitask(name, docker_image='freeciv-web', docker_sav_path='/var/lib/tomcat10/webapps/data/savegames/'):
@@ -49,12 +65,12 @@ def get_minitask(name, docker_image='freeciv-web', docker_sav_path='/var/lib/tom
     return minitask
 
 def main(username):
-    fc_args['username'] = username
+    fc_args['username'] = "myagent" #username
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', get_minitask(fc_args['username']))
+    controller.set_parameter('debug.load_game', 'myagent_T1_task_build_city')#get_minitask(fc_args['username'])
     test_build_city(controller)
-    controller.send_end_turn()
-    controller.handle_end_turn(None)
+    #controller.send_end_turn()
+    #controller.handle_end_turn(None)
 
 if __name__ == '__main__':
     main('minitaskbuildcity')

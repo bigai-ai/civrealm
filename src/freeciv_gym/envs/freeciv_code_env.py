@@ -125,34 +125,34 @@ class FreecivCodeEnv(FreecivBaseEnv):
             observation = None
         else:
             for ctrl_type in base_observation:
+                observation[ctrl_type] = dict()
+                actors_can_act = None
+                if ctrl_type in self.info['available_actions']:
+                    actors_can_act = self.info['available_actions'][ctrl_type]
+
+                if ctrl_type != 'map' and actors_can_act is None:
+                    continue
+
                 if ctrl_type == 'unit':
-                    observation[ctrl_type] = dict()
                     units = self.civ_controller.unit_ctrl.units
+
                     unit_dict = dict()
+                    for punit in actors_can_act:
+                        ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
 
-                    if ctrl_type in self.info['available_actions']:
-                        for punit in self.info['available_actions'][ctrl_type]:
-                            if units[punit]['owner'] != self.civ_controller.player_ctrl.my_player_id:
-                                continue
-                            ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
-
-                            utype = units[punit]['type']
-                            moves = units[punit]['movesleft']
-                            actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
-                            unit_dict.update(actor_info)
-
-                            observation[ctrl_type][punit] = self.get_mini_map_info(ctrl_type, ptile)
+                        utype = units[punit]['type']
+                        moves = units[punit]['movesleft']
+                        actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
+                        unit_dict.update(actor_info)
+                        observation[ctrl_type][punit] = self.get_mini_map_info(ctrl_type, ptile)
 
                     observation[ctrl_type]['unit_dict'] = unit_dict
 
                 elif ctrl_type == 'city':
-                    observation[ctrl_type] = dict()
                     cities = self.civ_controller.city_ctrl.cities
-                    city_dict = dict()
 
-                    for pcity in cities:
-                        if cities[pcity]['owner'] != self.civ_controller.player_ctrl.my_player_id:
-                            continue
+                    city_dict = dict()
+                    for pcity in actors_can_act:
                         ptile = self.civ_controller.map_ctrl.index_to_tile(cities[pcity]['tile'])
 
                         if (self.civ_controller.turn_manager.turn == 1 or
@@ -161,8 +161,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
                         else:
                             actor_info = self.get_actor_info(ctrl_type, pcity)
                         city_dict.update(actor_info)
-
                         observation[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
+
                     observation[ctrl_type]['city_dict'] = city_dict
 
                 else:
@@ -186,7 +186,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
         return observation, reward, terminated, truncated, info
 
     def reset(self, seed=None, options=None):
-        # self.civ_controller.reset()
         self.civ_controller.init_network()
         info, base_observation = self._get_info_and_observation()
         self.info = info

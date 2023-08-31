@@ -81,11 +81,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self._record_observation(observation)
         return info, observation
 
-    def _get_observation(self):
-        observations = self.civ_controller.get_info_and_observation()
-        self._record_observation(observations)
-        return observations
-
     def _get_reward(self):
         return self.civ_controller.get_reward()
 
@@ -94,9 +89,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def _get_truncated(self):
         return self.civ_controller.game_has_truncated()
-
-    def _get_info(self):
-        return self.civ_controller.get_info()
 
     def step(self, action):
         import time

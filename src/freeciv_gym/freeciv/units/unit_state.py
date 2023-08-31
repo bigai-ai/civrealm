@@ -53,7 +53,7 @@ class UnitState(ListState):
         # Info from the unit's type
         ptype = self.rule_ctrl.unit_type(punit)
         for type_desc in ['rule_name', 'attack_strength', 'defense_strength', 'firepower', 'build_cost',
-                          'convert_time', 'converted_to', 'hp', 'move_rate', 'vision_radius_sq',
+                          'convert_time', 'converted_to', 'obsoleted_by', 'hp', 'move_rate', 'vision_radius_sq',
                           'worker']:
             unit_state['type_'+type_desc] = ptype[type_desc]
         unit_state['type_can_transport'] = ptype['transport_capacity'] > 0

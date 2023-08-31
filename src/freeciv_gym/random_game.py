@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARsrc/freeciv_gym/configs/default_setting.ymlTICULAR PURPOSE.  See the GNU General Public License
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -27,11 +27,14 @@ def main():
 
     observations, info = env.reset()
     done = False
+    step = 0
     while not done:
         try:
             action = agent.act(observations, info)
             observations, reward, terminated, truncated, info = env.step(action)
-            print(f'Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}')
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}')
+            step += 1
             done = terminated or truncated
         except Exception as e:
             fc_logger.error(repr(e))

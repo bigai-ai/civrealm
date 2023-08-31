@@ -15,6 +15,7 @@
 
 import os
 import json
+import time
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
@@ -206,9 +207,9 @@ class GameCtrl(CivPropController):
 
                     evaluations[ptag_name][pplayer].append(value)
 
-        game_scores_folder = 'game_scores'
+        game_scores_folder = f"game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-{self.ws_client.client_port}"
         if not os.path.exists(game_scores_folder):
-            os.mkdir(game_scores_folder)
+            os.makedirs(game_scores_folder)
 
         file_1 = os.path.join(game_scores_folder, 'players.json')
         with open(file_1, 'w') as f:

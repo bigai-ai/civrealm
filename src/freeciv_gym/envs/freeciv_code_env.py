@@ -22,6 +22,8 @@ from freeciv_gym.freeciv.utils.language_agent_utility import TILE_INFO_TEMPLATE,
 from freeciv_gym.freeciv.utils.language_agent_utility import get_tile_terrain, get_units_on_tile, action_mask
 from freeciv_gym.freeciv.players.player_const import DS_TXT
 
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
 
 class FreecivCodeEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
@@ -126,10 +128,11 @@ class FreecivCodeEnv(FreecivBaseEnv):
         else:
             for ctrl_type in base_observation:
                 observation[ctrl_type] = dict()
+
                 actors_can_act = None
                 if ctrl_type in self.info['available_actions']:
+                    fc_logger.debug(f'ctrl_info: {self.info["available_actions"][ctrl_type].keys()}')
                     actors_can_act = self.info['available_actions'][ctrl_type]
-
                 if ctrl_type != 'map' and actors_can_act is None:
                     continue
 
@@ -138,6 +141,8 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
                     unit_dict = dict()
                     for punit in actors_can_act:
+                        if units[punit]['activity'] != 0:
+                            continue
                         ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
 
                         utype = units[punit]['type']

@@ -16,6 +16,7 @@
 
 import os
 import json
+import time
 import matplotlib.pyplot as plt
 from BitVector import BitVector
 
@@ -127,9 +128,10 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.game_ctrl.get_game_scores(game_scores)
 
     def plot_game_scores(self):
-        plot_game_scores_folder = 'plot_game_scores'
+        plot_game_scores_folder = (f"plot_game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-"
+                                   f"{self.civ_controller.client_port}")
         if not os.path.exists(plot_game_scores_folder):
-            os.mkdir(plot_game_scores_folder)
+            os.makedirs(plot_game_scores_folder)
 
         players, tags, turns, evaluations = self.evaluate_game()
         player_colors = self.civ_controller.player_ctrl.get_player_colors()

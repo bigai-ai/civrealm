@@ -180,8 +180,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
         info, base_observation = self._get_info_and_observation()
         self.info = info
 
-        fc_logger.debug("Acquiring state for: ")
-
         observation = self.get_code_observations(base_observation)
         reward = self._get_reward()
         terminated = self._get_terminated()

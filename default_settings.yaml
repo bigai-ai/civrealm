@@ -1,7 +1,7 @@
 # username: testcontroller
 username: myagent
 # Max number of turns per game
-max_turns: 10
+max_turns: 100
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
@@ -26,13 +26,13 @@ allowtake: HAhadOo
 autotoggle: False
 
 # The type of runner
-runner: 'parallel'
+runner_type: "parallel"
 
 # Parameters for parallel running
 # How many epoch to run. Each epoch runs batch_size_run envs.
 epoch_num: 2
 # How many envs run simultaneously to sample experience
-batch_size_run: 2
+batch_size_run: 5
 # The port used by the first env, the other parallel envs use those ports following this port
 port_start: 6300
 

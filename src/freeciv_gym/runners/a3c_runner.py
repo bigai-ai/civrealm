@@ -1,20 +1,20 @@
 import gymnasium
 import freeciv_gym
 from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
-from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
+from freeciv_gym.envs.freeciv_a3c_env import FreecivA3CEnv
 from freeciv_gym.configs import fc_args
 import ray
 import copy
 
 
-class ParallelRunner:
+class A3CRunner:
     def __init__(self, env_name, agent, logger, epoch_num):
         ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
         self.logger = ray_logger_setup()
 
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']
-        self.agent = agent
+        # self.agent = agent
 
         # Initialize envs
         self.envs = []
@@ -23,7 +23,7 @@ class ParallelRunner:
         for i in range(self.batch_size_run):
             temp_port = port_start+epoch_num % 2*self.batch_size_run+i
             env_core = gymnasium.make(env_name, client_port=temp_port)
-            env = FreecivParallelEnv.remote(env_core, temp_port)
+            env = FreecivA3CEnv.remote(env_core, agent, temp_port)
             self.envs.append(env)
 
         self.t = 0
@@ -101,7 +101,7 @@ class ParallelRunner:
                     #     action = 'pass'
                     # else:
                     #     action = None
-                    action = self.agent.act(observation, info)
+                    action = ray.get(self.envs[i].compute_action.remote(observation, info))
                     # print(observation)
                     # print(info)
                     # print(action)

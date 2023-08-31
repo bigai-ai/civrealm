@@ -59,9 +59,9 @@ INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 KEYWORDS = ['change_unit_prod', 'change_improve_prod']
 
 
-def action_mask(valid_action_dict):
+def action_mask(avail_action_set):
     action_names = []
-    for act in valid_action_dict.keys():
+    for act in avail_action_set:
         for keyword in KEYWORDS:
             if keyword in act:
                 action_names.append(act)

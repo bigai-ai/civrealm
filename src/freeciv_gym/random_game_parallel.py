@@ -13,36 +13,35 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
-# from freeciv_gym.configs import fc_args
-import freeciv_gym
-from freeciv_gym.runners import REGISTRY as r_REGISTRY
-from freeciv_gym.configs import fc_args
-import gymnasium
-import asyncio
-# from functools import partial
 
-import ray
-from freeciv_gym.freeciv.utils.parallel_helper import CloudpickleWrapper
+from freeciv_gym.configs import fc_args
+from freeciv_gym.runners import ParallelRunner, A3CRunner
+
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*')
 
 
 def main():
+    if fc_args['batch_size_run'] == 1:
+        warnings.warn('batch_size_run is 1. Please use random_game.py for batch_size_run = 1.')
+
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
         agent = ControllerAgent()
-        runner = r_REGISTRY[fc_args['runner']]('freeciv/FreecivBase-v0', agent, None, i)
+        # runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
+        runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         for batch in batchs:
             print(batch)
-        
+
         runner.close()
         import time
         time.sleep(3)
+
 
 if __name__ == '__main__':
     main()

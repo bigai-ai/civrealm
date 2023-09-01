@@ -113,6 +113,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         return observation, reward, terminated, truncated, info
 
+    def get_port(self):
+        return self.civ_controller.client_port
+
     def reset(self, seed=None, options=None):
         # self.civ_controller.reset()
         self.civ_controller.init_network()

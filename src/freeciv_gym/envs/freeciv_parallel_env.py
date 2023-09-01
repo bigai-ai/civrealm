@@ -42,3 +42,6 @@ class FreecivParallelEnv():
 
     def close(self):
         self.env.close()
+
+    def get_port(self):
+        return self.env.get_port()

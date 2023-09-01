@@ -19,7 +19,7 @@ from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgen
 from civtensor.models.agent import Agent
 
 from freeciv_gym.configs import fc_args
-from freeciv_gym.runners import ParallelRunner, A3CRunner
+from freeciv_gym.runners import parallel_tensor_env
 
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
@@ -32,8 +32,8 @@ def main():
 
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
-        agent = ControllerAgent()
-        runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
+        agent = Agent()
+        runner = parallel_tensor_env('freeciv/FreecivBase-v0', None, i)
         # runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         print(f'Batch length: {len(batchs)}')

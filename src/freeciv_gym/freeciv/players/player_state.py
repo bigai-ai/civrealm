@@ -14,7 +14,7 @@
 
 from typing import Dict
 
-from freeciv_gym.freeciv.utils.base_state import ListState
+from freeciv_gym.freeciv.utils.base_state import DictState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 import freeciv_gym.freeciv.players.player_const as player_const
 
@@ -23,17 +23,15 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 
-class PlayerState(ListState):
+class PlayerState(DictState):
     def __init__(
-            self, player_ctrl, rule_ctrl: RulesetCtrl, clstate: ClientState, diplstates: DiplomacyState,
-            players: Dict[int, Dict]):
+            self, player_ctrl, rule_ctrl: RulesetCtrl, clstate: ClientState, diplstates: DiplomacyState):
         super().__init__()
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
         self.clstate = clstate
 
         self.diplstates = diplstates
-        self.players = players
 
         self.common_player_fields = [
             'name', 'score', 'team', 'is_alive', 'nation',
@@ -51,10 +49,10 @@ class PlayerState(ListState):
 
     @property
     def my_player(self):
-        return self.players[self.my_player_id]
+        return self.player_ctrl.players[self.my_player_id]
 
     def _update_state(self, player):
-        for player_id, player in self.players.items():
+        for player_id, player in self.player_ctrl.players.items():
             self._state[player_id] = self._get_player_state(player)
 
     def _get_player_state(self, player):
@@ -165,7 +163,7 @@ class PlayerState(ListState):
         if self.clstate.client_is_observer():
             return '-'
 
-        pplayer = self.players[player_id]
+        pplayer = self.player_ctrl.players[player_id]
 
         if player_id == self.my_player_id:
             return '-'

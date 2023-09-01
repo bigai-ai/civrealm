@@ -18,11 +18,11 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
 
-from freeciv_gym.freeciv.utils.base_state import ListState
+from freeciv_gym.freeciv.utils.base_state import DictState
 from freeciv_gym.freeciv.utils.fc_types import O_SHIELD, O_GOLD, O_FOOD
 
 
-class UnitState(ListState):
+class UnitState(DictState):
     def __init__(self, unit_ctrl, rule_ctrl: RulesetCtrl, map_ctrl: MapCtrl, city_ctrl: CityCtrl):
         super().__init__()
         self.unit_ctrl = unit_ctrl

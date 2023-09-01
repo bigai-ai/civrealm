@@ -102,7 +102,7 @@ class PlainState(PropState):
         return vec
 
 
-class ListState(PlainState):
+class DictState(PlainState):
 
     def _lock_properties(self):
         if self._state == {}:
@@ -143,7 +143,7 @@ class ListState(PlainState):
             raise Exception("Change state to be compatible")
         return vec
 
-    def remove_list_item(self, item_id):
+    def remove_dict_item(self, item_id):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:

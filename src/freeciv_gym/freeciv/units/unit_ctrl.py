@@ -51,7 +51,9 @@ REQEST_BACKGROUND_FAST_AUTO_ATTACK = 2
 
 
 class UnitCtrl(CivPropController):
-    def __init__(self, ws_client: CivConnection, option_ctrl: OptionCtrl, rule_ctrl: RulesetCtrl, map_ctrl: MapCtrl, player_ctrl: PlayerCtrl, city_ctrl: CityCtrl, dipl_ctrl: DiplomacyCtrl):
+    def __init__(
+            self, ws_client: CivConnection, option_ctrl: OptionCtrl, rule_ctrl: RulesetCtrl, map_ctrl: MapCtrl,
+            player_ctrl: PlayerCtrl, city_ctrl: CityCtrl, dipl_ctrl: DiplomacyCtrl):
         super().__init__(ws_client)
         self.units = {}
         self.rule_ctrl = rule_ctrl
@@ -127,7 +129,7 @@ class UnitCtrl(CivPropController):
         if punit is None:
             return None
         # TODO: make sure the fix from "or" to "and" is correct.
-        # The implementation with "or" is the same as that of freeciv-web while it seems incorrect based on the function description. 
+        # The implementation with "or" is the same as that of freeciv-web while it seems incorrect based on the function description.
         if pplayer != None and self.unit_owner(punit) == pplayer:
             return punit
 
@@ -164,7 +166,7 @@ class UnitCtrl(CivPropController):
             return 0
         else:
             return len(unit_list)
-    
+
     # Reset the keep_activity state of units. Called this method when handle the begin_turn packet.
     def reset_keep_activity_state(self):
         for unit_id in self.units:
@@ -225,7 +227,7 @@ class UnitCtrl(CivPropController):
         # if self.unit_action_ctrl.unit_is_in_focus(punit):
         #    self.unit_action_ctrl.clear_focus()
         if punit['owner'] == self.player_ctrl.my_player_id:
-            self.prop_state.remove_list_item(punit["id"])
+            self.prop_state.remove_dict_item(punit["id"])
             self.prop_actions.remove_actor(punit["id"])
             del self.prop_actions.unit_data[punit['id']]
         del self.units[punit['id']]
@@ -318,7 +320,7 @@ class UnitCtrl(CivPropController):
                         self.action_decision_handle(packet_unit)
         self.units[packet_unit['id']].update(packet_unit)
         self._update_tile_unit(self.units[packet_unit['id']])
-        # Clear action_decision_want (resulting from the saved human operation or units moving into some area) if exist. 
+        # Clear action_decision_want (resulting from the saved human operation or units moving into some area) if exist.
         if 'action_decision_want' in packet_unit:
             if packet_unit['action_decision_want'] != ACT_DEC_NOTHING:
                 self.action_decision_clear_want(packet_unit['id'])
@@ -344,10 +346,10 @@ class UnitCtrl(CivPropController):
         old = self.find_unit_by_number(old_actor_id)
         if old != None and old['action_decision_want'] != ACT_DEC_NOTHING:
             unqueue_packet = {
-                "pid"     : packet_unit_sscs_set,
-                "unit_id" : old_actor_id,
-                "type"    : USSDT_UNQUEUE,
-                "value"   : IDENTITY_NUMBER_ZERO
+                "pid": packet_unit_sscs_set,
+                "unit_id": old_actor_id,
+                "type": USSDT_UNQUEUE,
+                "value": IDENTITY_NUMBER_ZERO
             }
             self.ws_client.send_request(unqueue_packet, wait_for_pid=(63, old_actor_id))
             # self.ws_client.send_request(unqueue_packet, wait_for_pid=63)
@@ -484,12 +486,12 @@ class UnitCtrl(CivPropController):
                     hasActions = True
                     break
 
-        # Update action probability for this unit        
+        # Update action probability for this unit
         target_tile = self.map_ctrl.index_to_tile(target_tile_id)
         unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
         self.prop_actions.update_unit_action_pro(actor_unit_id, target_unit_id, move_dir, action_probabilities)
-        
+
         self.prop_actions.restore_activity(actor_unit_id)
 
         # if (target_tile['x'] == 55 and target_tile['y'] == 39) or (target_tile['x'] == 55 and target_tile['y'] == 40):
@@ -505,7 +507,7 @@ class UnitCtrl(CivPropController):
         #             fc_logger.info(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {action_probabilities[i]}')
 
         # print(f"unit_id: {actor_unit_id}, target_position: ({target_tile['x']}, {target_tile['y']}), extra: {self.rule_ctrl.extras[target_extra_id]['name'] if target_extra_id != -1 else None}.")
-        
+
         # fc_logger.info(f'Length of probability: {len(action_probabilities)}.')
         # fc_logger.info(f'hasActions: {hasActions}')
 

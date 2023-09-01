@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TR
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
 
 from math import floor
-from freeciv_gym.freeciv.utils.base_state import ListState
+from freeciv_gym.freeciv.utils.base_state import DictState
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
@@ -38,7 +38,7 @@ FEELING_FINAL = 5  # /* after wonders (final result) */
 citizen_types = ['angry', 'unhappy', 'content', 'happy']
 
 
-class CityState(ListState):
+class CityState(DictState):
     def __init__(self, city_dict: Dict[int, Dict], ruleset: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__()
         self.city_dict = city_dict

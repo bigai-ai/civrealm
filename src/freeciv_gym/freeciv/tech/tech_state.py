@@ -7,7 +7,7 @@
 #
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY without even the implied warranty of MERCHANTABILITY
-# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License 
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
 # You should have received a copy of the GNU General Public License along
@@ -16,7 +16,7 @@
 import numpy as np
 from gymnasium.spaces import Box, Dict, Discrete, Tuple
 
-from freeciv_gym.freeciv.utils.base_state import PlainState, ListState
+from freeciv_gym.freeciv.utils.base_state import PlainState, DictState
 from freeciv_gym.freeciv.utils.fc_types import RPT_CERTAIN
 from freeciv_gym.freeciv.tech.reqtree import reqtree, reqtree_multiplayer, reqtree_civ2civ3
 from freeciv_gym.freeciv.tech.req_info import ReqInfo
@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
-class TechState(ListState):
+class TechState(DictState):
     UPPER_TECH_STATUS = 2
     UPPER_BULB_BOUND = 10000
 

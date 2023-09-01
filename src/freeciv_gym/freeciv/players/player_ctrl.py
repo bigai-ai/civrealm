@@ -54,7 +54,7 @@ class PlayerCtrl(CivPropController):
         self.research_data = {}
         self.endgame_player_info = []
 
-        self.prop_state = PlayerState(self, rule_ctrl, clstate, dipl_ctrl.diplstates, self.players)
+        self.prop_state = PlayerState(self, rule_ctrl, clstate, dipl_ctrl.diplstates)
         self.prop_actions = PlayerOptions(ws_client, rule_ctrl, dipl_ctrl, city_ctrl, self.players, clstate)
 
     def register_all_handlers(self):

@@ -115,7 +115,6 @@ class ClientState(CivPropController):
 
     def init_game_setting(self):
         if fc_args['debug.random_seed']:
-            random.seed(os.getpid())
             mapseed = random.randint(0, 999999)
             gameseed = random.randint(0, 999999)
             self.ws_client.send_message(f"/set mapseed {mapseed}")

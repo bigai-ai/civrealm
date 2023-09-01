@@ -34,7 +34,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
     def get_actor_info(self, ctrl_type, actor_id, moves=0, utype=None):
         actor_info = dict()
-        info_keys = ['utype', 'moves', 'avail_actions']
 
         actor_name = None
         if ctrl_type == 'unit':
@@ -52,10 +51,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
             if ctrl_type == 'unit':
                 actor_info[actor_name]['avail_actions'] = avail_action_set
             elif ctrl_type == 'city':
-                if moves > 0:
-                    actor_info[actor_name]['avail_actions'] = action_mask(avail_action_set)
-                else:
-                    return dict()
+                actor_info[actor_name]['avail_actions'] = action_mask(avail_action_set)
 
         return actor_info
 
@@ -131,8 +127,9 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
                 actors_can_act = None
                 if ctrl_type in self.info['available_actions']:
-                    fc_logger.debug(f'ctrl_info: {self.info["available_actions"][ctrl_type].keys()}')
                     actors_can_act = self.info['available_actions'][ctrl_type]
+                    fc_logger.debug(f'{ctrl_type}_actors_can_act: {actors_can_act}')
+
                 if ctrl_type != 'map' and actors_can_act is None:
                     continue
 
@@ -164,7 +161,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
                                 self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1):
                             actor_info = self.get_actor_info(ctrl_type, pcity, 1)
                         else:
-                            actor_info = self.get_actor_info(ctrl_type, pcity)
+                            actor_info = dict()
                         city_dict.update(actor_info)
                         observation[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
 

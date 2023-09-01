@@ -26,29 +26,29 @@ from freeciv_gym.configs import fc_args
 cwd = os.getcwd()
 
 
-class LanguageAgent(BaseAgent):
+class RuleAgent(BaseAgent):
     def __init__(self, LLM_model='gpt-3.5-turbo', load_dialogue=False):
         super().__init__()
-        if "debug.agentseed" in fc_args:
-            self.set_agent_seed(fc_args["debug.agentseed"])
+        if fc_args["debug.random_seed"]:
+            agentseed = os.getpid()
+            self.set_agent_seed(agentseed)
+        else:
+            if "debug.agentseed" in fc_args:
+                self.set_agent_seed(fc_args["debug.agentseed"])
 
-    def act(self, observations, info):
+    def act(self, observation, info):
         available_actions = info['available_actions']
         for ctrl_type in available_actions.keys():
-            valid_actor_id = None
 
             if ctrl_type == 'unit':
-
-                # print('observations:', observations[ctrl_type])
-
-                unit_dict = observations[ctrl_type]['unit_dict']
+                unit_dict = observation[ctrl_type]['unit_dict']
                 fc_logger.debug(f'unit_dict: {unit_dict}')
                 valid_actor_id, valid_actor_name, valid_action_list = self.get_valid_actor_actions(unit_dict, info, ctrl_type)
 
                 if not valid_actor_id:
                     continue
 
-                current_obs = observations[ctrl_type][valid_actor_id]
+                current_obs = observation[ctrl_type][valid_actor_id]
                 fc_logger.debug(f'current obs: {current_obs}')
                 action_name = random.choice(valid_action_list)
 
@@ -56,18 +56,16 @@ class LanguageAgent(BaseAgent):
                 return (ctrl_type, valid_actor_id, action_name)
 
             elif ctrl_type == 'city':
-                city_dict = observations[ctrl_type]['city_dict']
+                city_dict = observation[ctrl_type]['city_dict']
                 fc_logger.debug(f'city_dict: {city_dict}')
-
-                valid_city_id, current_city_name, valid_city_actions_list = self.get_valid_actor_actions(city_dict, info, ctrl_type)
+                valid_city_id, valid_city_name, valid_action_list = self.get_valid_actor_actions(city_dict, info, ctrl_type)
 
                 if not valid_city_id:
                     continue
 
-                current_obs = observations[ctrl_type][valid_city_id]
+                current_obs = observation[ctrl_type][valid_city_id]
                 fc_logger.debug(f'current obs: {current_obs}')
-
-                action_name = random.choice(valid_city_actions_list)
+                action_name = random.choice(valid_action_list)
 
                 fc_logger.debug(f'city action: {action_name}')
                 return (ctrl_type, valid_city_id, action_name)

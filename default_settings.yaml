@@ -50,11 +50,11 @@ debug:
   load_game: ""
   # game-reproducer
   # set mapseed for generating a fixed map, can overwrite the above mapseed
-  mapseed: 1729
+  mapseed: 38772
   # set gameseed for fixing the behavior of random outputs
-  gameseed: 1729
+  gameseed: 393694
   # set agentseed to fix the action sequence when game/map are fixed
-  agentseed: 1729
+  agentseed: 549307
   # If true, will use random seed to run each environment
   random_seed: False
 

@@ -71,6 +71,7 @@ class CityState(ListState):
                 'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
                     'ppl_happy']:
                 city_state[property] = -1
+            city_state['can_build_unit'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control['num_unit_types'])
             city_state['improvements'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control['num_impr_types'])
 
         return city_state
@@ -105,6 +106,7 @@ class CityState(ListState):
             if pcity[cur_citizen] != None:
                 city_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
 
+        city_state['can_build_unit'] = pcity['can_build_unit']
         city_state['improvements'] = pcity['improvements']
         return city_state
 

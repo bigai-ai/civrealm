@@ -166,7 +166,8 @@ class CityCtrl(CivPropController):
         # /* Decode the city name. */
         packet['name'] = urllib.parse.unquote(packet['name'])
         # /* Decode bit vectors. */
-        packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
+        packet['improvements'] = BitVector(
+            bitlist=byte_to_bit_array(packet['improvements'])[:self.rule_ctrl.ruleset_control['num_impr_types']])
         packet['city_options'] = BitVector(bitlist=byte_to_bit_array(packet['city_options']))
 
         # logger.info("handle_city_info packet: ", packet)
@@ -199,8 +200,11 @@ class CityCtrl(CivPropController):
           including it's internals.
         """
 
-        packet['can_build_unit'] = BitVector(bitlist=byte_to_bit_array(packet['can_build_unit']))
-        packet['can_build_improvement'] = BitVector(bitlist=byte_to_bit_array(packet['can_build_improvement']))
+        packet['can_build_unit'] = BitVector(
+            bitlist=byte_to_bit_array(packet['can_build_unit'])[:self.rule_ctrl.ruleset_control['num_unit_types']])
+        packet['can_build_improvement'] = BitVector(
+            bitlist=byte_to_bit_array(packet['can_build_improvement'])
+            [:self.rule_ctrl.ruleset_control['num_impr_types']])
 
         # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:
@@ -228,7 +232,8 @@ class CityCtrl(CivPropController):
         packet['name'] = urllib.parse.unquote(packet['name'])
 
         # /* Decode bit vectors. */
-        packet['improvements'] = BitVector(bitlist=byte_to_bit_array(packet['improvements']))
+        packet['improvements'] = BitVector(
+            bitlist=byte_to_bit_array(packet['improvements'])[:self.rule_ctrl.ruleset_control['num_impr_types']])
 
         if not (packet['id'] in self.cities):
             self.cities[packet['id']] = packet

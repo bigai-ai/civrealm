@@ -17,6 +17,7 @@ import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
 
+
 def get_space_keys(space: spaces.Dict) -> dict:
     # Obtain nested space keys only
     result = {}
@@ -112,7 +113,7 @@ def filter_space(space: spaces.Space, filter_keys: dict) -> spaces.Space:
         return deepcopy(space)
 
 
-def filter_apply_space(
+def filter_apply_space_with_args(
     # apply func to a nested space recursively using arguments contained by a nested dict
     space: spaces.Space,
     func: Callable,
@@ -121,14 +122,19 @@ def filter_apply_space(
     if isinstance(space, spaces.Dict) and isinstance(args_dict, dict):
         return type(space)(
             [
-                (key, filter_space(space.spaces[key], args_dict[key]))
+                (
+                    key,
+                    filter_apply_space_with_args(
+                        space.spaces[key], func, args_dict[key]
+                    ),
+                )
                 if key in args_dict
                 else (key, val)
                 for key, val in space.items()
             ]
         )
     else:
-        return func(args_dict)
+        return func(space, args_dict)
 
 
 def filter_apply(
@@ -169,3 +175,252 @@ def nested_apply(data: MutableMapping, func: Callable, copy=False) -> MutableMap
         else:
             data[key] = func(val)
     return data
+
+
+from freeciv_gym.freeciv.utils.unit_improvement_const import (
+    UNIT_TYPES,
+    UNIT_COSTS,
+    IMPR_COSTS,
+)
+import numpy as np
+from BitVector import BitVector
+
+
+default_config = {
+    "filter_observation": [
+        "map",
+        "unit",
+        "player",
+        "rules",
+        "city",
+    ]
+}
+noop = lambda x: x
+
+
+def update(d, u):
+    for k, v in u.items():
+        if isinstance(v, Mapping):
+            d[k] = update(d.get(k, {}), v)
+        else:
+            d[k] = v
+    return d
+
+
+def bitvector_to_onehot(bitvec: BitVector):
+    onehot = np.zeros(len(str(bitvec)), dtype=np.int32)
+    for i, char in enumerate(str(bitvec)):
+        if char == "1":
+            onehot[i] += 1
+    return onehot
+
+
+def onehotifier_maker(category):
+    if isinstance(category, int):
+
+        def onehot(obs):
+            if isinstance(obs, np.ndarray):
+                shape = obs.shape
+            else:
+                shape = (1,)
+            result = (
+                np.zeros([*shape, category]) if shape != (1,) else np.zeros([category])
+            )
+            with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
+                for x in it:
+                    index = (
+                        (
+                            *(it.multi_index),
+                            x,
+                        )
+                        if shape != (1,)
+                        else (x,)
+                    )
+                    result[index] = 1
+            return result
+
+    elif isinstance(category, list):
+
+        def onehot(obs):
+            if isinstance(obs, np.ndarray):
+                shape = obs.shape
+            else:
+                shape = (1,)
+            result = (
+                np.zeros([*shape, len(category)])
+                if shape != (1,)
+                else np.zeros([len(category)])
+            )
+            with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
+                for x in it:
+                    index = (
+                        (
+                            *(it.multi_index),
+                            category.index(x),
+                        )
+                        if shape != (1,)
+                        else (category.index(x),)
+                    )
+                    result[index] = 1
+            return result
+
+    else:
+        raise NotImplemented(f"Not implemented yet for type {type(category)}")
+    return onehot
+
+def recursive_print(dict, prefix_space=""):
+    for key, val in dict.items():
+        if isinstance(val, Dict):
+            print(prefix_space + f"{key}:")
+            recursive_print(dict[key], prefix_space + "  ")
+        else:
+            print(
+                f"{prefix_space}{key}: {val.shape if isinstance(val,numpy.ndarray) else 'b' if isinstance(val, bool) else 'i' if isinstance(val, int) else {type(val)}}"
+            )
+
+map_ops = {
+    "status": onehotifier_maker(3),
+    "terrain": onehotifier_maker(14),
+    "extras": noop,
+    "output": noop,
+    "tile_owner": noop,
+    "city_owner": noop,
+    "unit": noop,
+    "unit_owner": noop,
+}
+
+unit_ops = {
+    "type_rule_name": onehotifier_maker(UNIT_TYPES),
+    "x": noop,
+    "y": noop,
+    "owner": noop,
+    "type_attack_strength": noop,
+    "type_defense_strength": noop,
+    "type_firepower": noop,
+    "type_build_cost": noop,
+    "type_convert_time": noop,
+    "type_obsoleted_by": onehotifier_maker(53),
+    "type_hp": noop,
+    "type_move_rate": noop,
+    "type_vision_radius_sq": noop,
+    "type_worker": noop,
+    "type_can_transport": noop,
+    "home_city": noop,
+    "moves_left": noop,
+    "health": noop,
+    "veteran": noop,
+    "upkeep_food": noop,
+    "upkeep_shield": noop,
+    "upkeep_gold": noop,
+}
+
+others_unit_ops = {
+    "id": noop,
+    "owner": noop,
+    "x": noop,
+    "y": noop,
+    "type": onehotifier_maker(52),
+    "veteran": noop,
+    "transported": noop,
+    "hp": noop,
+    "activity": noop,
+    "activity_tgt": noop,
+    "transported_by": noop,
+    "keep_activity": noop,
+    "occupied": noop,
+}
+
+city_ops = {
+    "id": noop,
+    "x": noop,
+    "y": noop,
+    "owner": noop,
+    "size": noop,
+    "food_stock": noop,
+    "granary_size": noop,
+    "granary_turns": noop,
+    "production_kind, production_value": noop,
+    "luxury": noop,
+    "science": noop,
+    "prod_food": noop,
+    "surplus_food": noop,
+    "prod_gold": noop,
+    "surplus_gold": noop,
+    "prod_shield": noop,
+    "surplus_shield": noop,
+    "prod_trade": noop,
+    "surplus_trade": noop,
+    "bulbs": noop,
+    "city_waste": noop,
+    "city_corruption": noop,
+    "city_pollution": noop,
+    "state": onehotifier_maker(5),
+    "turns_to_prod_complete": noop,
+    "prod_process": noop,
+    "ppl_angry": noop,
+    "ppl_unhappy": noop,
+    "ppl_content": noop,
+    "ppl_happy": noop,
+    "city_radius_sq": noop,
+    "buy_cost": noop,
+    "shield_stock": noop,
+    "before_change_shields": noop,
+    "disbanded_shields": noop,
+    "caravan_shields": noop,
+    "last_turns_shield_surplus": noop,
+    "improvements": bitvector_to_onehot,
+}
+
+others_city_ops = {
+    "id": noop,
+    "owner": noop,
+    "size": noop,
+    "style": onehotifier_maker(10),
+    "capital": noop,
+    "occupied": noop,
+    "walls": noop,
+    "happy": noop,
+    "unhappy": noop,
+    "improvements": bitvector_to_onehot,
+}
+
+others_player_ops = {
+    "owner_id": noop,
+    "col_love": onehotifier_maker(11),
+    "score": noop,
+    "is_alive": onehotifier_maker(2),
+    "diplomatic_state": onehotifier_maker(8),
+}
+player_ops = {
+    # TODO: what is turn? icant find it.
+    "turn": noop,
+    "my_culture": noop,
+    "my_reasearching_cost": noop,
+    "my_gold": noop,
+    "my_government": onehotifier_maker(6),
+    "my_is_alive": noop,
+    "my_luxury": noop,
+    "my_net_income": lambda x: 0 if x is None else x,
+    "my_revolution_finishes": noop,
+    "my_science": noop,
+    "my_science_cost": noop,
+    "my_score": noop,
+    "my_target_government": onehotifier_maker(7),
+    "my_tax": noop,
+    # TODO: I got 253, which is not contained in 88
+    # "my_tech_goal": onehotifier_maker(88),
+    "my_tech_upkeep": noop,
+    "my_techs_researched": noop,
+    "my_total_bulbs_prod": noop,
+    "my_turns_alive": noop,
+    "no_humans": noop,
+    "no_ais": noop,
+    "research_progress": noop,
+    "team_no": noop,
+    "embassy_txt": noop,
+}
+
+rules_ops = {
+    # TODO: need to get build_cost from other sources?
+    "build_cost": lambda _: np.array(UNIT_COSTS + IMPR_COSTS)
+}

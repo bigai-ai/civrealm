@@ -180,6 +180,9 @@ class UnitActions(ActionList):
             punit = self.unit_ctrl.units[unit_id]
             # An unit is no longer own unit, need to remove it from unit_data.
             if punit["owner"] != self.player_ctrl.my_player_id and unit_id in self.unit_data:
+                # fc_logger.debug('delete unit_data in unit_actions update.')
+                # fc_logger.debug(f'punit: {punit}')
+                # fc_logger.debug(f'self.unit_data.keys(): {self.unit_data.keys()}')
                 del self.unit_data[unit_id]
             if punit["owner"] == self.player_ctrl.my_player_id:
                 self._update_unit_data(punit, pplayer, unit_id)

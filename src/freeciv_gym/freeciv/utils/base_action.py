@@ -93,11 +93,13 @@ class ActionList(object):
         if actor_id in self._action_dict:
             del self._action_dict[actor_id]
         else:
+            # This can happen when a unit is destroyed right after it is born.
             fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
 
         if actor_id in self._get_pro_action_dict:
             del self._get_pro_action_dict[actor_id]
         else:
+            # This can happen when a unit is destroyed right after it is born.
             fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
 
     def add_action(self, actor_id, a_action):

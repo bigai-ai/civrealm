@@ -19,7 +19,7 @@ import hashlib
 import urllib
 import requests
 from math import ceil, floor
-import random
+from random import Random
 import os
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -115,8 +115,9 @@ class ClientState(CivPropController):
 
     def init_game_setting(self):
         if fc_args['debug.random_seed']:
-            mapseed = random.randint(0, 999999)
-            gameseed = random.randint(0, 999999)
+            random_instance = Random(os.getpid()+int(time.time())%100000)
+            mapseed = random_instance.randint(0, 999999)
+            gameseed = random_instance.randint(0, 999999)
             self.ws_client.send_message(f"/set mapseed {mapseed}")
             self.ws_client.send_message(f"/set gameseed {gameseed}")
         else:

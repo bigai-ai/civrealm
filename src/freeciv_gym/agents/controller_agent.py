@@ -25,7 +25,7 @@ class ControllerAgent(BaseAgent):
     def __init__(self):
         super().__init__()
         if fc_args["debug.random_seed"]:
-            random.seed(os.getpid())
+            # random.seed(os.getpid())
             agentseed = random.randint(0, 999999)
             self.set_agent_seed(agentseed)
         else:

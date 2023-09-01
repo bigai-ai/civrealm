@@ -107,13 +107,6 @@ class UnitCtrl(CivPropController):
 
         return result
 
-    def _idex_lookup_unit(self, uid):
-        """ Return unit object for unit_id uid"""
-        if uid in self.units.keys():
-            return self.units[uid]
-        else:
-            return None
-
     def _player_find_unit_by_id(self, pplayer, unit_id):
         """
          If the specified player owns the unit with the specified id,
@@ -124,7 +117,7 @@ class UnitCtrl(CivPropController):
          hash are considered - even those not currently owned by any
          player. Callers expect this behavior.
         """
-        punit = self._idex_lookup_unit(unit_id)
+        punit = self.find_unit_by_number(unit_id)
 
         if punit is None:
             return None
@@ -214,6 +207,7 @@ class UnitCtrl(CivPropController):
           Handle a remove-unit packet, sent by the server to tell us any time a
           unit is no longer there.                             99% complete.
         """
+        # fc_logger.debug(f'Remove unit: {packet}')
         punit = self.find_unit_by_number(packet['unit_id'])
         if punit is None:
             return
@@ -229,7 +223,8 @@ class UnitCtrl(CivPropController):
         if punit['owner'] == self.player_ctrl.my_player_id:
             self.prop_state.remove_dict_item(punit["id"])
             self.prop_actions.remove_actor(punit["id"])
-            del self.prop_actions.unit_data[punit['id']]
+            if punit['id'] in self.prop_actions.unit_data:
+                del self.prop_actions.unit_data[punit['id']]
         del self.units[punit['id']]
 
     def _clear_tile_unit(self, punit):

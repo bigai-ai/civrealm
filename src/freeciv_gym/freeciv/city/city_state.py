@@ -46,6 +46,7 @@ class CityState(ListState):
         self.map_ctrl = map_ctrl
 
     def _update_state(self, pplayer):
+        self._state = {}
         for city_id in self.city_dict:
             pcity = self.city_dict[city_id]
             self._state[city_id] = self._get_city_state(pcity, pcity['owner'] == pplayer['playerno'])

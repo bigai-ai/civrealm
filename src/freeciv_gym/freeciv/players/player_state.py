@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from freeciv_gym.freeciv.utils.base_state import PlainState
+from freeciv_gym.freeciv.utils.base_state import ListState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 import freeciv_gym.freeciv.players.player_const as player_const
 
@@ -23,7 +23,7 @@ import freeciv_gym.freeciv.players.player_const as player_const
 # from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 
-class PlayerState(PlainState):
+class PlayerState(ListState):
     # def __init__(self, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl, clstate: ClientState, diplstates: DiplomacyState, players):
     def __init__(self, rule_ctrl, player_ctrl, clstate, diplstates, players):
         super().__init__()
@@ -34,11 +34,15 @@ class PlayerState(PlainState):
         self.diplstates = diplstates
         self.players = players
 
-        self.player_fields = ["culture", "researching_cost", "gold", "government", "is_alive",
-                              "luxury", "mood", "nation", "net_income", "revolution_finishes",
-                              "science", "science_cost", "score", "target_government", "tax",
-                              "tech_goal", "tech_upkeep", "techs_researched", "total_bulbs_prod",
-                              "turns_alive"]
+        self.common_player_fields = [
+            'name', 'score', 'team', "is_alive", "nation",
+            "score", "turns_alive", "government", 'researching', 'government_name', 'research_name']
+        self.my_player_fields = [
+            "gold", "culture", "luxury", "mood", "revolution_finishes", "science", "science_cost",
+            'bulbs_researched', "researching_cost", 'embassy_txt', "tech_goal", "tech_upkeep",
+            "techs_researched", "total_bulbs_prod", "target_government", "tax"]
+        self.other_player_fields = ['love']
+        self.all_player_fields = self.common_player_fields + self.my_player_fields + self.other_player_fields
 
     @property
     def my_player_id(self):
@@ -49,12 +53,56 @@ class PlayerState(PlainState):
         return self.players[self.my_player_id]
 
     def _update_state(self, player):
+        for player_id, player in self.players.items():
+            self._state[player_id] = self._get_player_state(player)
+
+    def _get_player_state(self, player):
+        player_state = dict([(key, None) for key in self.all_player_fields])
+        player_state.update(dict([(f'tech_{tech_id}', None) for tech_id in self.rule_ctrl.techs]))
+
+        player_state['player_id'] = player['playerno']
+        player_state.update(dict(
+            [(key, value) for key, value in player.items()
+                if key in self.all_player_fields]))
+
+        if player['playerno'] == self.my_player_id:
+            player_state.update(self._get_my_player_state())
+        else:
+            player_state.update(self._get_other_player_state(player))
+
+        if player_state['government'] in self.rule_ctrl.governments:
+            player_state["government_name"] = self.rule_ctrl.governments[player_state['government']]['name']
+        if player_state['researching'] in self.rule_ctrl.governments:
+            player_state["research_name"] = self.rule_ctrl.governments[player_state['researching']]['name']
+
+        return player_state
+
+    def _get_my_player_state(self):
+        player_state = {}
+        player_state['love'] = None
+        player_state["embassy_txt"] = self.get_embassy_text(self.my_player_id)
+        return player_state
+
+    def _get_other_player_state(self, opponent):
+        """
+            Get opponent intelligence with data depending on the establishment of an embassy.
+        """
+        player_state = {}
+        player_state["love"] = self.col_love(opponent)
+
+        if self.my_player["real_embassy"][opponent["playerno"]]:
+            player_state.update(self.show_intelligence_report_embassy(opponent))
+        else:
+            player_state.update(self.show_intelligence_report_hearsay(opponent))
+        return player_state
+
+    def _deprecated_update_player_state(self, player):
         if self._state == {}:
-            self._state.update(dict([("my_" + key, None) for key in self.player_fields]))
+            self._state.update(dict([("my_" + key, None) for key in self.all_player_fields]))
 
         self._state['my_player_id'] = self.my_player_id
         self._state.update(
-            dict([("my_" + key, value) for key, value in self.my_player.items() if key in self.player_fields]))
+            dict([("my_" + key, value) for key, value in self.my_player.items() if key in self.all_player_fields]))
         no_humans = 0
         no_ais = 0
 
@@ -85,7 +133,7 @@ class PlayerState(PlainState):
         self._state["team_no"] = self.my_player['team']
         self._state["embassy_txt"] = self.get_embassy_text(self.my_player_id)
 
-    def _update_opponent_state(self, pplayer, opponent, op_id):
+    def _deprecated_update_opponent_state(self, pplayer, opponent, op_id):
         """
             Get opponent intelligence with data depending on the establishment of an embassy.
         """
@@ -94,7 +142,7 @@ class PlayerState(PlainState):
                                  ["gov", "gov_name", "gold", "tax", "science", "luxury",
                                   "capital", "bulbs_researched", "researching_cost",
                                   "research_progress", "research", "research_name"]]))
-        self._state.update(dict([(op_id + "invention_%i" % tech_id, None)
+        self._state.update(dict([(op_id + f'tech_{tech_id}', None)
                                  for tech_id in self.rule_ctrl.techs]))
 
         self._state[op_id + "col_love"] = self.col_love(opponent)
@@ -109,42 +157,39 @@ class PlayerState(PlainState):
         else:
             self.show_intelligence_report_hearsay(opponent, op_id)
 
-    def show_intelligence_report_hearsay(self, pplayer, op_id):
+    def show_intelligence_report_hearsay(self, opponent):
         """ Return opponent intelligence intelligence when there's no embassy."""
-        if pplayer['government'] > 0:
-            self._state[op_id + "gov"] = pplayer['government']
-            self._state[op_id + "gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
+        player_state = {}
+        if opponent['government'] > 0:
+            player_state["government"] = opponent['government']
 
-        if pplayer['gold'] > 0:
-            self._state[op_id + "gold"] = pplayer['gold']
+        if opponent['gold'] > 0:
+            player_state["gold"] = opponent['gold']
 
-        if "researching" in pplayer and pplayer['researching'] > 0 and pplayer['researching'] in self.rule_ctrl.techs:
-            self._state[op_id + "research"] = pplayer['researching']
-            self._state[op_id + "research_name"] = self.rule_ctrl.techs[pplayer['researching']]['name']
+        if "researching" in opponent and opponent['researching'] > 0 and opponent['researching'] in self.rule_ctrl.techs:
+            player_state["research"] = opponent['researching']
+            player_state["research_name"] = self.rule_ctrl.techs[opponent['researching']]['name']
+        return player_state
 
-    def show_intelligence_report_embassy(self, pplayer, op_id):
+    def show_intelligence_report_embassy(self, opponent):
         """ Return opponent intelligence intelligence when there's an embassy."""
+        player_state = {}
         for a_field in ["gold", "tax", "science", "luxury"]:
-            self._state[op_id + a_field] = pplayer[a_field]
+            player_state[a_field] = opponent[a_field]
 
-        self._state[op_id + "gov"] = pplayer["government"]
-        self._state[op_id + "gov_name"] = self.rule_ctrl.governments[pplayer['government']]['name']
-        self._state[op_id + "capital"] = None
+        player_state["government"] = opponent["government"]
 
-        research = self.player_ctrl.research_get(pplayer)
+        research = self.player_ctrl.research_get(opponent)
 
         if research != None:
-            self._state[op_id + "research"] = research['researching']
+            player_state["researching"] = research['researching']
             if research['researching'] in self.rule_ctrl.techs:
-                self._state[op_id + "research_name"] = self.rule_ctrl.techs[research['researching']]['name']
-                self._state[op_id + "bulbs_researched"] = research['bulbs_researched']
-                self._state[op_id + "researching_cost"] = research['researching_cost']
-                researched = research['bulbs_researched']
-                research_cost = research['researching_cost']
-                self._state[op_id + "research_progress"] = researched * 1. / research_cost if research_cost != 0 else 0
+                player_state["bulbs_researched"] = research['bulbs_researched']
+                player_state["researching_cost"] = research['researching_cost']
 
         for tech_id in self.rule_ctrl.techs:
-            self._state[op_id + "invention_%i" % tech_id] = research['inventions'][tech_id] == tech_const.TECH_KNOWN
+            player_state[f'tech_{tech_id}'] = research['inventions'][tech_id] == tech_const.TECH_KNOWN
+        return player_state
 
     def get_score_text(self, player):
         if (player['score'] >= 0 or self.clstate.client_is_observer()

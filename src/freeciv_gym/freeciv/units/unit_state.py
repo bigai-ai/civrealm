@@ -34,6 +34,7 @@ class UnitState(ListState):
         """ 
             Function returns the current state of all units of player pplayer
         """
+        self._state = {}
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
             self._state[unit_id] = self._get_unit_state(punit, punit['owner'] == pplayer['playerno'])

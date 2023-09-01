@@ -89,6 +89,9 @@ addopts = [
     # "tests/dipl/test_dipl_trade_gold.py",
     # "tests/dipl/test_dipl_trade_city.py",
 
+    # "tests/language_env/test_unit_dict.py",
+    # "tests/language_env/test_city_dict.py",
+
     # "tests/unit/test_move_to.py",
     # "tests/unit/test_hut_enter.py",
     # "tests/unit/test_build_city.py",

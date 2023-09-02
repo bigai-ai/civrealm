@@ -15,7 +15,10 @@
 
 
 from typing import Dict
-from BitVector import BitVector
+from math import floor
+
+import gymnasium
+import numpy as np
 
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
@@ -23,9 +26,7 @@ from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
 
-from math import floor
 from freeciv_gym.freeciv.utils.base_state import DictState
-
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 FEELING_BASE = 0  # /* before any of the modifiers below */
@@ -44,6 +45,14 @@ class CityState(DictState):
         self.city_dict = city_dict
         self.rule_ctrl = ruleset
         self.map_ctrl = map_ctrl
+
+        self.common_city_fields = ['id', 'owner', 'size', 'x', 'y']
+        self.my_city_fields = [
+                'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
+                'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
+                'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
+                'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content', 
+                'ppl_happy', 'can_build_unit', 'improvements']
 
     def _update_state(self, pplayer):
         self._state = {}
@@ -65,15 +74,11 @@ class CityState(DictState):
         if city_owned:
             city_state.update(self._get_own_city_state(pcity))
         else:
-            for property in [
-                'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
-                'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
-                'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
-                'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
-                    'ppl_happy']:
+            for property in self.my_city_fields:
                 city_state[property] = -1
-            city_state['can_build_unit'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control['num_unit_types'])
-            city_state['improvements'] = BitVector(intVal=0, size=self.rule_ctrl.ruleset_control['num_impr_types'])
+            # Bit vector fields
+            city_state['can_build_unit'] = np.zeros(shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.bool_)
+            city_state['improvements'] = np.zeros(shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.bool_)
 
         return city_state
 
@@ -249,3 +254,47 @@ class CityState(DictState):
             return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)
 
         return FC_INFINITY
+
+    def get_observation_space(self):
+        city_space = gymnasium.spaces.Dict({
+            # Common city fields
+            'id': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'size': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            # TODO: may change this to actual map size
+            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+
+            # My city fields
+            'food_stock': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'granary_size': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'granary_turns': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'production_kind': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'production_value': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'luxury': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'science': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'prod_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'surplus_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'prod_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'surplus_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'prod_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'surplus_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'prod_trade': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'surplus_trade': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'bulbs': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'city_waste': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'city_corruption': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'city_pollution': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'state': gymnasium.spaces.Box(low=-1, high=3, shape=(1,), dtype=int),  # -1: None, 1: Disorder, 2: Peace, 3: Celebrating
+            'growth_in': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
+            'turns_to_prod_complete': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
+            'prod_process': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
+            'ppl_angry': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'ppl_unhappy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'ppl_content': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'ppl_happy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'can_build_unit': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.int8),  # Boolean vector
+            'improvements': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.int8),  # Boolean vector
+        })
+
+        return gymnasium.spaces.Dict({city_id: city_space for city_id in self.city_dict.keys()})

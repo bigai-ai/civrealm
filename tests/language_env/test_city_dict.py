@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 @pytest.fixture
 def env():
-    env = gymnasium.make("freeciv/FreecivCode-v0")
+    env = gymnasium.make("freeciv/FreecivBase-v0")
     yield env
     env.close()
 

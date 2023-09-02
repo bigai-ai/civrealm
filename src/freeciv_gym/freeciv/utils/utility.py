@@ -30,11 +30,11 @@ def XOR(a, b):
     return (a or b) and not (a and b)
 
 
-def byte_to_bit_array(abyte_array):
+def byte_to_bit_array(abyte_array, size=None):
     bit_array = []
     for abyte in abyte_array:
         bit_array.extend([int(x) for x in "{0:0>8}".format(bin(abyte)[2:])][::-1])
-    return bit_array
+    return bit_array[:size]
 
 
 def find_set_bits(bit_vector):

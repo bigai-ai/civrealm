@@ -66,11 +66,3 @@ class BaseAgent(ABC):
                 return actor_id, action_dict
 
         return None, None
-
-    def get_valid_actions(self, info, ctrl_type, actor_id):
-        available_actions = info['available_actions']
-        action_list = available_actions[ctrl_type]
-
-        valid_action_dict = action_list.get_actions(actor_id, valid_only=True)
-        return valid_action_dict
-

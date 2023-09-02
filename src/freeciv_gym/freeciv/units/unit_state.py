@@ -14,6 +14,8 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import gymnasium
+
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
@@ -29,6 +31,10 @@ class UnitState(DictState):
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.map_ctrl = map_ctrl
+
+        self.common_unit_fields = ['owner', 'hp', 'veteran', 'x', 'y']
+        self.type_unit_fields = ['rule_name', 'attack_strength', 'defense_strength', 'firepower', 'build_cost', 'convert_time', 'converted_to', 'obsoleted_by', 'hp', 'move_rate', 'vision_radius_sq', 'worker']
+        self.my_unit_fields = ['home_city', 'moves_left', 'upkeep_food', 'upkeep_shield', 'upkeep_gold']
 
     def _update_state(self, pplayer):
         """ 
@@ -53,9 +59,7 @@ class UnitState(DictState):
 
         # Info from the unit's type
         ptype = self.rule_ctrl.unit_type(punit)
-        for type_desc in ['rule_name', 'attack_strength', 'defense_strength', 'firepower', 'build_cost',
-                          'convert_time', 'converted_to', 'obsoleted_by', 'hp', 'move_rate', 'vision_radius_sq',
-                          'worker']:
+        for type_desc in self.type_unit_fields:
             unit_state['type_'+type_desc] = ptype[type_desc]
         unit_state['type_can_transport'] = ptype['transport_capacity'] > 0
 
@@ -76,5 +80,40 @@ class UnitState(DictState):
             unit_state['upkeep_gold'] = -1
 
         return unit_state
+    
+    def get_observation_space(self):    
+        unit_space = gymnasium.spaces.Dict({
+            # Common unit fields
+            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'health': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=int),
+            'veteran': gymnasium.spaces.Box(low=0, high=1, shape=(1,), dtype=int),
+            # TODO: may change this to actual map size
+            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+
+            # Unit type fields
+            'type_rule_name': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
+            'type_attack_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_defense_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_firepower': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_build_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_convert_time': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_converted_to': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
+            'type_obsoleted_by': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
+            'type_hp': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_move_rate': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_vision_radius_sq': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_worker': gymnasium.spaces.Discrete(1),  # Boolean
+            'type_can_transport': gymnasium.spaces.Discrete(1),  # Boolean
+
+            # My unit specific fields
+            'home_city': gymnasium.spaces.Box(low=-1, high=len(self.city_ctrl.cities)-1, shape=(1,), dtype=int),
+            'moves_left': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
+            'upkeep_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'upkeep_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'upkeep_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+        })
+
+        return gymnasium.spaces.Dict({unit_id: unit_space for unit_id in self.unit_ctrl.units.keys()})
 
 # TODO: add plant time, mining time etc. to the unit state. This information is useful for plant/mine/irrigate/... action.

@@ -114,20 +114,6 @@ class MapState(PlainState):
         if tile_packet['resource'] != 128:
             self._state['output'][x, y, :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
 
-    def get_observation_space(self):
-        map_shape = self._state['status'].shape
-        self._observation_space = gymnasium.spaces.Dict({
-            'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
-            'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
-            'extras': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, self._extra_num), dtype=int),
-            'output': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, 6), dtype=int),
-            'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-            'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-            'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),
-            'unit_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-        })
-        return self._observation_space
-
     def encode_to_json(self):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
 
@@ -149,3 +135,17 @@ class MapState(PlainState):
             self._state['unit_owner'][unit_tile['x'], unit_tile['y']] = unit['owner']
 
         return
+
+    def get_observation_space(self):
+        map_shape = self._state['status'].shape
+        self._observation_space = gymnasium.spaces.Dict({
+            'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
+            'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
+            'extras': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, self._extra_num), dtype=int),
+            'output': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, 6), dtype=int),
+            'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
+            'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
+            'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),
+            'unit_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
+        })
+        return self._observation_space

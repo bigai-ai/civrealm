@@ -12,7 +12,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Dict
+import gymnasium
 
 from freeciv_gym.freeciv.utils.base_state import DictState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
@@ -34,12 +34,9 @@ class PlayerState(DictState):
         self.diplstates = diplstates
 
         self.common_player_fields = [
-            'name', 'score', 'team', 'is_alive', 'nation',
-            'score', 'turns_alive', 'government', 'researching', 'government_name', 'research_name']
+            'player_id', 'name', 'score', 'team', 'is_alive', 'nation', 'turns_alive', 'government', 'target_government', 'government_name', 'researching', 'research_name', 'tax', 'science', 'luxury']
         self.my_player_fields = [
-            'gold', 'culture', 'luxury', 'mood', 'revolution_finishes', 'science', 'science_cost',
-            'bulbs_researched', 'researching_cost', 'embassy_txt', 'tech_goal', 'tech_upkeep',
-            'techs_researched', 'total_bulbs_prod', 'target_government', 'tax']
+            'gold', 'culture', 'mood', 'revolution_finishes', 'science_cost', 'bulbs_researched', 'researching_cost', 'tech_goal', 'tech_upkeep', 'techs_researched', 'total_bulbs_prod', 'embassy_txt']
         self.other_player_fields = ['love']
         self.all_player_fields = self.common_player_fields + self.my_player_fields + self.other_player_fields
 
@@ -56,6 +53,7 @@ class PlayerState(DictState):
             self._state[player_id] = self._get_player_state(player)
 
     def _get_player_state(self, player):
+        # Initialize the fieds for player state
         player_state = dict([(key, None) for key in self.all_player_fields])
         player_state.update(dict([(f'tech_{tech_id}', None) for tech_id in self.rule_ctrl.techs]))
 
@@ -183,3 +181,48 @@ class PlayerState(DictState):
             return player_const.AI_SKILLS[ai_level]
         else:
             return 'Unknown'
+
+    def get_observation_space(self):
+        player_space = gymnasium.spaces.Dict({
+            **{
+                # Common player fields
+                'player_id': gymnasium.spaces.Box(low=0, high=32, shape=(1,), dtype=int),
+                'name': gymnasium.spaces.Text(max_length=100),
+                'score': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'team': gymnasium.spaces.Box(low=0, high=32, shape=(1,), dtype=int),
+                'is_alive': gymnasium.spaces.Discrete(2),  # Boolean
+                'nation': gymnasium.spaces.Box(low=0, high=list(self.rule_ctrl.nations.keys())[-1], shape=(1,), dtype=int),
+                'turns_alive': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'government': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.governments)-1, shape=(1,), dtype=int),
+                'target_government': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.governments)-1, shape=(1,), dtype=int),
+                'government_name': gymnasium.spaces.Text(max_length=100),
+                'researching': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.techs)-1, shape=(1,), dtype=int),
+                'research_name': gymnasium.spaces.Text(max_length=100),
+                # Tax, science, luxury are percentages, should sum to 100
+                'tax': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=int),
+                'science': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=int),
+                'luxury': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=int),
+
+                # My player fields
+                'gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'culture': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'mood': gymnasium.spaces.Discrete(2),  # mood_type, values are MOOD_PEACEFUL and MOOD_COMBAT
+                'revolution_finishes': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),  # The turn when the revolution finishes
+                'science_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'bulbs_researched': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'researching_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'tech_goal': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.techs)-1, shape=(1,), dtype=int),
+                'tech_upkeep': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'techs_researched': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.techs)-1, shape=(1,), dtype=int),
+                'total_bulbs_prod': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+                'embassy_txt': gymnasium.spaces.Text(max_length=100),
+
+                # Other player fields
+                'love': gymnasium.spaces.Text(max_length=100),  # Possible values are player_const.ATTITUDE_TXT
+            },
+            **{
+                f'tech_{tech_id}': gymnasium.spaces.Discrete(2) for tech_id in self.rule_ctrl.techs.keys()
+            }
+        })
+
+        return gymnasium.spaces.Dict({player_id: player_space for player_id in self.player_ctrl.players.keys()})

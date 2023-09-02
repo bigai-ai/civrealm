@@ -16,6 +16,7 @@
 
 import sys
 import numpy as np
+from collections import OrderedDict
 from BitVector import BitVector
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
@@ -57,7 +58,7 @@ class RulesetCtrl(CivPropController):
         self.city_rules = {}
         self.improvements = {}
         self.nation_groups = None
-        self.nations = {}
+        self.nations = OrderedDict()
         self.effects = {}
         self.extras = {}
 

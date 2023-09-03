@@ -116,6 +116,37 @@ class FreecivCodeEnv(FreecivBaseEnv):
             tile_id += 1
         return mini_map_info
 
+    def get_actor_dict(self, base_observation, ctrl_type):
+        actor_dict = dict()
+        actors_can_act = None
+        if ctrl_type in self.info['available_actions']:
+            actors_can_act = self.info['available_actions'][ctrl_type]
+        if actors_can_act is None:
+            return actor_dict
+
+        if ctrl_type == 'unit':
+            units = self.civ_controller.unit_ctrl.units
+            for punit in actors_can_act:
+                if units[punit]['activity'] != 0:
+                    continue
+                utype = units[punit]['type']
+                moves = units[punit]['movesleft']
+                actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
+                actor_dict.update(actor_info)
+
+        elif ctrl_type == 'city':
+            cities = self.civ_controller.city_ctrl.cities
+            for pcity in actors_can_act:
+
+                if (self.civ_controller.turn_manager.turn == 1 or
+                        self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1):
+                    actor_info = self.get_actor_info(ctrl_type, pcity, 1)
+                else:
+                    actor_info = dict()
+                actor_dict.update(actor_info)
+
+        return actor_dict
+
     def get_code_observations(self, base_observation):
 
         observation = dict()
@@ -136,36 +167,21 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 if ctrl_type == 'unit':
                     units = self.civ_controller.unit_ctrl.units
 
-                    unit_dict = dict()
                     for punit in actors_can_act:
                         if units[punit]['activity'] != 0:
                             continue
                         ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
-
-                        utype = units[punit]['type']
-                        moves = units[punit]['movesleft']
-                        actor_info = self.get_actor_info(ctrl_type, punit, moves, utype)
-                        unit_dict.update(actor_info)
                         observation[ctrl_type][punit] = self.get_mini_map_info(ctrl_type, ptile)
-
-                    observation[ctrl_type]['unit_dict'] = unit_dict
 
                 elif ctrl_type == 'city':
                     cities = self.civ_controller.city_ctrl.cities
 
-                    city_dict = dict()
                     for pcity in actors_can_act:
                         ptile = self.civ_controller.map_ctrl.index_to_tile(cities[pcity]['tile'])
 
                         if (self.civ_controller.turn_manager.turn == 1 or
                                 self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1):
-                            actor_info = self.get_actor_info(ctrl_type, pcity, 1)
-                        else:
-                            actor_info = dict()
-                        city_dict.update(actor_info)
-                        observation[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
-
-                    observation[ctrl_type]['city_dict'] = city_dict
+                            observation[ctrl_type][pcity] = self.get_mini_map_info(ctrl_type, ptile)
 
                 else:
                     observation[ctrl_type] = base_observation[ctrl_type]

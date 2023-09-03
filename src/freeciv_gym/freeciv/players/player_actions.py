@@ -264,7 +264,7 @@ class AcceptTreaty(StartNegotiate):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
                   "counterpart": self.counterpart["playerno"]}
-        self.wait_for_pid = [(104, self.counterpart["playerno"]), (98, self.counterpart["playerno"])]
+        self.wait_for_pid = (104, self.counterpart["playerno"])
         # self.wait_for_pid = 104
         return packet
 

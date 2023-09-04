@@ -106,16 +106,16 @@ class CityActions(ActionList):
             # logger.info("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
-                """
-                logic from freeciv server: freeciv/common/improvement.c
-                func: can_city_sell_building / is_building_sellable / is_improvement
-                """
-                if self.rulectrl.improvements[improvement_id]['genus'] != IG_IMPROVEMENT:
-                    continue
 
                 pimprovement = self.rulectrl.improvements[improvement_id]
                 self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
-                self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
+
+                """
+                logic from freeciv server: freeciv/common/improvement.c
+                func: can_city_sell_building / is_building_sellable / is_improvement              
+                """
+                if pimprovement['genus'] == IG_IMPROVEMENT:
+                    self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
 
 class CityWorkTile(Action):

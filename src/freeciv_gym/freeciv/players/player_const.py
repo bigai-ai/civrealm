@@ -15,6 +15,15 @@ GOV_TXT = {GOV_ANARCHY: "Anarchy", GOV_DESPOTISM: "Despotism",
            GOV_MONARCHY: "Monarchy", GOV_COMMUNISM: "Communism",
            GOV_REPUBLIC: "Republic", GOV_DEMOCRACY: "Democracy"}
 
+# Diplomacy modes
+DIPLO_FOR_ALL = 0
+DIPLO_FOR_HUMANS = 1
+DIPLO_FOR_AIS = 2
+DIPLO_NO_AIS = 3
+DIPLO_NO_MIXED = 4
+DIPLO_FOR_TEAMS = 5
+DIPLO_DISABLED = 6
+
 # Diplomacy related
 CLAUSE_ADVANCE = 0
 CLAUSE_GOLD = 1

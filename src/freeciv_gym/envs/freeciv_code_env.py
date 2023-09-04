@@ -117,7 +117,6 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 actors_can_act = None
                 if ctrl_type in info['available_actions']:
                     actors_can_act = info['available_actions'][ctrl_type]
-                    fc_logger.debug(f'{ctrl_type}_actors_can_act: {actors_can_act}')
 
                 if actors_can_act is None:
                     continue

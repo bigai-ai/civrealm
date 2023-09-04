@@ -48,7 +48,7 @@ class TurnManager(object):
     @property
     def turn_active(self):
         return self._turn_active
-    
+
     @property
     def turn_actions(self):
         return self._turn_actions
@@ -101,7 +101,7 @@ class TurnManager(object):
         fc_logger.debug('Computing observation space for: ')
         for ctrl_type, ctrl in self._turn_ctrls.items():
             fc_logger.debug(f'....: {ctrl_type}')
-            if ctrl_type not in ['map', 'player', 'unit', 'city']:
+            if ctrl_type not in ['map', 'player', 'unit', 'city', 'dipl']:
                 # TODO: add observation spaces for all controllers
                 observation_space[ctrl_type] = gymnasium.spaces.Discrete(1)
             else:
@@ -134,7 +134,7 @@ class TurnManager(object):
             action_list: ActionList = controller.get_current_options(self._turn_player)
             self._turn_actions[ctrl_type] = action_list
         return self._turn_actions
-    
+
     def get_info(self):
         """This function will return a dictionary of the availability information about the actions for each controller.
         NOTE: This function should be called after get_available_actions has sent probability queries, and we have processed the responses by civ_controller (using lock_control()). Otherwise, the availability information will be missing.
@@ -147,7 +147,7 @@ class TurnManager(object):
             if len(action_info) > 0:
                 self._turn_info[ctrl_type] = action_info
         return self._turn_info
-    
+
     def perform_action(self, action, ws_client):
         ctrl_type, valid_actor_id, action_name = action
         self._turn_actions[ctrl_type].trigger_single_action(valid_actor_id, action_name)

@@ -14,30 +14,33 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import gymnasium
+
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.connectivity.client_state import ClientState
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
-from freeciv_gym.freeciv.utils.base_state import PlainState
+from freeciv_gym.freeciv.utils.base_state import DictState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 import freeciv_gym.freeciv.players.player_const as player_const
 
 
-class DiplomacyState(PlainState):
-    def __init__(self, diplstates: dict):
+class DiplomacyState(DictState):
+    def __init__(self, diplomatic_state: dict):
         super().__init__()
-        self.diplstates = diplstates
-
-    def _lock_properties(self):
-        # Ignoring locking of properties ensures that state of states can be generated
-        # See Playerstate for more infos
-        pass
+        self.diplomatic_state = diplomatic_state
 
     def _update_state(self, pplayer):
-        player_id = pplayer["playerno"]
-        return {"diplstates_%i" % player_id: self.diplstates[player_id]}
+        self._state = {player_id: {'diplomatic_state': diplomatic_state}
+                       for player_id, diplomatic_state in self.diplomatic_state.items()}
+
+    def get_observation_space(self):
+        diplomatic_space = gymnasium.spaces.Dict({
+            'diplomatic_state': gymnasium.spaces.Discrete(player_const.DS_LAST)
+        })
+        return gymnasium.spaces.Dict({player_id: diplomatic_space for player_id in self.diplomatic_state.keys()})
 
 
 class DiplomacyCtrl(CivPropController):
@@ -65,10 +68,6 @@ class DiplomacyCtrl(CivPropController):
     # Check whether the given nation is barbarian or pirate.
     def _is_barbarian_pirate(self, nation_id):
         return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
-
-    def get_current_state(self, counterpart):
-        player_id = counterpart["playerno"]
-        return {"diplstates%i" % player_id: self.diplstates[player_id]}
 
     """
     for counterpart in self.players:
@@ -276,4 +275,3 @@ class DiplomacyCtrl(CivPropController):
                       "value" : gold}
             self.ws_client.send_request(packet)
     """
-

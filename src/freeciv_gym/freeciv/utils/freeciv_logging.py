@@ -22,7 +22,10 @@ import logging.config
 
 from freeciv_gym.configs.logging_config import LOGGING_CONFIG
 
-# # You can set the level to logging.DEBUG or logging.WARN if you want to change the amount of output.
+# You can set the level to logging.DEBUG or logging.WARN if you want to change the amount of output.
+log_dir = os.path.dirname(LOGGING_CONFIG['handlers']['freecivFileHandler']['filename'])
+if not os.path.exists(log_dir):
+    os.makedirs(log_dir)
 logging.config.dictConfig(LOGGING_CONFIG)
 fc_logger = logging.getLogger('freecivGym')
 

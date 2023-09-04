@@ -48,11 +48,11 @@ class CityState(DictState):
 
         self.common_city_fields = ['id', 'owner', 'size', 'x', 'y']
         self.my_city_fields = [
-                'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
-                'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
-                'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
-                'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content', 
-                'ppl_happy', 'can_build_unit', 'improvements']
+            'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
+            'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
+            'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
+            'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
+            'ppl_happy', 'can_build_unit', 'improvements']
 
     def _update_state(self, pplayer):
         self._state = {}
@@ -77,9 +77,15 @@ class CityState(DictState):
             for property in self.my_city_fields:
                 city_state[property] = -1
             # Bit vector fields
-            city_state['can_build_unit'] = np.zeros(shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.bool_)
-            city_state['improvements'] = np.zeros(shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.bool_)
+            city_state['can_build_unit'] = np.zeros(
+                shape=(self.rule_ctrl.ruleset_control['num_unit_types'],),
+                dtype=np.bool_)
+            city_state['improvements'] = np.zeros(
+                shape=(self.rule_ctrl.ruleset_control['num_impr_types'],),
+                dtype=np.bool_)
 
+        if city_state['production_kind'] == VUT_UTYPE:
+            city_state['production_value'] += self.rule_ctrl.ruleset_control['num_impr_types']
         return city_state
 
     def _get_own_city_state(self, pcity):
@@ -285,7 +291,8 @@ class CityState(DictState):
             'city_waste': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'city_corruption': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'city_pollution': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'state': gymnasium.spaces.Box(low=-1, high=3, shape=(1,), dtype=int),  # -1: None, 1: Disorder, 2: Peace, 3: Celebrating
+            # -1: None, 1: Disorder, 2: Peace, 3: Celebrating
+            'state': gymnasium.spaces.Box(low=-1, high=3, shape=(1,), dtype=int),
             'growth_in': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
             'turns_to_prod_complete': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
             'prod_process': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
@@ -293,8 +300,10 @@ class CityState(DictState):
             'ppl_unhappy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
             'ppl_content': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
             'ppl_happy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'can_build_unit': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.int8),  # Boolean vector
-            'improvements': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.int8),  # Boolean vector
+            # Boolean vector
+            'can_build_unit': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.int8),
+            # Boolean vector
+            'improvements': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.int8),
         })
 
         return gymnasium.spaces.Dict({city_id: city_space for city_id in self.city_dict.keys()})

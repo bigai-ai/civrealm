@@ -47,6 +47,8 @@ FEELING_NATIONALITY = 3
 FEELING_MARTIAL = 4
 FEELING_FINAL = 5
 
+IG_IMPROVEMENT = 2
+
 class CityActions(ActionList):
     def __init__(self, ws_client: CivConnection, city_list: list, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__(ws_client)
@@ -104,6 +106,13 @@ class CityActions(ActionList):
             # logger.info("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
+                """
+                logic from freeciv server: freeciv/common/improvement.c
+                func: can_city_sell_building / is_building_sellable / is_improvement
+                """
+                if self.rulectrl.improvements[improvement_id]['genus'] != IG_IMPROVEMENT:
+                    continue
+
                 pimprovement = self.rulectrl.improvements[improvement_id]
                 self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
                 self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
@@ -241,8 +250,7 @@ class CitySellImprovement(Action):
         self.action_key += "_%s" % improvement_name
 
     def is_action_valid(self):
-        return (self.pcity['improvements'][self.improvement_id] == 1
-                and self.improvement_name not in ['Palace', 'Coinage'])
+        return self.pcity['improvements'][self.improvement_id] == 1
 
     def _action_packet(self):
         packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],

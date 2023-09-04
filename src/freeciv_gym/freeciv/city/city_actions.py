@@ -31,6 +31,21 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20
 
+"""
+before any of the modifiers below 
+after luxury
+after building effects
+after citizen nationality effects 
+after units enforce martial order
+after wonders: final result
+"""
+
+FEELING_BASE = 0
+FEELING_LUXURY = 1
+FEELING_EFFECT = 2
+FEELING_NATIONALITY = 3
+FEELING_MARTIAL = 4
+FEELING_FINAL = 5
 
 class CityActions(ActionList):
     def __init__(self, ws_client: CivConnection, city_list: list, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
@@ -201,6 +216,8 @@ class CityBuyProduction(Action):
             return False
         if self.pcity['changed_from_kind'] == 0 and self.pcity['changed_from_value'] == 0:
             return False
+        if city_unhappy(self.pcity):
+            return False
 
         return self.pplayer['gold'] >= self.pcity['buy_cost'] > 0
 
@@ -326,4 +343,16 @@ class CityChangeImprovementProduction(CityChangeProduction):
         infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
         infos["build_cost"] = build_cost
         return infos
+
+
+"""
+logic from freeciv-web
+freeciv-web/freeciv-web/src/main/webapp/javascript/city.js
+lines: 1934 - 1939
+"""
+
+
+def city_unhappy(pcity):
+    return (pcity['ppl_happy'][FEELING_FINAL] <
+            pcity['ppl_unhappy'][FEELING_FINAL] + 2 * pcity['ppl_angry'][FEELING_FINAL])
 

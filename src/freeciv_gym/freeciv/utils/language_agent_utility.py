@@ -90,4 +90,12 @@ def get_units_on_tile(units):
     return units_on_tile
 
 
+def get_valid_actions(info, ctrl_type, actor_id):
+    action_dict = info['available_actions'][ctrl_type]
+    avail_action_set = []
+
+    for actor_act in action_dict[actor_id]:
+        if action_dict[actor_id][actor_act]:
+            avail_action_set.append(actor_act)
+    return avail_action_set
 

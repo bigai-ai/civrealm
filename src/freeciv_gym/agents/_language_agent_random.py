@@ -41,14 +41,14 @@ class RuleAgent(BaseAgent):
         for ctrl_type in available_actions.keys():
 
             if ctrl_type == 'unit':
-                unit_dict = observation[ctrl_type]['unit_dict']
+                unit_dict = info['llm_info'][ctrl_type]['unit_dict']
                 fc_logger.debug(f'unit_dict: {unit_dict}')
                 valid_actor_id, valid_actor_name, valid_action_list = self.get_valid_actor_actions(unit_dict, info, ctrl_type)
 
                 if not valid_actor_id:
                     continue
 
-                current_obs = observation[ctrl_type][valid_actor_id]
+                current_obs = info['llm_info'][ctrl_type][valid_actor_id]
                 fc_logger.debug(f'current obs: {current_obs}')
                 action_name = random.choice(valid_action_list)
 
@@ -56,14 +56,14 @@ class RuleAgent(BaseAgent):
                 return (ctrl_type, valid_actor_id, action_name)
 
             elif ctrl_type == 'city':
-                city_dict = observation[ctrl_type]['city_dict']
+                city_dict = info['llm_info'][ctrl_type]['city_dict']
                 fc_logger.debug(f'city_dict: {city_dict}')
                 valid_city_id, valid_city_name, valid_action_list = self.get_valid_actor_actions(city_dict, info, ctrl_type)
 
                 if not valid_city_id:
                     continue
 
-                current_obs = observation[ctrl_type][valid_city_id]
+                current_obs = info['llm_info'][ctrl_type][valid_city_id]
                 fc_logger.debug(f'current obs: {current_obs}')
                 action_name = random.choice(valid_action_list)
 

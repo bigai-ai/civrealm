@@ -39,6 +39,7 @@ class TurnManager(object):
         self._turn_actions = None
         self._turn_info = None
         self._turn_history = []
+        self._turn_message = []
         self.client_port = port
 
     @property
@@ -170,3 +171,13 @@ class TurnManager(object):
         self._turn_actions = None
         self._turn_info = None
         time.sleep(self._sleep_time_after_turn)
+
+    def set_message(self, message):
+        if isinstance(message, dict):
+            message['turn'] = self._turn
+        self._turn_message.append(message)
+        return 
+
+    @property
+    def turn_message(self):
+        return self._turn_message

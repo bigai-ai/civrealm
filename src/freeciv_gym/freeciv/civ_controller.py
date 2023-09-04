@@ -14,6 +14,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import random
+import json
 import requests
 import time
 from datetime import datetime, timezone, timedelta
@@ -36,7 +37,7 @@ from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
 from freeciv_gym.freeciv.tech.tech_ctrl import TechCtrl
 
-from freeciv_gym.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND
+from freeciv_gym.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END
 from freeciv_gym.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from freeciv_gym.freeciv.utils.civ_monitor import CivMonitor
 
@@ -104,6 +105,7 @@ class CivController(CivPropController):
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
+        self.game_is_over = False
         self.init_controllers(username)
 
     def reset(self):
@@ -387,12 +389,12 @@ class CivController(CivPropController):
         self.ws_client.start_ioloop()
 
     def close(self):
-        self.end_game()
+        if not self.game_is_over:
+            self.end_game()
         if self.visualize:
             self.monitor.stop_monitor()
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
-
         self.ws_client.close()
 
     def end_game_packet_list(self):
@@ -596,6 +598,16 @@ class CivController(CivPropController):
         if 'Load complete' in message:
             self.clstate.load_complete = True
 
+    def parse_script_message(self, message):
+        if 'minitask' in message:
+            js_message = {"error": ""}
+            try:
+                js_message.update(json.loads(message))
+            except Exception as ex:
+                js_message["error"] = ex
+            self.turn_manager.set_message(js_message)
+        return
+
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""
         try:
@@ -619,6 +631,10 @@ class CivController(CivPropController):
             fc_logger.warning(message)
             # TODO: handle bad command
             # assert(False)
+        elif event == E_SCRIPT:
+            self.parse_script_message(message)
+        elif event == E_GAME_END:
+            self.game_is_over = True
 
         if 'connected to no player' in message:
             raise RuntimeError(

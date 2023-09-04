@@ -71,7 +71,15 @@ class RuleAgent(BaseAgent):
                 return (ctrl_type, valid_city_id, action_name)
 
             else:
-                continue
+                valid_actor_id, valid_action_dict = self.get_next_valid_actor(observation, info, ctrl_type)
+                if not valid_actor_id:
+                    continue
+
+                if not valid_action_dict:
+                    continue
+
+                action_name = random.choice(list(valid_action_dict.keys()))
+                return (ctrl_type, valid_actor_id, action_name)
 
         return None
 
@@ -81,8 +89,8 @@ class RuleAgent(BaseAgent):
             self.turn = info['turn']
 
         for actor in actor_dict:
-            actor_name = actor.split(' ')[0]
-            actor_id = int(actor.split(' ')[1])
+            actor_name = ' '.join(actor.split(' ')[0: -1])
+            actor_id = int(actor.split(' ')[-1])
 
             if actor_id in self.planned_actor_ids:
                 continue

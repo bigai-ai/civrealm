@@ -25,6 +25,7 @@ from freeciv_gym.freeciv.utils.base_state import DictState
 from freeciv_gym.freeciv.utils.base_action import NoActions
 
 import freeciv_gym.freeciv.players.player_const as player_const
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class DiplomacyState(DictState):
@@ -47,6 +48,7 @@ class DiplomacyCtrl(CivPropController):
     def __init__(self, ws_client: CivConnection, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_evaluator=None):
         super().__init__(ws_client)
         self.diplstates = {}
+        self.others_diplstates = dict()
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}
         self.active_diplomacy_meeting_id = None
@@ -103,16 +105,25 @@ class DiplomacyCtrl(CivPropController):
     """
 
     def handle_player_diplstate(self, packet):
+        if packet['plr1'] not in self.others_diplstates:
+            self.others_diplstates[packet['plr1']] = dict()
+        if packet['plr2'] not in self.others_diplstates:
+            self.others_diplstates[packet['plr2']] = dict()
+
         cur_playerno = self.clstate.player_num()
-        opposite_player = None
+
         if packet['plr1'] == cur_playerno:
             opposite_player = 'plr2'
         elif packet['plr2'] == cur_playerno:
             opposite_player = 'plr1'
         else:
+            self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
+            self.others_diplstates[packet['plr2']][packet['plr1']] = packet['type']
             return
 
         self.diplstates[packet[opposite_player]] = packet['type']
+        self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
+        self.others_diplstates[packet['plr2']][packet['plr1']] = packet['type']
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):
@@ -144,6 +155,7 @@ class DiplomacyCtrl(CivPropController):
             self.diplomacy_request_queue.append(packet['counterpart'])
 
         self.diplomacy_clause_map[packet['counterpart']] = []
+        fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
         self.refresh_diplomacy_request_queue()
 
     def handle_diplomacy_cancel_meeting(self, packet):
@@ -158,6 +170,7 @@ class DiplomacyCtrl(CivPropController):
 
         if counterpart in self.diplomacy_clause_map:
             del self.diplomacy_clause_map[counterpart]
+        fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
 
     def refresh_diplomacy_request_queue(self):
         if self.diplomacy_request_queue:
@@ -171,15 +184,16 @@ class DiplomacyCtrl(CivPropController):
         if self.diplomacy_clause_map[packet['counterpart']] is None:
             self.diplomacy_clause_map[packet['counterpart']] = []
         self.diplomacy_clause_map[packet['counterpart']].append(packet)
+        fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
 
     def handle_diplomacy_remove_clause(self, packet):
         clause_list = self.diplomacy_clause_map[packet['counterpart']]
         for i, check_clause in enumerate(clause_list):
-            if (packet['counterpart'] == check_clause['counterpart'] and
-                    packet['giver'] == check_clause['giver'] and
+            if (packet['giver'] == check_clause['giver'] and
                     packet['type'] == check_clause['type'] and
                     packet['value'] == check_clause['value']):
-                del clause_list[i]
+                del self.diplomacy_clause_map[packet['counterpart']][i]
+                fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
                 break
 
     def handle_diplomacy_accept_treaty(self, packet):
@@ -196,6 +210,8 @@ class DiplomacyCtrl(CivPropController):
 
             if counterpart in self.diplomacy_clause_map:
                 del self.diplomacy_clause_map[counterpart]
+            fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+
         '''
         if not self.active_diplomacy_meeting_id == counterpart and myself_accepted and other_accepted:
             if counterpart in self.diplomacy_request_queue:

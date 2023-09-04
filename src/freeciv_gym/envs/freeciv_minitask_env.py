@@ -21,7 +21,7 @@ from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
-DEFAULT_TASK = "minitaskbuildcity"
+DEFAULT_TASK = "minitask"
 
 def get_files(cmd):
     pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)

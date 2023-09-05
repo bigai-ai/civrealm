@@ -47,8 +47,8 @@ def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name
 
     # NOTE: these imports are here to make sure fc_args is initialized and modified first
-    from freeciv_gym.freeciv.utils.freeciv_logging import set_parallel_logging
-    set_parallel_logging('tests', item.name)
+    from freeciv_gym.freeciv.utils.freeciv_logging import set_logging_file
+    set_logging_file('tests', item.name)
 
 
 @pytest.hookimpl

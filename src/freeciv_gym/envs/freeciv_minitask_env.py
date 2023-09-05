@@ -18,10 +18,11 @@ import random
 from gymnasium import utils
 from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger, set_logging_file
 from freeciv_gym.configs import fc_args
 
 DEFAULT_TASK = "minitask"
+
 
 def get_files(cmd):
     pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -29,12 +30,14 @@ def get_files(cmd):
     sav_files = [sav.strip().split(".sav")[0] for sav in sav_files if sav.endswith("sav")]
     return sav_files
 
+
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
 
     def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
-        fc_args['username'] = username
         super().__init__(username=username, client_port=client_port)
+        fc_args['username'] = username
+        set_logging_file('.', username)
         self.filename = None
         self.set_minitask()
 

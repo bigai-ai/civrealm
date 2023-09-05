@@ -30,7 +30,7 @@ logging.config.dictConfig(LOGGING_CONFIG)
 fc_logger = logging.getLogger('freecivGym')
 
 
-def set_parallel_logging(log_dir_name, log_file_suffix):
+def set_logging_file(log_dir_name, log_file_suffix, remove_old_suffix=True):
     logger_filename = LOGGING_CONFIG['handlers']['freecivFileHandler']['filename']
     log_dir = os.path.join(os.path.dirname(logger_filename), log_dir_name)
     with filelock.FileLock(f'/tmp/freeciv-gym_{log_dir_name}_logger_setup.lock'):
@@ -38,21 +38,25 @@ def set_parallel_logging(log_dir_name, log_file_suffix):
             os.makedirs(log_dir)
 
     basename, ext = os.path.splitext(os.path.basename(logger_filename))
-    logger_filename = os.path.join(log_dir, f'{basename}_{log_file_suffix}{ext}')
+    if remove_old_suffix:
+        basename = basename.split('_')[0]
+    logger_filename = os.path.normpath(os.path.join(log_dir, f'{basename}_{log_file_suffix}{ext}'))
+    
     file_handler_with_suffix = logging.FileHandler(logger_filename, 'w')
     formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
     file_handler_with_suffix.setFormatter(formatter)
 
     for handler in fc_logger.handlers[:]:
-        if isinstance(handler, logging.FileHandler):
+        if handler.name == 'freecivFileHandler':
             handler.close()
-        fc_logger.removeHandler(handler)
+            fc_logger.removeHandler(handler)
     fc_logger.addHandler(file_handler_with_suffix)
+
+    return fc_logger
 
 
 def ray_logger_setup():
-    set_parallel_logging('parallel', os.getpid())
-    return fc_logger
+    return set_logging_file('parallel', os.getpid(), remove_old_suffix=False)
 
 
 # class DummyLogger():

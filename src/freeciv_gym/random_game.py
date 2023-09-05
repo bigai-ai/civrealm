@@ -22,8 +22,8 @@ import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivBase-v0')
-    agent = ControllerAgent()
+    env = gymnasium.make('freeciv/FreecivCode-v0')
+    agent = RuleAgent()
 
     observations, info = env.reset()
     done = False

@@ -553,8 +553,8 @@ identity_number_used=101
 shuffled_player_0=0
 [player0]
 ai_type="classic"
-name="Minitaskbuildcity"
-username="minitaskbuildcity"
+name="Minitask"
+username="minitask"
 unassigned_user=FALSE
 color.r=255
 color.g=0

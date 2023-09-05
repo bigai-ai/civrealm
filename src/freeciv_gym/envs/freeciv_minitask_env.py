@@ -21,7 +21,7 @@ from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 
-DEFAULT_TASK = "minitaskbuildcity"
+DEFAULT_TASK = "minitask"
 
 def get_files(cmd):
     pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -32,14 +32,10 @@ def get_files(cmd):
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
 
-    def __init__(self, client_port: int = fc_args['client_port']):
-        fc_args['username'] = DEFAULT_TASK
-        self.civ_controller = CivController(username=DEFAULT_TASK, client_port=client_port)
-        self._action_space = self.civ_controller.action_space
-        self._observation_space = self.civ_controller.observation_space
-        self.set_up_recording()
-        utils.EzPickle.__init__(self, client_port)
-        self.file = None
+    def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
+        fc_args['username'] = username
+        super().__init__(username=username, client_port=client_port)
+        self.filename = None
         self.set_minitask()
 
     @staticmethod
@@ -47,19 +43,19 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         """ Get Minitask Sav File Randomly. """
         minitasks = get_files(f"docker exec -it {docker_image} ls {docker_sav_path}{name}")
         minitask = random.choice(minitasks)
-        print(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
+        fc_logger.debug(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
         return minitask
 
     def set_minitask(self):
         """ Set Minitask. """
         minitask = self.get_minitask(fc_args['username'])
-        self.file = minitask
+        self.filename = minitask
         self.civ_controller.set_parameter('debug.load_game', minitask)
         return
 
     def minitask_has_terminated(self):
         """ Judge whether the minitask is terminated. """
-        minitask_info = self.civ_controller.turn_manager.turn_message
+        minitask_info = self.civ_controller.get_turn_message()
         if len(minitask_info) > 0 and minitask_info[-1]["status"]:
             return True
         return False
@@ -70,10 +66,10 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def get_game_results(self):
         """ Merge game result and minitask. """
         game_results = self.civ_controller.game_ctrl.game_results
-        minitask_results = self.civ_controller.turn_manager.turn_message
+        minitask_results = self.civ_controller.get_turn_message()
         results = dict(sorted(game_results.items()))
         if len(minitask_results) > 0:
             metrics = minitask_results[-1]
-            metrics.update({"file": self.file})
+            metrics.update({"file": self.filename})
             results.update(dict(minitask=metrics))
         return results

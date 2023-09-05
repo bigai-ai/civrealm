@@ -220,33 +220,34 @@ class DQNAgent(BaseAgent):
         return self.sample_desired_actions(action_dict, desired_actions)
    
 # class DQNAgent:
-lr = 2e-3
-num_episodes = 10
-hidden_dim = 1024
-gamma = 0.98
-epsilon = 0.01
-target_update = 10
-buffer_size = 10000
-minimal_size = 50
-batch_size = 16
-device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+if __name__ == "__main__":
+    lr = 2e-3
+    num_episodes = 10
+    hidden_dim = 1024
+    gamma = 0.98
+    epsilon = 0.01
+    target_update = 10
+    buffer_size = 10000
+    minimal_size = 50
+    batch_size = 16
+    device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
 
-env = gymnasium.make('freeciv/FreecivBase-v0')
-random.seed(0)
-np.random.seed(0)
-torch.manual_seed(0)
-replay_buffer = ReplayBuffer(buffer_size)
-state_dim = 4056 # 78*52
-action_dim =  40
-agent = DQN(state_dim, hidden_dim, action_dim, lr, gamma, epsilon, target_update, device)
-agent = DQNAgent()
+    env = gymnasium.make('freeciv/FreecivBase-v0')
+    random.seed(0)
+    np.random.seed(0)
+    torch.manual_seed(0)
+    replay_buffer = ReplayBuffer(buffer_size)
+    state_dim = 4056 # 78*52
+    action_dim =  40
+    agent = DQN(state_dim, hidden_dim, action_dim, lr, gamma, epsilon, target_update, device)
+    agent = DQNAgent()
 
 
-def select_obs(observation):
-    # choose map-terain in observation as obs, flat the input observation map into tensor
-    obs = observation['map']['terrain'].reshape(-1)
-    return obs
+    def select_obs(observation):
+        # choose map-terain in observation as obs, flat the input observation map into tensor
+        obs = observation['map']['terrain'].reshape(-1)
+        return obs
 
 '''
 for i_episode in range(num_episodes):

@@ -33,8 +33,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic Freeciv Web gym environment """
     metadata = {'render_modes': ['human']}
 
-    def __init__(self, client_port: int = fc_args['client_port']):
-        self.civ_controller = CivController(client_port=client_port)
+    def __init__(self, username: str = fc_args['username'], client_port: int = fc_args['client_port']):
+        self.civ_controller = CivController(username=username, client_port=client_port)
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()

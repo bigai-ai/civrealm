@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Hashable,
     Any,
+    Dict,
 )
 from collections.abc import Mapping, Sequence
 from copy import deepcopy
@@ -193,9 +194,27 @@ default_config = {
         "player",
         "rules",
         "city",
-    ]
+    ],
+    "resize": {
+        "unit": 128,
+        "city": 32,
+        "others_unit": 128,
+        "others_city": 64,
+        "others_player": 10,
+    },
 }
-noop = lambda x: x
+noop = (
+    lambda x: (np.array(x) * np.array([1])).astype(np.int32)
+    if isinstance(x, list)
+    else (x * np.array([1])).astype(np.int32)
+)
+
+
+def expand_dim(dim):
+    def expand_at(obs):
+        return (np.expand_dims(obs, axis=dim)).astype(np.int32)
+
+    return expand_at
 
 
 def update(d, u):
@@ -223,8 +242,11 @@ def onehotifier_maker(category):
                 shape = obs.shape
             else:
                 shape = (1,)
+                obs = int(obs)
             result = (
-                np.zeros([*shape, category]) if shape != (1,) else np.zeros([category])
+                np.zeros([*shape, category], dtype=np.int32)
+                if shape != (1,)
+                else np.zeros([category], dtype=np.int32)
             )
             with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
                 for x in it:
@@ -247,9 +269,9 @@ def onehotifier_maker(category):
             else:
                 shape = (1,)
             result = (
-                np.zeros([*shape, len(category)])
+                np.zeros([*shape, len(category)], dtype=np.int32)
                 if shape != (1,)
-                else np.zeros([len(category)])
+                else np.zeros([len(category)], dtype=np.int32)
             )
             with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
                 for x in it:
@@ -268,25 +290,27 @@ def onehotifier_maker(category):
         raise NotImplemented(f"Not implemented yet for type {type(category)}")
     return onehot
 
-def recursive_print(dict, prefix_space=""):
+
+def rprint(dict, prefix_space=""):
     for key, val in dict.items():
         if isinstance(val, Dict):
             print(prefix_space + f"{key}:")
-            recursive_print(dict[key], prefix_space + "  ")
+            rprint(dict[key], prefix_space + "  ")
         else:
             print(
-                f"{prefix_space}{key}: {val.shape if isinstance(val,numpy.ndarray) else 'b' if isinstance(val, bool) else 'i' if isinstance(val, int) else {type(val)}}"
+                f"{prefix_space}{key}: {val.shape if isinstance(val,np.ndarray) else 'b' if isinstance(val, bool) else 'i' if isinstance(val, int) else {type(val)}}"
             )
+
 
 map_ops = {
     "status": onehotifier_maker(3),
     "terrain": onehotifier_maker(14),
     "extras": noop,
     "output": noop,
-    "tile_owner": noop,
-    "city_owner": noop,
+    "tile_owner": expand_dim(-1),
+    "city_owner": expand_dim(-1),
     "unit": noop,
-    "unit_owner": noop,
+    "unit_owner": expand_dim(-1),
 }
 
 unit_ops = {
@@ -339,7 +363,7 @@ city_ops = {
     "food_stock": noop,
     "granary_size": noop,
     "granary_turns": noop,
-    "production_kind, production_value": noop,
+    "production_value": noop,
     "luxury": noop,
     "science": noop,
     "prod_food": noop,
@@ -357,6 +381,7 @@ city_ops = {
     "state": onehotifier_maker(5),
     "turns_to_prod_complete": noop,
     "prod_process": noop,
+    "production_value": onehotifier_maker(120),
     "ppl_angry": noop,
     "ppl_unhappy": noop,
     "ppl_content": noop,
@@ -368,7 +393,7 @@ city_ops = {
     "disbanded_shields": noop,
     "caravan_shields": noop,
     "last_turns_shield_surplus": noop,
-    "improvements": bitvector_to_onehot,
+    "improvements": noop,
 }
 
 others_city_ops = {
@@ -381,46 +406,66 @@ others_city_ops = {
     "walls": noop,
     "happy": noop,
     "unhappy": noop,
-    "improvements": bitvector_to_onehot,
+    "improvements": noop,
 }
 
 others_player_ops = {
     "owner_id": noop,
-    "col_love": onehotifier_maker(11),
+    "love": onehotifier_maker(
+        [
+            "Genocidal",
+            "Belligerent",
+            "Hostile",
+            "Uncooperative",
+            "Uneasy",
+            "Neutral",
+            "Respectful",
+            "Helpful",
+            "Enthusiastic",
+            "Admiring",
+            "Worshipful",
+        ]
+    ),
     "score": noop,
     "is_alive": onehotifier_maker(2),
     "diplomatic_state": onehotifier_maker(8),
 }
 player_ops = {
-    # TODO: what is turn? icant find it.
     "turn": noop,
-    "my_culture": noop,
-    "my_reasearching_cost": noop,
-    "my_gold": noop,
-    "my_government": onehotifier_maker(6),
-    "my_is_alive": noop,
-    "my_luxury": noop,
-    "my_net_income": lambda x: 0 if x is None else x,
-    "my_revolution_finishes": noop,
-    "my_science": noop,
-    "my_science_cost": noop,
-    "my_score": noop,
-    "my_target_government": onehotifier_maker(7),
-    "my_tax": noop,
-    # TODO: I got 253, which is not contained in 88
-    # "my_tech_goal": onehotifier_maker(88),
-    "my_tech_upkeep": noop,
-    "my_techs_researched": noop,
-    "my_total_bulbs_prod": noop,
-    "my_turns_alive": noop,
+    "culture": noop,
+    "reasearching_cost": noop,
+    "gold": noop,
+    "government": onehotifier_maker(6),
+    "is_alive": noop,
+    "luxury": noop,
+    "net_income": lambda x: np.array([0], dtype=np.int32)
+    if x is None
+    else x * np.array([1], dtype=np.int32),
+    "revolution_finishes": noop,
+    "science": noop,
+    "science_cost": noop,
+    "score": noop,
+    "target_government": onehotifier_maker(7),
+    "tax": noop,
+    "my_tech_goal": lambda x: onehotifier_maker(89)(88 if x == 253 else x),
+    "tech_upkeep": noop,
+    "techs_researched": noop,
+    "total_bulbs_prod": noop,
+    "turns_alive": noop,
     "no_humans": noop,
     "no_ais": noop,
     "research_progress": noop,
     "team_no": noop,
-    "embassy_txt": noop,
 }
 
 rules_ops = {
-    # TODO: need to get build_cost from other sources?
+    # TODO: get build_cost from info?
     "build_cost": lambda _: np.array(UNIT_COSTS + IMPR_COSTS)
 }
+
+
+def resize_data(data: np.ndarray, size: int):
+    remain_shape = data.shape[1:]
+    data = data.copy()
+    data.resize([size, *remain_shape])
+    return data

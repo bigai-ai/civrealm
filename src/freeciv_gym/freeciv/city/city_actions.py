@@ -72,18 +72,13 @@ class CityActions(ActionList):
                 continue
             self.add_actor(city_id)
 
-            ctile = self.map_ctrl.index_to_tile(pcity['tile'])
             r_city = int(floor(sqrt(pcity["city_radius_sq"])))
             for dx in range(-r_city, r_city+1):
                 for dy in range(-r_city, r_city+1):
-
-                    if self.map_ctrl.if_out_mapsize(ctile['x'] + dx, ctile['y'] + dy):
+                    if dx == 0 and dy == 0:
                         continue
 
-                    work_act = CityWorkTile(pcity, dx, dy, self.city_map)
-                    if work_act.output_idx is None or (dx == 0 and dy == 0):
-                        continue
-                    self.add_action(city_id, work_act)
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map))
                     self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
 
             for specialist_num in range(pcity['specialists_size']):
@@ -106,16 +101,16 @@ class CityActions(ActionList):
             # logger.info("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
-                """
-                logic from freeciv server: freeciv/common/improvement.c
-                func: can_city_sell_building / is_building_sellable / is_improvement
-                """
-                if self.rulectrl.improvements[improvement_id]['genus'] != IG_IMPROVEMENT:
-                    continue
 
                 pimprovement = self.rulectrl.improvements[improvement_id]
                 self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
-                self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
+
+                """
+                logic from freeciv server: freeciv/common/improvement.c
+                func: can_city_sell_building / is_building_sellable / is_improvement              
+                """
+                if pimprovement['genus'] == IG_IMPROVEMENT:
+                    self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
 
 class CityWorkTile(Action):
@@ -139,6 +134,12 @@ class CityWorkTile(Action):
             self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
 
     def is_action_valid(self):
+        if self.city_map.map_ctrl.if_out_mapsize(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
+            return False
+
+        if self.output_idx is None:
+            return False
+
         return ('worked' in self.ptile and self.ptile['worked'] == 0
                 and 'specialists' in self.pcity and sum(self.pcity['specialists']) > 0
                 and 'output_food' in self.pcity and self.output_idx is not None)
@@ -168,6 +169,12 @@ class CityUnworkTile(CityWorkTile):
     action_key = "city_unwork"
 
     def is_action_valid(self):
+        if self.city_map.map_ctrl.if_out_mapsize(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
+            return False
+
+        if self.output_idx is None:
+            return False
+
         return ('worked' in self.ptile and self.ptile['worked'] == self.pcity['id']
                 and 'output_food' in self.pcity and self.output_idx is not None)
 

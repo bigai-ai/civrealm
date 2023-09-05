@@ -47,12 +47,14 @@ class CityState(DictState):
         self.map_ctrl = map_ctrl
 
         self.common_city_fields = ['id', 'owner', 'size', 'x', 'y']
-        self.my_city_fields = [
-            'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'luxury',
-            'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
+        self.my_city_fields_from_packet = [
+            'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'city_radius_sq',
+            'buy_cost', 'shield_stock', 'disbanded_shields', 'caravan_shields', 'last_turns_shield_surplus',
+            'can_build_unit', 'improvements']
+        self.my_city_fields = self.my_city_fields_from_packet + [
+            'luxury', 'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
             'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',
-            'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content',
-            'ppl_happy', 'can_build_unit', 'improvements']
+            'growth_in', 'turns_to_prod_complete', 'prod_process', 'ppl_angry', 'ppl_unhappy', 'ppl_content', 'ppl_happy']
 
     def _update_state(self, pplayer):
         self._state = {}
@@ -90,7 +92,7 @@ class CityState(DictState):
 
     def _get_own_city_state(self, pcity):
         city_state = {}
-        for cp in ['food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value']:
+        for cp in self.my_city_fields_from_packet:
             city_state[cp] = pcity[cp]
 
         city_state['luxury'] = pcity['prod'][O_LUXURY]
@@ -277,6 +279,12 @@ class CityState(DictState):
             'granary_turns': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'production_kind': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
             'production_value': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'city_radius_sq': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'buy_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'shield_stock': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'disbanded_shields': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'caravan_shields': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'last_turns_shield_surplus': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'luxury': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'science': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
             'prod_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),

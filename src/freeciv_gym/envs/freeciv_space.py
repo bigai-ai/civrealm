@@ -29,4 +29,4 @@ class Onehot(Space):
     def sample(
         self, mask: Optional[Union[Sequence, NDArray]], dim: Union[int,Sequence[int]] = -1
     ) -> NDArray:
-        raise NotImplemented("To be implemented.")
+        raise NotImplementedError("To be implemented.")

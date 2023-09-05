@@ -46,7 +46,7 @@ class CityState(DictState):
         self.rule_ctrl = ruleset
         self.map_ctrl = map_ctrl
 
-        self.common_city_fields = ['id', 'owner', 'size', 'x', 'y']
+        self.common_city_fields = ['id', 'owner', 'size', 'x', 'y', 'name']
         self.my_city_fields_from_packet = [
             'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'city_radius_sq',
             'buy_cost', 'shield_stock', 'disbanded_shields', 'caravan_shields', 'last_turns_shield_surplus',
@@ -65,6 +65,7 @@ class CityState(DictState):
     def _get_city_state(self, pcity, city_owned):
         city_state = {}
 
+        city_state['name'] = pcity['name']
         city_state['id'] = pcity['id']
         city_state['owner'] = pcity['owner']
         city_state['size'] = pcity['size']
@@ -272,6 +273,7 @@ class CityState(DictState):
             # TODO: may change this to actual map size
             'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
             'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'name': gymnasium.spaces.Text(max_length=100),
 
             # My city fields
             'food_stock': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),

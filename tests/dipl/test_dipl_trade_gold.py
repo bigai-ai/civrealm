@@ -45,8 +45,7 @@ def test_dipl_trade_gold(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    trade_gold_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True),
-                                            'trade_gold_clause')[0]
+    trade_gold_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_gold_clause')[0]
 
     assert (trade_gold_act.is_action_valid())
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]

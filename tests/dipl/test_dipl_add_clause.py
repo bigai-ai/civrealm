@@ -44,8 +44,7 @@ def test_dipl_add_clause(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    add_clause_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True),
-                                            'add_clause')[0]
+    add_clause_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'add_clause')[0]
 
     assert (add_clause_act.is_action_valid())
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]

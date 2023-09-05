@@ -45,8 +45,7 @@ def test_dipl_cancel_treaty(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    cancel_treaty_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True),
-                                               'cancel_treaty')[0]
+    cancel_treaty_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'cancel_treaty')[0]
 
     assert (cancel_treaty_act.is_action_valid())
     ds_1 = controller.controller_list['dipl'].diplstates[4]

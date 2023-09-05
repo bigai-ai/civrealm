@@ -45,8 +45,7 @@ def test_dipl_accept_treaty(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    accept_treaty_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True),
-                                               'accept_treaty')[0]
+    accept_treaty_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'accept_treaty')[0]
 
     assert (accept_treaty_act.is_action_valid())
     emb_1 = player_opt.players[3]['real_embassy'][0]

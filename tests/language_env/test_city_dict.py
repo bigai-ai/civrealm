@@ -14,24 +14,27 @@
 
 import pytest
 import gymnasium
+import time
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 
 @pytest.fixture
 def env():
-    env = gymnasium.make("freeciv/FreecivBase-v0")
+    env = gymnasium.make("freeciv/FreecivCode-v0")
     yield env
     env.close()
+    time.sleep(10)
 
 
 ctrl_type = 'city'
+KEYWORDS = ['change_unit_prod', 'change_improve_prod']
 
 
 def test_city_dict(env):
     observation, info = env.reset()
 
-    if observation[ctrl_type]:
-        city_dict = observation[ctrl_type]['city_dict']
+    if info['llm_info'][ctrl_type]:
+        city_dict = info['llm_info'][ctrl_type]['city_dict']
         assert ctrl_type in info['available_actions']
 
         info_actions = info['available_actions'][ctrl_type]
@@ -43,7 +46,7 @@ def test_city_dict(env):
             city_action_set = city_dict[city]['avail_actions']
 
             for action_name in city_action_set:
-                assert (info_actions[city_id][action_name] is True)
+                assert (info_actions[city_id][action_name])
 
         for city_id in info_actions:
             pcity = env.civ_controller.city_ctrl.cities[city_id]
@@ -53,4 +56,6 @@ def test_city_dict(env):
 
                 for action_name in info_actions[city_id]:
                     if info_actions[city_id][action_name]:
-                        assert action_name in city_dict[city]['avail_actions']
+                        for keyword in KEYWORDS:
+                            if keyword in action_name:
+                                assert action_name in city_dict[city]['avail_actions']

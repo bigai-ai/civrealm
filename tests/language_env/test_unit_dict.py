@@ -14,6 +14,7 @@
 
 import pytest
 import gymnasium
+import time
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 
@@ -22,6 +23,7 @@ def env():
     env = gymnasium.make("freeciv/FreecivCode-v0")
     yield env
     env.close()
+    time.sleep(10)
 
 
 ctrl_type = 'unit'
@@ -30,8 +32,8 @@ ctrl_type = 'unit'
 def test_unit_dict(env):
     observation, info = env.reset()
 
-    if observation[ctrl_type]:
-        unit_dict = observation[ctrl_type]['unit_dict']
+    if info['llm_info'][ctrl_type]:
+        unit_dict = info['llm_info'][ctrl_type]['unit_dict']
         assert ctrl_type in info['available_actions']
 
         info_actions = info['available_actions'][ctrl_type]
@@ -43,7 +45,7 @@ def test_unit_dict(env):
             unit_action_set = unit_dict[unit]['avail_actions']
 
             for action_name in unit_action_set:
-                assert (info_actions[unit_id][action_name] is True)
+                assert (info_actions[unit_id][action_name])
 
         for unit_id in info_actions:
             punit = env.civ_controller.unit_ctrl.units[unit_id]

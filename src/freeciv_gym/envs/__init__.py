@@ -6,3 +6,4 @@ from .freeciv_parallel_env import FreecivParallelEnv
 from.freeciv_a3c_env import FreecivA3CEnv
 # Minitask environment
 from .freeciv_minitask_env import FreecivMinitaskEnv
+from .parallel_tensor_env import ParallelTensorEnv

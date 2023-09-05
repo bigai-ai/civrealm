@@ -14,9 +14,9 @@
 
 from freeciv_gym.freeciv.utils import base_action
 from freeciv_gym.freeciv.utils.base_action import ActionList
-from freeciv_gym.freeciv.utils.fc_types import packet_player_rates,\
-    packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req,\
-    packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact,\
+from freeciv_gym.freeciv.utils.fc_types import packet_player_rates, \
+    packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req, \
+    packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact, \
     packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
 import freeciv_gym.freeciv.players.player_const as player_const
 import freeciv_gym.freeciv.players.player_helpers as player_helpers
@@ -28,7 +28,7 @@ from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 MAX_GOLD = 10
-CONFLICT_STATES = [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
+CONFLICTING_STATES = [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
 
 
 class PlayerOptions(ActionList):
@@ -75,38 +75,37 @@ class PlayerOptions(ActionList):
     def update_counterpart_options(self, clstate, dipl_ctrl, counter_id, cur_player, counterpart):
         if self.diplomacy_possible(cur_player, counterpart):
             self.add_action(counter_id, StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
-        self.add_action(counter_id, StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
-        self.add_action(counter_id, AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart))
-        self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart))
-        self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
 
-        self.update_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
-        self.update_clause_options(dipl_ctrl, counter_id, counterpart, cur_player)
+            self.update_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
+            self.update_clause_options(dipl_ctrl, counter_id, counterpart, cur_player)
 
     def update_clause_options(self, dipl_ctrl, counter_id, cur_player, counterpart):
         for ctype in BASE_CLAUSES:
-            self.add_action(counter_id, AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client))
+            self.add_action(counter_id,
+                            AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client))
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl))
 
     """
     temporarily do NOT consider trades of techs & cities & golds 
-    
+
         for tech_id in self.rule_ctrl.techs:
             self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-            pplayer_id, counter_index, dipl_ctrl,
-            counter_id, self.rule_ctrl, self.players))
-            
+            pplayer_id, counter_index, dipl_ctrl, counter_id, self.rule_ctrl, self.players))
+
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_ADVANCE, tech_id,
             pplayer_id, counter_index, dipl_ctrl, counter_id))
 
         for pgold in range(1, MAX_GOLD):
             self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold,
-            pplayer_id, counter_index,
-            dipl_ctrl, counter_id, self.rule_ctrl, self.players))
-            
+            pplayer_id, counter_index, dipl_ctrl, counter_id, self.rule_ctrl, self.players))
+
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold,
             pplayer_id, counter_index, dipl_ctrl, counter_id))
-    
+
         self.update_city_action_set(counter_index, pplayer_id, counter_id, set(self.city_ctrl.cities.keys()))
 
     def new_cities(self):
@@ -117,9 +116,8 @@ class PlayerOptions(ActionList):
     def update_city_action_set(self, counter_index, pplayer_id, counter_id, new_city_set):
         for pcity in new_city_set:
             self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, pplayer_id,
-            counter_index, self.dipl_ctrl, counter_id,
-            self.rule_ctrl, self.city_ctrl, self.players))
-            
+            counter_index, self.dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players))
+
             self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
             pplayer_id, counter_index, self.dipl_ctrl, counter_id))
     """
@@ -160,7 +158,7 @@ class IncreaseSci(base_action.Action):
             return num
 
     def is_action_valid(self):
-        return 0 <= self.sci+10 <= self.max_rate
+        return 0 <= self.sci + 10 <= self.max_rate
 
     def _change_rate(self):
         self.sci += 10
@@ -274,7 +272,7 @@ class StartNegotiate(base_action.Action):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
-        # TODO: add the packet waiting for
+        # TODO: add packets waiting for
         return packet
 
 
@@ -283,7 +281,7 @@ class AcceptTreaty(StartNegotiate):
 
     def is_action_valid(self):
         return (self.counterpart['playerno'] in self.dipl_ctrl.diplomacy_clause_map.keys()
-                and not self.dipl_ctrl.diplomacy_clause_map[self.counterpart['playerno']])
+                and self.dipl_ctrl.diplomacy_clause_map[self.counterpart['playerno']])
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
@@ -309,6 +307,8 @@ class CancelTreaty(StartNegotiate):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
+
+        # TODO: check packets waiting for
         self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
 
@@ -377,7 +377,6 @@ class RemoveClause(base_action.Action):
         if not self.if_on_meeting():
             raise Exception("Start negotiation with %i first" % self.counter_id)
 
-        fc_logger.debug(f'diplomacy_clause_map_remove_action: {self.dipl_ctrl.diplomacy_clause_map}')
         clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
         for clause in clauses:
             if clause['giver'] == self.giver and clause['type'] == self.clause_type and clause['value'] == self.value:
@@ -393,7 +392,7 @@ class AddClause(RemoveClause):
         self.ws_client = ws_client
 
     def is_action_valid(self):
-        fc_logger.debug(f'diplomacy_clause_map_add_action: {self.dipl_ctrl.diplomacy_clause_map}')
+
         ds = self.dipl_ctrl.diplstates[self.counter_id]
         if ((ds == player_const.DS_PEACE and self.clause_type == player_const.CLAUSE_PEACE)
                 or (ds == player_const.DS_ARMISTICE and self.clause_type == player_const.CLAUSE_PEACE)
@@ -402,36 +401,36 @@ class AddClause(RemoveClause):
             fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
             return False
 
-        if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][self.cur_player['playerno']]:
+        if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][
+            self.cur_player['playerno']]:
             fc_logger.debug('already has embassy')
             return False
 
         if self.clause_type == player_const.CLAUSE_ALLIANCE:
-            for p in self.dipl_ctrl.diplstates:
-                if (p != self.cur_player['playerno'] and self.dipl_ctrl.diplstates[p] == player_const.DS_WAR and
+            for p in self.dipl_ctrl.others_diplstates[self.cur_player['playerno']]:
+                if (self.dipl_ctrl.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_WAR and
                         self.dipl_ctrl.others_diplstates[self.counterpart['playerno']][p] == player_const.DS_ALLIANCE):
                     return False
 
-        if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICT_STATES:
+        if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_STATES:
             return False
 
         if self.if_on_meeting():
             return not self.if_clause_exists()
         return False
 
-    def remove_clause_req(self):
-        if self.clause_type in CONFLICT_STATES:
-            if self.if_on_meeting():
-
-                clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-                for clause in clauses:
-                    if (clause['giver'] == self.giver and clause['type'] in CONFLICT_STATES
-                            and clause['value'] == self.value):
-                        rem_packet = RemoveClause._action_packet(self)
-                        self.ws_client.send_request(rem_packet, wait_for_pid=(102, self.counter_id))
+    def remove_conflicting_clause(self):
+        if self.clause_type in CONFLICTING_STATES:
+            clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+            for clause in clauses:
+                if (clause['giver'] == self.giver and clause['type'] in CONFLICTING_STATES
+                        and clause['value'] == self.value):
+                    rem_clause = RemoveClause(clause['type'], 1, self.counter_id,
+                                              self.cur_player, self.counterpart, self.dipl_ctrl)
+                    rem_clause.trigger_action(self.ws_client)
 
     def _action_packet(self):
-        self.remove_clause_req()
+        self.remove_conflicting_clause()
         packet = {"pid": packet_diplomacy_create_clause_req,
                   "counterpart": self.counter_id,
                   "giver": self.giver,

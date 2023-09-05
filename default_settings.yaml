@@ -64,3 +64,4 @@ ruleset: classic
 trainer:
   epoch: 300
   lr: 1.0e-5
+  max_steps: 20000000

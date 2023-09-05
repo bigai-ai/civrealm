@@ -82,7 +82,7 @@ class PlayerOptions(ActionList):
             self.add_action(counter_id, StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
             self.add_action(counter_id, StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
             self.add_action(counter_id, AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart, self.city_ctrl))
             self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
 
             self.update_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
@@ -270,9 +270,10 @@ class StartNegotiate(base_action.Action):
         if self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys():
             if self.dipl_ctrl._is_barbarian_pirate(self.counterpart['nation']):
                 return False
-            if (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], [player_const.DS_NO_CONTACT]) or
-                    self.cur_player['real_embassy'][self.counterpart['playerno']] or
-                    self.counterpart['real_embassy'][self.cur_player['playerno']]):
+            if (self.cur_player['real_embassy'][self.counterpart['playerno']]
+                    or self.counterpart['real_embassy'][self.cur_player['playerno']] or
+                    self.dipl_ctrl.contact_turns_left[self.cur_player['playerno']][self.counterpart['playerno']] > 0 or
+                    self.dipl_ctrl.contact_turns_left[self.counterpart['playerno']][self.cur_player['playerno']] > 0):
                 return True
         return False
 
@@ -281,6 +282,7 @@ class StartNegotiate(base_action.Action):
                   "counterpart": self.counterpart["playerno"]}
 
         # TODO: add packets waiting for
+        self.wait_for_pid = (96, self.counterpart["playerno"])
         return packet
 
 
@@ -301,15 +303,29 @@ class AcceptTreaty(StartNegotiate):
 class CancelTreaty(StartNegotiate):
     action_key = "cancel_treaty"
 
-    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart):
+    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart, city_ctrl):
         super().__init__(clstate, dipl_ctrl, cur_player, counterpart)
         self.dipl_state = self.dipl_ctrl.diplstates[self.counterpart['playerno']]
+        self.city_ctrl = city_ctrl
         self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
 
     def is_action_valid(self):
         ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR]
+        govs = [4, 5]
+
         return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
-                and self.counterpart['team'] != self.cur_player['team'])
+                and self.counterpart['team'] != self.cur_player['team'] and not
+                (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
+                 and self.cur_player['government'] in govs and not self.has_statue_of_liberty()))
+
+    def has_statue_of_liberty(self):
+        for city_id in self.city_ctrl.cities:
+            pcity = self.city_ctrl.cities[city_id]
+            if pcity['owner'] == self.cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
+                return True
+            break
+
+        return False
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,
@@ -317,6 +333,7 @@ class CancelTreaty(StartNegotiate):
                   "clause": self.dipl_state}
 
         # TODO： add packets waiting for
+        self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
 
 
@@ -461,9 +478,9 @@ class AddTradeTechClause(AddClause):
             return False
 
         if self.if_on_meeting():
-            return (not self.if_clause_exists() and is_tech_known(self.players[self.giver], self.value)
-                    and player_invention_state(self.players[self.counter_id], self.value)
-                    in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
+            return (not self.if_clause_exists() and is_tech_known(self.cur_player, self.value)
+                    and player_invention_state(self.counterpart, self.value) in
+                    [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
         return False
 
 

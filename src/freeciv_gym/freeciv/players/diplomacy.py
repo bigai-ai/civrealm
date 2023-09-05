@@ -47,9 +47,10 @@ class DiplomacyState(DictState):
 class DiplomacyCtrl(CivPropController):
     def __init__(self, ws_client: CivConnection, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_evaluator=None):
         super().__init__(ws_client)
-        self.diplstates = {}
+        self.diplstates = dict()
         self.others_diplstates = dict()
         self.reason_to_cancel = dict()
+        self.contact_turns_left = dict()
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}
         self.active_diplomacy_meeting_id = None
@@ -110,6 +111,10 @@ class DiplomacyCtrl(CivPropController):
         if packet['plr1'] not in self.reason_to_cancel:
             self.reason_to_cancel[packet['plr1']] = dict()
         self.reason_to_cancel[packet['plr1']][packet['plr2']] = packet['has_reason_to_cancel']
+
+        if packet['plr1'] not in self.contact_turns_left:
+            self.contact_turns_left[packet['plr1']] = dict()
+        self.contact_turns_left[packet['plr1']][packet['plr2']] = packet['contact_turns_left']
 
         if packet['plr1'] not in self.others_diplstates:
             self.others_diplstates[packet['plr1']] = dict()

@@ -47,7 +47,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         """ Get Minitask Sav File Randomly. """
         minitasks = get_files(f"docker exec -it {docker_image} ls {docker_sav_path}{name}")
         minitask = random.choice(minitasks)
-        print(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
+        fc_logger.debug(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
         return minitask
 
     def set_minitask(self):

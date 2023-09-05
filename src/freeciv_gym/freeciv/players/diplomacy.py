@@ -49,6 +49,7 @@ class DiplomacyCtrl(CivPropController):
         super().__init__(ws_client)
         self.diplstates = {}
         self.others_diplstates = dict()
+        self.reason_to_cancel = dict()
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = {}
         self.active_diplomacy_meeting_id = None
@@ -105,25 +106,25 @@ class DiplomacyCtrl(CivPropController):
     """
 
     def handle_player_diplstate(self, packet):
+
+        if packet['plr1'] not in self.reason_to_cancel:
+            self.reason_to_cancel[packet['plr1']] = dict()
+        self.reason_to_cancel[packet['plr1']][packet['plr2']] = packet['has_reason_to_cancel']
+
         if packet['plr1'] not in self.others_diplstates:
             self.others_diplstates[packet['plr1']] = dict()
-        if packet['plr2'] not in self.others_diplstates:
-            self.others_diplstates[packet['plr2']] = dict()
 
         cur_playerno = self.clstate.player_num()
-
         if packet['plr1'] == cur_playerno:
             opposite_player = 'plr2'
         elif packet['plr2'] == cur_playerno:
             opposite_player = 'plr1'
         else:
             self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
-            self.others_diplstates[packet['plr2']][packet['plr1']] = packet['type']
             return
 
         self.diplstates[packet[opposite_player]] = packet['type']
         self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
-        self.others_diplstates[packet['plr2']][packet['plr1']] = packet['type']
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):

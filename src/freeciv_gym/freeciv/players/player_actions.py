@@ -49,13 +49,18 @@ class PlayerOptions(ActionList):
         for counter_id in self.players:
             counterpart = self.players[counter_id]
 
+            if not counterpart['is_alive']:
+                if self.actor_exists(counter_id):
+                    del self._action_dict[counter_id]
+                continue
+
             if self.actor_exists(counter_id):
                 continue
 
             self.add_actor(counter_id)
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
-            elif counterpart['is_alive']:
+            else:
                 self.update_counterpart_options(self.clstate, self.dipl_ctrl, counter_id, pplayer, counterpart)
 
     def update_player_options(self, counter_id, pplayer):
@@ -85,19 +90,21 @@ class PlayerOptions(ActionList):
 
     def update_clause_options(self, dipl_ctrl, counter_id, cur_player, counterpart):
         for ctype in BASE_CLAUSES:
-            self.add_action(counter_id,
-                            AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client))
+            add_clause = AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client)
+            self.add_action(counter_id, add_clause)
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl))
 
-    """
-    temporarily do NOT consider trades of techs & cities & golds 
-
         for tech_id in self.rule_ctrl.techs:
-            self.add_action(counter_id, AddTradeTechClause(player_const.CLAUSE_ADVANCE, tech_id,
-            pplayer_id, counter_index, dipl_ctrl, counter_id, self.rule_ctrl, self.players))
+            clause_type = player_const.CLAUSE_ADVANCE
+            add_trade_tech_clause = AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart,
+                                                       dipl_ctrl, self.ws_client, self.rule_ctrl, self.players)
+            self.add_action(counter_id, add_trade_tech_clause)
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_ADVANCE, tech_id,
-            pplayer_id, counter_index, dipl_ctrl, counter_id))
+            rem_clause = RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, dipl_ctrl)
+            self.add_action(counter_id, rem_clause)
+
+    """
+    temporarily do NOT consider trades of cities & golds 
 
         for pgold in range(1, MAX_GOLD):
             self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold,
@@ -272,6 +279,7 @@ class StartNegotiate(base_action.Action):
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
+
         # TODO: add packets waiting for
         return packet
 
@@ -308,8 +316,7 @@ class CancelTreaty(StartNegotiate):
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
 
-        # TODO: check packets waiting for
-        self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
+        # TODO： add packets waiting for
         return packet
 
 
@@ -354,7 +361,7 @@ class RemoveClause(base_action.Action):
         self.receiver = counterpart['playerno']
         self.dipl_ctrl = dipl_ctrl
         self.counter_id = counter_id
-        self.action_key += "_%s_player_%i_%i" % (player_const.CLAUSE_TXT[clause_type], self.giver, self.receiver)
+        self.action_key += "_%s_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], value, self.giver, self.receiver)
 
     def is_action_valid(self):
         if self.if_on_meeting():
@@ -440,26 +447,27 @@ class AddClause(RemoveClause):
         return packet
 
 
-"""
 class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
-    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, counter_id, cur_player, counterpart,
+                 dipl_ctrl, ws_client, rule_ctrl, players):
+        super().__init__(clause_type, value, counter_id, cur_player, counterpart, dipl_ctrl, ws_client)
         self.rule_ctrl = rule_ctrl
         self.players = players
-        self.action_key += "_%s" % rule_ctrl.techs[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_tech"]:
             return False
+
         if self.if_on_meeting():
             return (not self.if_clause_exists() and is_tech_known(self.players[self.giver], self.value)
-                    and player_invention_state(self.players[self.counter_index], self.value)
+                    and player_invention_state(self.players[self.counter_id], self.value)
                     in [tech_const.TECH_UNKNOWN, tech_const.TECH_PREREQS_KNOWN])
         return False
 
 
+"""
 class AddTradeGoldClause(AddClause):
     action_key = "trade_gold_clause"
 

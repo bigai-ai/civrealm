@@ -77,6 +77,8 @@ class CivController(CivPropController):
         visualize : bool, optional
             Whether to visualize the game. The default is False.
         """
+        print("CivController: ", fc_args['username'])
+        print("username:", username)
         super().__init__(CivConnection(host, client_port))
         self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)

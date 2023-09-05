@@ -32,13 +32,9 @@ def get_files(cmd):
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
 
-    def __init__(self, client_port: int = fc_args['client_port']):
-        fc_args['username'] = DEFAULT_TASK
-        self.civ_controller = CivController(username=DEFAULT_TASK, client_port=client_port)
-        self._action_space = self.civ_controller.action_space
-        self._observation_space = self.civ_controller.observation_space
-        self.set_up_recording()
-        utils.EzPickle.__init__(self, client_port)
+    def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
+        fc_args['username'] = username
+        super().__init__(username=username, client_port=client_port)
         self.filename = None
         self.set_minitask()
 

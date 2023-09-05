@@ -19,7 +19,7 @@ from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgen
 from civtensor.models.agent import Agent
 
 from freeciv_gym.configs import fc_args
-from freeciv_gym.runners import parallel_tensor_env
+from freeciv_gym.envs import parallel_tensor_env
 
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.

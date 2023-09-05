@@ -69,7 +69,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
 
     def _record_observation(self, observation):
-        self._record_to_file('state', observation, lambda x: x.get_bitvector_in_ascii() if isinstance(x, BitVector) else x.tolist())
+        self._record_to_file('state', observation, lambda x: x.get_bitvector_in_ascii()
+                             if isinstance(x, BitVector) else x.tolist())
 
     def _record_action(self, available_actions, action):
         self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
@@ -103,13 +104,13 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
-        
+
         end_time = time.time()
         elapsed_time = end_time - start_time
         # If running is too slow, we stop the program.
         if elapsed_time > 15:
             fc_logger.debug('Running too slow.')
-            assert(False)
+            assert (False)
 
         return observation, reward, terminated, truncated, info
 
@@ -117,7 +118,10 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.client_port
 
     def reset(self, seed=None, options=None):
-        # self.civ_controller.reset()
+        if seed is not None:
+            fc_args['debug.randomly_generate_seeds'] = False
+            fc_args['debug.mapseed'] = seed
+            fc_args['debug.agentseed'] = seed
         self.civ_controller.init_network()
         info, observation = self._get_info_and_observation()
         return observation, info

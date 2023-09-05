@@ -24,8 +24,7 @@ from freeciv_gym.configs import fc_args
 class ControllerAgent(BaseAgent):
     def __init__(self):
         super().__init__()
-        if fc_args["debug.random_seed"]:
-            # random.seed(os.getpid())
+        if fc_args["debug.randomly_generate_seeds"]:
             agentseed = random.randint(0, 999999)
             self.set_agent_seed(agentseed)
         else:

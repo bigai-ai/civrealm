@@ -18,9 +18,9 @@ import time
 import hashlib
 import urllib
 import requests
-from math import ceil, floor
-from random import Random
+import random
 import os
+from math import ceil, floor
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
@@ -114,20 +114,18 @@ class ClientState(CivPropController):
         return self.follower
 
     def init_game_setting(self):
-        if fc_args['debug.random_seed']:
-            random_instance = Random(os.getpid()+int(time.time())%100000)
-            mapseed = random_instance.randint(0, 999999)
-            gameseed = random_instance.randint(0, 999999)
+        if fc_args['debug.randomly_generate_seeds']:
+            random.seed(os.getpid()+int(time.time()) % 100000)
+            mapseed = random.randint(0, 999999)
+            gameseed = random.randint(0, 999999)
             self.ws_client.send_message(f"/set mapseed {mapseed}")
             self.ws_client.send_message(f"/set gameseed {gameseed}")
         else:
             # Set map seed. The same seed leads to the same map.
-            if "mapseed" in fc_args:
-                self.ws_client.send_message(f"/set mapseed {fc_args['mapseed']}")
-            if "debug.mapseed" in fc_args:
-                self.ws_client.send_message(f"/set mapseed {fc_args['debug.mapseed']}")
-            if "debug.gameseed" in fc_args:
-                self.ws_client.send_message(f"/set gameseed {fc_args['debug.gameseed']}")
+            if 'debug.mapseed' in fc_args:
+                self.ws_client.send_message(f'/set mapseed {fc_args["debug.mapseed"]}')
+            if 'debug.gameseed' in fc_args:
+                self.ws_client.send_message(f'/set gameseed {fc_args["debug.gameseed"]}')
 
         if self.multiplayer_game:
             self.set_multiplayer_game()

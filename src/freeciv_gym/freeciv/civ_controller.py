@@ -59,7 +59,7 @@ class CivController(CivPropController):
     To login to a game, call the init_game() method.  
     """
 
-    def __init__(self, username=fc_args['username'], host=fc_args['host'],
+    def __init__(self, username, host=fc_args['host'],
                  client_port=fc_args['client_port'], visualize=False):
         """
         Initialize the controller for the game before the WebSocket connection is open. 
@@ -109,6 +109,7 @@ class CivController(CivPropController):
         self.init_controllers(username)
 
     def reset(self):
+        # FIXME: this function is not used
         self.ws_client = CivConnection(self.host, self.client_port)
         self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -607,7 +608,7 @@ class CivController(CivPropController):
                 js_message["error"] = ex
             self.turn_manager.set_message(js_message)
         return
-    
+
     def get_turn_message(self):
         return self.turn_manager.turn_message
 

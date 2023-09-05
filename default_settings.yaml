@@ -1,5 +1,5 @@
-username: testcontroller
-# username: myagent
+# username: testcontroller
+username: myagent
 # Max number of turns per game
 max_turns: 500
 # The host url
@@ -12,8 +12,6 @@ multiplayer_game: True
 hotseat_game: False
 # Whether to wait a observer join before start the game
 wait_for_observer: False
-# The seed used to generate a map
-mapseed: 88
 # Number of AI players
 aifill: 4
 # The maximum number of players
@@ -45,18 +43,18 @@ debug:
   autosave: True
   # Password used to login to the freeciv web account
   password: freecivgym
-  load_game: "testcontroller_T200_2023-07-31-01_51"
+  # load_game: "testcontroller_T200_2023-07-31-01_51"
   # load_game: "myagent_T1_2023-08-28-12_19"
-  # load_game: ""
+  load_game: ""
   # game-reproducer
+  # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
+  randomly_generate_seeds: False
   # set mapseed for generating a fixed map, can overwrite the above mapseed
-  mapseed: 1729
+  mapseed: 88
   # set gameseed for fixing the behavior of random outputs
   gameseed: 1729
   # set agentseed to fix the action sequence when game/map are fixed
   agentseed: 1729
-  # If true, will use random seed to run each environment
-  random_seed: False
 
 # The ruleset to be used
 ruleset: classic

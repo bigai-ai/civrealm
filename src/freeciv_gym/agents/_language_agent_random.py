@@ -29,7 +29,7 @@ cwd = os.getcwd()
 class RuleAgent(BaseAgent):
     def __init__(self, LLM_model='gpt-3.5-turbo', load_dialogue=False):
         super().__init__()
-        if fc_args["debug.random_seed"]:
+        if fc_args["debug.randomly_generate_seeds"]:
             agentseed = os.getpid()
             self.set_agent_seed(agentseed)
         else:

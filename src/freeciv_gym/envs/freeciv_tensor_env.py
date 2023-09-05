@@ -74,7 +74,7 @@ class FreecivTensorEnv(Wrapper):
                     4
                 ),  # actor_type_dim = 4; 0 for city, 1 for unit, 2 for gov, 3 for turn done
                 "city_id": spaces.Discrete(self.config["resize"]["city"]),
-                "city_action_type": spaces.Discrete(199),
+                "city_action_type": spaces.Discrete(207),
                 "unit_id": spaces.Discrete(self.config["resize"]["unit"]),
                 "unit_action_type": spaces.Discrete(122),
                 "gov_action_type": spaces.Discrete(6),
@@ -318,7 +318,7 @@ Please call observation_space AFTER observation being returned."
         self.city_id_mask = self.cities_mask
 
         # Action type mask
-        self.city_action_type_mask = np.ones((sizes["city"], 199))
+        self.city_action_type_mask = np.ones((sizes["city"], 207))
         self.unit_action_type_mask = np.ones((sizes["unit"], 122))
         self.gov_action_type_mask = np.ones(6)
 

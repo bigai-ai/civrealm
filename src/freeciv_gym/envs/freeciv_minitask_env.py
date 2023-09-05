@@ -39,7 +39,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
         utils.EzPickle.__init__(self, client_port)
-        self.file = None
+        self.filename = None
         self.set_minitask()
 
     @staticmethod
@@ -53,13 +53,13 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def set_minitask(self):
         """ Set Minitask. """
         minitask = self.get_minitask(fc_args['username'])
-        self.file = minitask
+        self.filename = minitask
         self.civ_controller.set_parameter('debug.load_game', minitask)
         return
 
     def minitask_has_terminated(self):
         """ Judge whether the minitask is terminated. """
-        minitask_info = self.civ_controller.turn_manager.turn_message
+        minitask_info = self.civ_controller.get_turn_message()
         if len(minitask_info) > 0 and minitask_info[-1]["status"]:
             return True
         return False
@@ -70,10 +70,10 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def get_game_results(self):
         """ Merge game result and minitask. """
         game_results = self.civ_controller.game_ctrl.game_results
-        minitask_results = self.civ_controller.turn_manager.turn_message
+        minitask_results = self.civ_controller.get_turn_message()
         results = dict(sorted(game_results.items()))
         if len(minitask_results) > 0:
             metrics = minitask_results[-1]
-            metrics.update({"file": self.file})
+            metrics.update({"file": self.filename})
             results.update(dict(minitask=metrics))
         return results

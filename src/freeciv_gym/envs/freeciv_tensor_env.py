@@ -11,7 +11,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy
-from collections import Mapping
+from collections.abc import Mapping
 from typing import Sequence, Any, Optional, Dict
 from gymnasium.core import Wrapper
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv

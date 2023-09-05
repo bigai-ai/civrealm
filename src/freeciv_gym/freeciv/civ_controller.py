@@ -607,6 +607,9 @@ class CivController(CivPropController):
                 js_message["error"] = ex
             self.turn_manager.set_message(js_message)
         return
+    
+    def get_turn_message(self):
+        return self.turn_manager.turn_message
 
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""

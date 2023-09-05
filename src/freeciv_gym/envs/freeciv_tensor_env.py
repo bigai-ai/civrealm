@@ -24,7 +24,7 @@ class FreecivTensorEnv(Wrapper):
     def __init__(
         self, client_port: int = fc_args["client_port"], config: dict = default_config
     ):
-        base_env = FreecivBaseEnv(client_port)
+        base_env = FreecivBaseEnv(client_port=client_port)
         self.config = config
         self.obs_initialized = False
         self._observation_space: Optional[spaces.Dict] = None

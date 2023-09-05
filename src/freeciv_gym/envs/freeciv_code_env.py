@@ -29,7 +29,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
     """ Freeciv gym environment with code actions """
 
     def __init__(self, client_port: int = fc_args['client_port']):
-        super().__init__(client_port)
+        super().__init__(client_port=client_port)
 
     def get_actor_info(self, info, ctrl_type, actor_id, moves=0, utype=None):
         actor_info = dict()
@@ -193,6 +193,3 @@ class FreecivCodeEnv(FreecivBaseEnv):
         info['llm_info'] = llm_info
 
         return observation, info
-
-
-

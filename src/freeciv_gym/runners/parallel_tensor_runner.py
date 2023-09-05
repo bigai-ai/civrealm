@@ -16,16 +16,6 @@ class ParallelTensorRunner:
         self.agent = Agent()
         self.steps = 0
         self.batch_size_run = fc_args['batch_size_run']
-        # self.t = 0
-        # self.t_env = 0
-
-        # self.batchs = []
-        # self.train_returns = []
-        # self.test_returns = []
-        # self.train_stats = {}
-        # self.test_stats = {}
-
-        # self.log_train_stats_t = -100000
 
     def close(self):
         ray.shutdown()
@@ -37,6 +27,7 @@ class ParallelTensorRunner:
         observations, infos = self.reset()
         while self.steps < fc_args['trainer.max_steps']:
             actions = self.agent(observations, infos)
-            observations, rewards, terminated, truncated, infos = self.tensor_env(actions)
+            observations, rewards, terminated, truncated, infos = self.tensor_env.step(actions)
     
             self.steps += self.batch_size_run
+        self.close()

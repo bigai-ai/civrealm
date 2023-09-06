@@ -387,7 +387,7 @@ class RemoveClause(base_action.Action):
 
     def is_action_valid(self):
         if self.if_on_meeting():
-            return self.if_clause_exists() and not self.if_clause_covered()
+            return self.if_clause_exists()
         return False
 
     def _action_packet(self):
@@ -406,16 +406,6 @@ class RemoveClause(base_action.Action):
         clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
         for clause in clauses:
             if clause['giver'] == self.giver and clause['type'] == self.clause_type and clause['value'] == self.value:
-                return True
-        return False
-
-    def if_clause_covered(self):
-        if self.clause_type not in CONFLICTING_CLAUSES and self.clause_type == 0:
-            return False
-
-        clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
-        for clause in clauses:
-            if clause['type'] == self.clause_type and clause['value'] == 0:
                 return True
         return False
 

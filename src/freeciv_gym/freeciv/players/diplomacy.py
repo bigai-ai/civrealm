@@ -193,12 +193,12 @@ class DiplomacyCtrl(CivPropController):
         if packet not in self.diplomacy_clause_map[packet['counterpart']]:
             if packet['type'] in CONFLICTING_CLAUSES:
                 for clause_id, clause in enumerate(self.diplomacy_clause_map[packet['counterpart']]):
-                    if clause['giver'] == packet['giver'] and clause['type'] == packet['type']:
+                    if clause['type'] == packet['type']:
                         self.diplomacy_clause_map[packet['counterpart']][clause_id] = packet
+                        fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
                         return
-                self.diplomacy_clause_map[packet['counterpart']].append(packet)
-            else:
-                self.diplomacy_clause_map[packet['counterpart']].append(packet)
+
+            self.diplomacy_clause_map[packet['counterpart']].append(packet)
         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
 
     def handle_diplomacy_remove_clause(self, packet):

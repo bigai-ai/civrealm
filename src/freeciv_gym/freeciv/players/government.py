@@ -96,8 +96,8 @@ class ChangeGovernment(base_action.Action):
         if self.govt_id == self.rule_ctrl.governments[self.pplayer['government']]['id']:
             return False
 
-        return (self.player_ctrl.player_has_wonder(self.pplayer["playerno"], 63)
-                or ReqInfo.are_reqs_active(self.pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
+        return (self.player_ctrl.prop_actions.has_statue_of_liberty(self.pplayer) or
+                ReqInfo.are_reqs_active(self.pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
 
     def _action_packet(self):
         packet = {"pid": packet_player_change_government,

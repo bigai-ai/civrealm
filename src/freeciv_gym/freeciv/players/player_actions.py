@@ -32,10 +32,9 @@ CONFLICTING_STATES = [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, 
 
 
 class PlayerOptions(ActionList):
-    def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players, clstate):
+    def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players):
         super().__init__(ws_client)
         self.players = players
-        self.clstate = clstate
         self.rule_ctrl = rule_ctrl
         self.dipl_ctrl = dipl_ctrl
         self.city_ctrl = city_ctrl
@@ -46,6 +45,8 @@ class PlayerOptions(ActionList):
         return True
 
     def update(self, pplayer):
+        liberty_flag = self.has_statue_of_liberty(pplayer)
+
         for counter_id in self.players:
             counterpart = self.players[counter_id]
 
@@ -61,7 +62,16 @@ class PlayerOptions(ActionList):
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
             else:
-                self.update_counterpart_options(self.clstate, self.dipl_ctrl, counter_id, pplayer, counterpart)
+                self.update_counterpart_options(self.dipl_ctrl, counter_id, pplayer, counterpart, liberty_flag)
+
+    def has_statue_of_liberty(self, cur_player):
+        for city_id in self.city_ctrl.cities:
+            pcity = self.city_ctrl.cities[city_id]
+
+            if pcity['owner'] == cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
+                return True
+            break
+        return False
 
     def update_player_options(self, counter_id, pplayer):
         maxrate = player_helpers.government_max_rate(pplayer['government'])
@@ -77,13 +87,13 @@ class PlayerOptions(ActionList):
         self.add_action(counter_id, IncreaseTax(**cur_state))
         self.add_action(counter_id, DecreaseTax(**cur_state))
 
-    def update_counterpart_options(self, clstate, dipl_ctrl, counter_id, cur_player, counterpart):
+    def update_counterpart_options(self, dipl_ctrl, counter_id, cur_player, counterpart, liberty_flag):
         if self.diplomacy_possible(cur_player, counterpart):
-            self.add_action(counter_id, StartNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, StopNegotiate(clstate, dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, AcceptTreaty(clstate, dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, CancelTreaty(clstate, dipl_ctrl, cur_player, counterpart, self.city_ctrl))
-            self.add_action(counter_id, CancelVision(clstate, dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, StartNegotiate(dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, StopNegotiate(dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, AcceptTreaty(dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, CancelTreaty(dipl_ctrl, cur_player, counterpart, liberty_flag))
+            self.add_action(counter_id, CancelVision(dipl_ctrl, cur_player, counterpart))
 
             self.update_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
             self.update_clause_options(dipl_ctrl, counter_id, counterpart, cur_player)
@@ -258,9 +268,8 @@ class DecreaseTax(IncreaseSci):
 class StartNegotiate(base_action.Action):
     action_key = "start_negotiation"
 
-    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart):
+    def __init__(self, dipl_ctrl, cur_player, counterpart):
         super().__init__()
-        self.clstate = clstate
         self.dipl_ctrl = dipl_ctrl
         self.cur_player = cur_player
         self.counterpart = counterpart
@@ -303,10 +312,10 @@ class AcceptTreaty(StartNegotiate):
 class CancelTreaty(StartNegotiate):
     action_key = "cancel_treaty"
 
-    def __init__(self, clstate, dipl_ctrl, cur_player, counterpart, city_ctrl):
-        super().__init__(clstate, dipl_ctrl, cur_player, counterpart)
+    def __init__(self, dipl_ctrl, cur_player, counterpart, liberty_flag):
+        super().__init__(dipl_ctrl, cur_player, counterpart)
         self.dipl_state = self.dipl_ctrl.diplstates[self.counterpart['playerno']]
-        self.city_ctrl = city_ctrl
+        self.liberty_flag = liberty_flag
         self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
 
     def is_action_valid(self):
@@ -316,16 +325,7 @@ class CancelTreaty(StartNegotiate):
         return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
                 and self.counterpart['team'] != self.cur_player['team'] and not
                 (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
-                 and self.cur_player['government'] in govs and not self.has_statue_of_liberty()))
-
-    def has_statue_of_liberty(self):
-        for city_id in self.city_ctrl.cities:
-            pcity = self.city_ctrl.cities[city_id]
-            if pcity['owner'] == self.cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
-                return True
-            break
-
-        return False
+                 and self.cur_player['government'] in govs and not self.liberty_flag))
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,
@@ -417,29 +417,30 @@ class AddClause(RemoveClause):
 
     def is_action_valid(self):
 
-        ds = self.dipl_ctrl.diplstates[self.counter_id]
-        if ((ds == player_const.DS_PEACE and self.clause_type == player_const.CLAUSE_PEACE)
-                or (ds == player_const.DS_ARMISTICE and self.clause_type == player_const.CLAUSE_PEACE)
-                or (ds == player_const.DS_ALLIANCE and self.clause_type == player_const.CLAUSE_ALLIANCE)
-                or (ds == player_const.CLAUSE_CEASEFIRE and self.clause_type == player_const.CLAUSE_CEASEFIRE)):
-            fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
-            return False
-
-        if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][
-            self.cur_player['playerno']]:
-            fc_logger.debug('already has embassy')
-            return False
-
-        if self.clause_type == player_const.CLAUSE_ALLIANCE:
-            for p in self.dipl_ctrl.others_diplstates[self.cur_player['playerno']]:
-                if (self.dipl_ctrl.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_WAR and
-                        self.dipl_ctrl.others_diplstates[self.counterpart['playerno']][p] == player_const.DS_ALLIANCE):
-                    return False
-
-        if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_STATES:
-            return False
-
         if self.if_on_meeting():
+            if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_STATES:
+                return False
+
+            ds = self.dipl_ctrl.diplstates[self.counter_id]
+            if ((ds == player_const.DS_PEACE and self.clause_type == player_const.CLAUSE_PEACE)
+                    or (ds == player_const.DS_ARMISTICE and self.clause_type == player_const.CLAUSE_PEACE)
+                    or (ds == player_const.DS_ALLIANCE and self.clause_type == player_const.CLAUSE_ALLIANCE)
+                    or (ds == player_const.CLAUSE_CEASEFIRE and self.clause_type == player_const.CLAUSE_CEASEFIRE)):
+                fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
+                return False
+
+            if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][
+                self.cur_player['playerno']]:
+                fc_logger.debug('already has embassy')
+                return False
+
+            if self.clause_type == player_const.CLAUSE_ALLIANCE:
+                for p in self.dipl_ctrl.others_diplstates[self.cur_player['playerno']]:
+                    if (self.dipl_ctrl.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_WAR and
+                            p in self.dipl_ctrl.others_diplstates[self.counterpart['playerno']] and
+                            self.dipl_ctrl.others_diplstates[self.counterpart['playerno']][p] == self.clause_type):
+                        return False
+
             return not self.if_clause_exists()
         return False
 

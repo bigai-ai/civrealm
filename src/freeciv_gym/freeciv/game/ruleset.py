@@ -403,8 +403,7 @@ class RulesetCtrl(CivPropController):
 
     def city_has_building(self, pcity, improvement_id):
         for z in range(self.ruleset_control["num_impr_types"]):
-            if 'improvements' in pcity and pcity['improvements'][z] == 1 \
-                    and z == improvement_id:
+            if 'improvements' in pcity and pcity['improvements'][z] == 1 and z == improvement_id:
                 return True
         return False
 

@@ -118,6 +118,7 @@ class DiplomacyCtrl(CivPropController):
 
         if packet['plr1'] not in self.others_diplstates:
             self.others_diplstates[packet['plr1']] = dict()
+        self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
 
         cur_playerno = self.clstate.player_num()
         if packet['plr1'] == cur_playerno:
@@ -125,11 +126,9 @@ class DiplomacyCtrl(CivPropController):
         elif packet['plr2'] == cur_playerno:
             opposite_player = 'plr1'
         else:
-            self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
             return
 
         self.diplstates[packet[opposite_player]] = packet['type']
-        self.others_diplstates[packet['plr1']][packet['plr2']] = packet['type']
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):

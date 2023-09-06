@@ -95,6 +95,7 @@ Please call observation_space AFTER observation being returned."
             )
 
     def action(self, action):
+        action = deref_dict(action)
         actor_type_dict = ['turn done','unit','city','gov']
         actor_type = action["actor_type"]
         actor_name = actor_type_dict[actor_type]
@@ -170,7 +171,8 @@ Please call observation_space AFTER observation being returned."
 
     def stack_obs(self, obs):
         for key, val in obs.items():
-            #'map'
+            if len(val) == 0:
+                continue
             if isinstance(next(iter(val.values())), dict):
                 for id, subval in val.items():
                     # terrain
@@ -187,6 +189,9 @@ Please call observation_space AFTER observation being returned."
         return obs
 
     def resize_obs(self, obs):
+        for key, val in obs.items():
+            if len(val) == 0:
+                obs[key] = np.zeros([obs_possible_size[key], self.config["resize"][key]])
         for key, size in self.config["resize"].items():
             obs[key] = resize_data(obs[key], size)
         return obs
@@ -284,7 +289,7 @@ Please call observation_space AFTER observation being returned."
                     val[k] = city_ops[k](v)
                 else:
                     val.pop(k)
-        # TODO: construct other_units x,y,city_radius_sq, buy_cost, shield_stock, before_change_shields, disbanded_shields, caravan_shields, last_turns_shield_surplus
+        # TODO: construct others_units x,y,city_radius_sq, buy_cost, shield_stock, before_change_shields, disbanded_shields, caravan_shields, last_turns_shield_surplus
         return obs
 
     def get_mask(self, observation, info, action=None):
@@ -294,11 +299,11 @@ Please call observation_space AFTER observation being returned."
         self.turn = info["turn"]
         self.update_mask(observation, info, action)
         return {
-            "units_mask": self.units_mask.astype(np.int32),
-            "cities_mask": self.cities_mask.astype(np.int32),
-            "other_units_mask": self.other_units_mask.astype(np.int32),
-            "other_cities_mask": self.other_cities_mask.astype(np.int32),
-            "other_players_mask": self.other_players_mask.astype(np.int32),
+            "unit_mask": self.unit_mask.astype(np.int32),
+            "city_mask": self.city_mask.astype(np.int32),
+            "others_unit_mask": self.others_unit_mask.astype(np.int32),
+            "others_city_mask": self.others_city_mask.astype(np.int32),
+            "others_player_mask": self.others_player_mask.astype(np.int32),
             "actor_type_mask": self.actor_type_mask.astype(np.int32),
             "city_id_mask": self.city_id_mask.astype(np.int32),
             "city_action_type_mask": self.city_action_type_mask.astype(np.int32),
@@ -313,15 +318,15 @@ Please call observation_space AFTER observation being returned."
         self.actor_type_mask = np.ones(4)
 
         # Units/Cities/Players and others Masks
-        self.units_mask = np.ones(sizes["unit"])[..., np.newaxis]
-        self.cities_mask = np.ones(sizes["city"])[..., np.newaxis]
-        self.other_units_mask = np.ones(sizes["others_unit"])[..., np.newaxis]
-        self.other_cities_mask = np.ones(sizes["others_city"])[..., np.newaxis]
-        self.other_players_mask = np.ones(sizes["others_player"])[..., np.newaxis]
+        self.unit_mask = np.ones(sizes["unit"])[..., np.newaxis]
+        self.city_mask = np.ones(sizes["city"])[..., np.newaxis]
+        self.others_unit_mask = np.ones(sizes["others_unit"])[..., np.newaxis]
+        self.others_city_mask = np.ones(sizes["others_city"])[..., np.newaxis]
+        self.others_player_mask = np.ones(sizes["others_player"])[..., np.newaxis]
 
         # Units/Cities Masks same as others
-        self.unit_id_mask = self.units_mask
-        self.city_id_mask = self.cities_mask
+        self.unit_id_mask = self.unit_mask
+        self.city_id_mask = self.city_mask
 
         # Action type mask
         self.city_action_type_mask = np.ones((sizes["city"], 207))
@@ -350,21 +355,23 @@ Please call observation_space AFTER observation being returned."
             )
 
     def mask_from_obs(self, observation):
-        self.units_mask[len(self.unit_ids) : :, :] *= 0
-        self.cities_mask[len(self.city_ids) : :, :] *= 0
+        self.unit_mask[len(self.unit_ids) : :, :] *= 0
+        self.city_mask[len(self.city_ids) : :, :] *= 0
+        self.unit_action_type_mask[len(self.unit_ids) : :, :] *= 0
+        self.city_action_type_mask[len(self.city_ids) : :, :] *= 0
         for pos,id in enumerate(self.unit_ids[:self.config['resize']['unit']]):
             unit = observation['unit'][id]
             if unit["moves_left"] == 0:
-                self.units_mask[pos] *= 0
+                self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0
-        self.unit_id_mask = self.units_mask
-        self.city_id_mask = self.cities_mask
-        self.other_units_mask[len(self.others_unit_ids) : :, :] *= 0
-        self.other_cities_mask[len(self.others_city_ids) : :, :] *= 0
+        self.unit_id_mask = self.unit_mask
+        self.city_id_mask = self.city_mask
+        self.others_unit_mask[len(self.others_unit_ids) : :, :] *= 0
+        self.others_city_mask[len(self.others_city_ids) : :, :] *= 0
 
     def mask_from_info(self, info):
-        other_players_num = len(info["available_actions"]["player"].keys())
-        self.other_players_mask[other_players_num::, :] = 1
+        others_player_num = len(info["available_actions"]["player"].keys())
+        self.others_player_mask[::others_player_num, :] = 1
 
         if units := info["available_actions"].get("unit", False):
             for i, unit_id in enumerate(self.unit_ids[:self.config['resize']['unit']]):

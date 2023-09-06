@@ -203,6 +203,17 @@ default_config = {
         "others_player": 10,
     },
 }
+
+obs_possible_size = {
+    "rules": 120,
+    "player": 26,
+    "city": 227,
+    "unit":  125,
+    "others_player":  22,
+    "others_unit":  64,
+    "others_city":  86,
+        }
+
 noop = (
     lambda x: (np.array(x) * np.array([1])).astype(np.int32)
     if isinstance(x, list)
@@ -469,3 +480,7 @@ def resize_data(data: np.ndarray, size: int):
     data = data.copy()
     data.resize([size, *remain_shape])
     return data
+
+
+def deref_dict(data):
+    return {k: (v.item() if isinstance(v, np.ndarray) else v) for k, v in data.items()}

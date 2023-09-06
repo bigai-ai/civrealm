@@ -38,6 +38,7 @@ CLAUSE_EMBASSY = 9
 
 BASE_CLAUSES = [CLAUSE_MAP, CLAUSE_SEAMAP, CLAUSE_VISION, CLAUSE_EMBASSY,
                 CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
+CONFLICTING_CLAUSES = [CLAUSE_CEASEFIRE, CLAUSE_PEACE, CLAUSE_ALLIANCE]
 
 CLAUSE_TXT = ["Advance", "TradeGold", "ShareMap", "ShareSeaMap", "TradeCity",
               "Ceasefire", "Peace", "Alliance", "Vision", "Embassy"]

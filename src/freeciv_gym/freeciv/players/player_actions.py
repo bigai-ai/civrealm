@@ -23,12 +23,8 @@ import freeciv_gym.freeciv.players.player_helpers as player_helpers
 
 from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
 import freeciv_gym.freeciv.tech.tech_const as tech_const
-from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES
-
+from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES, CONFLICTING_CLAUSES
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-
-MAX_GOLD = 10
-CONFLICTING_STATES = [player_const.CLAUSE_CEASEFIRE, player_const.CLAUSE_PEACE, player_const.CLAUSE_ALLIANCE]
 
 
 class PlayerOptions(ActionList):
@@ -104,14 +100,15 @@ class PlayerOptions(ActionList):
             self.add_action(counter_id, add_clause)
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl))
 
-        for tech_id in self.rule_ctrl.techs:
-            clause_type = player_const.CLAUSE_ADVANCE
-            add_trade_tech_clause = AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart,
-                                                       dipl_ctrl, self.ws_client, self.rule_ctrl, self.players)
-            self.add_action(counter_id, add_trade_tech_clause)
+        if self.rule_ctrl.game_info["trading_tech"]:
+            for tech_id in self.rule_ctrl.techs:
+                clause_type = player_const.CLAUSE_ADVANCE
+                add_trade_tech_clause = AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart,
+                                                           dipl_ctrl, self.ws_client, self.rule_ctrl, self.players)
+                self.add_action(counter_id, add_trade_tech_clause)
 
-            rem_clause = RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, dipl_ctrl)
-            self.add_action(counter_id, rem_clause)
+                rem_clause = RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, dipl_ctrl)
+                self.add_action(counter_id, rem_clause)
 
     """
     temporarily do NOT consider trades of cities & golds 
@@ -266,6 +263,11 @@ class DecreaseTax(IncreaseSci):
 
 
 class StartNegotiate(base_action.Action):
+    """
+    logic from freeciv/common/diptreaty.c
+    func: could_meet_with_player
+    """
+
     action_key = "start_negotiation"
 
     def __init__(self, dipl_ctrl, cur_player, counterpart):
@@ -290,7 +292,6 @@ class StartNegotiate(base_action.Action):
         packet = {"pid": packet_diplomacy_init_meeting_req,
                   "counterpart": self.counterpart["playerno"]}
 
-        # TODO: add packets waiting for
         self.wait_for_pid = (96, self.counterpart["playerno"])
         return packet
 
@@ -310,6 +311,11 @@ class AcceptTreaty(StartNegotiate):
 
 
 class CancelTreaty(StartNegotiate):
+    """
+    logic from freeciv/common/player.c
+    func: pplayer_can_cancel_treaty
+    """
+
     action_key = "cancel_treaty"
 
     def __init__(self, dipl_ctrl, cur_player, counterpart, liberty_flag):
@@ -332,7 +338,6 @@ class CancelTreaty(StartNegotiate):
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.dipl_state}
 
-        # TODO： add packets waiting for
         self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
 
@@ -418,7 +423,7 @@ class AddClause(RemoveClause):
     def is_action_valid(self):
 
         if self.if_on_meeting():
-            if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_STATES:
+            if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_CLAUSES:
                 return False
 
             ds = self.dipl_ctrl.diplstates[self.counter_id]
@@ -435,20 +440,22 @@ class AddClause(RemoveClause):
                 return False
 
             if self.clause_type == player_const.CLAUSE_ALLIANCE:
+                ds_alliance = player_const.DS_ALLIANCE
+
                 for p in self.dipl_ctrl.others_diplstates[self.cur_player['playerno']]:
                     if (self.dipl_ctrl.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_WAR and
                             p in self.dipl_ctrl.others_diplstates[self.counterpart['playerno']] and
-                            self.dipl_ctrl.others_diplstates[self.counterpart['playerno']][p] == self.clause_type):
+                            self.dipl_ctrl.others_diplstates[self.counterpart['playerno']][p] == ds_alliance):
                         return False
 
             return not self.if_clause_exists()
         return False
 
     def remove_conflicting_clause(self):
-        if self.clause_type in CONFLICTING_STATES:
+        if self.clause_type in CONFLICTING_CLAUSES:
             clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
             for clause in clauses:
-                if (clause['giver'] == self.giver and clause['type'] in CONFLICTING_STATES
+                if (clause['giver'] == self.giver and clause['type'] in CONFLICTING_CLAUSES
                         and clause['value'] == self.value):
                     rem_clause = RemoveClause(clause['type'], 1, self.counter_id,
                                               self.cur_player, self.counterpart, self.dipl_ctrl)
@@ -475,9 +482,6 @@ class AddTradeTechClause(AddClause):
         self.players = players
 
     def is_action_valid(self):
-        if not self.rule_ctrl.game_info["trading_tech"]:
-            return False
-
         if self.if_on_meeting():
             return (not self.if_clause_exists() and is_tech_known(self.cur_player, self.value)
                     and player_invention_state(self.counterpart, self.value) in
@@ -523,4 +527,5 @@ class AddTradeCityClause(AddClause):
                     and self.city_ctrl.cities[self.value]['owner'] == self.giver)
         return False
 """
+
 

@@ -99,6 +99,7 @@ class PlayerOptions(ActionList):
             add_clause = AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client)
             self.add_action(counter_id, add_clause)
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl))
+            self.add_action(counter_id, RemoveClause(ctype, 0, counter_id, cur_player, counterpart, dipl_ctrl))
 
         if self.rule_ctrl.game_info["trading_tech"]:
             for tech_id in self.rule_ctrl.techs:
@@ -300,8 +301,7 @@ class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
 
     def is_action_valid(self):
-        return (self.counterpart['playerno'] in self.dipl_ctrl.diplomacy_clause_map.keys()
-                and self.dipl_ctrl.diplomacy_clause_map[self.counterpart['playerno']])
+        return self.counterpart['playerno'] in self.dipl_ctrl.diplomacy_clause_map.keys()
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_accept_treaty_req,
@@ -387,7 +387,7 @@ class RemoveClause(base_action.Action):
 
     def is_action_valid(self):
         if self.if_on_meeting():
-            return self.if_clause_exists()
+            return self.if_clause_exists() and not self.if_clause_covered()
         return False
 
     def _action_packet(self):
@@ -403,12 +403,19 @@ class RemoveClause(base_action.Action):
         return self.counter_id in self.dipl_ctrl.diplomacy_clause_map.keys()
 
     def if_clause_exists(self):
-        if not self.if_on_meeting():
-            raise Exception("Start negotiation with %i first" % self.counter_id)
-
         clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
         for clause in clauses:
             if clause['giver'] == self.giver and clause['type'] == self.clause_type and clause['value'] == self.value:
+                return True
+        return False
+
+    def if_clause_covered(self):
+        if self.clause_type not in CONFLICTING_CLAUSES and self.clause_type == 0:
+            return False
+
+        clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
+        for clause in clauses:
+            if clause['type'] == self.clause_type and clause['value'] == 0:
                 return True
         return False
 
@@ -455,11 +462,16 @@ class AddClause(RemoveClause):
         if self.clause_type in CONFLICTING_CLAUSES:
             clauses = self.dipl_ctrl.diplomacy_clause_map[self.counter_id]
             for clause in clauses:
-                if (clause['giver'] == self.giver and clause['type'] in CONFLICTING_CLAUSES
-                        and clause['value'] == self.value):
-                    rem_clause = RemoveClause(clause['type'], 1, self.counter_id,
-                                              self.cur_player, self.counterpart, self.dipl_ctrl)
-                    rem_clause.trigger_action(self.ws_client)
+                if clause['type'] in CONFLICTING_CLAUSES:
+                    if clause['giver'] == self.cur_player['playerno']:
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id,
+                                                  self.cur_player, self.counterpart, self.dipl_ctrl)
+                    else:
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id,
+                                                  self.counterpart, self.cur_player, self.dipl_ctrl)
+                    if rem_clause.is_action_valid():
+                        rem_clause.trigger_action(self.ws_client)
+                        break
 
     def _action_packet(self):
         self.remove_conflicting_clause()
@@ -527,5 +539,3 @@ class AddTradeCityClause(AddClause):
                     and self.city_ctrl.cities[self.value]['owner'] == self.giver)
         return False
 """
-
-

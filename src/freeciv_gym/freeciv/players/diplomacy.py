@@ -26,6 +26,7 @@ from freeciv_gym.freeciv.utils.base_action import NoActions
 
 import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.freeciv.players.player_const import CONFLICTING_CLAUSES
 
 
 class DiplomacyState(DictState):
@@ -188,7 +189,16 @@ class DiplomacyCtrl(CivPropController):
     def handle_diplomacy_create_clause(self, packet):
         if self.diplomacy_clause_map[packet['counterpart']] is None:
             self.diplomacy_clause_map[packet['counterpart']] = []
-        self.diplomacy_clause_map[packet['counterpart']].append(packet)
+
+        if packet not in self.diplomacy_clause_map[packet['counterpart']]:
+            if packet['type'] in CONFLICTING_CLAUSES:
+                for clause_id, clause in enumerate(self.diplomacy_clause_map[packet['counterpart']]):
+                    if clause['giver'] == packet['giver'] and clause['type'] == packet['type']:
+                        self.diplomacy_clause_map[packet['counterpart']][clause_id] = packet
+                        return
+                self.diplomacy_clause_map[packet['counterpart']].append(packet)
+            else:
+                self.diplomacy_clause_map[packet['counterpart']].append(packet)
         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
 
     def handle_diplomacy_remove_clause(self, packet):

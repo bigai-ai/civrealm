@@ -138,14 +138,24 @@ class MapState(PlainState):
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
-        self._observation_space = gymnasium.spaces.Dict({
-            'status': gymnasium.spaces.Box(low=0, high=1, shape=map_shape, dtype=int),
-            'terrain': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.terrains)-1, shape=map_shape, dtype=int),
-            'extras': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, self._extra_num), dtype=int),
-            'output': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, 6), dtype=int),
-            'tile_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-            'city_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-            'unit': gymnasium.spaces.Box(low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)), dtype=int),
-            'unit_owner': gymnasium.spaces.Box(low=0, high=255, shape=map_shape, dtype=int),
-        })
+        self._observation_space = gymnasium.spaces.Dict({'status': gymnasium.spaces.Box(
+            low=0, high=1, shape=map_shape, dtype=np.uint8),
+            'terrain': gymnasium.spaces.Box(
+            low=0, high=len(self.rule_ctrl.terrains) - 1,
+            shape=map_shape, dtype=np.uint8),
+            'extras': gymnasium.spaces.Box(
+            low=0, high=1, shape=(*map_shape, self._extra_num),
+            dtype=np.uint8),
+            'output': gymnasium.spaces.Box(
+            low=0, high=1, shape=(*map_shape, 6),
+            dtype=np.uint8),
+            'tile_owner': gymnasium.spaces.Box(
+            low=0, high=255, shape=map_shape, dtype=np.uint8),
+            'city_owner': gymnasium.spaces.Box(
+            low=0, high=255, shape=map_shape, dtype=np.uint8),
+            'unit': gymnasium.spaces.Box(
+            low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)),
+            dtype=np.uint8),
+            'unit_owner': gymnasium.spaces.Box(
+            low=0, high=255, shape=map_shape, dtype=np.uint8), })
         return self._observation_space

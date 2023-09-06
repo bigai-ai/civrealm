@@ -109,11 +109,12 @@ class CityState(DictState):
         city_state['city_pollution'] = pcity['pollution']
         city_state['state'] = CityState.get_city_state(pcity)
         if 'granary_turns' in pcity:
+            city_state['granary_turns'] = min(city_state['granary_turns'], 32767)
             city_state['growth_in'] = CityState.city_turns_to_growth_text(pcity)
         else:
             city_state['growth_in'] = -1
-        city_state['turns_to_prod_complete'] = self.get_city_production_time(pcity)
-        city_state['prod_process'] = self.get_production_progress(pcity)
+        city_state['turns_to_prod_complete'] = min(self.get_city_production_time(pcity), 32767)
+        city_state['prod_process'] = min(self.get_production_progress(pcity), 32767)
 
         for citizen in citizen_types:
             cur_citizen = 'ppl_' + citizen
@@ -217,7 +218,7 @@ class CityState(DictState):
 
         if turns == 0:
             return 'blocked'
-        elif turns > 1000000:
+        elif turns == 32767:
             return 'never'
         elif turns < 0:
             return 'Starving in ' + str(turns) + ' turns'
@@ -267,49 +268,49 @@ class CityState(DictState):
     def get_observation_space(self):
         city_space = gymnasium.spaces.Dict({
             # Common city fields
-            'id': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'size': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'id': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'size': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             # TODO: may change this to actual map size
-            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             'name': gymnasium.spaces.Text(max_length=100),
 
             # My city fields
-            'food_stock': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'granary_size': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'granary_turns': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'production_kind': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'production_value': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'city_radius_sq': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'buy_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'shield_stock': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'disbanded_shields': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'caravan_shields': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'last_turns_shield_surplus': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'luxury': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'science': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'prod_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'surplus_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'prod_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'surplus_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'prod_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'surplus_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'prod_trade': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'surplus_trade': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'bulbs': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'city_waste': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'city_corruption': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'city_pollution': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'food_stock': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'granary_size': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'granary_turns': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'production_kind': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'production_value': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'city_radius_sq': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'buy_cost': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'shield_stock': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'disbanded_shields': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'caravan_shields': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'last_turns_shield_surplus': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'luxury': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'science': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'prod_food': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'surplus_food': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'prod_gold': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'surplus_gold': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'prod_shield': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'surplus_shield': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'prod_trade': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'surplus_trade': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'bulbs': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'city_waste': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'city_corruption': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'city_pollution': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
             # -1: None, 1: Disorder, 2: Peace, 3: Celebrating
-            'state': gymnasium.spaces.Box(low=-1, high=3, shape=(1,), dtype=int),
-            'growth_in': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
-            'turns_to_prod_complete': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
-            'prod_process': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
-            'ppl_angry': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'ppl_unhappy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'ppl_content': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'ppl_happy': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'state': gymnasium.spaces.Box(low=-1, high=3, shape=(1,), dtype=np.int8),
+            'growth_in': gymnasium.spaces.Text(max_length=100),
+            'turns_to_prod_complete': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'prod_process': gymnasium.spaces.Box(low=-32768, high=32767, shape=(1,), dtype=np.int16),
+            'ppl_angry': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'ppl_unhappy': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'ppl_content': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
+            'ppl_happy': gymnasium.spaces.Box(low=-1, high=127, shape=(1,), dtype=np.int8),
             # Boolean vector
             'can_build_unit': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.int8),
             # Boolean vector

@@ -14,6 +14,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+import numpy as np
 import gymnasium
 
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
@@ -84,34 +85,34 @@ class UnitState(DictState):
     def get_observation_space(self):    
         unit_space = gymnasium.spaces.Dict({
             # Common unit fields
-            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'health': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=int),
-            'veteran': gymnasium.spaces.Box(low=0, high=1, shape=(1,), dtype=int),
+            'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'health': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=np.uint8),
+            'veteran': gymnasium.spaces.Box(low=0, high=1, shape=(1,), dtype=np.uint8),
             # TODO: may change this to actual map size
-            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
-            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
+            'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
 
             # Unit type fields
-            'type_rule_name': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
-            'type_attack_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_defense_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_firepower': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_build_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_convert_time': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_converted_to': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
-            'type_obsoleted_by': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=int),
-            'type_hp': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_move_rate': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'type_vision_radius_sq': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'type_rule_name': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=np.uint8),
+            'type_attack_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_defense_strength': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_firepower': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_build_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_convert_time': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_converted_to': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=np.uint8),
+            'type_obsoleted_by': gymnasium.spaces.Box(low=0, high=len(self.rule_ctrl.unit_types)-1, shape=(1,), dtype=np.uint8),
+            'type_hp': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_move_rate': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
+            'type_vision_radius_sq': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=np.uint16),
             'type_worker': gymnasium.spaces.Discrete(1),  # Boolean
             'type_can_transport': gymnasium.spaces.Discrete(1),  # Boolean
 
             # My unit specific fields
-            'home_city': gymnasium.spaces.Box(low=-1, high=len(self.city_ctrl.cities)-1, shape=(1,), dtype=int),
-            'moves_left': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
-            'upkeep_food': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'upkeep_shield': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-            'upkeep_gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
+            'home_city': gymnasium.spaces.Box(low=-1, high=len(self.city_ctrl.cities)-1, shape=(1,), dtype=np.int16),
+            'moves_left': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'upkeep_food': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'upkeep_shield': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
+            'upkeep_gold': gymnasium.spaces.Box(low=-1, high=32767, shape=(1,), dtype=np.int16),
         })
 
         return gymnasium.spaces.Dict({unit_id: unit_space for unit_id in self.unit_ctrl.units.keys()})

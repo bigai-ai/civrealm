@@ -28,6 +28,7 @@ class FreecivTensorEnv(Wrapper):
         self.config = config
         self.obs_initialized = False
         self._observation_space: Optional[spaces.Dict] = None
+        self._seed = None
 
         super().__init__(base_env)
 
@@ -35,6 +36,8 @@ class FreecivTensorEnv(Wrapper):
         self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None
     ):
         """Modifies the :attr:`env` after calling :meth:`reset`, returning a modified observation using :meth:`self.observation`."""
+        if seed is None:
+            seed = self._seed
         obs, info = self.env.reset(seed=seed, options=options)
         self.unit_ids = []
         self.city_ids = []
@@ -122,6 +125,9 @@ Please call observation_space AFTER observation being returned."
             raise ValueError(
                 "'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
             )
+
+    def seed(self, seed):
+        self._seed = seed
 
     def _infer_obs_space(self, observation) -> spaces.Dict:
         return spaces.Dict(

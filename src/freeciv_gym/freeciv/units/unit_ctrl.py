@@ -290,7 +290,8 @@ class UnitCtrl(CivPropController):
         if punit is None and game_unit != None:
             # This means unit has changed owner. We deal with this here
             # by simply deleting the old one and creating a new one. */
-            self.handle_unit_remove(packet_unit['id'])
+            game_unit['unit_id'] = game_unit['id']
+            self.handle_unit_remove(game_unit)
 
         old_tile = None
         if punit != None:

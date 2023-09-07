@@ -114,11 +114,12 @@ class DictState(PlainState):
         for item in self._state.keys():
             cur_set = set(self._state[item].keys())
             shared_keys, keys_added, keys_removed = sets_equal(cur_set, self._locked_set)
-
             if keys_removed is not None:
-                raise Exception("State properties have changed from initially locked properties:\n\
-                         shared_keys: %s\n keys_added: %s\n keys_removed: %s\n" %
-                                (shared_keys, keys_added, keys_removed))
+                if len(keys_removed) != 0:
+                    raise Exception("State properties have changed from initially locked properties:\n\
+                                             shared_keys: %s\n keys_added: %s\n keys_removed: %s\n" %
+                                    (shared_keys, keys_added, keys_removed))
+
             elif keys_added is not None:
                 for item in keys_added:
                     del self._state[item]

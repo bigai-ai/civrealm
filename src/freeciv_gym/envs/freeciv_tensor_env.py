@@ -61,7 +61,7 @@ class FreecivTensorEnv(Wrapper):
 
     def observation(self, observation):
         observation = deepcopy(observation)
-        obs= self.filter_map_obs(observation)
+        obs = self.filter_map_obs(observation)
         obs = self.stack_obs(obs)
         obs = self.resize_obs(obs)
         if not self.obs_initialized:
@@ -96,31 +96,38 @@ Please call observation_space AFTER observation being returned."
 
     def action(self, action):
         action = deref_dict(action)
-        actor_type_dict = ['turn done','unit','city','gov']
+        actor_type_list = ["turn done", "unit", "city", "gov"]
         actor_type = action["actor_type"]
-        actor_name = actor_type_dict[actor_type]
+        actor_name = actor_type_list[actor_type]
         if actor_type == 0:
             return None
         elif actor_type == 1:
+            id_pos, action_index = action["unit_id"], action["unit_action_type"]
+            assert (
+                self.unit_action_type_mask[id_pos, action_index] == 1
+            ), f"unit action of id pos {id_pos}, action type index {action_index} is masked"
             id = self.unit_ids[action["unit_id"]]
-            action_index = action["unit_action_type"]
-            action_list = sorted(
-                list(self.action_list[actor_name][id].keys())
-            )
-            return ("unit", id, action_list[action_index])
+            action_name = sorted(list(self.action_list[actor_name][id].keys()))[
+                action_index
+            ]
+            return ("unit", id, action_name)
         elif actor_type == 2:
+            id_pos, action_index = action["city_id"], action["city_action_type"]
+            assert (
+                self.city_action_type_mask[id_pos, action_index] == 1
+            ), f"city action of id pos {id_pos}, action type index {action_index} is masked"
             id = self.city_ids[action["city_id"]]
-            action_index = action["city_action_type"]
-            action_list = sorted(
-                list(self.action_list[actor_name][id].keys())
-            )
-            return ("city", id, action_list[action_index])
+            action_name = sorted(list(self.action_list[actor_name][id].keys()))[
+                action_index
+            ]
+            return ("city", id, action_name)
         elif actor_type == 3:
             id = 0
             action_index = action["gov_action_type"]
-            action_list = sorted(
-                list(self.action_list[actor_name][id].keys())
-            )
+            assert (
+                self.gov_action_type_mask[action_index] == 1
+            ), f"gov action of action type index {action_index} is masked"
+            action_list = sorted(list(self.action_list[actor_name][id].keys()))
             return ("gov", id, action_list[action_index])
         else:
             raise ValueError(
@@ -191,23 +198,25 @@ Please call observation_space AFTER observation being returned."
     def resize_obs(self, obs):
         for key, val in obs.items():
             if len(val) == 0:
-                obs[key] = np.zeros([obs_possible_size[key], self.config["resize"][key]])
+                obs[key] = np.zeros(
+                    [obs_possible_size[key], self.config["resize"][key]]
+                )
         for key, size in self.config["resize"].items():
             obs[key] = resize_data(obs[key], size)
         return obs
 
     def filter_map_obs(self, obs):
         # TODO: check owner id equal to my id
-        for key, val in obs['dipl'].items():
-            update(obs['player'][key],val)
+        for key, val in obs["dipl"].items():
+            update(obs["player"][key], val)
 
         for key in list(obs.keys()):
             if key not in self.config["filter_observation"]:
                 obs.pop(key)
 
         obs["others_player"] = {
-                key: val for key, val in obs["player"].items() if key != 0
-                }
+            key: val for key, val in obs["player"].items() if key != 0
+        }
         obs["player"] = obs["player"][0]
 
         # Handle map and players
@@ -340,15 +349,19 @@ Please call observation_space AFTER observation being returned."
         self.mask_from_info(info)
 
     def mask_from_action(self, action):
-        actor_type = action['actor_type']
+        actor_type = action["actor_type"]
         if actor_type == 0:
             return None
         elif actor_type == 1:
-            self.unit_action_type_mask[action['unit_id'], action['unit_action_type']] *= 0
+            self.unit_action_type_mask[
+                action["unit_id"], action["unit_action_type"]
+            ] *= 0
         elif actor_type == 2:
-            self.city_action_type_mask[action['city_id'], action['city_action_type']] *= 0
+            self.city_action_type_mask[
+                action["city_id"], action["city_action_type"]
+            ] *= 0
         elif actor_type == 3:
-            self.gov_action_type_mask[action['gov_action_type']] *= 0
+            self.gov_action_type_mask[action["gov_action_type"]] *= 0
         else:
             raise ValueError(
                 f"'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
@@ -359,8 +372,8 @@ Please call observation_space AFTER observation being returned."
         self.city_mask[len(self.city_ids) : :, :] *= 0
         self.unit_action_type_mask[len(self.unit_ids) : :, :] *= 0
         self.city_action_type_mask[len(self.city_ids) : :, :] *= 0
-        for pos,id in enumerate(self.unit_ids[:self.config['resize']['unit']]):
-            unit = observation['unit'][id]
+        for pos, id in enumerate(self.unit_ids[: self.config["resize"]["unit"]]):
+            unit = observation["unit"][id]
             if unit["moves_left"] == 0:
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0
@@ -371,10 +384,10 @@ Please call observation_space AFTER observation being returned."
 
     def mask_from_info(self, info):
         others_player_num = len(info["available_actions"]["player"].keys())
-        self.others_player_mask[::others_player_num, :] = 1
+        self.others_player_mask[others_player_num::, :] = 0
 
         if units := info["available_actions"].get("unit", False):
-            for i, unit_id in enumerate(self.unit_ids[:self.config['resize']['unit']]):
+            for i, unit_id in enumerate(self.unit_ids[: self.config["resize"]["unit"]]):
                 if actions := units.get(unit_id, False):
                     for id, act_name in enumerate(sorted(list(actions.keys()))):
                         self.unit_action_type_mask[i, id] *= int(actions[act_name])
@@ -387,7 +400,7 @@ Please call observation_space AFTER observation being returned."
         self.actor_type_mask[1] = int(any(self.unit_id_mask))
 
         if citys := info["available_actions"].get("city", False):
-            for i, city_id in enumerate(self.city_ids[:self.config['resize']['city']]):
+            for i, city_id in enumerate(self.city_ids[: self.config["resize"]["city"]]):
                 if actions := citys.get(city_id, False):
                     for id, act_name in enumerate(sorted(list(actions.keys()))):
                         self.city_action_type_mask[i, id] *= int(actions[act_name])

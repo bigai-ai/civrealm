@@ -49,6 +49,7 @@ FEELING_FINAL = 5
 
 IG_IMPROVEMENT = 2
 
+
 class CityActions(ActionList):
     def __init__(self, ws_client: CivConnection, city_list: list, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__(ws_client)
@@ -134,7 +135,7 @@ class CityWorkTile(Action):
             self.action_key += "_%i_%i_%i" % (self.output_idx, dx, dy)
 
     def is_action_valid(self):
-        if self.city_map.map_ctrl.if_out_mapsize(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
+        if self.city_map.map_ctrl.is_out_of_map(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
             return False
 
         if self.output_idx is None:
@@ -169,7 +170,7 @@ class CityUnworkTile(CityWorkTile):
     action_key = "city_unwork"
 
     def is_action_valid(self):
-        if self.city_map.map_ctrl.if_out_mapsize(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
+        if self.city_map.map_ctrl.is_out_of_map(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
             return False
 
         if self.output_idx is None:
@@ -370,4 +371,3 @@ lines: 1934 - 1939
 def city_unhappy(pcity):
     return (pcity['ppl_happy'][FEELING_FINAL] <
             pcity['ppl_unhappy'][FEELING_FINAL] + 2 * pcity['ppl_angry'][FEELING_FINAL])
-

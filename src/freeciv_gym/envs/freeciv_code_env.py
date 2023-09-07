@@ -54,35 +54,32 @@ class FreecivCodeEnv(FreecivBaseEnv):
 
         return actor_info
 
-    def get_mini_map_info(self, ctrl_type, ptile):
-        x = ptile['x']
-        y = ptile['y']
+    def get_mini_map_info(self, ctrl_type, center_tile):
+        x = center_tile['x']
+        y = center_tile['y']
         mini_map_info = dict()
-        info_keys = ['terrain', 'extras', 'units', 'cities']
 
         tile_id = 0
-        for ptile in TILE_INFO_TEMPLATE:
-            mini_map_info[ptile] = []
-            pdir = DIR[tile_id]
-            dx = pdir[0]
-            dy = pdir[1]
+        for tile_name in TILE_INFO_TEMPLATE:
+            mini_map_info[tile_name] = []
+            dx, dy = DIR[tile_id]
 
-            if not self.civ_controller.map_ctrl.if_out_mapsize(x + dx, y + dy):
-                ntile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
+            if not self.civ_controller.map_ctrl.is_out_of_map(x + dx, y + dy):
+                focus_tile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
 
-                terrain_id = ntile['terrain']
+                terrain_id = focus_tile['terrain']
                 terrain_str = get_tile_terrain(terrain_id)
                 if terrain_str is not None:
-                    mini_map_info[ptile].append(terrain_str)
+                    mini_map_info[tile_name].append(terrain_str)
 
                 for extra_id, extra_name in enumerate(EXTRA_NAMES):
-                    if ntile['extras'][extra_id] == 1:
-                        mini_map_info[ptile].append(extra_name)
+                    if focus_tile['extras'][extra_id] == 1:
+                        mini_map_info[tile_name].append(extra_name)
 
-                units = ntile['units']
+                units = focus_tile['units']
                 units_on_tile = get_units_on_tile(units)
                 if len(units_on_tile) > 0:
-                    mini_map_info[ptile].extend(units_on_tile)
+                    mini_map_info[tile_name].extend(units_on_tile)
 
                     units_owner = units[0]['owner']
                     if units_owner == self.civ_controller.player_ctrl.my_player_id:
@@ -90,10 +87,10 @@ class FreecivCodeEnv(FreecivBaseEnv):
                     else:
                         ds_of_units = self.civ_controller.dipl_ctrl.diplstates[units_owner]
                         units_dsp = ('Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(units_owner)))
-                    mini_map_info[ptile].append(units_dsp)
+                    mini_map_info[tile_name].append(units_dsp)
 
                 if ctrl_type == 'unit':
-                    pcity = self.civ_controller.city_ctrl.tile_city(ntile)
+                    pcity = self.civ_controller.city_ctrl.tile_city(focus_tile)
                     if pcity is not None:
                         city_owner = pcity['owner']
                         if city_owner == self.civ_controller.player_ctrl.my_player_id:
@@ -101,7 +98,7 @@ class FreecivCodeEnv(FreecivBaseEnv):
                         else:
                             ds_of_city = self.civ_controller.dipl_ctrl.diplstates[city_owner]
                             city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(city_owner)
-                        mini_map_info[ptile].append(city_dsp)
+                        mini_map_info[tile_name].append(city_dsp)
 
             tile_id += 1
         return mini_map_info

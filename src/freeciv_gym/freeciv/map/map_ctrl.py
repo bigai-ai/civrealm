@@ -122,7 +122,7 @@ class MapCtrl(CivPropController):
             y += 1
         return self.prop_state.tiles[x + y * self.map_info['xsize']]
 
-    def if_out_mapsize(self, x, y):
+    def is_out_of_map(self, x, y):
         wrap_has_flag = self.wrap_has_flag
         if wrap_has_flag(map_const.TF_WRAPX) and wrap_has_flag(map_const.TF_WRAPY):
             return False

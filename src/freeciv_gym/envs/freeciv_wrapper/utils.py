@@ -478,7 +478,7 @@ rules_ops = {
 def resize_data(data: np.ndarray, size: int):
     remain_shape = data.shape[1:]
     data = data.copy()
-    data.resize([size, *remain_shape])
+    data.resize([size, *remain_shape],refcheck=False)
     return data
 
 

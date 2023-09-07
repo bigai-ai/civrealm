@@ -44,9 +44,8 @@ class FreecivTensorEnv(Wrapper):
         self.turn = 0
         self.reset_mask()
         self.update_sequence_ids(obs)
-        mask = self.get_mask(obs, info)
+        self.mask = self.get_mask(obs, info)
         obs = self.observation(obs)
-        obs = update(obs, mask)
         return obs, info
 
     def step(self, action):
@@ -54,9 +53,8 @@ class FreecivTensorEnv(Wrapper):
             self.action(action)
         )
         self.update_sequence_ids(obs)
-        mask = self.get_mask(obs, info, action)
+        self.mask = self.get_mask(obs, info, action)
         obs = self.observation(obs)
-        obs = update(obs, mask)
         return obs, reward, terminated, truncated, info
 
     def observation(self, observation):
@@ -64,6 +62,7 @@ class FreecivTensorEnv(Wrapper):
         obs = self.filter_map_obs(observation)
         obs = self.stack_obs(obs)
         obs = self.resize_obs(obs)
+        obs = update(obs,self.mask)
         if not self.obs_initialized:
             self._observation_space = self._infer_obs_space(obs)
             self.obs_initialized = True
@@ -89,10 +88,7 @@ class FreecivTensorEnv(Wrapper):
         if self.obs_initialized:
             return self._observation_space
         else:
-            raise Exception(
-                "Observation space not initiliazed yet. \
-Please call observation_space AFTER observation being returned."
-            )
+            return spaces.Discrete(1)
 
     def action(self, action):
         action = deref_dict(action)
@@ -140,7 +136,7 @@ Please call observation_space AFTER observation being returned."
     def _infer_obs_space(self, observation) -> spaces.Dict:
         return spaces.Dict(
             [
-                (key, spaces.Box(low=0, high=1, shape=space.shape, dtype=np.int32))
+                (key, spaces.Box(low=0, high=1000, shape=space.shape, dtype=np.int32))
                 for key, space in observation.items()
             ]
         )

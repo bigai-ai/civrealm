@@ -199,7 +199,7 @@ Please call observation_space AFTER observation being returned."
         for key, val in obs.items():
             if len(val) == 0:
                 obs[key] = np.zeros(
-                    [obs_possible_size[key], self.config["resize"][key]]
+                    [self.config["resize"][key],obs_possible_size[key] ]
                 )
         for key, size in self.config["resize"].items():
             obs[key] = resize_data(obs[key], size)

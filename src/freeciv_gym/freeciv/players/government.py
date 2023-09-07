@@ -103,6 +103,9 @@ class ChangeGovernment(base_action.Action):
         packet = {"pid": packet_player_change_government,
                   "government": self.govt_id}
 
+        if self.govt_id == 0:
+            self.wait_for_pid = (51, self.pplayer['playerno'])
+
         """
         switch to new gov in the end of the player phase
         self.wait_for_pid = (51, self.pplayer['playerno'])

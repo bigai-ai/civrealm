@@ -484,7 +484,7 @@ class ActSEntry(StdAction):
 
 
 class ActCancelOrder(UnitAction):
-    """Cancle the existing activity of a unit."""
+    """Cancel the existing activity of a unit."""
     action_key = "cancel_order"
 
     def is_action_valid(self):

@@ -9,8 +9,8 @@ import copy
 
 class ParallelTensorEnv:
     def __init__(self, env_name, logger, epoch_num):
-        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
-        self.logger = ray_logger_setup()
+        # ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
+        # self.logger = ray_logger_setup()
 
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']

@@ -361,7 +361,9 @@ Please call observation_space AFTER observation being returned."
                 action["city_id"], action["city_action_type"]
             ] *= 0
         elif actor_type == 3:
-            self.gov_action_type_mask[action["gov_action_type"]] *= 0
+            # self.gov_action_type_mask[action["gov_action_type"]] *= 0
+            self.gov_action_type_mask *= 0
+            self.actor_type_mask[3] *= 0
         else:
             raise ValueError(
                 f"'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."

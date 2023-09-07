@@ -20,6 +20,7 @@ from freeciv_gym.envs.freeciv_wrapper.utils import *
 
 class FreecivTensorEnv(Wrapper):
     """Freeciv gym environment with Tensor actions"""
+    metadata = {'render_modes': ['human']}
 
     def __init__(
         self, client_port: int = fc_args["client_port"], config: dict = default_config

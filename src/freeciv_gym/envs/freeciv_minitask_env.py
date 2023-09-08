@@ -55,11 +55,12 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return minitask
     
     def reset(self, seed=None, options=None, minitask_pattern=None):
-        self.set_minitask(minitask_pattern)
+        self.set_minitask(seed, minitask_pattern)
         return super().reset(seed, options)
 
-    def set_minitask(self, minitask_pattern):
+    def set_minitask(self, seed, minitask_pattern):
         """ Set Minitask. """
+        random.seed(seed)
         minitask = self.get_minitask(fc_args['username'], minitask_pattern=minitask_pattern)
         self.filename = minitask
         self.civ_controller.set_parameter('debug.load_game', minitask)

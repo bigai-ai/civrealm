@@ -34,7 +34,7 @@ def get_client_port():
 def env():
     fc_args["debug.load_game"] = "testcontroller_T200_2023-07-31-01_51"
     # fc_args['username']= 'testcontroller_T257_2023-08-07-14_04'
-    env = FreecivTensorEnv(get_client_port())
+    env = FreecivTensorEnv(client_port=get_client_port())
 
     yield env
     env.close()
@@ -42,7 +42,7 @@ def env():
 @pytest.fixture
 def zero_start_env():
     fc_args["debug.load_game"] = ""
-    env = FreecivTensorEnv(get_client_port())
+    env = FreecivTensorEnv(client_port=get_client_port())
 
     yield env
     env.close()

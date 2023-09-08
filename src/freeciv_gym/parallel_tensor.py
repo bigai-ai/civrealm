@@ -24,7 +24,7 @@ from freeciv_gym.runners import ParallelTensorRunner
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*')
-
+import gymnasium
 
 def main():
     if fc_args['batch_size_run'] == 1:
@@ -34,7 +34,9 @@ def main():
     for i in range(epoch_num):
         # agent = Agent()
         agent = None
-        runner = ParallelTensorRunner('freeciv/FreecivTensor-v0', agent, None, i)
+        # env = gymnasium.make('freeciv/FreecivTensor-v0', client_port=6301)
+        # runner = ParallelTensorRunner('freeciv/FreecivTensor-v0', agent, None, i)
+        runner = ParallelTensorRunner('freeciv/FreecivBase-v0', agent, None, i)
         # runner.run()
 
         import time

@@ -22,9 +22,10 @@ import ray
 
 @ray.remote
 class FreecivParallelEnv():
-    def __init__(self, env, port):
+    def __init__(self, env):
         self.env = env
-        self.port = port
+        print(f'FreecivParallelEnv: {self.env.get_username()}')
+        # self.port = port
     
     def step(self, action):
         # import time
@@ -45,3 +46,6 @@ class FreecivParallelEnv():
 
     def get_port(self):
         return self.env.get_port()
+    
+    def get_username(self):
+        return self.env.get_username()

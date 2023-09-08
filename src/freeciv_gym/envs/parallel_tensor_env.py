@@ -23,8 +23,10 @@ class ParallelTensorEnv:
         for i in range(self.batch_size_run):
             temp_port = port_start+i*2
             env_core = gymnasium.make(env_name, client_port=temp_port)
-            env = FreecivParallelEnv.remote(env_core, temp_port)
+            env = FreecivParallelEnv.remote(env_core)
+            # breakpoint()
             self.envs.append(env)
+            # breakpoint()
 
 
     def close(self):

@@ -30,7 +30,7 @@ runner_type: "parallel"
 # How many epoch to run. Each epoch runs batch_size_run envs.
 epoch_num: 1
 # How many envs run simultaneously to sample experience
-batch_size_run: 5
+batch_size_run: 1
 # The port used by the first env, the other parallel envs use those ports following this port
 port_start: 6300
 
@@ -43,9 +43,9 @@ debug:
   autosave: True
   # Password used to login to the freeciv web account
   password: freecivgym
-  load_game: "testcontroller_T200_2023-07-31-01_51"
+  # load_game: "testcontroller_T200_2023-07-31-01_51"
   # load_game: "myagent_T1_2023-08-28-12_19"
-  # load_game: ""
+  load_game: ""
   # game-reproducer
   # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
   randomly_generate_seeds: False

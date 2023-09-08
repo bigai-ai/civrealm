@@ -601,13 +601,10 @@ class CivController(CivPropController):
             self.clstate.load_complete = True
 
     def parse_script_message(self, message):
-        if 'minitask' in message:
-            js_message = {"error": ""}
-            try:
-                js_message.update(json.loads(message))
-            except Exception as ex:
-                js_message["error"] = ex
-            self.turn_manager.set_message(js_message)
+        try:
+            self.turn_manager.set_message(json.loads(message))
+        except json.decoder.JSONDecodeError:
+            self.turn_manager.set_message({'msg': message})
         return
 
     def get_turn_message(self):

@@ -26,7 +26,7 @@ def main():
     env = gymnasium.make('freeciv/FreecivMinitask-v0')
     agent = ControllerAgent()
 
-    observations, info = env.reset()
+    observations, info = env.reset(minitask_pattern="buildcity")
     done = False
     step = 0
     while not done:

@@ -116,6 +116,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def get_port(self):
         return self.civ_controller.client_port
+    
+    def get_username(self):
+        return self.civ_controller.username
 
     def reset(self, seed=None, options=None):
         if seed is not None:

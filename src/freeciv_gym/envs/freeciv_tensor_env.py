@@ -20,6 +20,7 @@ from freeciv_gym.envs.freeciv_wrapper.utils import *
 
 class FreecivTensorEnv(Wrapper):
     """Freeciv gym environment with Tensor actions"""
+    metadata = {'render_modes': ['human']}
 
     def __init__(
         self, client_port: int = fc_args["client_port"], config: dict = default_config
@@ -29,6 +30,7 @@ class FreecivTensorEnv(Wrapper):
         self.obs_initialized = False
         self._observation_space: Optional[spaces.Dict] = None
         self._seed = None
+        self._embarkable_units = {}
 
         super().__init__(base_env)
 
@@ -44,6 +46,7 @@ class FreecivTensorEnv(Wrapper):
         self.turn = 0
         self.reset_mask()
         self.update_sequence_ids(obs)
+        info = self.handle_embark_info(info)
         self.mask = self.get_mask(obs, info)
         obs = self.observation(obs)
         return obs, info
@@ -53,6 +56,7 @@ class FreecivTensorEnv(Wrapper):
             self.action(action)
         )
         self.update_sequence_ids(obs)
+        info = self.handle_embark_info(info)
         self.mask = self.get_mask(obs, info, action)
         obs = self.observation(obs)
         return obs, reward, terminated, truncated, info
@@ -62,7 +66,7 @@ class FreecivTensorEnv(Wrapper):
         obs = self.filter_map_obs(observation)
         obs = self.stack_obs(obs)
         obs = self.resize_obs(obs)
-        obs = update(obs,self.mask)
+        obs = update(obs, self.mask)
         if not self.obs_initialized:
             self._observation_space = self._infer_obs_space(obs)
             self.obs_initialized = True
@@ -78,7 +82,7 @@ class FreecivTensorEnv(Wrapper):
                 "city_id": spaces.Discrete(self.config["resize"]["city"]),
                 "city_action_type": spaces.Discrete(207),
                 "unit_id": spaces.Discrete(self.config["resize"]["unit"]),
-                "unit_action_type": spaces.Discrete(122),
+                "unit_action_type": spaces.Discrete(122 + 8),
                 "gov_action_type": spaces.Discrete(6),
             }
         )
@@ -106,7 +110,7 @@ class FreecivTensorEnv(Wrapper):
             action_name = sorted(list(self.action_list[actor_name][id].keys()))[
                 action_index
             ]
-            return ("unit", id, action_name)
+            return self.handle_embark_action(("unit", id, action_name))
         elif actor_type == 2:
             id_pos, action_index = action["city_id"], action["city_action_type"]
             assert (
@@ -195,7 +199,7 @@ class FreecivTensorEnv(Wrapper):
         for key, val in obs.items():
             if len(val) == 0:
                 obs[key] = np.zeros(
-                    [self.config["resize"][key],obs_possible_size[key] ]
+                    [self.config["resize"][key], obs_possible_size[key]]
                 )
         for key, size in self.config["resize"].items():
             obs[key] = resize_data(obs[key], size)
@@ -335,7 +339,7 @@ class FreecivTensorEnv(Wrapper):
 
         # Action type mask
         self.city_action_type_mask = np.ones((sizes["city"], 207))
-        self.unit_action_type_mask = np.ones((sizes["unit"], 122))
+        self.unit_action_type_mask = np.ones((sizes["unit"], 122 + 8))
         self.gov_action_type_mask = np.ones(6)
 
     def update_mask(self, observation, info, action=None):
@@ -416,3 +420,30 @@ class FreecivTensorEnv(Wrapper):
         else:
             self.gov_action_type_mask *= 0
         self.actor_type_mask[3] = int(any(self.gov_action_type_mask))
+
+    def handle_embark_info(self, info):
+        unit_actions = info["available_actions"]["unit"]
+        for id, actions in unit_actions.items():
+            for action in list(actions.keys()):
+                if action[:6] == "embark":
+                    [ dir, target_id] = map(int, action.split("_")[1::])
+                    actions[f"embark_{dir}"] = True
+                    if unit_dir := (id, dir) not in self._embarkable_units:
+                        self._embarkable_units[unit_dir] = [target_id]
+                    else:
+                        self._embarkable_units[unit_dir] += [target_id]
+                    actions.pop(action)
+            for embark_action in ["embark_" + f"{i}" for i in range(8)]:
+                if embark_action not in actions:
+                    actions[embark_action] = False
+        return info
+
+    def handle_embark_action(self, action):
+        if action[-1][:6] != "embark":
+            return action
+        assert action[0] == "unit"
+        id = action[1]
+        dir = int(action[-1].split("_")[-1])
+        target_id = sorted(self._embarkable_units[(id, dir)])[0]
+        action_type_name = f"embark_{dir}_{target_id}"
+        return ("unit", id, action_type_name)

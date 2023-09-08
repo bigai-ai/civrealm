@@ -102,14 +102,15 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager(self.client_port)
 
         self.username = username
+        print(f'Init_civ_controller. {self.username}')
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
-        self.init_controllers(username)
+        self.init_controllers()
 
     def reset(self):
-        # FIXME: this function is not used
+        # This function is not used in regular running. It is used in pytest.
         self.ws_client = CivConnection(self.host, self.client_port)
         self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -119,7 +120,7 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager(self.client_port)
         self.delete_save = True
         self.game_saving_time_range = []
-        self.init_controllers(self.username)
+        self.init_controllers()
 
     def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")
@@ -139,7 +140,7 @@ class CivController(CivPropController):
         self.register_handler(20, "handle_ruleset_impr_flag_msg")
         self.register_handler(66, "handle_unknown_research_msg")
 
-    def init_controllers(self, username):
+    def init_controllers(self):
         """
         Initialize all controllers for the game. This is done in the constructor before the WebSocket connection is open, hence it is called before init_game() is called.
         """
@@ -148,7 +149,7 @@ class CivController(CivPropController):
         self.rule_ctrl = RulesetCtrl(self.ws_client)
         self.map_ctrl = MapCtrl(self.ws_client, self.rule_ctrl)
 
-        self.clstate = ClientState(username,
+        self.clstate = ClientState(self.username,
                                    self.ws_client, self.rule_ctrl)
 
         self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
@@ -210,7 +211,7 @@ class CivController(CivPropController):
         """
         if self.visualize:
             self.monitor.start_monitor()
-
+        # print('init_game')
         self.clstate.login()
 
     def get_turn(self):

@@ -52,6 +52,7 @@ class ClientState(CivPropController):
 
         self.username_original = username
         self.username = username
+        print(f'init-ClientState: {self.username}')
         self.client = {}
         # Store the client connection state, e.g., conn_id, established. First initialized during handle_server_join_reply.
         self.client["conn"] = {}
@@ -184,12 +185,13 @@ class ClientState(CivPropController):
     def login(self):
         freeciv_version = "+Freeciv.Web.Devel-3.3"
         google_user_subject = None
+        print(f'login-username: {self.username}')
         if self.name_index > 0:
             self.username = f'{self.username_original}{self.name_index}'
         self.name_index += 1
-
         # Maybe create an user account on Freeciv Web
         sha_password = self.get_password()
+        
         self.try_create_user_account(fc_args['host'], self.username, sha_password)
 
         # Log in to Freeciv Web through websocket
@@ -198,6 +200,7 @@ class ClientState(CivPropController):
                          "major_version": 2, "minor_version": 5, "patch_version": 99,
                          "port": self.ws_client.client_port, "password": sha_password,
                          "subject": google_user_subject}
+        print(login_message)
         self.ws_client.send(login_message)
 
     def set_hotseat_game(self):

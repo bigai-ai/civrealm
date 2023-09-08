@@ -187,8 +187,6 @@ class DiplomacyCtrl(CivPropController):
             self.active_diplomacy_meeting_id = None
 
     def handle_diplomacy_create_clause(self, packet):
-        if self.diplomacy_clause_map[packet['counterpart']] is None:
-            self.diplomacy_clause_map[packet['counterpart']] = []
 
         if packet not in self.diplomacy_clause_map[packet['counterpart']]:
             if packet['type'] in CONFLICTING_CLAUSES:

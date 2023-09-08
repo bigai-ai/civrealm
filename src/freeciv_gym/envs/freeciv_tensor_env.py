@@ -33,6 +33,7 @@ class FreecivTensorEnv(Wrapper):
         self._embarkable_units = {}
 
         super().__init__(base_env)
+        self.__env = base_env
 
     def reset(
         self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None
@@ -40,7 +41,7 @@ class FreecivTensorEnv(Wrapper):
         """Modifies the :attr:`env` after calling :meth:`reset`, returning a modified observation using :meth:`self.observation`."""
         if seed is None:
             seed = self._seed
-        obs, info = self.env.reset(seed=seed, options=options)
+        obs, info = self.__env.reset(seed=seed, options=options)
         self.unit_ids = []
         self.city_ids = []
         self.turn = 0
@@ -52,7 +53,7 @@ class FreecivTensorEnv(Wrapper):
         return obs, info
 
     def step(self, action):
-        obs, reward, terminated, truncated, info = self.unwrapped.step(
+        obs, reward, terminated, truncated, info = self.__env.step(
             self.action(action)
         )
         self.update_sequence_ids(obs)

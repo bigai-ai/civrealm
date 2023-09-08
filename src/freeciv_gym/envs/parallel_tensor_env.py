@@ -8,28 +8,17 @@ import ray
 
 class ParallelTensorEnv:
     def __init__(self, env_name, logger, epoch_num):
-        # ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
-        # self.logger = ray_logger_setup()
-
         # Number of envs that run simultaneously
         self.batch_size_run = fc_args['batch_size_run']
 
         # Initialize envs
         self.envs = []
         self.env_name = env_name
-
         port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
             temp_port = port_start+i*2
-            print('hehe')
             env = FreecivParallelEnv.remote(env_name, client_port = temp_port)
-            # env = make_train_env.remote('testcontroller',temp_port)
-            result = env.reset.remote()
-            print(ray.get(result))
-            # breakpoint()
             self.envs.append(env)
-            # breakpoint()
-
 
     def close(self):
         for env_id in range(self.batch_size_run):
@@ -39,6 +28,8 @@ class ParallelTensorEnv:
         result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
         results = ray.get(result_ids) # results: [(observation, info), ...]
         observations, infos = zip(*results)
+        # print(observations)
+        # print(infos)
         return observations, infos
 
     def step(self, actions):
@@ -83,8 +74,9 @@ class ParallelTensorEnv:
                 env_port = ray.get(self.envs[env_id].get_port.remote())
                 ray.get(self.envs[env_id].close.remote())
                 new_env_port = env_port^1
-                env_core = gymnasium.make(self.env_name, client_port=new_env_port)
-                env = FreecivParallelEnv.remote(env_core, new_env_port)
+                # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
+                # env = FreecivParallelEnv.remote(env_core, new_env_port)
+                env = FreecivParallelEnv.remote(self.env_name, client_port = new_env_port)
                 self.envs[env_id] = env
 
             if not unready:

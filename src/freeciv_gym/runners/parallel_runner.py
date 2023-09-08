@@ -22,8 +22,8 @@ class ParallelRunner:
         port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
             temp_port = port_start+epoch_num % 2*self.batch_size_run+i
-            env_core = gymnasium.make(env_name, client_port=temp_port)
-            env = FreecivParallelEnv.remote(env_core)
+            # env_core = gymnasium.make(env_name, client_port=temp_port)
+            env = FreecivParallelEnv.remote(env_name, client_port=temp_port)
             self.envs.append(env)
 
         self.t = 0

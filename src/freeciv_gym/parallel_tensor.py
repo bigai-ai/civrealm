@@ -35,9 +35,9 @@ def main():
         # agent = Agent()
         agent = None
         # env = gymnasium.make('freeciv/FreecivTensor-v0', client_port=6301)
-        # runner = ParallelTensorRunner('freeciv/FreecivTensor-v0', agent, None, i)
-        runner = ParallelTensorRunner('freeciv/FreecivBase-v0', agent, None, i)
-        # runner.run()
+        runner = ParallelTensorRunner('freeciv/FreecivTensor-v0', agent, None, i)
+        # runner = ParallelTensorRunner('freeciv/FreecivBase-v0', agent, None, i)
+        runner.run()
 
         import time
         time.sleep(3)

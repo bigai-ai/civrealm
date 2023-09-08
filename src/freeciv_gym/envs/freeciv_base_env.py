@@ -144,6 +144,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             os.makedirs(plot_game_scores_folder)
 
         players, tags, turns, evaluations = self.evaluate_game()
+        if evaluations is None:
+            return
+
         player_colors = self.civ_controller.player_ctrl.get_player_colors()
         for ptag in EVALUATION_TAGS:
             plt.figure()

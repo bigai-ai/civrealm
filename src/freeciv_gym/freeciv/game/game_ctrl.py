@@ -167,6 +167,9 @@ class GameCtrl(CivPropController):
         pass
 
     def get_game_scores(self, game_scores):
+        if game_scores is None:
+            return None, None, None, None
+
         start_turn = 0
         score_items = game_scores.split("\n")
         players = {}

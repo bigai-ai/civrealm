@@ -1,10 +1,9 @@
 import gymnasium
-import freeciv_gym
+from gymnasium.envs.registration import register
 from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.configs import fc_args
 import ray
-import copy
 
 
 class ParallelTensorEnv:
@@ -22,8 +21,11 @@ class ParallelTensorEnv:
         port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
             temp_port = port_start+i*2
-            env_core = gymnasium.make(env_name, client_port=temp_port)
-            env = FreecivParallelEnv.remote(env_core)
+            print('hehe')
+            env = FreecivParallelEnv.remote(env_name, client_port = temp_port)
+            # env = make_train_env.remote('testcontroller',temp_port)
+            result = env.reset.remote()
+            print(ray.get(result))
             # breakpoint()
             self.envs.append(env)
             # breakpoint()

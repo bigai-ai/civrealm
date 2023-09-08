@@ -18,12 +18,13 @@ import os
 # Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
 os.environ['RAY_DEDUP_LOGS'] = '0'
 import ray
+import gymnasium as gym
 
 
 @ray.remote
 class FreecivParallelEnv():
-    def __init__(self, env):
-        self.env = env
+    def __init__(self, env_id,*args,**kwargs):
+        self.env = gym.make(env_id,*args,**kwargs)
         print(f'FreecivParallelEnv: {self.env.get_username()}')
         # self.port = port
     

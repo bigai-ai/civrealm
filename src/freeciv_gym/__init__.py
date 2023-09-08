@@ -29,6 +29,10 @@ register(
     entry_point='freeciv_gym.envs:FreecivCodeEnv',
 )
 register(
+    id='freeciv/FreecivLLM-v0',
+    entry_point='freeciv_gym.envs:FreecivLLMEnv',
+)
+register(
     id='freeciv/FreecivMinitask-v0',
     entry_point='freeciv_gym.envs:FreecivMinitaskEnv',
 )

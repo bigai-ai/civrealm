@@ -18,6 +18,7 @@
 # * DIVIDE() divides and rounds down, rather than just divides and
 # *rounds toward 0.  It is assumed that the divisor is positive."""
 # return parseInt( (n) / (d) - (( (n) < 0 && (n) % (d) < 0 ) ? 1 : 0) )
+import numpy as np
 
 
 def FC_WRAP(value, arange):
@@ -56,3 +57,37 @@ def format_hex(num):
     hex_value = hex(num)[2:]
     formatted_hex = format(int(hex_value, 16), '02X')
     return formatted_hex
+
+
+def read_sub_arr_with_wrap(arr, start_x, end_x, start_y, end_y):
+    """ consider map_const.TF_WRAPX == 1 """
+    if len(arr.shape) == 2:
+        (length, width) = arr.shape
+    else:
+        (length, width, height) = arr.shape
+
+    if start_y < 0:
+        start_y = 0
+    if end_y > width:
+        end_y = width
+
+    if start_x < 0 or end_x > length:
+        if start_x < 0:
+            start_x = length + start_x
+        else:
+            end_x = end_x % length
+
+        if len(arr.shape) == 2:
+            arr_1 = arr[start_x:, start_y: end_y]
+            arr_2 = arr[:end_x, start_y: end_y]
+        else:
+            arr_1 = arr[start_x:, start_y: end_y, :]
+            arr_2 = arr[:end_x, start_y: end_y, :]
+        return np.concatenate((arr_1, arr_2), axis=0)
+
+    else:
+        if len(arr.shape) == 2:
+            return arr[start_x: end_x, start_y: end_y]
+        else:
+            return arr[start_x: end_x, start_y: end_y, :]
+

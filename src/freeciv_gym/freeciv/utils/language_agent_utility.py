@@ -47,6 +47,18 @@ TILE_INFO_TEMPLATE = {
             'tile_south_1_west_2': []
             }
 
+BLOCK_INFO_TEMPLATE = {
+            'current_block': [],
+            'block_north_1': [],
+            'block_south_1': [],
+            'block_east_1': [],
+            'block_west_1': [],
+            'block_north_1_east_1': [],
+            'block_north_1_west_1': [],
+            'block_south_1_east_1': [],
+            'block_south_1_west_1': []
+            }
+
 DIR = [(0, 0), (0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, 1), (1, -1), (-1, -1),
        (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (0, -2), (1, -2), (-1, -2), (2, -2),
        (-2, -2), (2, 0), (2, 1), (2, -1), (-2, 0), (-2, 1), (-2, -1)]

@@ -59,7 +59,6 @@ class FreecivLLMEnv(FreecivBaseEnv):
         x = ptile['x']
         y = ptile['y']
         mini_map_info = dict()
-        info_keys = ['terrain', 'extras', 'units', 'cities']
 
         tile_id = 0
         for ptile in TILE_INFO_TEMPLATE:
@@ -68,41 +67,50 @@ class FreecivLLMEnv(FreecivBaseEnv):
             dx = pdir[0]
             dy = pdir[1]
 
+            map_state = self.civ_controller.map_ctrl.prop_state.get_state()
+            (length, width) = map_state['status'].shape
             if not self.civ_controller.map_ctrl.is_out_of_map(x + dx, y + dy):
-                ntile = self.civ_controller.map_ctrl.map_pos_to_tile(x + dx, y + dy)
+                new_x = x + dx
+                new_y = y + dy
+                if x + dx < 0:
+                    new_x = length + x + dx
+                if x + dx > (length - 1):
+                    new_x = (x + dx) % (length - 1)
 
-                terrain_id = ntile['terrain']
+                if map_state['status'][new_x, new_y] == 0:
+                    mini_map_info[ptile].append('unexplored')
+
+                terrain_id = map_state['terrain'][new_x, new_y]
                 terrain_str = get_tile_terrain(terrain_id)
                 if terrain_str is not None:
                     mini_map_info[ptile].append(terrain_str)
 
                 for extra_id, extra_name in enumerate(EXTRA_NAMES):
-                    if ntile['extras'][extra_id] == 1:
+                    if map_state['extras'][new_x, new_y, extra_id]:
                         mini_map_info[ptile].append(extra_name)
 
-                units = ntile['units']
-                units_on_tile = get_units_on_tile(units)
-                if len(units_on_tile) > 0:
-                    mini_map_info[ptile].extend(units_on_tile)
+                for unit_id, unit_name in enumerate(UNIT_TYPES):
+                    if map_state['unit'][new_x, new_y, unit_id]:
+                        units_num = map_state['unit'][new_x, new_y, unit_id]
+                        mini_map_info[ptile].append(str(int(units_num)) + ' ' + unit_name)
 
-                    units_owner = units[0]['owner']
-                    if units_owner == self.civ_controller.player_ctrl.my_player_id:
-                        units_dsp = 'Units belong to myself player_' + str(int(units_owner))
+                if map_state['unit_owner'][new_x, new_y] != 255:
+                    unit_owner = map_state['unit_owner'][new_x, new_y]
+                    if unit_owner == self.civ_controller.player_ctrl.my_player_id:
+                        units_dsp = 'Units belong to myself player_' + str(int(unit_owner))
                     else:
-                        ds_of_units = self.civ_controller.dipl_ctrl.diplstates[units_owner]
-                        units_dsp = ('Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(units_owner)))
+                        ds_of_units = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
+                        units_dsp = ('Units belong to a ' + DS_TXT[ds_of_units] + ' player_' + str(int(unit_owner)))
                     mini_map_info[ptile].append(units_dsp)
 
-                if ctrl_type == 'unit':
-                    pcity = self.civ_controller.city_ctrl.tile_city(ntile)
-                    if pcity is not None:
-                        city_owner = pcity['owner']
-                        if city_owner == self.civ_controller.player_ctrl.my_player_id:
-                            city_dsp = '1 city belongs to myself player_' + str(city_owner)
-                        else:
-                            ds_of_city = self.civ_controller.dipl_ctrl.diplstates[city_owner]
-                            city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(city_owner)
-                        mini_map_info[ptile].append(city_dsp)
+                if map_state['city_owner'][new_x, new_y] != 255:
+                    city_owner = map_state['city_owner'][new_x, new_y]
+                    if city_owner == self.civ_controller.player_ctrl.my_player_id:
+                        city_dsp = '1 city belongs to myself player_' + str(city_owner)
+                    else:
+                        ds_of_city = self.civ_controller.dipl_ctrl.diplstates[city_owner]
+                        city_dsp = '1 city belongs to a ' + DS_TXT[ds_of_city] + ' player_' + str(city_owner)
+                    mini_map_info[ptile].append(city_dsp)
 
             tile_id += 1
         return mini_map_info
@@ -188,7 +196,7 @@ class FreecivLLMEnv(FreecivBaseEnv):
         elapsed_time = end_time - start_time
         if elapsed_time > 15:
             fc_logger.debug('Running too slow.')
-            assert (False)
+            assert False
 
         return observation, reward, terminated, truncated, info
 
@@ -254,13 +262,32 @@ class FreecivLLMEnv(FreecivBaseEnv):
                         unit_str = str(int(units_num)) + ' ' + unit
                         upper_map_info[ptile].append(unit_str)
 
+                owner_set = []
                 unit_owner_str = 'unit owners are:'
                 for unit_owner in list(unit_owner_arr[unit_owner_arr != 255]):
-                    unit_owner_str += ' player_' + str(int(unit_owner))
+                    if unit_owner in owner_set:
+                        continue
 
+                    if unit_owner == self.civ_controller.player_ctrl.my_player_id:
+                        unit_owner_str += ' myself player_' + str(int(unit_owner))
+                    else:
+                        ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
+                        unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
+                    upper_map_info[ptile].append(unit_owner_str)
+                    owner_set.append(unit_owner)
+
+                owner_set = []
                 for city_owner in list(city_owner_arr[city_owner_arr != 255]):
-                    city_owner_str = '1 city of player_' + str(int(city_owner))
+                    if city_owner in owner_set:
+                        continue
+
+                    if city_owner == self.civ_controller.player_ctrl.my_player_id:
+                        city_owner_str = '1 city of myself player_' + str(int(city_owner))
+                    else:
+                        ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[city_owner]
+                        city_owner_str = '1 city of a ' + DS_TXT[ds_of_owner] + ' player_' + str(int(city_owner))
                     upper_map_info[ptile].append(city_owner_str)
+                    owner_set.append(city_owner)
 
             tile_id += 1
         return upper_map_info

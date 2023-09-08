@@ -1386,8 +1386,12 @@ class ActSpyCityAction(DiplomaticAction):
         #           "target_id": self.focus.pcity['id'],
         #           "action_type": self.action_id
         #           }
-
-        self.wait_for_pid = (63, self.focus.punit['id'])
+        if self.focus.ptype['name'].lower() == 'diplomat':
+            self.wait_for_pid = (62, self.focus.punit['id'])
+        elif self.focus.ptype['name'].lower() == 'spy':
+            self.wait_for_pid = (63, self.focus.punit['id'])
+        else:
+            raise AssertionError ('Unit type error in ActSpyCityAction.')
         return packet
 
 # class ActSpySteal(DiplomaticAction):

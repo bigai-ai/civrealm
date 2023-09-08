@@ -102,7 +102,7 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager(self.client_port)
 
         self.username = username
-        print(f'Init_civ_controller. {self.username}')
+        # print(f'Init_civ_controller. {self.username}')
         # The save will be deleted by default. If we find some issues in a certain turn, we should set this as False for that turn.
         self.delete_save = True
         self.game_saving_time_range = []

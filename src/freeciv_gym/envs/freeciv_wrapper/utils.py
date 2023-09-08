@@ -187,7 +187,7 @@ import numpy as np
 from BitVector import BitVector
 
 
-default_config = {
+default_tensor_config = {
     "filter_observation": [
         "map",
         "unit",

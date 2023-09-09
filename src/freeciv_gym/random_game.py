@@ -15,17 +15,17 @@
 
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RuleAgent
+from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RuleAgent, RandomLLMAgent
 from freeciv_gym.configs import fc_args
 import freeciv_gym
 import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivCode-v0')
     # env = gymnasium.make('freeciv/FreecivBase-v0')
-    agent = RuleAgent()
     # agent = ControllerAgent()
+    env = gymnasium.make('freeciv/FreecivLLM-v0')
+    agent = RandomLLMAgent()
 
     observations, info = env.reset()
     done = False

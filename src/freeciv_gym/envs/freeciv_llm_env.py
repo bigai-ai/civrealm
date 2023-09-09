@@ -137,8 +137,6 @@ class FreecivLLMEnv(FreecivBaseEnv):
             elif ctrl_type == 'city':
                 cities = self.civ_controller.city_ctrl.cities
                 for city_id in actors_can_act:
-                    ptile = self.civ_controller.map_ctrl.index_to_tile(cities[city_id]['tile'])
-                    llm_info[ctrl_type][city_id] = self.get_actor_info(info, ctrl_type, city_id, ptile)
                     if (self.civ_controller.turn_manager.turn == 1 or
                             self.civ_controller.turn_manager.turn == cities[city_id]['turn_last_built'] + 1):
                         ptile = self.civ_controller.map_ctrl.index_to_tile(cities[city_id]['tile'])

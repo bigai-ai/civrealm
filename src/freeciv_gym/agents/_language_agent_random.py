@@ -13,17 +13,40 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
 import random
-import numpy as np
-import time
-import json
 import os
 from freeciv_gym.agents.base_agent import BaseAgent
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.language_agent_utility import MOVE_NAMES, INVERSE_MOVE_NAMES
 from freeciv_gym.configs import fc_args
 
-cwd = os.getcwd()
+
+class RandomLLMAgent(BaseAgent):
+    def __init__(self):
+        super().__init__()
+        if fc_args["debug.randomly_generate_seeds"]:
+            agentseed = os.getpid()
+            self.set_agent_seed(agentseed)
+        else:
+            if "debug.agentseed" in fc_args:
+                self.set_agent_seed(fc_args["debug.agentseed"])
+    
+    def act(self, observation, info):
+        if info['turn'] != self.turn:
+            self.planned_actor_ids = []
+            self.turn = info['turn']
+    
+        # TODO: support actions of other controller types than units and cities
+        for ctrl_type, actors_dict in info['llm_info'].items():
+            for actor_id in actors_dict.keys():
+                if actor_id in self.planned_actor_ids:
+                    continue
+                available_actions = actors_dict[actor_id]['available_actions']
+                if available_actions:
+                    action_name = random.choice(available_actions)
+                    self.planned_actor_ids.append(actor_id)
+                    return (ctrl_type, actor_id, action_name)
 
 
 class RuleAgent(BaseAgent):

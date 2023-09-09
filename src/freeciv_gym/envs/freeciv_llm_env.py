@@ -32,26 +32,31 @@ class FreecivLLMEnv(FreecivBaseEnv):
     def __init__(self, client_port: int = fc_args['client_port']):
         super().__init__(client_port=client_port)
 
-    def get_actor_info(self, info, ctrl_type, actor_id, moves=0, utype=None):
+    def get_actor_info(self, info, ctrl_type, actor_id, ptile, utype=None):
         actor_info = dict()
 
+        # Populate name
         actor_name = None
         if ctrl_type == 'unit':
             actor_name = UNIT_TYPES[utype] + ' ' + str(actor_id)
         elif ctrl_type == 'city':
             actor_name = 'City' + ' ' + str(actor_id)
-        actor_info[actor_name] = dict()
-        actor_info[actor_name]['max_moves'] = moves
+        actor_info['name'] = actor_name
 
-        avail_action_set = get_valid_actions(info, ctrl_type, actor_id)
-
-        if not avail_action_set:
+        # Populate available actions
+        available_actions = get_valid_actions(info, ctrl_type, actor_id)
+        if not available_actions:
             return dict()
         else:
             if ctrl_type == 'unit':
-                actor_info[actor_name]['avail_actions'] = avail_action_set
+                actor_info['available_actions'] = available_actions
             elif ctrl_type == 'city':
-                actor_info[actor_name]['avail_actions'] = action_mask(avail_action_set)
+                actor_info['available_actions'] = action_mask(available_actions)
+
+        # Populate observations
+        actor_info['observations'] = dict()
+        actor_info['observations']['minimap'] = self.get_mini_map_info(ctrl_type, ptile)
+        actor_info['observations']['upper_map'] = self.get_upper_map_info(ptile)
 
         return actor_info
 
@@ -116,62 +121,32 @@ class FreecivLLMEnv(FreecivBaseEnv):
         return mini_map_info
 
     def get_llm_info(self, info):
-
         llm_info = dict()
-        if info['available_actions'] is not None:
+        for ctrl_type, actors_can_act in info['available_actions'].items():
+            llm_info[ctrl_type] = dict()
+            if ctrl_type == 'unit':
+                units = self.civ_controller.unit_ctrl.units
+                for unit_id in actors_can_act:
+                    if units[unit_id]['activity'] != 0:
+                        continue
+                    
+                    ptile = self.civ_controller.map_ctrl.index_to_tile(units[unit_id]['tile'])
+                    utype = units[unit_id]['type']
+                    llm_info[ctrl_type][unit_id] = self.get_actor_info(info, ctrl_type, unit_id, ptile, utype)
 
-            for ctrl_type in info['available_actions']:
-                llm_info[ctrl_type] = dict()
-
-                actors_can_act = None
-                if ctrl_type in info['available_actions']:
-                    actors_can_act = info['available_actions'][ctrl_type]
-
-                if actors_can_act is None:
-                    continue
-
-                if ctrl_type == 'unit':
-                    units = self.civ_controller.unit_ctrl.units
-
-                    unit_dict = dict()
-                    for punit in actors_can_act:
-                        if units[punit]['activity'] != 0:
-                            continue
-
-                        llm_info[ctrl_type][punit] = dict()
-                        ptile = self.civ_controller.map_ctrl.index_to_tile(units[punit]['tile'])
-
-                        utype = units[punit]['type']
-                        moves = units[punit]['movesleft']
-                        actor_info = self.get_actor_info(info, ctrl_type, punit, moves, utype)
-                        unit_dict.update(actor_info)
-                        llm_info[ctrl_type][punit]['minimap'] = self.get_mini_map_info(ctrl_type, ptile)
-                        llm_info[ctrl_type][punit]['upper_map'] = self.get_upper_map_info(ptile)
-
-                    llm_info[ctrl_type]['unit_dict'] = unit_dict
-
-                elif ctrl_type == 'city':
-                    cities = self.civ_controller.city_ctrl.cities
-
-                    city_dict = dict()
-                    for pcity in actors_can_act:
-                        llm_info[ctrl_type][pcity] = dict()
-
-                        ptile = self.civ_controller.map_ctrl.index_to_tile(cities[pcity]['tile'])
-
-                        if (self.civ_controller.turn_manager.turn == 1 or
-                                self.civ_controller.turn_manager.turn == cities[pcity]['turn_last_built'] + 1):
-                            actor_info = self.get_actor_info(info, ctrl_type, pcity, 1)
-                        else:
-                            continue
-                        city_dict.update(actor_info)
-                        llm_info[ctrl_type][pcity]['minimap'] = self.get_mini_map_info(ctrl_type, ptile)
-                        llm_info[ctrl_type][pcity]['upper_map'] = self.get_upper_map_info(ptile)
-
-                    llm_info[ctrl_type]['city_dict'] = city_dict
-
-                else:
-                    continue
+            elif ctrl_type == 'city':
+                cities = self.civ_controller.city_ctrl.cities
+                for city_id in actors_can_act:
+                    ptile = self.civ_controller.map_ctrl.index_to_tile(cities[city_id]['tile'])
+                    llm_info[ctrl_type][city_id] = self.get_actor_info(info, ctrl_type, city_id, ptile)
+                    if (self.civ_controller.turn_manager.turn == 1 or
+                            self.civ_controller.turn_manager.turn == cities[city_id]['turn_last_built'] + 1):
+                        ptile = self.civ_controller.map_ctrl.index_to_tile(cities[city_id]['tile'])
+                        llm_info[ctrl_type][city_id] = self.get_actor_info(info, ctrl_type, city_id, ptile)
+                    else:
+                        continue
+            else:
+                continue
 
         return llm_info
 

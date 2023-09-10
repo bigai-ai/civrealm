@@ -111,3 +111,17 @@ def get_valid_actions(info, ctrl_type, actor_id):
             avail_action_list.append(actor_act)
     return avail_action_list
 
+def make_action_list_readable(action_list):
+    readable_action_list = []
+    for action in action_list:
+        if action in MOVE_NAMES.keys():
+            readable_action_list.append(MOVE_NAMES[action])
+        else:
+            readable_action_list.append(action)
+    return readable_action_list
+
+def get_action_from_readable_name(readable_action):
+    if readable_action in INVERSE_MOVE_NAMES.keys():
+        return INVERSE_MOVE_NAMES[readable_action]
+    
+    return readable_action

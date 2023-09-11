@@ -40,6 +40,6 @@ class FreecivTensorEnv(Wrapper):
     def reset(self):
         if self.first_reset:
             obs, info = self._cached_reset_result
+            self.first_reset = False
             return obs, info
-        observation, info = self.env.reset()
-        return batchdict(observation), info
+        return self.env.reset()

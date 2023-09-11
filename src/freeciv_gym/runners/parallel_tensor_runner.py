@@ -6,15 +6,19 @@ from freeciv_gym.configs import fc_args
 import ray
 import copy
 
+
 class ParallelTensorRunner:
     def __init__(self, env_name, agent, logger, epoch_num):
-        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
+        ray.init(
+            local_mode=False,
+            runtime_env={"worker_process_setup_hook": ray_logger_setup},
+        )
         self.logger = ray_logger_setup()
 
-        self.tensor_env = ParallelTensorEnv(env_name, None, 3)
+        self.tensor_env = ParallelTensorEnv(env_name, 4, 6300)
         self.agent = agent
         self.steps = 0
-        self.batch_size_run = fc_args['batch_size_run']
+        self.batch_size_run = fc_args["batch_size_run"]
 
     def close(self):
         ray.shutdown()
@@ -24,9 +28,11 @@ class ParallelTensorRunner:
 
     def run(self, test_mode=False):
         observations, infos = self.reset()
-        while self.steps < fc_args['trainer.max_steps']:
+        while self.steps < fc_args["trainer.max_steps"]:
             actions = self.agent(observations, infos)
-            observations, rewards, terminated, truncated, infos = self.tensor_env.step(actions)
-    
+            observations, rewards, terminated, truncated, infos = self.tensor_env.step(
+                actions
+            )
+
             self.steps += self.batch_size_run
         self.close()

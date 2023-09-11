@@ -15,11 +15,13 @@
 import pytest
 import gymnasium
 import time
-from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
+from freeciv_gym.configs import fc_args
 
 
 @pytest.fixture
 def env():
+    fc_args['username'] = 'testcontroller'
+    fc_args['debug.load_game'] = 'testcontroller_T200_2023-07-31-01_51'
     env = gymnasium.make("freeciv/FreecivCode-v0")
     yield env
     env.close()

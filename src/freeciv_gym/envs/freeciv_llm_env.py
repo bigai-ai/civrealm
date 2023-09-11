@@ -19,8 +19,7 @@ from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from freeciv_gym.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE, BLOCK_INFO_TEMPLATE,
-                                                              DIR, get_tile_terrain, get_units_on_tile,
-                                                              action_mask, get_valid_actions)
+                                                              DIR, action_mask, get_valid_actions)
 from freeciv_gym.freeciv.players.player_const import DS_TXT
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.utils.utility import read_sub_arr_with_wrap
@@ -55,12 +54,12 @@ class FreecivLLMEnv(FreecivBaseEnv):
 
         # Populate observations
         actor_info['observations'] = dict()
-        actor_info['observations']['minimap'] = self.get_mini_map_info(ctrl_type, ptile)
+        actor_info['observations']['minimap'] = self.get_mini_map_info(ptile)
         actor_info['observations']['upper_map'] = self.get_upper_map_info(ptile)
 
         return actor_info
 
-    def get_mini_map_info(self, ctrl_type, ptile):
+    def get_mini_map_info(self, ptile):
         x = ptile['x']
         y = ptile['y']
         mini_map_info = dict()
@@ -85,9 +84,9 @@ class FreecivLLMEnv(FreecivBaseEnv):
                 if map_state['status'][new_x, new_y] == 0:
                     mini_map_info[ptile].append('unexplored')
 
-                terrain_id = map_state['terrain'][new_x, new_y]
-                terrain_str = get_tile_terrain(terrain_id)
-                if terrain_str is not None:
+                if map_state['terrain'][new_x, new_y] != 255:
+                    terrain_id = map_state['terrain'][new_x, new_y]
+                    terrain_str = TERRAIN_NAMES[terrain_id]
                     mini_map_info[ptile].append(terrain_str)
 
                 for extra_id, extra_name in enumerate(EXTRA_NAMES):

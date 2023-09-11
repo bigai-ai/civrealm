@@ -14,7 +14,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
-from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 RADIUS = 2
@@ -80,14 +79,6 @@ def action_mask(avail_action_set):
     return action_names
 
 
-def get_tile_terrain(terrain_id):
-    terrain_str = None
-
-    if 0 <= terrain_id < len(TERRAIN_NAMES):
-        terrain_str = TERRAIN_NAMES[terrain_id]
-    return terrain_str
-
-
 def get_units_on_tile(units):
     units_on_tile = []
     units_on_tile_count = [0] * len(UNIT_TYPES)
@@ -111,6 +102,7 @@ def get_valid_actions(info, ctrl_type, actor_id):
             avail_action_list.append(actor_act)
     return avail_action_list
 
+
 def make_action_list_readable(action_list):
     readable_action_list = []
     for action in action_list:
@@ -119,6 +111,7 @@ def make_action_list_readable(action_list):
         else:
             readable_action_list.append(action)
     return readable_action_list
+
 
 def get_action_from_readable_name(readable_action):
     if readable_action in INVERSE_MOVE_NAMES.keys():

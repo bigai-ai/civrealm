@@ -17,9 +17,9 @@
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.map.map_const import EXTRA_NAMES
+from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from freeciv_gym.freeciv.utils.language_agent_utility import TILE_INFO_TEMPLATE, DIR, get_valid_actions
-from freeciv_gym.freeciv.utils.language_agent_utility import get_tile_terrain, get_units_on_tile, action_mask
+from freeciv_gym.freeciv.utils.language_agent_utility import action_mask
 from freeciv_gym.freeciv.players.player_const import DS_TXT
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -79,9 +79,9 @@ class FreecivCodeEnv(FreecivBaseEnv):
                 if map_state['status'][new_x, new_y] == 0:
                     mini_map_info[ptile].append('unexplored')
 
-                terrain_id = map_state['terrain'][new_x, new_y]
-                terrain_str = get_tile_terrain(terrain_id)
-                if terrain_str is not None:
+                if map_state['terrain'][new_x, new_y] != 255:
+                    terrain_id = map_state['terrain'][new_x, new_y]
+                    terrain_str = TERRAIN_NAMES[terrain_id]
                     mini_map_info[ptile].append(terrain_str)
 
                 for extra_id, extra_name in enumerate(EXTRA_NAMES):

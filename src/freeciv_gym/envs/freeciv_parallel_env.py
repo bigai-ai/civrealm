@@ -38,6 +38,7 @@ class FreecivParallelEnv():
         return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
     
     def reset(self):
+        # print('FreecivParallelEnv.reset...')
         return self.env.reset()
         
         observation, info = self.env.reset()

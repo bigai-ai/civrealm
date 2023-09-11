@@ -83,6 +83,13 @@ class ParallelTensorEnv:
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
+                # print('Reinitialze env....')
+                # import time
+                # time.sleep(10)
+                result_id = env.reset.remote()
+                (observation, info) = ray.get(result_id)  # results: [(observation, info), ...]
+                observations[env_id] = observation
+                infos[env_id] = info
                 self.envs[env_id] = env
 
             if not unready:

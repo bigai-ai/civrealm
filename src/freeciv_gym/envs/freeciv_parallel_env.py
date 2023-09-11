@@ -50,3 +50,6 @@ class FreecivParallelEnv():
     
     def get_username(self):
         return self.env.get_username()
+
+    def getattr(self, attr):
+        return getattr(self.env, attr)

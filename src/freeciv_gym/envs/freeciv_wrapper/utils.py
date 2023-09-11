@@ -261,15 +261,16 @@ def onehotifier_maker(category):
             )
             with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
                 for x in it:
-                    index = (
-                        (
-                            *(it.multi_index),
-                            x,
+                    if x != 255:
+                        index = (
+                            (
+                                *(it.multi_index),
+                                x,
+                            )
+                            if shape != (1,)
+                            else (x,)
                         )
-                        if shape != (1,)
-                        else (x,)
-                    )
-                    result[index] = 1
+                        result[index] = 1
             return result
 
     elif isinstance(category, list):

@@ -112,8 +112,10 @@ class ParallelRunner:
                         self.env_steps_this_run += 1
 
             # The num_returns=1 ensures ready length is 1.
-            ready, unready = ray.wait(result_ids, num_returns=1)
-            while unready:
+            finished = False
+            unready = result_ids
+            while not finished:
+                ready, unready = ray.wait(unready, num_returns=1)
                 # Get the env id corresponds to the given result id
                 env_id = id_env_map[ready[0]]
                 # print(f'env_id: {env_id}')
@@ -129,27 +131,13 @@ class ParallelRunner:
                     # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3],
                 except Exception as e:
                     print(str(e))
+                    # breakpoint()
                     self.logger.warning(repr(e))
                     dones[env_id] = True
-                ready, unready = ray.wait(unready, num_returns=1)
-
-            # Handle the last ready result
-            if ready:
-                env_id = id_env_map[ready[0]]
-                # print(f'env_id: {env_id}')
-                try:
-                    result = ray.get(ready[0])
-                    # print(result)
-                    observations[env_id] = result[0]
-                    rewards[env_id] = result[1]
-                    terminated = result[2]
-                    truncated = result[3]
-                    infos[env_id] = result[4]
-                    dones[env_id] = terminated or truncated
-                except Exception as e:
-                    self.logger.warning(repr(e))
-                    dones[env_id] = True
-
+                    # breakpoint()
+                if not unready:
+                    finished = True
+            print('Run one step...')
             self.batchs.append((observations, infos, rewards, copy.deepcopy(dones)))
             # print(f'done_list: {done_list}')
             # print(f'observation_list: {observation_list}')
@@ -162,9 +150,10 @@ class ParallelRunner:
                 if dones[i] and not closed_envs[i]:
                     result_ids.append(self.envs[i].close.remote())
                     closed_envs[i] = True
+                    breakpoint()
 
             ray.get(result_ids)
-
+            # breakpoint()
             all_terminated = all(dones)
             if all_terminated:
                 break

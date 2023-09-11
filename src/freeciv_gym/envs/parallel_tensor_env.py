@@ -32,6 +32,9 @@ class ParallelTensorEnv:
         # print(infos)
         return observations, infos
 
+    def getattr(self, attr):
+        return ray.get(self.envs[0].getattr.remote(attr))
+
     def step(self, actions):
         result_ids = []
         id_env_map = {}
@@ -49,6 +52,7 @@ class ParallelTensorEnv:
 
         # The num_returns=1 ensures ready length is 1.
         # ready, unready = ray.wait(result_ids, num_returns=1)
+        unready = result_ids
         unfinished = True
         while unfinished:
             ready, unready = ray.wait(unready, num_returns=1)

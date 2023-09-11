@@ -25,12 +25,13 @@ import gymnasium as gym
 class FreecivParallelEnv():
     def __init__(self, env_id,*args,**kwargs):
         self.env = gym.make(env_id,*args,**kwargs)
-        print(f'FreecivParallelEnv: {self.env.get_username()}')
+        # print(f'FreecivParallelEnv: {self.env.get_username()}')
         # self.port = port
     
     def step(self, action):
         # import time
         # time.sleep(3)
+        # action = None
         return self.env.step(action)
         
         observation, reward, terminated, truncated, info = self.env.step(action)

@@ -66,7 +66,7 @@ class PlayerOptions(ActionList):
 
             if pcity['owner'] == cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
                 return True
-            break
+
         return False
 
     def update_player_options(self, counter_id, pplayer):
@@ -325,10 +325,9 @@ class CancelTreaty(StartNegotiate):
         self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
 
     def is_action_valid(self):
-        ds_set = [player_const.DS_NO_CONTACT, player_const.DS_WAR]
         govs = [4, 5]
 
-        return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'], ds_set)
+        return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'])
                 and self.counterpart['team'] != self.cur_player['team'] and not
                 (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
                  and self.cur_player['government'] in govs and not self.liberty_flag))
@@ -360,7 +359,7 @@ class CancelVision(StartNegotiate):
 
     def is_action_valid(self):
         return (self.counterpart['team'] != self.cur_player['team']
-                and self.cur_player['gives_shared_vision'][self.counterpart['playerno']])
+                and self.cur_player['gives_shared_vision'][self.counterpart['playerno']] == 1)
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,

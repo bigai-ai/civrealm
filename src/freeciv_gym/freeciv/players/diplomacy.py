@@ -244,8 +244,8 @@ class DiplomacyCtrl(CivPropController):
         if player_id in self.diplstates:
             if self.diplstates[player_id] not in check_list:
                 return True
-        else:
-            return False
+
+        return False
 
     def check_in_dipl_states(self, player_id, check_list=None):
         if check_list is None:

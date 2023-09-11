@@ -167,6 +167,7 @@ class ActionList(object):
         # FIXME: unsed function
         act = self._action_dict[actor_id][action_id]
         if not self._can_actor_act(actor_id):
+            raise Exception('_can_actor_act error')
             return False
         if act.is_action_valid():
             act.trigger_action(self.ws_client)

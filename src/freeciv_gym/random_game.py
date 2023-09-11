@@ -22,10 +22,10 @@ import gymnasium
 
 
 def main():
-    # env = gymnasium.make('freeciv/FreecivBase-v0')
-    # agent = ControllerAgent()
-    env = gymnasium.make('freeciv/FreecivLLM-v0')
-    agent = RandomLLMAgent()
+    env = gymnasium.make('freeciv/FreecivBase-v0')
+    agent = ControllerAgent()
+    # env = gymnasium.make('freeciv/FreecivLLM-v0')
+    # agent = RandomLLMAgent()
 
     observations, info = env.reset()
     done = False

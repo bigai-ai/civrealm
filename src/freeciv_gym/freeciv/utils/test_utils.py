@@ -1,7 +1,7 @@
 import time
 import random
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.freeciv.utils.port_list import DEV_PORT_LIST
+from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.freeciv.civ_controller import CivController
 
 
@@ -10,7 +10,7 @@ def get_first_observation_option(controller: CivController, client_port=None):
     if client_port is not None:
         controller.client_port = client_port
     else:
-        controller.client_port = random.choice(DEV_PORT_LIST)
+        controller.client_port = random.choice(PORT_LIST)
     # Reset controller. Otherwise, the states (clstate, conn info, etc.) changed in the previous login will cause errors.
     controller.reset()
     # Handle port conflict if exist

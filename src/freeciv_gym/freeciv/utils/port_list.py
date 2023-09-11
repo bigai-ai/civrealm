@@ -1,16 +1,16 @@
 import http.client
 
-metahost = "localhost"
+metahost = 'localhost'
 metaport = 8080
-statuspath = "/meta/status"
+statuspath = '/meta/status'
 
 conn = http.client.HTTPConnection(metahost, metaport)
-conn.request("GET", statuspath)
+conn.request('GET', statuspath)
 r1 = conn.getresponse()
 multi = None
 if r1.status == 200:
     html_doc = r1.read()
-    meta_status = html_doc.decode("ascii").split(";")
+    meta_status = html_doc.decode('ascii').split(';')
     if len(meta_status) >= 4:
         total = int(meta_status[1])
         single = int(meta_status[2])

@@ -291,7 +291,7 @@ class UnitActions(ActionList):
                           ActParadrop, ActBuildCity, ActJoinCity, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActBoard, ActUnloadUnit, ActCancelOrder,
-                          # ActDisband, ActAutoSettler, ActExplore, ActNoorders,
+                          # ActDisband, ActAutoSettler, ActExplore, ActNoOrders,
                           # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
@@ -510,7 +510,7 @@ class ActWait(StdAction):
 
 class ActNoOrders(StdAction):
     """Tell the unit to have no orders this turn, set unit to done moving."""
-    action_key = "noorders"
+    action_key = "no_orders"
 
     def _action_packet(self):
         raise Exception("Irrelevant for Bot")

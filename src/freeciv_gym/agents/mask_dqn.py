@@ -105,9 +105,9 @@ class DQNAgent(BaseAgent):
         'plant': 'plant', 'fortress': 'fortress', 'airbase': 'airbase', 'irrigation': 'irrigation', 
         'fallout': 'fallout', 'pollution': 'pollution', 'autosettlers': 'autosettlers', 'explore': 'explore', 
         'paradrop': 'paradrop', 
-        'build': 'build', 'fortify': 'fortify', 'road': 'road', 'railroad': 'railroad', 
+        'build_city': 'build_city', 'fortify': 'fortify', 'build_road': 'build_road', 'build_railroad': 'build_railroad', 
         'pillage': 'pillage', 'homecity': 'homecity', 'airlift': 'airlift', 'upgrade': 'upgrade', 'unit_load': 'unit_load', 
-        'unit_unload': 'unit_unload', 'noorders': 'noorders', 'goto_0': 'goto_0', 'goto_1': 'goto_1', 'goto_2': 'goto_2', 
+        'unit_unload': 'unit_unload', 'no_orders': 'no_orders', 'goto_0': 'goto_0', 'goto_1': 'goto_1', 'goto_2': 'goto_2', 
         'goto_3': 'goto_3', 'goto_4': 'goto_4', 'goto_5': 'goto_5', 'goto_6': 'goto_6', 'goto_7': 'goto_7', 
         'attack_0': 'attack_0', 'attack_1': 'attack_1', 'attack_2': 'attack_2', 'attack_3': 'attack_3', 
         'attack_4': 'attack_4','attack_5': 'attack_5', 'attack_6': 'attack_6', 'attack_7': 'attack_7'}

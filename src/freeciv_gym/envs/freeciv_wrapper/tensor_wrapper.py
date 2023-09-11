@@ -401,17 +401,24 @@ class TensorWrapper(Wrapper):
         self.actor_type_mask[3] = int(any(self.gov_action_type_mask))
 
     def _handle_embark_info(self, info):
+        self._embarkable_units = {}
         unit_actions = info["available_actions"]["unit"]
         for id, actions in unit_actions.items():
             for action in list(actions.keys()):
                 if action[:6] == "embark":
-                    [dir, target_id] = map(int, action.split("_")[1::])
-                    actions[f"embark_{dir}"] = True
-                    if unit_dir := (id, dir) not in self._embarkable_units:
-                        self._embarkable_units[unit_dir] = [target_id]
+                    args = action.split("_")
+                    if len(args == 3):
+                        [target_id,dir] = map(int, args[1::])
+                        actions[f"embark_{dir}"] = True
+                        if unit_dir := (id, dir) not in self._embarkable_units:
+                            self._embarkable_units[unit_dir] = [target_id]
+                        else:
+                            self._embarkable_units[unit_dir] += [target_id]
+                        actions.pop(action)
                     else:
-                        self._embarkable_units[unit_dir] += [target_id]
-                    actions.pop(action)
+                        dir = int( action.split("_")[-1])
+                        actions[f"embark_{dir}"] = True
+
             for embark_action in ["embark_" + f"{i}" for i in range(8)]:
                 if embark_action not in actions:
                     actions[embark_action] = False
@@ -420,9 +427,11 @@ class TensorWrapper(Wrapper):
     def _handle_embark_action(self, action):
         if action[-1][:6] != "embark":
             return action
+        elif len(self._embarkable_units) == 0 :
+            return action
         assert action[0] == "unit"
         id = action[1]
         dir = int(action[-1].split("_")[-1])
         target_id = sorted(self._embarkable_units[(id, dir)])[0]
         action_type_name = f"embark_{dir}_{target_id}"
-        return ("unit", id, action_type_name)
+        return ("unit", id, action)

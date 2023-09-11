@@ -7,18 +7,20 @@ import ray
 
 
 class ParallelTensorEnv:
-    def __init__(self, env_name, logger, epoch_num):
+    def __init__(self, env_name, batch_size_run, port_start):
         # Number of envs that run simultaneously
-        self.batch_size_run = fc_args['batch_size_run']
+        self.batch_size_run = batch_size_run
 
         # Initialize envs
         self.envs = []
         self.env_name = env_name
-        port_start = fc_args['port_start']
         for i in range(self.batch_size_run):
-            temp_port = port_start+i*2
-            env = FreecivParallelEnv.remote(env_name, client_port = temp_port)
+            temp_port = port_start + i * 2
+            env = FreecivParallelEnv.remote(env_name, client_port=temp_port)
             self.envs.append(env)
+
+        self.observation_spaces = self.getattr("observation_space")
+        self.action_spaces = self.getattr("action_space")
 
     def close(self):
         for env_id in range(self.batch_size_run):
@@ -26,7 +28,7 @@ class ParallelTensorEnv:
 
     def reset(self):
         result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
-        results = ray.get(result_ids) # results: [(observation, info), ...]
+        results = ray.get(result_ids)  # results: [(observation, info), ...]
         observations, infos = zip(*results)
         # print(observations)
         # print(infos)
@@ -39,12 +41,12 @@ class ParallelTensorEnv:
         result_ids = []
         id_env_map = {}
         observations = [None] * self.batch_size_run
-        rewards = [0]*self.batch_size_run
-        infos = [None]*self.batch_size_run
-        dones = [False]*self.batch_size_run
-        terminated = [False]*self.batch_size_run
-        truncated = [False]*self.batch_size_run
-        
+        rewards = [0] * self.batch_size_run
+        infos = [None] * self.batch_size_run
+        dones = [False] * self.batch_size_run
+        terminated = [False] * self.batch_size_run
+        truncated = [False] * self.batch_size_run
+
         for i in range(self.batch_size_run):
             id = self.envs[i].step.remote(actions[i])
             result_ids.append(id)
@@ -60,7 +62,7 @@ class ParallelTensorEnv:
             env_id = id_env_map[ready[0]]
             # print(f'env_id: {env_id}')
             try:
-                result = ray.get(ready[0]) 
+                result = ray.get(ready[0])
                 # print(result)
                 observations[env_id] = result[0]
                 rewards[env_id] = result[1]
@@ -73,18 +75,17 @@ class ParallelTensorEnv:
                 print(str(e))
                 self.logger.warning(repr(e))
                 dones[env_id] = True
-            
+
             if dones[env_id]:
                 env_port = ray.get(self.envs[env_id].get_port.remote())
                 ray.get(self.envs[env_id].close.remote())
-                new_env_port = env_port^1
+                new_env_port = env_port ^ 1
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
-                env = FreecivParallelEnv.remote(self.env_name, client_port = new_env_port)
+                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
                 self.envs[env_id] = env
 
             if not unready:
                 unfinished = False
-            
-        return observations, rewards, terminated, truncated, infos
 
+        return observations, rewards, terminated, truncated, infos

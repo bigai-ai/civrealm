@@ -33,3 +33,13 @@ class FreecivTensorEnv(Wrapper):
             FreecivBaseEnv(username=username, client_port=client_port), config = config
         )
         super().__init__(tensor_env)
+        self._cached_reset_result = self.env.reset()
+        self.first_reset = True
+
+
+    def reset(self):
+        if self.first_reset:
+            obs, info = self._cached_reset_result
+            return obs, info
+        observation, info = self.env.reset()
+        return batchdict(observation), info

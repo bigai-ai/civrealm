@@ -51,7 +51,7 @@ def test_build_road(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
             test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
-            build_action = valid_actions['road']
+            build_action = valid_actions['build_road']
         else:
             pass
     print('Move to the north tile')

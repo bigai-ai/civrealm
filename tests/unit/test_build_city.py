@@ -59,7 +59,7 @@ def test_build_city(controller):
             print(ptile)
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert ('build' not in valid_actions)
+            assert ('build_city' not in valid_actions)
             valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(controller.ws_client)
 
     controller.send_end_turn()
@@ -76,7 +76,7 @@ def test_build_city(controller):
             assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 200, 'max': 200})
             print(ptile)
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            build_action = valid_actions['build']
+            build_action = valid_actions['build_city']
     # The unit has move in new turn, the build should be valid
     assert (build_action.is_action_valid())
     city_num = len(controller.city_ctrl.cities)

@@ -57,7 +57,7 @@ def test_join_city(controller):
             assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 0, 'max': 0})
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert ('join' not in valid_actions)
+            assert ('join_city' not in valid_actions)
             # Move to south
             valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
 
@@ -74,7 +74,7 @@ def test_join_city(controller):
             # The settler can build city now.
             assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            join_action = valid_actions['join']
+            join_action = valid_actions['join_city']
 
     # The unit has move in new turn, the build should be valid
     assert (join_action.is_action_valid())

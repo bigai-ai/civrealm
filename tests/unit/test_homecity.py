@@ -44,7 +44,7 @@ def test_homecity(controller):
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert ('homecity' in valid_actions.keys())
+    assert ('set_homecity' in valid_actions.keys())
     assert (len(valid_actions) > 0)
     unit_focus = unit_opt.unit_data[unit_id]
     # Check whether the action pro is accurate
@@ -55,7 +55,7 @@ def test_homecity(controller):
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # The unit is not in the city tile, cannot change home city.
-    assert ('homecity' not in valid_actions.keys())
+    assert ('set_homecity' not in valid_actions.keys())
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     # Go back to city tile
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
@@ -63,7 +63,7 @@ def test_homecity(controller):
     controller.get_info_and_observation()
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    unit_action = valid_actions['homecity']
+    unit_action = valid_actions['set_homecity']
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
     assert (unit_action.is_action_valid())
@@ -83,7 +83,7 @@ def test_homecity(controller):
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # The unit's homecity is the current city, cannot change home city here.
-    assert ('homecity' not in valid_actions.keys())
+    assert ('set_homecity' not in valid_actions.keys())
     assert (len(valid_actions) > 0)
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     print(

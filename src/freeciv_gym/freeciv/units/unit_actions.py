@@ -288,7 +288,7 @@ class UnitActions(ActionList):
         unit_focus = self.unit_data[unit_id]
 
         for act_class in [ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution,  ActKeepActivity,
-                          ActParadrop, ActBuild, ActJoin, ActFortify, ActBuildRoad,
+                          ActParadrop, ActBuildCity, ActJoinCity, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActBoard, ActUnloadUnit, ActCancelOrder,
                           # ActDisband, ActAutoSettler, ActExplore, ActNoorders,
@@ -412,7 +412,6 @@ class ActKeepActivity(Action):
         self.focus.punit['keep_activity'] = True
 
 
-
 class UnitAction(Action):
     def __init__(self, focus):
         self.focus = focus
@@ -509,7 +508,7 @@ class ActWait(StdAction):
         raise Exception("Irrelevant for Bot")
 
 
-class ActNoorders(StdAction):
+class ActNoOrders(StdAction):
     """Tell the unit to have no orders this turn, set unit to done moving."""
     action_key = "noorders"
 
@@ -893,9 +892,9 @@ class ActParadrop(UnitAction):
                                    ACTION_PARADROP)
 
 
-class ActBuild(UnitAction):
+class ActBuildCity(UnitAction):
     """Request that a city is built."""
-    action_key = "build"
+    action_key = "build_city"
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -949,15 +948,14 @@ class ActBuild(UnitAction):
         """Shows the Request city name dialog to the user."""
         actor_unit = self.focus.punit
         self.wait_for_pid = (31, actor_unit['tile'])
-        # self.wait_for_pid = 31
         return self.unit_do_action(
             unit_id, actor_unit['tile'],
             ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 
-class ActJoin(UnitAction):
+class ActJoinCity(UnitAction):
     """Join an existing city."""
-    action_key = "join"
+    action_key = "join_city"
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -1108,7 +1106,7 @@ class ActPillage(UnitAction):
 
 class ActHomecity(UnitAction):
     """Changes unit homecity to the city on same tile."""
-    action_key = "homecity"
+    action_key = "set_homecity"
 
     def is_action_valid(self):
         if self.focus.pcity is None:

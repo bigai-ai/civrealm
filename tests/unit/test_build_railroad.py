@@ -55,13 +55,13 @@ def test_build_railroad(controller):
             # worker on a tile with road, should be able to build railroad
             print(
                 f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-            assert ('railroad' in valid_actions)
+            assert ('build_railroad' in valid_actions)
             print(f'unit_id: {unit_id} build railroad.')
-            valid_actions['railroad'].trigger_action(controller.ws_client)
+            valid_actions['build_railroad'].trigger_action(controller.ws_client)
         if unit_id == 236:
             # worker on a tile without road, shouldn't be able to build railroad
             assert (not build_tile['extras'][EXTRA_ROAD] == 1)
-            assert ('railroad' not in valid_actions)
+            assert ('build_railroad' not in valid_actions)
         if unit_id == 259:
             # non-worker unit, shouldn't be able to build railroad
             # cancel fortify orders
@@ -77,7 +77,7 @@ def test_build_railroad(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 259:
             assert (build_tile['extras'][EXTRA_ROAD] == 1)
-            assert ('railroad' not in valid_actions)
+            assert ('build_railroad' not in valid_actions)
 
     # wait until railroad is built
     for turn_i in range(3):

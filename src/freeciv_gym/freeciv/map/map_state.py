@@ -43,6 +43,8 @@ class MapState(PlainState):
         self._state['unit'] = None
         self._state['unit_owner'] = None
 
+        self._before_first_update = True
+
     @property
     def tiles(self):
         return self._tiles
@@ -92,7 +94,7 @@ class MapState(PlainState):
         return tile
 
     def update_tile(self, tile_packet):
-        # Tile information will be updated no matter whether the tile is seen or not. The _state that will be passed to the agent is the state of the tiles that are seen. 
+        # Tile information will be updated no matter the tile is seen or not. The _state that will be passed to the agent is the state of the tiles that are seen.
         # Transform 16-bytes extra data to 128-bits data
         tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
 
@@ -105,9 +107,15 @@ class MapState(PlainState):
 
         self.tiles[tile_index].update(tile_packet)
 
-        # Update the state for tiles only if it is currently observed.
+        # Update the state for tiles according to the known state.
         self._state['status'][x, y] = tile_packet['known']
+        if self._before_first_update and tile_packet['known'] == 1:
+            # At the start of the game, the agent can seen some fogged tiles around the starting position.
+            self._state['terrain'][x, y] = tile_packet['terrain']
+            self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
+
         if tile_packet['known'] == 2:
+            # Tile state should be updated when the tile is seen.
             self._state['terrain'][x, y] = tile_packet['terrain']
             self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
             self._state['tile_owner'][x, y] = tile_packet['owner']
@@ -122,6 +130,9 @@ class MapState(PlainState):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
 
     def _update_state(self, pplayer, *args):
+        if self._before_first_update:
+            self._before_first_update = False
+
         cities = args[0]
         units = args[1]
 

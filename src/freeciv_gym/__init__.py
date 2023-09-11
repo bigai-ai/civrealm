@@ -33,6 +33,11 @@ register(
     entry_point='freeciv_gym.envs:FreecivLLMEnv',
 )
 register(
+    id='freeciv/FreecivLLMWrapperEnv-v0',
+    entry_point='freeciv_gym.envs:FreecivLLMWrapperEnv',
+)
+register(
     id='freeciv/FreecivMinitask-v0',
     entry_point='freeciv_gym.envs:FreecivMinitaskEnv',
 )
+

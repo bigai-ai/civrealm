@@ -19,9 +19,8 @@ class ParallelTensorEnv:
             env = FreecivParallelEnv.remote(env_name, client_port=temp_port)
             self.envs.append(env)
 
-        self.observation_spaces, self.action_spaces = ray.get(
-            self.envs[0].get_spaces.remote()
-        )
+        self.observation_spaces = self.getattr("observation_space")
+        self.action_spaces = self.getattr("action_space")
 
     def close(self):
         for env_id in range(self.batch_size_run):

@@ -79,27 +79,17 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map))
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer))
 
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
             self.add_action(city_id, CityBuyProduction(pcity, pplayer))
 
-            # for unit_type_id in self.rulectrl.unit_types:
-            #     punit_type = self.rulectrl.unit_types[unit_type_id]
-            #     logger.info("ID: {}, name: {}.".format(unit_type_id, punit_type['name']))
-
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
                 self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
-
-            # logger.info("self.rulectrl.improvements:")
-            # for improvement_id in self.rulectrl.improvements:
-            #     logger.info("ID: {}, name: {}.".format(improvement_id, self.rulectrl.improvements[improvement_id]["name"]))
-            # logger.info("pcity['can_build_improvement']: ", pcity['can_build_improvement'])
-            # logger.info("pcity['can_build_improvement'] length: ", len(pcity['can_build_improvement']))
 
             for improvement_id in self.rulectrl.improvements:
 
@@ -117,11 +107,12 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map: CityTileMap):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer):
         super().__init__()
         self.dx = dx
         self.dy = dy
         self.pcity = pcity
+        self.cur_player = pplayer
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
 
@@ -141,9 +132,9 @@ class CityWorkTile(Action):
         if self.output_idx is None:
             return False
 
-        return ('worked' in self.ptile and self.ptile['worked'] == 0
-                and 'specialists' in self.pcity and sum(self.pcity['specialists']) > 0
-                and 'output_food' in self.pcity and self.output_idx is not None)
+        return ('worked' in self.ptile and self.ptile['worked'] == 0 and 'specialists' in self.pcity
+                and sum(self.pcity['specialists']) > 0 and self.ptile['owner'] == self.cur_player['playerno']
+                and self.ptile['known'] != 0 and 'output_food' in self.pcity and self.output_idx is not None)
 
     def get_output_at_tile(self):
         if "output_food" in self.pcity:

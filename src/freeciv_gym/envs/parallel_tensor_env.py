@@ -73,7 +73,7 @@ class ParallelTensorEnv:
                 # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3],
             except Exception as e:
                 print(str(e))
-                self.logger.warning(repr(e))
+                # self.logger.warning(repr(e))
                 dones[env_id] = True
 
             if dones[env_id]:

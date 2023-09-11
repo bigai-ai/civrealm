@@ -1,5 +1,5 @@
-username: testcontroller
-# username: myagent
+# username: testcontroller
+username: myagent
 # Max number of turns per game
 max_turns: 500
 # The host url

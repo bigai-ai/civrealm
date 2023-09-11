@@ -56,14 +56,14 @@ class MapState(PlainState):
         # The "extras" variable in the ruleset controller stores duplicated extra types, keys are the extra names and extra ids.
         self._extra_num = len(self.rule_ctrl.extras)//2
 
-        self._state['status'] = np.zeros((x_size, y_size), dtype=np.ubyte)
-        self._state['terrain'] = np.zeros((x_size, y_size), dtype=np.ushort)
-        self._state['extras'] = np.zeros((x_size, y_size, self._extra_num), dtype=np.bool_)
-        self._state['output'] = np.zeros((x_size, y_size, 6), dtype=np.ushort)
-        self._state['tile_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
-        self._state['city_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
-        self._state['unit'] = np.zeros((x_size, y_size, len(UNIT_TYPES)), dtype=np.ushort)
-        self._state['unit_owner'] = np.zeros((x_size, y_size), dtype=np.ushort)
+        self._state['status'] = np.full((x_size, y_size), 0, dtype=np.ushort)
+        self._state['terrain'] = np.full((x_size, y_size), 255, dtype=np.ushort)
+        self._state['extras'] = np.full((x_size, y_size, self._extra_num), 0, dtype=np.bool_)
+        self._state['output'] = np.full((x_size, y_size, 6), 0, dtype=np.ushort)
+        self._state['tile_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
+        self._state['city_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
+        self._state['unit'] = np.full((x_size, y_size, len(UNIT_TYPES)), 0, dtype=np.ushort)
+        self._state['unit_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
 
         for y in range(y_size):
             for x in range(x_size):
@@ -92,6 +92,7 @@ class MapState(PlainState):
         return tile
 
     def update_tile(self, tile_packet):
+        # Tile information will be updated no matter whether the tile is seen or not. The _state that will be passed to the agent is the state of the tiles that are seen. 
         # Transform 16-bytes extra data to 128-bits data
         tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
 
@@ -103,16 +104,19 @@ class MapState(PlainState):
         y = self.tiles[tile_index]['y']
 
         self.tiles[tile_index].update(tile_packet)
-        self._state['status'][x, y] = tile_packet['known']
-        self._state['terrain'][x, y] = tile_packet['terrain']
-        self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
-        self._state['tile_owner'][x, y] = tile_packet['owner']
 
-        # Compute output for the tile without improvements.
-        self._state['output'][x, y, :] = self.rule_ctrl.terrains[tile_packet['terrain']]['output']
-        # Tiles with no resource will have resource value 128.
-        if tile_packet['resource'] != 128:
-            self._state['output'][x, y, :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
+        # Update the state for tiles only if it is currently observed.
+        self._state['status'][x, y] = tile_packet['known']
+        if tile_packet['known'] == 2:
+            self._state['terrain'][x, y] = tile_packet['terrain']
+            self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
+            self._state['tile_owner'][x, y] = tile_packet['owner']
+
+            # Compute output for the tile without improvements.
+            self._state['output'][x, y, :] = self.rule_ctrl.terrains[tile_packet['terrain']]['output']
+            # Tiles with no resource will have resource value 128.
+            if tile_packet['resource'] != 128:
+                self._state['output'][x, y, :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
 
     def encode_to_json(self):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])

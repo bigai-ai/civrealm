@@ -145,7 +145,9 @@ class TurnManager(object):
             fc_logger.debug(f'....: {ctrl_type}')
             action_list: ActionList = self._turn_actions[ctrl_type]
             action_info = action_list.get_action_info()
-            if len(action_info) > 0:
+            if len(action_info) == 0 and ctrl_type in self._turn_info:
+                del self._turn_info[ctrl_type]
+            elif len(action_info) > 0:
                 self._turn_info[ctrl_type] = action_info
         return self._turn_info
 

@@ -137,7 +137,6 @@ class ParallelRunner:
                     # breakpoint()
                 if not unready:
                     finished = True
-            print('Run one step...')
             self.batchs.append((observations, infos, rewards, copy.deepcopy(dones)))
             # print(f'done_list: {done_list}')
             # print(f'observation_list: {observation_list}')
@@ -150,7 +149,7 @@ class ParallelRunner:
                 if dones[i] and not closed_envs[i]:
                     result_ids.append(self.envs[i].close.remote())
                     closed_envs[i] = True
-                    breakpoint()
+                    # breakpoint()
 
             ray.get(result_ids)
             # breakpoint()

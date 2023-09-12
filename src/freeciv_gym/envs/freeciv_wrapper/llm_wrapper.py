@@ -44,9 +44,6 @@ class LLMWrapper(Wrapper):
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
-        if info['available_actions'] is None:
-            return dict()
-
         llm_info = dict()
         for ctrl_type, actors_can_act in info['available_actions'].items():
             llm_info[ctrl_type] = dict()

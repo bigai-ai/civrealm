@@ -103,6 +103,7 @@ def get_valid_actions(info, ctrl_type, actor_id):
     return avail_action_list
 
 
+# TODO: consider moving this to the agent side.
 def make_action_list_readable(action_list):
     readable_action_list = []
     for action in action_list:
@@ -116,6 +117,7 @@ def make_action_list_readable(action_list):
     return readable_action_list
 
 
+# TODO: consider moving this to the agent side.
 def get_action_from_readable_name(readable_action):
     action = readable_action.replace(' ', '_')
     if action in INVERSE_MOVE_NAMES.keys():

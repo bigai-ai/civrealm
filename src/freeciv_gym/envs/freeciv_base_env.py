@@ -121,7 +121,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def get_username(self):
         return self.civ_controller.username
 
-    def reset(self, seed=None, options=None):
+    def reset(self, seed=None, options=None, **kwargs):
         if seed is not None:
             fc_args['debug.randomly_generate_seeds'] = False
             fc_args['debug.mapseed'] = seed

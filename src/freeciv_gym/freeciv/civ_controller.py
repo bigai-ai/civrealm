@@ -278,13 +278,14 @@ class CivController(CivPropController):
     def _get_info(self):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
+        info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated():
-            info = {'turn': self.turn_manager.turn, 'available_actions': None}
+            info['available_actions'] = {}
         else:
             self.turn_manager.get_available_actions()
             # Wait for and process probabilities of actions from server.
             self.lock_control()
-            info = {'turn': self.turn_manager.turn, 'available_actions': self.turn_manager.get_info()}
+            info['available_actions'] = self.turn_manager.get_info()
 
         return info
 
@@ -602,13 +603,13 @@ class CivController(CivPropController):
 
     def parse_script_message(self, message):
         try:
-            self.turn_manager.set_message(json.loads(message))
+            self.turn_manager.add_message(json.loads(message))
         except json.decoder.JSONDecodeError:
-            self.turn_manager.set_message({'msg': message})
+            self.turn_manager.add_message({'msg': message})
         return
 
     def get_turn_message(self):
-        return self.turn_manager.turn_message
+        return self.turn_manager.turn_messages
 
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""

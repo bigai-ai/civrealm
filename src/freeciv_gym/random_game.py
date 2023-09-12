@@ -15,6 +15,7 @@
 
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+from freeciv_gym.envs.freeciv_wrapper import LLMWrapper
 from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RuleAgent, RandomLLMAgent
 from freeciv_gym.configs import fc_args
 import freeciv_gym
@@ -23,8 +24,11 @@ import gymnasium
 
 def main():
     # env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('freeciv/FreecivMinitask-v0')
+
     # agent = ControllerAgent()
-    env = gymnasium.make('freeciv/FreecivLLM-v0')
+
+    env = LLMWrapper(env)
     agent = RandomLLMAgent()
 
     observations, info = env.reset()

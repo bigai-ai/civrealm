@@ -1,3 +1,6 @@
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
@@ -15,7 +18,6 @@ from gymnasium.core import Wrapper
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.envs.freeciv_wrapper.llm_wrapper import LLMWrapper
-from freeciv_gym.envs.freeciv_wrapper.utils import default_tensor_config
 
 
 class FreecivLLMWrapperEnv(Wrapper):
@@ -25,8 +27,7 @@ class FreecivLLMWrapperEnv(Wrapper):
 
     def __init__(self,
                  username: str = fc_args["username"],
-                 client_port: int = fc_args["client_port"],
-                 config: dict = default_tensor_config):
+                 client_port: int = fc_args["client_port"]):
 
         tensor_env = LLMWrapper(FreecivBaseEnv(username=username, client_port=client_port), config = config)
         super().__init__(tensor_env)

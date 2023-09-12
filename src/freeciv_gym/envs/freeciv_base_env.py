@@ -105,6 +105,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
 
+        # TODO: check if we still need this logic
         end_time = time.time()
         elapsed_time = end_time - start_time
         # If running is too slow, we stop the program.
@@ -116,7 +117,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def get_port(self):
         return self.civ_controller.client_port
-    
+
     def get_username(self):
         return self.civ_controller.username
 

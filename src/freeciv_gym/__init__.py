@@ -33,7 +33,7 @@ register(
     entry_point='freeciv_gym.envs:FreecivLLMEnv',
 )
 register(
-    id='freeciv/FreecivLLMWrapperEnv-v0',
+    id='freeciv/FreecivLLMWrapper-v0',
     entry_point='freeciv_gym.envs:FreecivLLMWrapperEnv',
 )
 register(

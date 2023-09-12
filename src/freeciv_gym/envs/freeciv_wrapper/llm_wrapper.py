@@ -1,3 +1,6 @@
+# Copyright (C) 2023  The Freeciv-gym project
+#
+# This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
 # Software Foundation, either version 3 of the License, or (at your option)
 # any later version.
@@ -22,9 +25,7 @@ from freeciv_gym.freeciv.utils.utility import read_sub_arr_with_wrap
 
 class LLMWrapper(Wrapper):
 
-    def __init__(self, env, config):
-        self.llm_config = config
-
+    def __init__(self, env):
         super().__init__(env)
         self.__env = env
 

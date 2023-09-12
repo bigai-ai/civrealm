@@ -58,6 +58,8 @@ class CityActions(ActionList):
         self.map_ctrl = map_ctrl
         self.city_map = CityTileMap(1, map_ctrl)
 
+        self.tiles_shared = dict()
+
     def _can_actor_act(self, actor_id):
         return True
 
@@ -79,8 +81,8 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer))
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared))
 
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
@@ -107,12 +109,13 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, tiles_shared):
         super().__init__()
         self.dx = dx
         self.dy = dy
         self.pcity = pcity
         self.cur_player = pplayer
+        self.tiles_shared = tiles_shared
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
 
@@ -132,9 +135,41 @@ class CityWorkTile(Action):
         if self.output_idx is None:
             return False
 
+        if self.unit_occupies_tile():
+            return False
+
+        if not self.gives_shared_tiles():
+            return False
+
         return ('worked' in self.ptile and self.ptile['worked'] == 0 and 'specialists' in self.pcity
-                and sum(self.pcity['specialists']) > 0 and self.ptile['owner'] == self.cur_player['playerno']
-                and self.ptile['known'] != 0 and 'output_food' in self.pcity and self.output_idx is not None)
+                and sum(self.pcity['specialists']) > 0 and self.ptile['known'] != 0
+                and 'output_food' in self.pcity and self.output_idx is not None)
+
+    """
+    logic from freeciv/common/city.c
+    func: base_city_can_work_tile & unit_occupies_tile
+    """
+    def unit_occupies_tile(self):
+        tile = self.city_map.map_ctrl.prop_state.tiles[self.ptile['index']]
+        units_on_tile = tile['units']
+        if len(units_on_tile) == 0:
+            return False
+
+        owner_of_units = units_on_tile[0]['owner']
+        if owner_of_units != self.cur_player['playerno'] and owner_of_units != 255:
+            return True
+
+        return False
+
+    def gives_shared_tiles(self):
+        tile_owner = self.ptile['owner']
+        if self.cur_player['playerno'] == tile_owner:
+            return True
+
+        if tile_owner in self.tiles_shared and self.tiles_shared[tile_owner][self.cur_player['playerno']] == 1:
+            return True
+
+        return False
 
     def get_output_at_tile(self):
         if "output_food" in self.pcity:

@@ -21,9 +21,10 @@ from freeciv_gym.freeciv.civ_controller import CivController
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger, set_logging_file
 from freeciv_gym.configs import fc_args
+from enum import Enum, unique
 
 DEFAULT_TASK = "minitask"
-
+PATTERN_MINITASK_TYPE = r"minitask_T\d+_task_([a-z]+)_.*"
 
 def get_files(cmd):
     pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
@@ -31,6 +32,18 @@ def get_files(cmd):
     sav_files = [sav.strip().split(".sav")[0] for sav in sav_files if sav.endswith("sav")]
     return sav_files
 
+class ExtendedEnum(Enum):
+    @classmethod
+    def list(cls):
+        return list(map(lambda c: c.value, cls))
+
+@unique
+class MinitaskType(ExtendedEnum):
+    MT_BUILD_CITY = "buildcity"
+    MT_BATTLE = "battle"
+    MT_ATTACK_CITY = "attackcity"
+    MT_DEFEND_CITY = "defendcity"
+    MT_TRADE_TECH = "tradetech"
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
@@ -40,6 +53,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         fc_args['username'] = username
         set_logging_file('.', username)
         self.filename = None
+        self.task_type = None
         fc_args['debug.autosave'] = False
 
     @staticmethod
@@ -51,6 +65,8 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         minitasks = get_files(f"docker exec -it {docker_image} ls {docker_sav_path}{name}")
         if minitask_pattern is not None:
             minitasks = [task for task in minitasks if re.match('.*'+minitask_pattern+'.*', task)]
+            if len(minitasks) == 0:
+                raise ValueError(f"Not supported pattern like {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
         minitask = random.choice(minitasks)
         fc_logger.debug(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
         return minitask
@@ -58,7 +74,9 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def _get_info_and_observation(self):
         info, observation = super()._get_info_and_observation()
         # Remove player action from available actions. This is to prevent the agent from making pacts (peace, alliance, etc.) with other players in battle minitasks.
-        if 'player' in info['available_actions']:
+        if 'player' in info['available_actions'] and self.task_type in [MinitaskType.MT_BATTLE.value, 
+                                                                        MinitaskType.MT_ATTACK_CITY.value, 
+                                                                        MinitaskType.MT_DEFEND_CITY.value]:
             del info['available_actions']['player']
         return info, observation
     
@@ -71,6 +89,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         random.seed(seed)
         minitask = self.get_minitask(fc_args['username'], minitask_pattern=minitask_pattern)
         self.filename = minitask
+        self.task_type = re.match(PATTERN_MINITASK_TYPE, minitask)[1]
         self.civ_controller.set_parameter('debug.load_game', minitask)
         return
 
@@ -90,5 +109,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         minitask_results = self.civ_controller.get_turn_message()
         results = dict(sorted(game_results.items()))
         results.update({"minitask_sav": self.filename})
+        results.update({"minitask_type": self.task_type})
         results.update(dict(minitask=minitask_results))
         return results

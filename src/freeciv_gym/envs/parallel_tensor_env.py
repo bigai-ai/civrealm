@@ -34,6 +34,26 @@ class ParallelTensorEnv:
         # print(infos)
         return observations, infos
 
+    # Reset the env whose index is in index_list
+    def reset_env_by_index(self, index_list):
+        result_ids = []
+        for index in index_list:
+            env_port = ray.get(self.envs[index].get_port.remote())
+            ray.get(self.envs[index].close.remote())
+            new_env_port = env_port ^ 1
+            # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
+            # env = FreecivParallelEnv.remote(env_core, new_env_port)
+            env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
+            # print('Reinitialze env....')
+            # import time
+            # time.sleep(10)
+            result_ids.append(env.reset.remote())
+            self.envs[index] = env
+        
+        results = ray.get(result_ids)  # results: [(observation, info), ...]
+        observations, infos = zip(*results)
+        return observations, infos
+    
     def getattr(self, attr):
         return ray.get(self.envs[0].getattr.remote(attr))
 
@@ -69,12 +89,15 @@ class ParallelTensorEnv:
                 terminated[env_id] = result[2]
                 truncated[env_id] = result[3]
                 infos[env_id] = result[4]
-                dones[env_id] = terminated or truncated
+                dones[env_id] = terminated[env_id] or truncated[env_id]
                 # , reward, terminated, truncated, infos[env_id] = result[0], result[1], result[2], result[3],
             except Exception as e:
                 print(str(e))
                 # self.logger.warning(repr(e))
                 dones[env_id] = True
+                terminated[env_id] = True
+                truncated[env_id] = True
+                rewards[env_id] = 0
 
             if dones[env_id]:
                 env_port = ray.get(self.envs[env_id].get_port.remote())
@@ -83,9 +106,9 @@ class ParallelTensorEnv:
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
-                # print('Reinitialze env....')
-                # import time
-                # time.sleep(10)
+                print('Reinitialze env....')
+                import time
+                time.sleep(10)
                 result_id = env.reset.remote()
                 (observation, info) = ray.get(result_id)  # results: [(observation, info), ...]
                 observations[env_id] = observation

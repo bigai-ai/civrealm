@@ -31,7 +31,7 @@ def main():
     env = LLMWrapper(env)
     agent = RandomLLMAgent()
 
-    observations, info = env.reset()
+    observations, info = env.reset(minitask_pattern='minitask_T1_task_buildcity_level_hard_id_46$')
     done = False
     step = 0
     while not done:

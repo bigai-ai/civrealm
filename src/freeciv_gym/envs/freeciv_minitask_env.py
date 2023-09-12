@@ -54,6 +54,13 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         fc_logger.debug(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
         return minitask
     
+    def _get_info_and_observation(self):
+        info, observation = super().get_info_and_observation()
+        # Remove player action from available actions. This is to prevent the agent from making pacts (peace, alliance, etc.) with other players in battle minitasks.
+        if 'player' in info['available_actions']:
+            del info['available_actions']['player']
+        return info, observation
+    
     def reset(self, seed=None, options=None, minitask_pattern=None):
         self.set_minitask(seed, minitask_pattern)
         return super().reset(seed, options)

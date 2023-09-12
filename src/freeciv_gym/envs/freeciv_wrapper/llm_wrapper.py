@@ -29,25 +29,25 @@ class LLMWrapper(Wrapper):
         super().__init__(env)
         self.__env = env
 
-    def reset(self, seed=None, options=None):
-        observation, info = self.__env.reset()
-        if info['available_actions'] is not None:
-            llm_info = self.get_llm_info(observation, info)
-            info['llm_info'] = llm_info
+    def reset(self, seed=None, options=None, **kwargs):
+        if 'minitask_pattern' in kwargs:
+            observation, info = self.__env.reset(minitask_pattern=kwargs['minitask_pattern'])
+        else:
+            observation, info = self.__env.reset()
 
+        info['llm_info'] = self.get_llm_info(observation, info)
         return observation, info
 
     def step(self, action):
         observation, reward, terminated, truncated, info = self.__env.step(action)
-        if info['available_actions'] is not None:
-            llm_info = self.get_llm_info(observation, info)
-            info['llm_info'] = llm_info
-
+        info['llm_info'] = self.get_llm_info(observation, info)
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
-        llm_info = dict()
+        if info['available_actions'] is None:
+            return dict()
 
+        llm_info = dict()
         for ctrl_type, actors_can_act in info['available_actions'].items():
             llm_info[ctrl_type] = dict()
 

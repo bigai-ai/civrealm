@@ -402,26 +402,26 @@ class TensorWrapper(Wrapper):
 
     def _handle_embark_info(self, info):
         self._embarkable_units = {}
-        unit_actions = info["available_actions"]["unit"]
-        for id, actions in unit_actions.items():
-            for action in list(actions.keys()):
-                if action[:6] == "embark":
-                    args = action.split("_")
-                    if len(args == 3):
-                        [target_id,dir] = map(int, args[1::])
-                        actions[f"embark_{dir}"] = True
-                        if unit_dir := (id, dir) not in self._embarkable_units:
-                            self._embarkable_units[unit_dir] = [target_id]
+        if unit_actions = info["available_actions"].get(["unit"], False):
+            for id, actions in unit_actions.items():
+                for action in list(actions.keys()):
+                    if action[:6] == "embark":
+                        args = action.split("_")
+                        if len(args == 3):
+                            [target_id,dir] = map(int, args[1::])
+                            actions[f"embark_{dir}"] = True
+                            if unit_dir := (id, dir) not in self._embarkable_units:
+                                self._embarkable_units[unit_dir] = [target_id]
+                            else:
+                                self._embarkable_units[unit_dir] += [target_id]
+                            actions.pop(action)
                         else:
-                            self._embarkable_units[unit_dir] += [target_id]
-                        actions.pop(action)
-                    else:
-                        dir = int( action.split("_")[-1])
-                        actions[f"embark_{dir}"] = True
+                            dir = int( action.split("_")[-1])
+                            actions[f"embark_{dir}"] = True
 
-            for embark_action in ["embark_" + f"{i}" for i in range(8)]:
-                if embark_action not in actions:
-                    actions[embark_action] = False
+                for embark_action in ["embark_" + f"{i}" for i in range(8)]:
+                    if embark_action not in actions:
+                        actions[embark_action] = False
         return info
 
     def _handle_embark_action(self, action):

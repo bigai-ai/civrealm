@@ -129,28 +129,28 @@ class TensorWrapper(Wrapper):
         self.unit_ids = sorted(
             list(
                 k
-                for k in observation["unit"].keys()
+                for k in observation.get("unit",{}).keys()
                 if observation["unit"][k]["owner"] == 0
             )
         )
         self.others_unit_ids = sorted(
             list(
                 k
-                for k in observation["unit"].keys()
+                for k in observation.get("unit",{}).keys()
                 if observation["unit"][k]["owner"] != 0
             )
         )
         self.city_ids = sorted(
             list(
                 k
-                for k in observation["city"].keys()
+                for k in observation.get("city",{}).keys()
                 if observation["city"][k]["owner"] == 0
             )
         )
         self.others_city_ids = sorted(
             list(
                 k
-                for k in observation["city"].keys()
+                for k in observation.get("city",{}).keys()
                 if observation["city"][k]["owner"] != 0
             )
         )
@@ -186,6 +186,8 @@ class TensorWrapper(Wrapper):
 
     def _filter_map_obs(self, obs):
         # TODO: check owner id equal to my id
+        obs['city'] = obs.get('city',{})
+        obs['unit'] = obs.get('unit',{})
         for key, val in obs["dipl"].items():
             update(obs["player"][key], val)
 
@@ -407,7 +409,7 @@ class TensorWrapper(Wrapper):
                 for action in list(actions.keys()):
                     if action[:6] == "embark":
                         args = action.split("_")
-                        if len(args == 3):
+                        if len(args) == 3:
                             [target_id,dir] = map(int, args[1::])
                             actions[f"embark_{dir}"] = True
                             if unit_dir := (id, dir) not in self._embarkable_units:
@@ -434,4 +436,4 @@ class TensorWrapper(Wrapper):
         dir = int(action[-1].split("_")[-1])
         target_id = sorted(self._embarkable_units[(id, dir)])[0]
         action_type_name = f"embark_{dir}_{target_id}"
-        return ("unit", id, action)
+        return ("unit", id, action_type_name)

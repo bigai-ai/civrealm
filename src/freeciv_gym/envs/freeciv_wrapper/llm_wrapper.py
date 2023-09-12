@@ -11,7 +11,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import numpy as np
-import gymnasium
 from gymnasium.core import Wrapper
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
@@ -25,48 +24,29 @@ class LLMWrapper(Wrapper):
 
     def __init__(self, env, config):
         self.llm_config = config
-        self._obs_initialized = False
-        self._observation_space = None
 
         super().__init__(env)
         self.__env = env
 
     def reset(self, seed=None, options=None):
-        obs, info = self.__env.reset()
-        observation = self.get_llm_observation(obs, info)
+        observation, info = self.__env.reset()
+        llm_info = self.get_llm_info(observation, info)
+        info['llm_info'] = llm_info
 
         return observation, info
 
     def step(self, action):
-        obs, reward, terminated, truncated, info = self.__env.step(action)
-        observation = self.get_llm_observation(obs, info)
+        observation, reward, terminated, truncated, info = self.__env.step(action)
+        llm_info = self.get_llm_info(observation, info)
+        info['llm_info'] = llm_info
 
         return observation, reward, terminated, truncated, info
 
-    @property
-    def observation_space(self):
-        if self._obs_initialized:
-            return self._observation_space
-        else:
-            return gymnasium.spaces.Discrete(1)
+    def get_llm_info(self, obs, info):
+        llm_info = dict()
 
-    def _obs_space(self, obs):
-        obs_space = dict()
-        for ctrl_type in obs:
-            obs_space[ctrl_type] = gymnasium.spaces.Discrete(1)
-        return gymnasium.spaces.Dict(obs_space)
-
-    def get_llm_observation(self, obs, info):
-        if not self._obs_initialized:
-            self._observation_space = self._obs_space(obs)
-            self._obs_initialized = True
-
-        observation = dict()
-        for ctrl_type in obs:
-            observation[ctrl_type] = dict()
-            actors_can_act = None
-            if ctrl_type in info['available_actions']:
-                actors_can_act = info['available_actions'][ctrl_type]
+        for ctrl_type, actors_can_act in info['available_actions'].items():
+            llm_info[ctrl_type] = dict()
 
             if ctrl_type == 'unit':
                 units = self.__env.civ_controller.unit_ctrl.units
@@ -77,7 +57,7 @@ class LLMWrapper(Wrapper):
                     x = obs[ctrl_type][unit_id]['x']
                     y = obs[ctrl_type][unit_id]['y']
                     utype = obs[ctrl_type][unit_id]['type_rule_name']
-                    observation[ctrl_type][unit_id] = self.get_actor_info(x, y, info, ctrl_type, unit_id, utype)
+                    llm_info[ctrl_type][unit_id] = self.get_actor_info(x, y, info, ctrl_type, unit_id, utype)
 
             elif ctrl_type == 'city':
                 for city_id in actors_can_act:
@@ -85,13 +65,13 @@ class LLMWrapper(Wrapper):
 
                         x = obs[ctrl_type][city_id]['x']
                         y = obs[ctrl_type][city_id]['y']
-                        observation[ctrl_type][city_id] = self.get_actor_info(x, y, info, ctrl_type, city_id)
+                        llm_info[ctrl_type][city_id] = self.get_actor_info(x, y, info, ctrl_type, city_id)
                     else:
                         continue
             else:
                 continue
 
-        return observation
+        return llm_info
 
     def get_actor_info(self, x, y, info, ctrl_type, actor_id, utype=None):
         actor_info = dict()
@@ -197,5 +177,7 @@ class LLMWrapper(Wrapper):
 
             tile_id += 1
         return mini_map_info
+
+
 
 

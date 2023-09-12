@@ -27,12 +27,12 @@ class ParallelTensorEnv:
             ray.get(self.envs[env_id].close.remote())
 
     def reset(self):
-        result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
-        results = ray.get(result_ids)  # results: [(observation, info), ...]
-        observations, infos = zip(*results)
+        # result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
+        # results = ray.get(result_ids)  # results: [(observation, info), ...]
+        # observations, infos = zip(*results)
         # print(observations)
         # print(infos)
-        return observations, infos
+        return self.reset_env_by_index(list(range(self.batch_size_run)))
 
     # Reset the env whose index is in index_list
     def reset_env_by_index(self, index_list):
@@ -49,11 +49,11 @@ class ParallelTensorEnv:
             # time.sleep(10)
             result_ids.append(env.reset.remote())
             self.envs[index] = env
-        
+
         results = ray.get(result_ids)  # results: [(observation, info), ...]
         observations, infos = zip(*results)
         return observations, infos
-    
+
     def getattr(self, attr):
         return ray.get(self.envs[0].getattr.remote(attr))
 
@@ -106,11 +106,14 @@ class ParallelTensorEnv:
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
-                print('Reinitialze env....')
+                print("Reinitialze env....")
                 import time
+
                 time.sleep(10)
                 result_id = env.reset.remote()
-                (observation, info) = ray.get(result_id)  # results: [(observation, info), ...]
+                (observation, info) = ray.get(
+                    result_id
+                )  # results: [(observation, info), ...]
                 observations[env_id] = observation
                 infos[env_id] = info
                 self.envs[env_id] = env

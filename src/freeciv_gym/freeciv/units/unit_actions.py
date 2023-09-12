@@ -1072,9 +1072,17 @@ class ActPillage(UnitAction):
         has_railroad = False
 
         extra_num = 0
-        for extra in [
+        # If locate in other player's city, we cannot pillage the city's road. But we can pillage other extras.
+        if self.focus.pcity != None:
+            extra_list = [
                 EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
-                EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
+                EXTRA_RUINS]
+        else:
+            extra_list = [
+                EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
+                EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]
+        
+        for extra in extra_list:
             if TileState.tile_has_extra(self.focus.ptile, extra):
                 extra_num += 1
                 if extra == EXTRA_ROAD:
@@ -1701,6 +1709,10 @@ class ActHutEnter(StdAction):
         return not (self.move_dir is None or self.move_dir == -1)
 
     def _action_packet(self):
+        # When the unit is on a certain activity, we need to cancel the order before we enter hut.
+        if self.focus.punit['activity'] != ACTIVITY_IDLE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
         self.wait_for_pid = (63, self.focus.punit['id'])
         # self.wait_for_pid = 63
         return self.unit_do_action(self.focus.punit['id'],

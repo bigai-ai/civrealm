@@ -105,6 +105,17 @@ def test_pillage(controller):
      # Pillage remove road
     assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
 
+    # Move to a city
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'].trigger_action(controller.ws_client)
+    controller.send_end_turn()
+    controller.get_info_and_observation()
+
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    # In city, there is railroad extra. But we cannot pillage it
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    assert (not 'pillage' in valid_actions)
+
 def main():
     controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T203_pillage')

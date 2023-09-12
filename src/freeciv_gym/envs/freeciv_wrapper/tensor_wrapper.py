@@ -402,7 +402,7 @@ class TensorWrapper(Wrapper):
 
     def _handle_embark_info(self, info):
         self._embarkable_units = {}
-        if unit_actions = info["available_actions"].get(["unit"], False):
+        if unit_actions := info["available_actions"].get(["unit"], False):
             for id, actions in unit_actions.items():
                 for action in list(actions.keys()):
                     if action[:6] == "embark":

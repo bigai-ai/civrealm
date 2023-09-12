@@ -17,11 +17,11 @@ class TensorWrapper(Wrapper):
         self.__env = env
 
     def reset(
-        self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None
+        self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None, **kwargs
     ):
         if seed is None:
             seed = self._seed
-        obs, info = self.__env.reset(seed=seed, options=options)
+        obs, info = self.__env.reset(seed=seed, options=options, **kwargs)
         self.unit_ids = []
         self.city_ids = []
         self.turn = 0

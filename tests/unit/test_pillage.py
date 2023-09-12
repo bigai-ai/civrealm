@@ -16,7 +16,7 @@
 
 import pytest
 from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_IRRIGATION
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_IRRIGATION
 import freeciv_gym.freeciv.map.map_const as map_const
 import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -27,7 +27,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T71_pillage')
+    controller.set_parameter('debug.load_game', 'testcontroller_T203_pillage')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -40,63 +40,74 @@ def test_pillage(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     test_action_list = []
-    worker_id = [138, 139, 269]
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-        # Get valid actions
-        valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    worker_id = [551, 843, 507]
+    # for unit_id in unit_opt.unit_data.keys():
+    #     punit = unit_opt.unit_ctrl.units[unit_id]
+    #     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    #     print(
+    #         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
+    #     # Get valid actions
+    #     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
 
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
         # pillage is valid for all works
         assert ('pillage' in valid_actions)
-        if worker == 138:
+        if worker == 551:
             # Trigger pillage action for 138 worker
             valid_actions['pillage'].trigger_action(controller.ws_client)
-
+    
     # Update state
     controller.get_info_and_observation()
-    worker_id = [139, 269]
+    worker_id = [843, 507]
 
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
-        # pillage is valid for all works
+        # pillage is valid for all workers
         assert ('pillage' in valid_actions)
-        if worker == 139:
-            # Trigger pillage action for 138 worker
+        if worker == 843:
+            # Trigger pillage action for 843 worker
             valid_actions['pillage'].trigger_action(controller.ws_client)
 
     # Update state
     controller.get_info_and_observation()
-    worker_id = 269
+    worker_id = 507
 
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    # The current tile has two extras and there are already two workers are doing pillage, so pillage is not valid for the remaining worker.
+    # The current tile has two extras and there are already two workers are doing pillage, so pillage is not valid for the remaining worker. Note that the internal data in tiles will have three extras because the existence of railroad requires the existence of road. However, before the railroad is pillaged, the road cannot be pillaged.
     assert ('pillage' not in valid_actions)
 
     unit_opt = options['unit']
     punit = unit_opt.unit_ctrl.units[worker_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
 
-    # Currently has two extras
+    # Currently has three extras, but can only pillage two
     assert (unit_tile['extras'][EXTRA_ROAD] == 1)
     assert (unit_tile['extras'][EXTRA_IRRIGATION] == 1)
+    assert (unit_tile['extras'][EXTRA_RAILROAD] == 1)
 
-    print('Begin pillaging, needs one turn to finish ...')
+    print('Begin pillaging railroad and irrigation, needs one turn to finish ...')
     controller.send_end_turn()
     controller.get_info_and_observation()
 
-    # Pillage remove extras
-    assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
+    # Pillage remove railroad and irrigation
+    assert (unit_tile['extras'][EXTRA_ROAD] == 1)
+    assert (not unit_tile['extras'][EXTRA_RAILROAD] == 1)
     assert (not (unit_tile['extras'][EXTRA_IRRIGATION] == 1))
 
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    assert ('pillage' in valid_actions)
+    valid_actions['pillage'].trigger_action(controller.ws_client)
+
+    print('Begin pillaging road, needs one turn to finish ...')
+    controller.send_end_turn()
+    controller.get_info_and_observation()
+     # Pillage remove road
+    assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T71_pillage')
+    controller.set_parameter('debug.load_game', 'testcontroller_T203_pillage')
     test_pillage(controller)
 
 

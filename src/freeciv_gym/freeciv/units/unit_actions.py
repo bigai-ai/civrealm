@@ -1718,29 +1718,6 @@ class ActHutEnter(StdAction):
         return self.unit_do_action(self.focus.punit['id'],
                                    self.newtile['index'],
                                    fc_types.ACTION_HUT_ENTER)
-        actor_unit = self.focus.punit
-        dir8 = self.move_dir
-        target_tile = self.newtile
-        self.wait_for_pid = (63, self.focus.punit['id'])
-        # self.wait_for_pid = 63
-        packet = {"pid": packet_unit_orders,
-                  "unit_id": actor_unit['id'],
-                  "src_tile": actor_unit['tile'],
-                  "length": 1,
-                  "repeat": False,
-                  "vigilant": False,
-                  "orders": [{"order": ORDER_MOVE,
-                              "activity": ACTIVITY_LAST,
-                              "target": EXTRA_NONE,
-                              "sub_target": 0,
-                              "action": ACTION_COUNT,
-                              "dir": dir8
-                              }],
-                  #   "extra"     : [EXTRA_NONE]
-                  "dest_tile": target_tile['index']
-                  }
-
-        return packet
 
 # Use ActGetActionPro to replace this action
 # class ActGetAttackPro(UnitAction):

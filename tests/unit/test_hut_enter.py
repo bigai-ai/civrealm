@@ -22,13 +22,13 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_HUT
+from freeciv_gym.freeciv.utils.fc_types import EXTRA_HUT, ACTIVITY_GEN_ROAD
 
 
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T28_hut_enter')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -43,7 +43,7 @@ def test_hut_enter(controller):
     # print(unit_opt.unit_ctrl.units.keys())
     test_action_list = []
     target_tile = None
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    for unit_id in unit_opt.unit_data.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         # print(
@@ -59,18 +59,24 @@ def test_hut_enter(controller):
 
         elif unit_id == 138:
             assert ('hut_enter_2' in valid_actions)
+            # This unit is building road.
+            assert (punit['activity'] == ACTIVITY_GEN_ROAD)
             test_action_list.append(valid_actions['hut_enter_2'])
             target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTHEAST)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
+    
     # Perform goto action for each unit
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
-    # Get unit new state
-    # options = controller.turn_manager.turn_actions
-    controller.send_end_turn()
+    
+    # Update state. If Hut Enter action does not cancel activity, the hut_enter action would not take effect. Then the client will keep wait for packet 63.
     controller.get_info_and_observation()
     # After enter hut, the extra disappears.
     assert (target_tile['extras'][EXTRA_HUT] == 0)
+
+    # End turn to give new move for unit 156
+    controller.send_end_turn()
+    controller.get_info_and_observation()
     for unit_id in unit_opt.unit_ctrl.units.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
@@ -91,7 +97,7 @@ def test_hut_enter(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T28_hut_enter')
     test_hut_enter(controller)
 
 

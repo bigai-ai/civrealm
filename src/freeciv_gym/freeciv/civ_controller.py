@@ -714,7 +714,8 @@ class CivController(CivPropController):
         # reset_unit_anim_list()
         # Delete saved game in the end of turn.
         # fc_logger.info('handle_end_turn')
-
+        # if self.turn_manager.turn == 228:
+        #     self.delete_save = False
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         # # Set delete_save for the next turn

@@ -135,6 +135,9 @@ class MapCtrl(CivPropController):
 
     def index_to_tile(self, index):
         """Return the tile for the given index."""
+        # print(f"index: {1219}")
+        # tile = self.prop_state.tiles[1219]
+        # print(f"({tile['x']}, {tile['y']})")
         return self.prop_state.tiles[index]
 
     def NATIVE_TO_MAP_POS(self, nat_x, nat_y):

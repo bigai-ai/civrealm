@@ -1068,12 +1068,23 @@ class ActPillage(UnitAction):
                 self.focus.pcity) == self.focus.pplayer["playerno"]:
             return False
 
+        has_road = False
+        has_railroad = False
+
         extra_num = 0
         for extra in [
                 EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
                 EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
             if TileState.tile_has_extra(self.focus.ptile, extra):
                 extra_num += 1
+                if extra == EXTRA_ROAD:
+                    has_road = True
+                if extra == EXTRA_RAILROAD:
+                    has_railroad = True
+        # When have both road and railroad, we cannot pillage them simultaneously. Instead, we need to pillage railroad first and then road. Therefore, the available extra number should decrease by 1.
+        if has_road and has_railroad:
+            extra_num -= 1
+
         if extra_num == 0:
             return False
 
@@ -1095,6 +1106,20 @@ class ActPillage(UnitAction):
         #     TileState.tile_has_extra(self.focus.ptile, EXTRA_RUINS) or \
         #     TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
         #     TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+
+        for extra in [
+                EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
+                EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
+            if TileState.tile_has_extra(self.focus.ptile, extra):
+                fc_logger.debug(f'Has extra: {extra}')
+                
+        for unit in units:
+            if unit['activity'] == fc_types.ACTIVITY_PILLAGE:
+                fc_logger.debug(f'Other unit: {unit}')
+
+        fc_logger.debug(f'pillage_num: {pillage_num}')
+        fc_logger.debug(f'extra_num: {extra_num}')
+        fc_logger.debug(f'Self unit: {self.focus.punit}')
 
         return True
 

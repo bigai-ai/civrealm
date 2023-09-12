@@ -158,7 +158,7 @@ def test_get_action_pro3(controller):
                 f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
-    valid_actions['road'].trigger_action(controller.ws_client)
+    valid_actions['build_road'].trigger_action(controller.ws_client)
     for turn_i in range(6):
         controller.send_end_turn()
         controller.get_info_and_observation()

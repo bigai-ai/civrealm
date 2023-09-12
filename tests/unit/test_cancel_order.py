@@ -116,7 +116,7 @@ def test_cancel_order(controller):
     print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
     # Change activity to road
     print(f'unit_id: {unit_id} do road.')
-    valid_actions['road'].trigger_action(controller.ws_client)
+    valid_actions['build_road'].trigger_action(controller.ws_client)
 
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)

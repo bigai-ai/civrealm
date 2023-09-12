@@ -1650,6 +1650,8 @@ class ActGoto(StdAction):
     def is_action_valid(self):
         # if self.focus.punit['transported']:
         # return False
+        # print(f"unit id: {self.focus.punit['id']}")
+        # print(self.focus.action_prob.keys())
         if not action_prob_possible(self.focus.action_prob[self.dir8][ACTION_UNIT_MOVE]):
             return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)

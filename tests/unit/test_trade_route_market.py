@@ -79,7 +79,7 @@ def test_trade_route_market(controller):
             assert (trade_route_num == 2)
         if unit_id == 1743:
             # Unit 1743 changes its homecity.
-            valid_actions['homecity'].trigger_action(controller.ws_client)
+            valid_actions['set_homecity'].trigger_action(controller.ws_client)
 
     # controller.send_end_turn()
     controller.get_info_and_observation()

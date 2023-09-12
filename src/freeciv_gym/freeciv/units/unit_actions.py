@@ -1107,19 +1107,19 @@ class ActPillage(UnitAction):
         #     TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD) or \
         #     TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
 
-        for extra in [
-                EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
-                EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
-            if TileState.tile_has_extra(self.focus.ptile, extra):
-                fc_logger.debug(f'Has extra: {extra}')
+        # for extra in [
+        #         EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
+        #         EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
+        #     if TileState.tile_has_extra(self.focus.ptile, extra):
+        #         fc_logger.debug(f'Has extra: {extra}')
                 
-        for unit in units:
-            if unit['activity'] == fc_types.ACTIVITY_PILLAGE:
-                fc_logger.debug(f'Other unit: {unit}')
+        # for unit in units:
+        #     if unit['activity'] == fc_types.ACTIVITY_PILLAGE:
+        #         fc_logger.debug(f'Other unit: {unit}')
 
-        fc_logger.debug(f'pillage_num: {pillage_num}')
-        fc_logger.debug(f'extra_num: {extra_num}')
-        fc_logger.debug(f'Self unit: {self.focus.punit}')
+        # fc_logger.debug(f'pillage_num: {pillage_num}')
+        # fc_logger.debug(f'extra_num: {extra_num}')
+        # fc_logger.debug(f'Self unit: {self.focus.punit}')
 
         return True
 

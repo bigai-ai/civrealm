@@ -631,9 +631,15 @@ class ActMine(EngineerAction):
         if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
             return False
 
-        # FIXME: This is server bug. When under irrigation, cannot change to mine activity.
-        if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
-            return False
+        # # FIXME: This is server bug. When under irrigation, cannot change to mine activity.
+        # if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
+        #     return False
+
+        units = FocusUnit.tile_units(self.focus.ptile)
+        for unit in units:
+            # If another unit in this tile is irrigating, we cannot mine
+            if (unit['id'] != self.focus.punit['id']) and (unit['activity'] == fc_types.ACTIVITY_IRRIGATE):
+                return False
 
         # Mine on hill and mountain terrain is alway valid.
         if self.focus.pterrain['name'] == 'Hills' or self.focus.pterrain['name'] == 'Mountains':
@@ -654,8 +660,11 @@ class ActMine(EngineerAction):
         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_MINE])
 
     def _eng_packet(self):
-        packet = self._request_new_unit_activity(fc_types.ACTIVITY_MINE, EXTRA_NONE)
-        return packet
+        # If the unit is currently irrigating, we cancel the activity first.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_MINE, EXTRA_NONE)
 
 
 class ActOnExtra(EngineerAction):
@@ -793,9 +802,15 @@ class ActIrrigation(EngineerAction):
         if self.focus.punit['activity'] == fc_types.ACTIVITY_IRRIGATE:
             return False
 
-        # FIXME: This is server bug. When under mine, cannot change to irrigation activity.
-        if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
-            return False
+        # # FIXME: This is server bug. When under mine, cannot change to irrigation activity.
+        # if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
+        #     return False
+
+        units = FocusUnit.tile_units(self.focus.ptile)
+        for unit in units:
+            # If another unit in this tile is mining, we cannot irrigate
+            if (unit['id'] != self.focus.punit['id']) and (unit['activity'] == fc_types.ACTIVITY_MINE):
+                return False
 
         # if self.focus.action_prob == {}:
         #     fc_logger.info(self.focus.punit)
@@ -806,6 +821,10 @@ class ActIrrigation(EngineerAction):
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_IRRIGATE])
 
     def _eng_packet(self):
+        # If the unit is currently mining, we cancel the activity first.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_MINE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
         return self._request_new_unit_activity(fc_types.ACTIVITY_IRRIGATE, EXTRA_NONE)
 
 

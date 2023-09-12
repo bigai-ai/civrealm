@@ -58,7 +58,6 @@ def test_mine_desert(controller):
     for turn_i in range(5):
         controller.send_end_turn()
         controller.get_info_and_observation()
-        controller.get_info_and_observation()
     # Build oil mine extra
     assert (ptile['extras'][EXTRA_OIL_MINE] == 1)
 

@@ -82,7 +82,6 @@ def test_irrigation(controller):
     for _ in range(5):
         controller.send_end_turn()
         controller.get_info_and_observation()
-        controller.get_info_and_observation()
     # Get updated state
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
@@ -107,7 +106,6 @@ def test_irrigation(controller):
     # Wait for 5 turns (until the work is done)
     for _ in range(5):
         controller.send_end_turn()
-        controller.get_info_and_observation()
         controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_IRRIGATION]: {build_tile['extras'][EXTRA_IRRIGATION]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")

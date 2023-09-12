@@ -59,7 +59,6 @@ def test_pollution(controller):
     for _ in range(5):
         controller.send_end_turn()
         controller.get_info_and_observation()
-        controller.get_info_and_observation()
 
     unit_id = 564
     punit = unit_opt.unit_ctrl.units[unit_id]

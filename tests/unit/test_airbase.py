@@ -68,7 +68,6 @@ def test_airbase(controller):
     for _ in range(3):
         controller.send_end_turn()
         controller.get_info_and_observation()
-        controller.get_info_and_observation()
     print('Airbase built')
 
     assert (unit_tile['extras'][EXTRA_AIRBASE] == 1)
@@ -91,7 +90,6 @@ def test_airbase(controller):
     # Wait for fortress finish.
     for _ in range(3):
         controller.send_end_turn()
-        controller.get_info_and_observation()
         controller.get_info_and_observation()
     print('fortress built')
 

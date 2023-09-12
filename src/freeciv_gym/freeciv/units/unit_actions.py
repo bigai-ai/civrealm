@@ -1073,15 +1073,11 @@ class ActPillage(UnitAction):
 
         extra_num = 0
         # If locate in other player's city, we cannot pillage the city's road. But we can pillage other extras.
-        if self.focus.pcity != None:
-            extra_list = [
-                EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
-                EXTRA_RUINS]
-        else:
-            extra_list = [
-                EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY,
-                EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]
-        
+        extra_list = [EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE,
+                      EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS]
+        if self.focus.pcity == None:
+            extra_list.extend([EXTRA_ROAD, EXTRA_RAILROAD])
+
         for extra in extra_list:
             if TileState.tile_has_extra(self.focus.ptile, extra):
                 extra_num += 1
@@ -1120,7 +1116,7 @@ class ActPillage(UnitAction):
         #         EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD]:
         #     if TileState.tile_has_extra(self.focus.ptile, extra):
         #         fc_logger.debug(f'Has extra: {extra}')
-                
+
         # for unit in units:
         #     if unit['activity'] == fc_types.ACTIVITY_PILLAGE:
         #         fc_logger.debug(f'Other unit: {unit}')
@@ -1422,7 +1418,7 @@ class ActSpyCityAction(DiplomaticAction):
         elif self.focus.ptype['name'].lower() == 'spy':
             self.wait_for_pid = (63, self.focus.punit['id'])
         else:
-            raise AssertionError ('Unit type error in ActSpyCityAction.')
+            raise AssertionError('Unit type error in ActSpyCityAction.')
         return packet
 
 # class ActSpySteal(DiplomaticAction):

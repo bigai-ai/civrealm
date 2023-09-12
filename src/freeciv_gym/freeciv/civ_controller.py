@@ -293,7 +293,7 @@ class CivController(CivPropController):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         if self.my_player_is_defeated():
-            return None
+            return {}
 
         return self.turn_manager.get_observation()
 
@@ -332,7 +332,7 @@ class CivController(CivPropController):
         """Returns True if the game has ended.       
         """
         # FIXME: check victory conditions.
-        if not self.player_ctrl.my_player['is_alive']:
+        if self.my_player_is_defeated():
             return True
 
         return False

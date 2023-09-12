@@ -17,7 +17,11 @@ class TensorWrapper(Wrapper):
         self.__env = env
 
     def reset(
-        self, *, seed: Optional[int] = None, options: Optional[dict[str, Any]] = None, **kwargs
+        self,
+        *,
+        seed: Optional[int] = None,
+        options: Optional[dict[str, Any]] = None,
+        **kwargs,
     ):
         if seed is None:
             seed = self._seed
@@ -129,28 +133,28 @@ class TensorWrapper(Wrapper):
         self.unit_ids = sorted(
             list(
                 k
-                for k in observation.get("unit",{}).keys()
+                for k in observation.get("unit", {}).keys()
                 if observation["unit"][k]["owner"] == 0
             )
         )
         self.others_unit_ids = sorted(
             list(
                 k
-                for k in observation.get("unit",{}).keys()
+                for k in observation.get("unit", {}).keys()
                 if observation["unit"][k]["owner"] != 0
             )
         )
         self.city_ids = sorted(
             list(
                 k
-                for k in observation.get("city",{}).keys()
+                for k in observation.get("city", {}).keys()
                 if observation["city"][k]["owner"] == 0
             )
         )
         self.others_city_ids = sorted(
             list(
                 k
-                for k in observation.get("city",{}).keys()
+                for k in observation.get("city", {}).keys()
                 if observation["city"][k]["owner"] != 0
             )
         )
@@ -186,8 +190,8 @@ class TensorWrapper(Wrapper):
 
     def _filter_map_obs(self, obs):
         # TODO: check owner id equal to my id
-        obs['city'] = obs.get('city',{})
-        obs['unit'] = obs.get('unit',{})
+        obs["city"] = obs.get("city", {})
+        obs["unit"] = obs.get("unit", {})
         for key, val in obs["dipl"].items():
             update(obs["player"][key], val)
 
@@ -370,7 +374,9 @@ class TensorWrapper(Wrapper):
         self.others_player_mask[others_player_num::, :] = 0
 
         if units := info["available_actions"].get("unit", False):
-            for i, unit_id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
+            for i, unit_id in enumerate(
+                self.unit_ids[: self.tensor_config["resize"]["unit"]]
+            ):
                 if actions := units.get(unit_id, False):
                     for id, act_name in enumerate(sorted(list(actions.keys()))):
                         self.unit_action_type_mask[i, id] *= int(actions[act_name])
@@ -383,7 +389,9 @@ class TensorWrapper(Wrapper):
         self.actor_type_mask[1] = int(any(self.unit_id_mask))
 
         if citys := info["available_actions"].get("city", False):
-            for i, city_id in enumerate(self.city_ids[: self.tensor_config["resize"]["city"]]):
+            for i, city_id in enumerate(
+                self.city_ids[: self.tensor_config["resize"]["city"]]
+            ):
                 if actions := citys.get(city_id, False):
                     for id, act_name in enumerate(sorted(list(actions.keys()))):
                         self.city_action_type_mask[i, id] *= int(actions[act_name])
@@ -410,16 +418,20 @@ class TensorWrapper(Wrapper):
                     if action[:6] == "embark":
                         args = action.split("_")
                         if len(args) == 3:
-                            [target_id,dir] = map(int, args[1::])
+                            [dir, target_id] = map(int, args[1::])
                             actions[f"embark_{dir}"] = True
                             if unit_dir := (id, dir) not in self._embarkable_units:
                                 self._embarkable_units[unit_dir] = [target_id]
                             else:
                                 self._embarkable_units[unit_dir] += [target_id]
                             actions.pop(action)
-                        else:
-                            dir = int( action.split("_")[-1])
+                        elif len(args) == 2:
+                            dir = int(action.split("_")[-1])
                             actions[f"embark_{dir}"] = True
+                        else:
+                            raise ValueError(
+                                f"Expected embark_{{dir}}_{{target_id}}, but got unsupported embark action name {action}"
+                            )
 
                 for embark_action in ["embark_" + f"{i}" for i in range(8)]:
                     if embark_action not in actions:
@@ -429,11 +441,12 @@ class TensorWrapper(Wrapper):
     def _handle_embark_action(self, action):
         if action[-1][:6] != "embark":
             return action
-        elif len(self._embarkable_units) == 0 :
+        elif len(self._embarkable_units) == 0:
             return action
         assert action[0] == "unit"
         id = action[1]
         dir = int(action[-1].split("_")[-1])
+        assert dir in list(range(8))
         target_id = sorted(self._embarkable_units[(id, dir)])[0]
         action_type_name = f"embark_{dir}_{target_id}"
         return ("unit", id, action_type_name)

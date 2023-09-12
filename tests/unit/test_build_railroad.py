@@ -83,7 +83,6 @@ def test_build_railroad(controller):
     for turn_i in range(3):
         controller.send_end_turn()
         controller.get_info_and_observation()
-        controller.get_info_and_observation()
         # print(unit_opt.unit_ctrl.units[109])
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]

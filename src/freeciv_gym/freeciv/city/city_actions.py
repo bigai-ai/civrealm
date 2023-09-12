@@ -184,7 +184,6 @@ class CityWorkTile(Action):
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
         self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
-        # self.wait_for_pid = 31
         return packet
 
     def _refresh_state_packet(self):
@@ -207,7 +206,6 @@ class CityUnworkTile(CityWorkTile):
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
         self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
-        # self.wait_for_pid = 31
         return packet
 
 
@@ -231,7 +229,6 @@ class CityChangeSpecialist(Action):
                   "from": self.specialist_num,
                   "to": (self.specialist_num + 1) % 3}
         self.wait_for_pid = (31, self.pcity['tile'])
-        # self.wait_for_pid = 31
         return packet
 
     def _refresh_state_packet(self):
@@ -263,9 +260,9 @@ class CityBuyProduction(Action):
 
     def _action_packet(self):
         """Buy whatever is being built in the city."""
-        packet = {"pid": packet_city_buy, "city_id": self.pcity['id']}
+        packet = {"pid": packet_city_buy,
+                  "city_id": self.pcity['id']}
         self.wait_for_pid = (31, self.pcity['tile'])
-        # self.wait_for_pid = 31
         return packet
 
 
@@ -284,10 +281,10 @@ class CitySellImprovement(Action):
         return self.pcity['improvements'][self.improvement_id] == 1
 
     def _action_packet(self):
-        packet = {"pid": packet_city_sell, "city_id": self.pcity['id'],
+        packet = {"pid": packet_city_sell,
+                  "city_id": self.pcity['id'],
                   "build_id": self.improvement_id}
         self.wait_for_pid = (31, self.pcity['tile'])
-        # self.wait_for_pid = 31
         return packet
 
 
@@ -307,11 +304,17 @@ class CityChangeProduction(Action):
         raise Exception("To be overwritten")
 
     def _action_packet(self):
-        packet = {"pid": packet_city_change, "city_id": self.pcity["id"],
-                  "production_kind": self.prod_kind, "production_value": self.prod_value}
+        packet = {"pid": packet_city_change,
+                  "city_id": self.pcity["id"],
+                  "production_kind": self.prod_kind,
+                  "production_value": self.prod_value}
         self.wait_for_pid = (31, self.pcity['tile'])
-        # self.wait_for_pid = 31
         return packet
+
+    def city_can_change_build(self):
+        if self.pcity['did_buy'] and self.pcity['shield_stock'] > 0:
+            return False
+        return True
 
     def _refresh_state_packet(self):
         return {"pid": packet_city_refresh,
@@ -326,9 +329,10 @@ class CityChangeUnitProduction(CityChangeProduction):
         self.punit_type = punit_type
 
     def is_action_valid(self):
-        if (self.punit_type['name'] == "Barbarian Leader" or
-                self.punit_type['name'] == "Leader" or self.pcity['did_buy']):
+        if (not self.city_can_change_build() or self.punit_type['name'] == "Barbarian Leader"
+                or self.punit_type['name'] == "Leader"):
             return False
+
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
@@ -340,8 +344,11 @@ class CityChangeUnitProduction(CityChangeProduction):
           Return whether given city can build given building returns FALSE if
           the building is obsolete.
         """
-        return (pcity is not None and pcity['can_build_unit'] is not None and punittype_id < len(pcity['can_build_unit'])
-                and pcity['can_build_unit'][punittype_id] > 0)
+        if 'can_build_unit' in pcity:
+            if len(pcity['can_build_unit']) > punittype_id:
+                return pcity['can_build_unit'][punittype_id] > 0
+
+        return False
 
     def get_impact_of_action(self):
         return dict([(key, self.punit_type[key]) for key in ["name", "helptext", "rule_name",
@@ -357,8 +364,9 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
-        if self.pcity['did_buy'] or self.pimprovement['name'] == "Coinage":
+        if not self.city_can_change_build() or self.pimprovement['name'] == "Coinage":
             return False
+
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
@@ -370,9 +378,11 @@ class CityChangeImprovementProduction(CityChangeProduction):
         Return whether given city can build given building; returns FALSE if
         the building is obsolete.
         """
-        return pcity is not None and pcity['can_build_improvement'] is not None and (
-            pcity['can_build_improvement'][pimprove_id] > 0
-            if pimprove_id < len(pcity['can_build_improvement']) else False)
+        if 'can_build_improvement' in pcity:
+            if len(pcity['can_build_improvement']) > pimprove_id:
+                return pcity['can_build_improvement'][pimprove_id] > 0
+
+        return False
 
     def get_impact_of_action(self):
         build_cost = self.pimprovement['build_cost']

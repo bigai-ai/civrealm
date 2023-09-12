@@ -280,7 +280,7 @@ class StartNegotiate(base_action.Action):
 
     def is_action_valid(self):
         if self.counterpart['playerno'] not in self.dipl_ctrl.diplomacy_clause_map.keys():
-            if self.dipl_ctrl._is_barbarian_pirate(self.counterpart['nation']):
+            if self.dipl_ctrl.is_barbarian_pirate(self.counterpart['nation']):
                 return False
             if (self.cur_player['real_embassy'][self.counterpart['playerno']]
                     or self.counterpart['real_embassy'][self.cur_player['playerno']] or
@@ -325,12 +325,12 @@ class CancelTreaty(StartNegotiate):
         self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
 
     def is_action_valid(self):
-        govs = [4, 5]
+        return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno']) and
+                self.counterpart['team'] != self.cur_player['team'] and not self.senate_blocking())
 
-        return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno'])
-                and self.counterpart['team'] != self.cur_player['team'] and not
-                (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
-                 and self.cur_player['government'] in govs and not self.liberty_flag))
+    def senate_blocking(self):
+        return (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
+                and self.dipl_ctrl.is_republic_democracy(self.cur_player['government']) and not self.liberty_flag)
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,

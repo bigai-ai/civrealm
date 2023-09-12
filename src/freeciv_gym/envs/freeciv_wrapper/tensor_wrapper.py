@@ -383,7 +383,7 @@ class TensorWrapper(Wrapper):
         self.others_city_mask[len(self.others_city_ids) : :, :] *= 0
 
     def _mask_from_info(self, info):
-        others_player_num = len(info["available_actions"]["player"].keys())
+        others_player_num = len(info["available_actions"].get("player",{}).keys())
         self.others_player_mask[others_player_num::, :] = 0
 
         if units := info["available_actions"].get("unit", False):

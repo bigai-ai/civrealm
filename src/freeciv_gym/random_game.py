@@ -25,7 +25,7 @@ import gymnasium
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
     # env = gymnasium.make('freeciv/FreecivMinitask-v0')
-
+    # env = gymnasium.make('freeciv/FreecivLLM-v0')
     # agent = ControllerAgent()
 
     env = LLMWrapper(env)

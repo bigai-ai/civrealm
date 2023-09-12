@@ -199,9 +199,6 @@ class CityUnworkTile(CityWorkTile):
         if self.city_map.map_ctrl.is_out_of_map(self.ctile['x'] + self.dx, self.ctile['y'] + self.dy):
             return False
 
-        if self.output_idx is None:
-            return False
-
         return ('worked' in self.ptile and self.ptile['worked'] == self.pcity['id']
                 and 'output_food' in self.pcity and self.output_idx is not None)
 

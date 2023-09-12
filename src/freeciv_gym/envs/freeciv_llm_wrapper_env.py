@@ -29,6 +29,6 @@ class FreecivLLMWrapperEnv(Wrapper):
                  username: str = fc_args["username"],
                  client_port: int = fc_args["client_port"]):
 
-        tensor_env = LLMWrapper(FreecivBaseEnv(username=username, client_port=client_port), config = config)
-        super().__init__(tensor_env)
+        llm_env = LLMWrapper(FreecivBaseEnv(username=username, client_port=client_port))
+        super().__init__(llm_env)
 

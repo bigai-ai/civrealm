@@ -71,8 +71,11 @@ class DiplomacyCtrl(CivPropController):
         self.register_handler(104, "handle_diplomacy_accept_treaty")
 
     # Check whether the given nation is barbarian or pirate.
-    def _is_barbarian_pirate(self, nation_id):
+    def is_barbarian_pirate(self, nation_id):
         return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
+
+    def is_republic_democracy(self, gov_id):
+        return self.rule_ctrl.governments[gov_id]['rule_name'] in ['Republic', 'Democracy']
 
     """
     for counterpart in self.players:

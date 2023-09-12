@@ -30,15 +30,17 @@ class LLMWrapper(Wrapper):
 
     def reset(self, seed=None, options=None):
         observation, info = self.__env.reset()
-        llm_info = self.get_llm_info(observation, info)
-        info['llm_info'] = llm_info
+        if info['available_actions'] is not None:
+            llm_info = self.get_llm_info(observation, info)
+            info['llm_info'] = llm_info
 
         return observation, info
 
     def step(self, action):
         observation, reward, terminated, truncated, info = self.__env.step(action)
-        llm_info = self.get_llm_info(observation, info)
-        info['llm_info'] = llm_info
+        if info['available_actions'] is not None:
+            llm_info = self.get_llm_info(observation, info)
+            info['llm_info'] = llm_info
 
         return observation, reward, terminated, truncated, info
 

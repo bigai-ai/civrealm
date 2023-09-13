@@ -56,9 +56,6 @@ class CityActions(ActionList):
         self.turn = 1
         self.city_unhappiness = dict()
 
-    def update_city_status(self, city_unhappiness):
-        self.city_unhappiness = city_unhappiness
-
     def _can_actor_act(self, actor_id):
         return True
 

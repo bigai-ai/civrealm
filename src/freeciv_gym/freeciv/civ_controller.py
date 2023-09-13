@@ -619,7 +619,9 @@ class CivController(CivPropController):
             event = packet['event']
         except KeyError:
             fc_logger.error(f'Packet is missing some keys: {packet}')
-            raise Exception("Packet is missing some keys")
+            print(f'Packet is missing some keys: {packet}')
+            return
+            # raise Exception("Packet is missing some keys")
 
         if message is None:
             return

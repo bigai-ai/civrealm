@@ -380,6 +380,8 @@ class RulesetCtrl(CivPropController):
             pnation = self.nations[nation_id]
             if pnation['is_playable']:
                 nation_name_list.append(nation_id)
+        fc_logger.debug("Available nations: " + str(nation_name_list))
+        fc_logger.debug("Number of nations: " + str(len(self.nations)))
         return nation_name_list
 
     @staticmethod

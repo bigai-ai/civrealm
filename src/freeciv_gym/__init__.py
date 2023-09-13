@@ -25,6 +25,10 @@ register(
     entry_point='freeciv_gym.envs:FreecivTensorEnv',
 )
 register(
+    id='freeciv/FreecivTensorMinitask-v0',
+    entry_point='freeciv_gym.envs:FreecivTensorMinitaskEnv',
+)
+register(
     id='freeciv/FreecivCode-v0',
     entry_point='freeciv_gym.envs:FreecivCodeEnv',
 )

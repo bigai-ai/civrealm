@@ -1,5 +1,6 @@
 from .freeciv_base_env import FreecivBaseEnv
 from .freeciv_tensor_env import FreecivTensorEnv
+from .freeciv_tensor_minitask_env import FreecivTensorMinitaskEnv
 from .freeciv_code_env import FreecivCodeEnv
 from .freeciv_llm_env import FreecivLLMEnv
 from .freeciv_llm_wrapper_env import FreecivLLMWrapperEnv

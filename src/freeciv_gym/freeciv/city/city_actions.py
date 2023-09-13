@@ -20,12 +20,10 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 
 from freeciv_gym.freeciv.utils.base_action import Action, ActionList
-from freeciv_gym.freeciv.utils.fc_types import packet_city_make_specialist,\
-    packet_city_change_specialist, packet_city_make_worker, packet_city_buy,\
-    packet_city_sell, packet_city_change, VUT_UTYPE,\
-    VUT_IMPROVEMENT, packet_city_rename, packet_city_worklist, packet_city_refresh
+from freeciv_gym.freeciv.utils.fc_types import (packet_city_make_specialist, packet_city_change_specialist,
+                                                packet_city_make_worker, packet_city_buy, packet_city_sell,
+                                                packet_city_change, VUT_UTYPE, VUT_IMPROVEMENT, packet_city_refresh)
 from freeciv_gym.freeciv.map.map_ctrl import CityTileMap
-
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 MAX_LEN_WORKLIST = 64
@@ -242,8 +240,7 @@ class CityBuyProduction(Action):
         self.rule_ctrl = rule_ctrl
         self.turn = turn
         self.city_unhappiness = city_unhappiness
-        self.kind = self.pcity['production_kind']
-        self.value = self.pcity['production_value']
+        self.action_key += "_%i_%i" % (self.pcity['production_kind'], self.pcity['production_value'])
 
     def is_action_valid(self):
         if 'buy_cost' not in self.pcity:
@@ -257,7 +254,8 @@ class CityBuyProduction(Action):
         if self.pcity['turn_founded'] == self.turn:
             return False
 
-        if self.kind == VUT_IMPROVEMENT and self.rule_ctrl.improvements[self.value]['genus'] == IG_CONVERT:
+        if (self.pcity['production_kind'] == VUT_IMPROVEMENT and
+                self.rule_ctrl.improvements[self.pcity['production_value']]['genus'] == IG_CONVERT):
             return False
 
         """
@@ -265,7 +263,7 @@ class CityBuyProduction(Action):
         if self.kind == VUT_UTYPE and self.pcity['anarchy'] != 0:
             return False
         """
-        if self.kind == VUT_UTYPE:
+        if self.pcity['production_kind'] == VUT_UTYPE:
             if self.pcity['id'] in self.city_unhappiness and self.city_unhappiness[self.pcity['id']]:
                 return False
 

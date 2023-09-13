@@ -27,7 +27,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_mine')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -69,6 +69,13 @@ def test_mine(controller):
     controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
+    
+    # Perform irrigation activity first. This is to test whether mine action will cancel the irrigation activity first.
+    print('Perform irrigation activity first')
+    valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
+    valid_actions['irrigation'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    
     # The unit has move in new turn, the build should be valid
     assert (not (build_tile['extras'][EXTRA_MINE] == 1))
     assert (build_action.is_action_valid())
@@ -93,7 +100,7 @@ def test_mine(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T27_mine')
     test_mine(controller)
 
 

@@ -44,13 +44,9 @@ class TensorWrapper(Wrapper):
             f"action available in info: { self.action_list[log_action[0]][log_action[1]][log_action[2]] if log_action else 'end turn'} "
         )
         obs, reward, terminated, truncated, info = self.__env.step(self.action(action))
-        self._cached_last_obs, self._cached_last_info = obs, info
-        if obs == {}:
-            # gameover => obs == empty dict
-            assert terminated or truncated
+        if terminated or truncated:
             obs, info = self._cached_last_obs, self._cached_last_info
-        elif obs == None:
-            print(f"Found a None value obs after action {action}!!!!! ")
+        self._cached_last_obs, self._cached_last_info = obs, info
         self._update_sequence_ids(obs)
         info = self._handle_embark_info(info)
         self.mask = self._get_mask(obs, info, action)
@@ -205,7 +201,8 @@ class TensorWrapper(Wrapper):
         # TODO: check owner id equal to my id
         obs["city"] = obs.get("city", {})
         obs["unit"] = obs.get("unit", {})
-        for key, val in obs["dipl"].items():
+
+        for key, val in obs.get("dipl",{}).items():
             update(obs["player"][key], val)
 
         for key in list(obs.keys()):
@@ -213,7 +210,7 @@ class TensorWrapper(Wrapper):
                 obs.pop(key)
 
         obs["others_player"] = {
-            key: val for key, val in obs["player"].items() if key != 0
+            key: val for key, val in obs.get("player",{}).items() if key != 0
         }
         obs["player"] = obs["player"][0]
 

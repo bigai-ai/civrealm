@@ -27,7 +27,7 @@ import freeciv_gym.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T375_2023-08-02-10_04')
+    controller.set_parameter('debug.load_game', 'testcontroller_T375_embark_disembark')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -200,7 +200,7 @@ def test_embark_disembark(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T375_2023-08-02-10_04')
+    controller.set_parameter('debug.load_game', 'testcontroller_T375_embark_disembark')
     test_embark_disembark(controller)
 
 

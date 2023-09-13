@@ -2061,6 +2061,7 @@ class ActDisembark(UnitAction):
         return self.action_key != None
 
     def _action_packet(self):
+        self.wait_for_pid = (63, self.focus.punit['id'])
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
@@ -2088,6 +2089,7 @@ class ActEmbark(UnitAction):
         return True
 
     def _action_packet(self):
+        self.wait_for_pid = (63, self.focus.punit['id'])
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_unit_id,
                                      fc_types.ACTION_TRANSPORT_EMBARK)

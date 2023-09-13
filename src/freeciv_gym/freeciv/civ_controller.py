@@ -712,6 +712,14 @@ class CivController(CivPropController):
         fc_logger.debug(f'Receiving begin turn packets: {packet}')
         self.turn_manager.begin_turn(pplayer, self.controller_list)
 
+    def update_city_unhappiness(self):
+        """ called every turn for every city """
+        city_unhappiness = dict()
+        for city_id in self.city_ctrl.cities:
+            pcity = self.city_ctrl.cities[city_id]
+            if pcity['owner'] == self.player_ctrl.my_player_id:
+                self.city_ctrl.prop_actions.city_unhappiness[pcity['id']] = self.city_ctrl.city_unhappy(pcity)
+
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
         # reset_unit_anim_list()
@@ -727,6 +735,11 @@ class CivController(CivPropController):
         self.turn_manager.turn += 1
         # if self.client_port == 6301:
         #     self.close()
+
+        """ tell city_ctrl turn info for CityBuyProduction """
+        self.city_ctrl.prop_actions.turn = self.turn_manager.turn
+        """ update city_unhappiness """
+        self.update_city_unhappiness()
 
     def handle_conn_info(self, packet):
         """

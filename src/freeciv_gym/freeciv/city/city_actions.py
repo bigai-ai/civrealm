@@ -40,18 +40,12 @@ after units enforce martial order
 after wonders: final result
 """
 
-FEELING_BASE = 0
-FEELING_LUXURY = 1
-FEELING_EFFECT = 2
-FEELING_NATIONALITY = 3
-FEELING_MARTIAL = 4
-FEELING_FINAL = 5
-
 IG_IMPROVEMENT = 2
+IG_CONVERT = 4
 
 
 class CityActions(ActionList):
-    def __init__(self, ws_client: CivConnection, city_list: list, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
+    def __init__(self, ws_client: CivConnection, city_list: dict, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
         super().__init__(ws_client)
         self.cities = city_list
         self.rulectrl = rulectrl
@@ -59,6 +53,11 @@ class CityActions(ActionList):
         self.city_map = CityTileMap(1, map_ctrl)
 
         self.tiles_shared = dict()
+        self.turn = 1
+        self.city_unhappiness = dict()
+
+    def update_city_status(self, city_unhappiness):
+        self.city_unhappiness = city_unhappiness
 
     def _can_actor_act(self, actor_id):
         return True
@@ -87,7 +86,7 @@ class CityActions(ActionList):
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
 
-            self.add_action(city_id, CityBuyProduction(pcity, pplayer))
+            self.add_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
@@ -239,30 +238,50 @@ class CityChangeSpecialist(Action):
 class CityBuyProduction(Action):
     action_key = "city_buy_production"
 
-    def __init__(self, pcity, pplayer):
+    def __init__(self, pcity, pplayer, rule_ctrl, turn, city_unhappiness):
         super().__init__()
         self.pcity = pcity
         self.pplayer = pplayer
+        self.rule_ctrl = rule_ctrl
+        self.turn = turn
+        self.city_unhappiness = city_unhappiness
         self.kind = self.pcity['production_kind']
         self.value = self.pcity['production_value']
 
     def is_action_valid(self):
-        if "buy_cost" not in self.pcity or self.pcity['did_buy']:
+        if 'buy_cost' not in self.pcity:
             return False
-        if self.pcity['production_kind'] == VUT_IMPROVEMENT and self.pcity['production_value'] == 67:
-            return False
-        if self.pcity['changed_from_kind'] == 0 and self.pcity['changed_from_value'] == 0:
-            return False
-        if city_unhappy(self.pcity):
+        if self.pcity['buy_cost'] <= 0:
             return False
 
-        return self.pplayer['gold'] >= self.pcity['buy_cost'] > 0
+        if self.pcity['did_buy']:
+            return False
+
+        if self.pcity['turn_founded'] == self.turn:
+            return False
+
+        if self.kind == VUT_IMPROVEMENT and self.rule_ctrl.improvements[self.value]['genus'] == IG_CONVERT:
+            return False
+
+        """
+        TODO: get anarchy of pcity
+        if self.kind == VUT_UTYPE and self.pcity['anarchy'] != 0:
+            return False
+        """
+        if self.kind == VUT_UTYPE:
+            if self.pcity['id'] in self.city_unhappiness and self.city_unhappiness[self.pcity['id']]:
+                return False
+
+        return self.pplayer['gold'] >= self.pcity['buy_cost']
 
     def _action_packet(self):
-        """Buy whatever is being built in the city."""
+        """Buy whatever is being built in the city """
         packet = {"pid": packet_city_buy,
                   "city_id": self.pcity['id']}
-        self.wait_for_pid = (31, self.pcity['tile'])
+
+        """ server issue: cannot get anarchy of each city if a savegame is loaded """
+        if self.city_unhappiness:
+            self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
 
@@ -394,13 +413,3 @@ class CityChangeImprovementProduction(CityChangeProduction):
         return infos
 
 
-"""
-logic from freeciv-web
-freeciv-web/freeciv-web/src/main/webapp/javascript/city.js
-lines: 1934 - 1939
-"""
-
-
-def city_unhappy(pcity):
-    return (pcity['ppl_happy'][FEELING_FINAL] <
-            pcity['ppl_unhappy'][FEELING_FINAL] + 2 * pcity['ppl_angry'][FEELING_FINAL])

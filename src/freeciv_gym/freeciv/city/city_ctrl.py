@@ -42,6 +42,7 @@ CITYO_LAST = 3
 
 B_LAST = MAX_NUM_ITEMS
 INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
+FEELING_FINAL = 5
 
 
 class CityCtrl(CivPropController):
@@ -264,3 +265,13 @@ class CityCtrl(CivPropController):
                 return True
         return False
     '''
+
+    @staticmethod
+    def city_unhappy(pcity):
+        """
+        logic from freeciv-web
+        freeciv-web/freeciv-web/src/main/webapp/javascript/city.js
+        lines: 1934 - 1939
+        """
+        return (pcity['ppl_happy'][FEELING_FINAL] <
+                pcity['ppl_unhappy'][FEELING_FINAL] + 2 * pcity['ppl_angry'][FEELING_FINAL])

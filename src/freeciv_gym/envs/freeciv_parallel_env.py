@@ -37,9 +37,9 @@ class FreecivParallelEnv():
         observation, reward, terminated, truncated, info = self.env.step(action)
         return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
     
-    def reset(self):
+    def reset(self,**kwargs):
         # print('FreecivParallelEnv.reset...')
-        return self.env.reset()
+        return self.env.reset(**kwargs)
         
         observation, info = self.env.reset()
         return self.env.civ_controller.get_turn(), self.env.civ_controller.get_turn()

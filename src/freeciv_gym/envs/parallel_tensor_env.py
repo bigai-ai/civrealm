@@ -1,9 +1,10 @@
 import gymnasium
-from gymnasium.envs.registration import register
-from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
-from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
-from freeciv_gym.configs import fc_args
 import ray
+from gymnasium.envs.registration import register
+
+from freeciv_gym.configs import fc_args
+from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
+from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
 
 
 class ParallelTensorEnv:
@@ -26,16 +27,16 @@ class ParallelTensorEnv:
         for env_id in range(self.batch_size_run):
             ray.get(self.envs[env_id].close.remote())
 
-    def reset(self):
+    def reset(self, **kwargs):
         # result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
         # results = ray.get(result_ids)  # results: [(observation, info), ...]
         # observations, infos = zip(*results)
         # print(observations)
         # print(infos)
-        return self.reset_env_by_index(list(range(self.batch_size_run)))
+        return self.reset_env_by_index(list(range(self.batch_size_run)), **kwargs)
 
     # Reset the env whose index is in index_list
-    def reset_env_by_index(self, index_list):
+    def reset_env_by_index(self, index_list, **kwargs):
         result_ids = []
         for index in index_list:
             env_port = ray.get(self.envs[index].get_port.remote())
@@ -47,7 +48,7 @@ class ParallelTensorEnv:
             # print('Reinitialze env....')
             # import time
             # time.sleep(10)
-            result_ids.append(env.reset.remote())
+            result_ids.append(env.reset.remote(**kwargs))
             self.envs[index] = env
 
         results = ray.get(result_ids)  # results: [(observation, info), ...]

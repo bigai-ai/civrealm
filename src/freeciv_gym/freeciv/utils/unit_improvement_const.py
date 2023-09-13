@@ -26,9 +26,8 @@ UNIT_COSTS = [40, 30, 40, 10, 20, 30, 40, 20, 30, 50, 50, 40, 60, 60, 50, 20, 30
               60, 80, 40, 40, 50, 70, 60, 120, 100, 80, 160, 40, 40, 40, 50, 60, 60, 80,
               100, 160, 50, 160, 50, 60, 160, 30, 30, 50, 50, 30, 10, 40, 140]
 
-UNIT_COST_DICT = dict()
-for unit_id, unit_name in enumerate(UNIT_TYPES):
-    UNIT_COST_DICT[unit_name] = UNIT_COSTS[unit_id]
+UNIT_COST_DICT = dict(zip(UNIT_TYPES, UNIT_COSTS))
+
 
 IMPR_TYPES = ['Airport', 'Aqueduct', 'Bank', 'Barracks', 'Barracks II', 'Barracks III', 'Cathedral',
               'City Walls', 'Coastal Defense', 'Colosseum', 'Courthouse', 'Factory', 'Granary', 'Harbor',
@@ -50,7 +49,5 @@ IMPR_COSTS = [120, 60, 80, 30, 30, 30, 80, 60, 60, 70, 60, 140, 40, 40, 180, 60,
               100, 300, 300, 200, 600, 300, 400, 150, 400, 200, 400, 600, 200, 400,
               100, 200, 600, 200, 400, 300, 600, 600, 999]
 
-IMPR_COST_DICT = dict()
-for impr_id, impr_name in enumerate(IMPR_TYPES):
-    IMPR_COST_DICT[impr_name] = IMPR_COSTS[impr_id]
+IMPR_COST_DICT = dict(zip(IMPR_TYPES, IMPR_COSTS))
 

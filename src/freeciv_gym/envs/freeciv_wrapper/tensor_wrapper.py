@@ -46,7 +46,7 @@ class TensorWrapper(Wrapper):
         obs, reward, terminated, truncated, info = self.__env.step(self.action(action))
         if terminated or truncated:
             obs, info = self._cached_last_obs, self._cached_last_info
-        self._cached_last_obs, self._cached_last_info = obs, info
+        self._cached_last_obs, self._cached_last_info = deepcopy(obs), deepcopy(info)
         self._update_sequence_ids(obs)
         info = self._handle_embark_info(info)
         self.mask = self._get_mask(obs, info, action)
@@ -88,12 +88,18 @@ class TensorWrapper(Wrapper):
 
     def action(self, action):
         action = deref_dict(action)
-        actor_type_list = ["turn done", "unit", "city", "gov"]
+        actor_type_list = ["city", "unit", "gov", "turn done"]
         actor_type = action["actor_type"]
         actor_name = actor_type_list[actor_type]
-        if actor_type == 0:
-            return None
-        elif actor_type == 1:
+        if actor_name == "gov":
+            id = 0
+            action_index = action["gov_action_type"]
+            assert (
+                self.gov_action_type_mask[action_index] == 1
+            ), f"gov action of action type index {action_index} is masked"
+            action_list = sorted(list(self.action_list[actor_name][id].keys()))
+            return ("gov", id, action_list[action_index])
+        elif actor_name == "unit":
             id_pos, action_index = action["unit_id"], action["unit_action_type"]
             assert (
                 self.unit_action_type_mask[id_pos, action_index] == 1
@@ -103,7 +109,7 @@ class TensorWrapper(Wrapper):
                 action_index
             ]
             return self._handle_embark_action(("unit", id, action_name))
-        elif actor_type == 2:
+        elif actor_name == "city":
             id_pos, action_index = action["city_id"], action["city_action_type"]
             assert (
                 self.city_action_type_mask[id_pos, action_index] == 1
@@ -113,14 +119,8 @@ class TensorWrapper(Wrapper):
                 action_index
             ]
             return ("city", id, action_name)
-        elif actor_type == 3:
-            id = 0
-            action_index = action["gov_action_type"]
-            assert (
-                self.gov_action_type_mask[action_index] == 1
-            ), f"gov action of action type index {action_index} is masked"
-            action_list = sorted(list(self.action_list[actor_name][id].keys()))
-            return ("gov", id, action_list[action_index])
+        elif actor_name == "turn done":
+            return None
         else:
             raise ValueError(
                 "'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
@@ -255,9 +255,6 @@ class TensorWrapper(Wrapper):
         # TODO: should be base env's responsibility to fill in others'unit fields
         obs["others_city"] = update(obs["others_city"], others_city)
         obs["others_unit"] = update(obs["others_unit"], others_unit)
-        # obs["others_player"] = update(
-        #     obs["others_player"], self.civ_controller.player_ctrl.players
-        # )
 
         # All information should be complete after this point
         for key, val in list(obs["others_unit"].items()):
@@ -293,7 +290,6 @@ class TensorWrapper(Wrapper):
                     val[k] = city_ops[k](v)
                 else:
                     val.pop(k)
-        # TODO: construct others_units x,y,city_radius_sq, buy_cost, shield_stock, before_change_shields, disbanded_shields, caravan_shields, last_turns_shield_surplus
         return obs
 
     def _get_mask(self, observation, info, action=None):
@@ -344,21 +340,24 @@ class TensorWrapper(Wrapper):
         self._mask_from_info(info)
 
     def _mask_from_action(self, action):
+        action = deref_dict(action)
+        actor_type_list = ["city", "unit", "gov", "turn done"]
         actor_type = action["actor_type"]
-        if actor_type == 0:
+        actor_name = actor_type_list[actor_type]
+        if actor_name == "turn done":
             return None
-        elif actor_type == 1:
+        elif actor_name == "unit":
             self.unit_action_type_mask[
                 action["unit_id"], action["unit_action_type"]
             ] *= 0
-        elif actor_type == 2:
+        elif actor_name == "city":
             self.city_action_type_mask[
                 action["city_id"], action["city_action_type"]
             ] *= 0
-        elif actor_type == 3:
+        elif actor_name == "gov":
             # self.gov_action_type_mask[action["gov_action_type"]] *= 0
             self.gov_action_type_mask *= 0
-            self.actor_type_mask[3] *= 0
+            self.actor_type_mask[2] *= 0
         else:
             raise ValueError(
                 f"'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
@@ -411,14 +410,14 @@ class TensorWrapper(Wrapper):
         else:
             self.city_action_type_mask *= 0
             self.city_id_mask *= 0
-        self.actor_type_mask[2] = int(any(self.city_id_mask))
+        self.actor_type_mask[0] = int(any(self.city_id_mask))
 
         if gov := info["available_actions"].get("gov", False):
             for id, act_name in enumerate(sorted(list(gov[0].keys()))):
                 self.gov_action_type_mask[id] *= int(gov[0][act_name])
         else:
             self.gov_action_type_mask *= 0
-        self.actor_type_mask[3] = int(any(self.gov_action_type_mask))
+        self.actor_type_mask[2] = int(any(self.gov_action_type_mask))
 
     def _handle_embark_info(self, info):
         self._embarkable_units = {}

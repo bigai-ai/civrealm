@@ -67,6 +67,7 @@ addopts = [
     # "tests/city/test_city_unwork.py",
     # "tests/city/test_city_work.py",
     # "tests/city/test_city_buy_prod.py",
+    # "tests/city/test_city_buy_if_anarchy.py",
     # "tests/city/test_city_sell_improvement.py",
     # "tests/tech/test_choose_research_tech.py",
     # "tests/tech/test_choose_research_goal.py",

@@ -58,7 +58,7 @@ class MinitaskDifficulty(ExtendedEnum):
 
 DEFAULT_TASK = "minitask"
 PATTERN_MINITASK_TYPE = r"minitask_T\d+_task_([a-z]+)_.*"
-MAX_ID = 9999
+MAX_ID = 9
 SUPPORT_MINITASK_TYPE = [MinitaskType.MT_BUILD_CITY.value]
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
@@ -159,10 +159,9 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         detail = dict()
         for msg in minitask_results[::-1]:
             if 'metrics' in msg:
-                if 'mini_goal' in msg['metrics'][-1]:
-                    detail['goal'] = msg['metrics'][-1]['mini_goal']
-                if 'max_turn' in msg['metrics'][-1]:
-                    detail['max_turn'] = msg['metrics'][-1]['max_turn']
+                for field in ['mini_goal', 'max_turn', 'mini_score']:
+                    if field in msg['metrics'][-1]:
+                        detail[field] = msg['metrics'][-1][field]
                 return detail
         return detail
 

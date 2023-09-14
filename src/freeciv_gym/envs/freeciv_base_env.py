@@ -97,6 +97,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         start_time = time.time()
 
         self.civ_controller.perform_action(action)
+
         info, observation = self._get_info_and_observation()
         reward = self._get_reward()
         terminated = self._get_terminated()

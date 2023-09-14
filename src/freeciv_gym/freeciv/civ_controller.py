@@ -392,6 +392,8 @@ class CivController(CivPropController):
         self.ws_client.start_ioloop()
 
     def close(self):
+        if fc_args['debug.interrupt_save']:
+            self.save_game()
         if not self.game_is_over:
             self.end_game()
         if self.visualize:

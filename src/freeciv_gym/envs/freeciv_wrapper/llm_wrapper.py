@@ -163,7 +163,7 @@ class LLMWrapper(Wrapper):
                     owner_set.append(unit_owner)
 
                 city_owners = list(city_owner_arr[city_owner_arr != 255])
-                for city_owner in self.civ_controller.player_ctrl.players():
+                for city_owner in self.civ_controller.player_ctrl.players:
                     owner_num = city_owners.count(city_owner)
                     if owner_num == 0:
                         continue

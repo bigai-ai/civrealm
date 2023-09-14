@@ -32,10 +32,13 @@ class FreecivTensorMinitaskEnv(Wrapper):
         config: dict = default_tensor_config,
     ):
         tensor_env = TensorWrapper(
-            env=MinitaskDenseReward(FreecivMinitaskEnv(username="minitask", client_port=client_port)),
+            env=MinitaskDenseReward(
+                FreecivMinitaskEnv(username="minitask", client_port=client_port)
+            ),
             config=config,
         )
         super().__init__(tensor_env)
+
         self._cached_reset_result = self.env.reset()
         # reset during init to get valid obs space
         self.first_reset = True

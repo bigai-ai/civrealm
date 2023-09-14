@@ -35,6 +35,10 @@ IG_IMPROVEMENT = 2
 IG_SPECIAL = 3
 IG_CONVERT = 4
 
+TILE_UNKNOWN = 0
+TILE_KNOWN_UNSEEN = 1
+TILE_KNOWN_SEEN = 2
+
 
 class CityActions(ActionList):
     def __init__(self, ws_client: CivConnection, city_list: dict, rulectrl: RulesetCtrl, map_ctrl: MapCtrl):
@@ -69,8 +73,8 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared))
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared, self.rulectrl))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared, self.rulectrl))
 
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
@@ -97,13 +101,14 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, tiles_shared):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, tiles_shared, rule_ctrl):
         super().__init__()
         self.dx = dx
         self.dy = dy
         self.pcity = pcity
         self.cur_player = pplayer
         self.tiles_shared = tiles_shared
+        self.rule_ctrl = rule_ctrl
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
 
@@ -129,9 +134,32 @@ class CityWorkTile(Action):
         if not self.gives_shared_tiles():
             return False
 
-        return ('worked' in self.ptile and self.ptile['worked'] == 0 and 'specialists' in self.pcity
-                and sum(self.pcity['specialists']) > 0 and self.ptile['known'] != 0
-                and 'output_food' in self.pcity and self.output_idx is not None)
+        if 'worked' in self.ptile and self.ptile['worked'] != 0:
+            return False
+
+        if 'specialists' in self.pcity and sum(self.pcity['specialists']) <= 0:
+            return False
+
+        if self.ptile['known'] != TILE_KNOWN_SEEN:
+            return False
+
+        """
+        logic is not complete here
+        server func: get_city_tile_output_bonus
+        temporarily do not consider working on 'inaccessible' and 'boiling ocean' tiles after getting advanced techs 
+        """
+        if self.rule_ctrl.terrains[self.ptile['terrain']]['name'].lower() in ['inaccessible', 'boiling ocean']:
+            return False
+
+        """
+        temporarily do not consider radiating
+        for p in self.rule_ctrl.terrains[self.ptile['terrain']]['flags']:
+            if (self.rule_ctrl.terrains[self.ptile['terrain']]['flags'][p] == 1 and 
+                    self.rule_ctrl.terrain_flag[p]['name'].lower() == 'radiating'):
+                return False
+        """
+
+        return True
 
     """
     logic from freeciv/common/city.c
@@ -151,7 +179,7 @@ class CityWorkTile(Action):
 
     def gives_shared_tiles(self):
         tile_owner = self.ptile['owner']
-        if self.cur_player['playerno'] == tile_owner:
+        if self.cur_player['playerno'] == tile_owner or tile_owner == 255:
             return True
 
         if tile_owner in self.tiles_shared and self.tiles_shared[tile_owner][self.cur_player['playerno']] == 1:

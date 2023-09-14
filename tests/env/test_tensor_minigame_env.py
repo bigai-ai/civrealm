@@ -65,7 +65,7 @@ def test_minitask_tensor_env(env, task_name):
     if len(city_action_pos[0]) > 0:
         idx = np.random.randint(len(city_action_pos[0]))
         act_city = {
-            "actor_type": 2,
+            "actor_type": 0,
             "city_id": city_action_pos[0][idx],
             "city_action_type": city_action_pos[1][idx],
         }
@@ -76,7 +76,7 @@ def test_minitask_tensor_env(env, task_name):
     gov_action_pos = np.where(obs["gov_action_type_mask"] == 1)
     action_type = np.random.choice(gov_action_pos[0])
     act_gov = {
-        "actor_type": 3,
+        "actor_type": 2,
         "gov_action_type": action_type,
     }
     obs, reward, terminated, truncated, info = env.step(act_gov)

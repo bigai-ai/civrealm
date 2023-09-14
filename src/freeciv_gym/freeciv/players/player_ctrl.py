@@ -247,9 +247,8 @@ class PlayerCtrl(CivPropController):
             # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
-        """
-        tell city_ctrl if tiles are shared between players
-        """
+
+        """ tell city_ctrl if tiles are shared between players """
         self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]] = packet['gives_shared_tiles']
 
     def handle_web_player_info_addition(self, packet):

@@ -80,7 +80,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         self._last_minitask_score = None
 
     @staticmethod
-    def get_minitask(name, minitask_pattern=None, max_id=MAX_ID):
+    def get_minitask(name, minitask_pattern, max_id):
         """ Get Minitask Sav File Randomly. """
         if minitask_pattern is not None:
             if 'id' in minitask_pattern:
@@ -111,7 +111,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             del info['available_actions']['player']
         return info, observation
     
-    def reset(self, seed=None, options=None, minitask_pattern=None, max_id=None):
+    def reset(self, seed=None, options=None, minitask_pattern=None, max_id=MAX_ID):
         self.set_minitask(seed, minitask_pattern, max_id)
         return super().reset(seed, options)
 

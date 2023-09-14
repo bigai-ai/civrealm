@@ -46,11 +46,12 @@ class TensorWrapper(Wrapper):
         obs, reward, terminated, truncated, info = self.__env.step(self.action(action))
         if terminated or truncated:
             obs, info = self._cached_last_obs, self._cached_last_info
-        self._cached_last_obs, self._cached_last_info = deepcopy(obs), deepcopy(info)
+            return obs, reward, terminated, truncated, info
         self._update_sequence_ids(obs)
         info = self._handle_embark_info(info)
         self.mask = self._get_mask(obs, info, action)
         obs = self.observation(obs)
+        self._cached_last_obs, self._cached_last_info = deepcopy(obs), deepcopy(info)
         return obs, reward, terminated, truncated, info
 
     def observation(self, observation):
@@ -277,14 +278,14 @@ class TensorWrapper(Wrapper):
                     val.pop(k)
         self.others_player_ids = sorted(obs["others_player"].keys())
 
-        for key, val in list(obs["unit"].items()):
+        for key, val in list(obs.get("unit", {}).items()):
             for k, v in list(val.items()):
                 if k in list(unit_ops.keys()):
                     val[k] = unit_ops[k](v)
                 else:
                     val.pop(k)
 
-        for key, val in list(obs["city"].items()):
+        for key, val in list(obs.get("city", {}).items()):
             for k, v in list(val.items()):
                 if k in list(city_ops.keys()):
                     val[k] = city_ops[k](v)
@@ -379,7 +380,7 @@ class TensorWrapper(Wrapper):
             unit = observation["unit"][id]
             if (
                 unit["moves_left"] == 0
-                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] != 0
+                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] not in [0, 4] # agent busy or fortified
             ):
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0

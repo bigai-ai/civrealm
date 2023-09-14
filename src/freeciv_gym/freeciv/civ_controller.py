@@ -358,6 +358,8 @@ class CivController(CivPropController):
                     pid_info = (packet['pid'], packet['city'])
                 elif packet['pid'] == 223:
                     pid_info = (packet['pid'], packet['player_id'])
+                elif packet['pid'] == 65:
+                    pid_info = (packet['pid'], packet['attacker_unit_id'])
                 else:
                     if 'id' in packet:
                         pid_info = (packet['pid'], packet['id'])

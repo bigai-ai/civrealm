@@ -1978,7 +1978,7 @@ class ActAttack(UnitAction):
                                      self.target_tile_id,
                                      ACTION_ATTACK)
 
-        self.wait_for_pid = (63, self.focus.punit['id'])
+        self.wait_for_pid = (65, self.focus.punit['id'])
         return packet
 
 

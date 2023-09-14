@@ -73,8 +73,8 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared, self.rulectrl))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.tiles_shared, self.rulectrl))
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
 
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
@@ -101,13 +101,12 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, tiles_shared, rule_ctrl):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, rule_ctrl):
         super().__init__()
         self.dx = dx
         self.dy = dy
         self.pcity = pcity
         self.cur_player = pplayer
-        self.tiles_shared = tiles_shared
         self.rule_ctrl = rule_ctrl
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
@@ -182,8 +181,12 @@ class CityWorkTile(Action):
         if self.cur_player['playerno'] == tile_owner or tile_owner == 255:
             return True
 
+        """
+        gives_shared_tiles in player packet pid = 51 changes very frequently
+        
         if tile_owner in self.tiles_shared and self.tiles_shared[tile_owner][self.cur_player['playerno']] == 1:
             return True
+        """
 
         return False
 

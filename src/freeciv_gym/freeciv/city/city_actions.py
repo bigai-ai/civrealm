@@ -29,16 +29,10 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20
 
-"""
-before any of the modifiers below 
-after luxury
-after building effects
-after citizen nationality effects 
-after units enforce martial order
-after wonders: final result
-"""
-
+IG_GREAT_WONDER = 0
+IG_SMALL_WONDER = 1
 IG_IMPROVEMENT = 2
+IG_SPECIAL = 3
 IG_CONVERT = 4
 
 
@@ -292,6 +286,10 @@ class CitySellImprovement(Action):
         self.action_key += "_%s" % improvement_name
 
     def is_action_valid(self):
+        """ already sold something here this turn """
+        if self.pcity['did_sell']:
+            return False
+
         return self.pcity['improvements'][self.improvement_id] == 1
 
     def _action_packet(self):

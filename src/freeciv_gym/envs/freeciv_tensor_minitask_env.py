@@ -14,7 +14,9 @@ from gymnasium.core import Wrapper
 
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_minitask_env import FreecivMinitaskEnv
-from freeciv_gym.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
+from freeciv_gym.envs.freeciv_wrapper import (MinitaskDelayedReward,
+                                              MinitaskDenseReward,
+                                              TensorWrapper)
 from freeciv_gym.envs.freeciv_wrapper.utils import default_tensor_config
 
 
@@ -30,7 +32,7 @@ class FreecivTensorMinitaskEnv(Wrapper):
         config: dict = default_tensor_config,
     ):
         tensor_env = TensorWrapper(
-            env=FreecivMinitaskEnv(username=username, client_port=client_port),
+            env=MinitaskDenseReward(FreecivMinitaskEnv(username="minitask", client_port=client_port)),
             config=config,
         )
         super().__init__(tensor_env)

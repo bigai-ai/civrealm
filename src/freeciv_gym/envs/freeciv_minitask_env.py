@@ -57,9 +57,15 @@ class MinitaskDifficulty(ExtendedEnum):
     MD_HARD = 'hard'
 
 DEFAULT_TASK = "minitask"
-PATTERN_MINITASK_TYPE = r"minitask_T\d+_task_([a-z]+)_.*"
-MAX_ID = 9
-SUPPORT_MINITASK_TYPE = [MinitaskType.MT_BUILD_CITY.value]
+MAX_ID = 999
+SUPPORT_MINITASK_TYPE = [
+    MinitaskType.MT_BUILD_CITY.value, 
+    MinitaskType.MT_BATTLE_ANCIENT.value,
+    MinitaskType.MT_BATTLE_INDUSTRY.value,
+    MinitaskType.MT_BATTLE_INFO.value,
+    MinitaskType.MT_BATTLE_MEDIEVAL.value,
+    MinitaskType.MT_BATTLE_MODERN.value,
+]
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
@@ -74,7 +80,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         self._last_minitask_score = None
 
     @staticmethod
-    def get_minitask(name, minitask_pattern=None):
+    def get_minitask(name, minitask_pattern=None, max_id=MAX_ID):
         """ Get Minitask Sav File Randomly. """
         if minitask_pattern is not None:
             if 'id' in minitask_pattern:
@@ -82,13 +88,13 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             elif minitask_pattern in SUPPORT_MINITASK_TYPE:
                 minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_pattern, 
                                                          random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, MAX_ID))
+                                                         random.randint(0, max_id))
             else:
                 raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {SUPPORT_MINITASK_TYPE}!")
         else:
             minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, random.choice(SUPPORT_MINITASK_TYPE), 
                                                          random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, MAX_ID))
+                                                         random.randint(0, max_id))
         fc_logger.debug(f"Randomly selected minitask {minitask}!")
         return minitask
 
@@ -105,16 +111,16 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             del info['available_actions']['player']
         return info, observation
     
-    def reset(self, seed=None, options=None, minitask_pattern=None):
-        self.set_minitask(seed, minitask_pattern)
+    def reset(self, seed=None, options=None, minitask_pattern=None, max_id=None):
+        self.set_minitask(seed, minitask_pattern, max_id)
         return super().reset(seed, options)
 
-    def set_minitask(self, seed, minitask_pattern):
+    def set_minitask(self, seed, minitask_pattern, max_id):
         """ Set Minitask. """
         random.seed(seed)
-        minitask = self.get_minitask(fc_args['username'], minitask_pattern=minitask_pattern)
+        minitask = self.get_minitask(fc_args['username'], minitask_pattern, max_id)
         self.filename = minitask
-        self.task_type = re.match(PATTERN_MINITASK_TYPE, minitask)[1]
+        self.task_type = re.match(r"{}_T\d+_task_([a-z]+)_.*".format(fc_args['username']), minitask)[1]
         self.civ_controller.set_parameter('debug.load_game', minitask)
         return
 

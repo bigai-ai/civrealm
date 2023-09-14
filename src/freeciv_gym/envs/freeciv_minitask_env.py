@@ -14,7 +14,6 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
-import subprocess
 import random
 from gymnasium import utils
 from freeciv_gym.freeciv.civ_controller import CivController
@@ -22,15 +21,6 @@ from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger, set_logging_file
 from freeciv_gym.configs import fc_args
 from enum import Enum, unique
-
-DEFAULT_TASK = "minitask"
-PATTERN_MINITASK_TYPE = r"minitask_T\d+_task_([a-z]+)_.*"
-
-def get_files(cmd):
-    pi = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-    sav_files = pi.stdout.read().decode("utf8").strip().replace("\r", '').split("\n")
-    sav_files = [sav.strip().split(".sav")[0] for sav in sav_files if sav.endswith("sav")]
-    return sav_files
 
 class ExtendedEnum(Enum):
     @classmethod
@@ -40,11 +30,14 @@ class ExtendedEnum(Enum):
 @unique
 class MinitaskType(ExtendedEnum):
     MT_BUILD_CITY = "buildcity"
-    MT_BATTLE = "battle"
+    MT_BATTLE_ANCIENT = "battle_ancient_era"
+    MT_BATTLE_INDUSTRY = "battle_industry_era"
+    MT_BATTLE_INFO = "battle_info_era"
+    MT_BATTLE_MEDIEVAL = "battle_medieval"
+    MT_BATTLE_MODERN = "battle_modern_era"
     MT_ATTACK_CITY = "attackcity"
     MT_DEFEND_CITY = "defendcity"
     MT_TRADE_TECH = "tradetech"
-    MT_DEVELOPMENT = "development"
 
 @unique
 class MinitaskGameStatus(ExtendedEnum):
@@ -57,6 +50,17 @@ class MinitaskPlayerStatus(ExtendedEnum):
     MPS_FAIL = 0
     MPS_UNKNOWN = -1
 
+@unique
+class MinitaskDifficulty(ExtendedEnum):
+    MD_EASY = 'easy'
+    MD_NORMAL = 'normal'
+    MD_HARD = 'hard'
+
+DEFAULT_TASK = "minitask"
+PATTERN_MINITASK_TYPE = r"minitask_T\d+_task_([a-z]+)_.*"
+MAX_ID = 9999
+SUPPORT_MINITASK_TYPE = [MinitaskType.MT_BUILD_CITY.value]
+
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
 
@@ -67,27 +71,35 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         self.filename = None
         self.task_type = None
         fc_args['debug.autosave'] = False
-        self._last_minitask_score = 0
+        self._last_minitask_score = None
 
     @staticmethod
-    def get_minitask(name, 
-                     docker_image='freeciv-web', 
-                     docker_sav_path='/var/lib/tomcat10/webapps/data/savegames/',
-                     minitask_pattern=None):
+    def get_minitask(name, minitask_pattern=None):
         """ Get Minitask Sav File Randomly. """
-        minitasks = get_files(f"docker exec -it {docker_image} ls {docker_sav_path}{name}")
         if minitask_pattern is not None:
-            minitasks = [task for task in minitasks if re.match('.*'+minitask_pattern+'.*', task)]
-            if len(minitasks) == 0:
-                raise ValueError(f"Not supported pattern like {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
-        minitask = random.choice(minitasks)
-        fc_logger.debug(f"Discovered {len(minitasks)} minitasks for {name}, randomly selected {minitask}!")
+            if 'id' in minitask_pattern:
+                minitask = minitask_pattern
+            elif minitask_pattern in SUPPORT_MINITASK_TYPE:
+                minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_pattern, 
+                                                         random.choice(MinitaskDifficulty.list()), 
+                                                         random.randint(0, MAX_ID))
+            else:
+                raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {SUPPORT_MINITASK_TYPE}!")
+        else:
+            minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, random.choice(SUPPORT_MINITASK_TYPE), 
+                                                         random.choice(MinitaskDifficulty.list()), 
+                                                         random.randint(0, MAX_ID))
+        fc_logger.debug(f"Randomly selected minitask {minitask}!")
         return minitask
-    
+
     def _get_info_and_observation(self):
         info, observation = super()._get_info_and_observation()
         # Remove player action from available actions. This is to prevent the agent from making pacts (peace, alliance, etc.) with other players in battle minitasks.
-        if 'player' in info['available_actions'] and self.task_type in [MinitaskType.MT_BATTLE.value, 
+        if 'player' in info['available_actions'] and self.task_type in [MinitaskType.MT_BATTLE_ANCIENT.value, 
+                                                                        MinitaskType.MT_BATTLE_INDUSTRY.value, 
+                                                                        MinitaskType.MT_BATTLE_INFO.value, 
+                                                                        MinitaskType.MT_BATTLE_MEDIEVAL.value, 
+                                                                        MinitaskType.MT_BATTLE_MODERN.value, 
                                                                         MinitaskType.MT_ATTACK_CITY.value, 
                                                                         MinitaskType.MT_DEFEND_CITY.value]:
             del info['available_actions']['player']
@@ -121,8 +133,11 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         current_score = 0.0
         for msg in minitask_results[::-1]:
             if 'metrics' in msg and 'mini_score' in msg['metrics'][-1]:
+                if self._last_minitask_score is None:
+                    self._last_minitask_score = msg['metrics'][-1]['mini_score']
                 current_score = msg['metrics'][-1]['mini_score'] - self._last_minitask_score
                 self._last_minitask_score = msg['metrics'][-1]['mini_score']
+                return current_score
         return current_score
 
     def _get_game_status(self):
@@ -148,6 +163,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
                     detail['goal'] = msg['metrics'][-1]['mini_goal']
                 if 'max_turn' in msg['metrics'][-1]:
                     detail['max_turn'] = msg['metrics'][-1]['max_turn']
+                return detail
         return detail
 
     def step(self, action):

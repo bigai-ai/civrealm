@@ -172,7 +172,6 @@ class TurnManager(object):
         self._turn_state = None
         self._turn_actions = None
         self._turn_info = None
-        self._turn_messages.clear()
         time.sleep(self._sleep_time_after_turn)
 
     def add_message(self, message):

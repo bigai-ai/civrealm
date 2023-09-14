@@ -26,7 +26,7 @@ def main():
     env = gymnasium.make('freeciv/FreecivMinitask-v0')
     agent = ControllerAgent()
 
-    observations, info = env.reset(minitask_pattern="buildcity")
+    observations, info = env.reset(minitask_pattern='buildcity')
     done = False
     step = 0
     while not done:
@@ -34,8 +34,8 @@ def main():
             action = agent.act(observations, info)
             observations, reward, terminated, truncated, info = env.step(action)
             print(
-                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}')
-            print(info['minitask'])
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}, Action: {action}')
+            print(f'\tMinitask Info: {info["minitask"]}')
             step += 1
             done = terminated or truncated
         except Exception as e:

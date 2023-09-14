@@ -206,7 +206,7 @@ class CityState(DictState):
         if pcity['production_kind'] == VUT_IMPROVEMENT:
             improvement = self.rule_ctrl.improvements[pcity['production_value']]
             if improvement['name'] == 'Coinage':
-                return FC_INFINITY
+                return 0
             return self.city_turns_to_build(pcity, improvement, True)
 
         return FC_INFINITY

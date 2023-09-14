@@ -379,7 +379,7 @@ class TensorWrapper(Wrapper):
             unit = observation["unit"][id]
             if (
                 unit["moves_left"] == 0
-                and self.__env.civ_controller.unit_ctrl.units[id]["activity"] != 0
+                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] != 0
             ):
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0

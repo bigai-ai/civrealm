@@ -202,7 +202,7 @@ class TensorWrapper(Wrapper):
         obs["city"] = obs.get("city", {})
         obs["unit"] = obs.get("unit", {})
 
-        for key, val in obs.get("dipl",{}).items():
+        for key, val in obs.get("dipl", {}).items():
             update(obs["player"][key], val)
 
         for key in list(obs.keys()):
@@ -210,7 +210,7 @@ class TensorWrapper(Wrapper):
                 obs.pop(key)
 
         obs["others_player"] = {
-            key: val for key, val in obs.get("player",{}).items() if key != 0
+            key: val for key, val in obs.get("player", {}).items() if key != 0
         }
         obs["player"] = obs["player"][0]
 
@@ -368,18 +368,29 @@ class TensorWrapper(Wrapper):
         self.city_mask[len(self.city_ids) : :, :] *= 0
         self.unit_action_type_mask[len(self.unit_ids) : :, :] *= 0
         self.city_action_type_mask[len(self.city_ids) : :, :] *= 0
+
+        for pos, id in enumerate(self.city_ids[: self.tensor_config["resize"]["city"]]):
+            city = observation["city"][id]
+            if city["prod_process"] != 0:
+                self.city_mask[pos] *= 0
+                self.city_action_type_mask[pos] *= 0
+
         for pos, id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
             unit = observation["unit"][id]
-            if unit["moves_left"] == 0:
+            if (
+                unit["moves_left"] == 0
+                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] != 0
+            ):
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0
+
         self.unit_id_mask = self.unit_mask
         self.city_id_mask = self.city_mask
         self.others_unit_mask[len(self.others_unit_ids) : :, :] *= 0
         self.others_city_mask[len(self.others_city_ids) : :, :] *= 0
 
     def _mask_from_info(self, info):
-        others_player_num = len(info["available_actions"].get("player",{}).keys())
+        others_player_num = len(info["available_actions"].get("player", {}).keys())
         self.others_player_mask[others_player_num::, :] = 0
 
         if units := info["available_actions"].get("unit", False):

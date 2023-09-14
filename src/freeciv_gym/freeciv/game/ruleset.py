@@ -40,6 +40,7 @@ class RulesetCtrl(CivPropController):
         super().__init__(ws_client)
 
         self.terrains = {}
+        self.terrain_flag = {}
         self.resources = {}
         self.unit_types = {}
         self.unit_classes = {}
@@ -142,6 +143,7 @@ class RulesetCtrl(CivPropController):
 
         self.terrains[packet['id']] = packet
         self.terrains[packet['id']]['output'] = np.array(self.terrains[packet['id']]['output'], dtype=np.ushort)
+        self.terrains[packet['id']]['flags'] = byte_to_bit_array(packet['flags'])
 
     def handle_ruleset_resource(self, packet):
         self.resources[packet['id']] = packet
@@ -277,8 +279,7 @@ class RulesetCtrl(CivPropController):
         # /* TODO: implement*/
 
     def handle_ruleset_terrain_flag(self, packet):
-        pass
-        # /* TODO: implement*/
+        self.terrain_flag[packet['id']] = packet
 
     def handle_ruleset_achievement(self, packet):
         pass

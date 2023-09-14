@@ -229,6 +229,9 @@ class PlayerCtrl(CivPropController):
             return [], []
 
     def handle_player_info(self, packet):
+        """ tell city_ctrl if tiles are shared between players """
+        self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]] = byte_to_bit_array(packet['gives_shared_tiles'])
+
         """ Interpret player flags."""
         packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
         packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
@@ -247,10 +250,6 @@ class PlayerCtrl(CivPropController):
             # update_net_income()
         # update_player_info_pregame()
         # update_tech_screen()
-        """
-        tell city_ctrl if tiles are shared between players
-        """
-        self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]] = packet['gives_shared_tiles']
 
     def handle_web_player_info_addition(self, packet):
         # Currently there is only one additional field expected_income

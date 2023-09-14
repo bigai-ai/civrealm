@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T82_attack')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -48,17 +48,16 @@ def test_attack(controller):
                 f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'attack_{map_const.DIR8_NORTHWEST}'])
+            test_action_list.append(valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'])
         else:
             pass
-    print('Attack the northwest tile')
+    print('Attack the southeast tile')
     # Perform attack action for the horseman
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
+    fc_logger.info('Attack the southeast tile')
     # Get unit new state
-    controller.send_end_turn()
     controller.get_info_and_observation()
     unit_opt = controller.turn_manager.turn_actions['unit']
-    assert (389 not in unit_opt.unit_ctrl.units.keys())
-    import time
-    time.sleep(2)
+    # The attack leads to the death of unit 250
+    assert (250 not in unit_opt.unit_ctrl.units.keys())

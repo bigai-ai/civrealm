@@ -14,6 +14,7 @@ authors = [
     {name = "Ping Huang", email = "huangping@bigai.ai"},
     {name = "Bangcheng Yang", email = "yangbangcheng@bigai.ai"},
     {name = "Xiaoyuan Zhang", email = "zhangxiaoyuan@bigai.ai"},
+    {name = "Nian Liu", email = "liunian@bigai.ai"}
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}
@@ -50,6 +51,7 @@ dependencies = [
 
 [project.scripts]
 update_freeciv_web_docker = "freeciv_gym.freeciv.build_server:update_docker_image"
+update_javascript_for_clean_screenshot = "freeciv_gym.freeciv.build_server:update_javascript_for_clean_screenshot"
 test_freeciv_gym = "freeciv_gym.random_game:main"
 
 [tool.pytest.ini_options]

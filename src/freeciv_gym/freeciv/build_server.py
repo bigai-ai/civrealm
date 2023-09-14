@@ -80,3 +80,18 @@ def update_docker_image():
 
     # Commit the modified docker image
     run_bash_command(f'docker commit {docker_image_name} freeciv/{docker_image_name}')
+
+
+def update_javascript_for_clean_screenshot():
+    print('Updating docker image...')
+    freeciv_dir = os.path.dirname(__file__)
+    modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_javascript_for_screenshot')
+
+    # Copy modified javascript to docker image
+    run_bash_command(
+        f'docker cp {modified_code_dir}/javascript {docker_image_name}:/docker/freeciv-web/src/main/webapp/')
+
+    # Rebuild the web server
+    run_bash_command(
+        f'docker exec -it {docker_image_name} bash -c "cd /docker/freeciv-web/; source build.sh"')
+

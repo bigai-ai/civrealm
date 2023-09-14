@@ -794,3 +794,6 @@ class CivController(CivPropController):
         # /* FIXME: not implemented yet.
         # update_players_dialog()
         # update_conn_list_dialog()
+
+    def take_screenshot(self, file_path):
+        self.monitor.take_screenshot(file_path)

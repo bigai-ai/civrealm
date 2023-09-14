@@ -41,6 +41,8 @@ debug:
   sleep_time_after_turn: 0.0
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True
+  # If true, will save the game when using KeyboardInterrupt. Note that when using this, we should disable autosave. Otherwise, the game will be saved in the beginning of every turn and cannot be saved again when KeyboardInterrupt.
+  interrupt_save: False
   # Password used to login to the freeciv web account
   password: freecivgym
   # load_game: "testcontroller_T230_2023-09-08-09_14"

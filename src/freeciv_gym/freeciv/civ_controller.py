@@ -392,6 +392,8 @@ class CivController(CivPropController):
         self.ws_client.start_ioloop()
 
     def close(self):
+        if fc_args['debug.interrupt_save']:
+            self.save_game()
         if not self.game_is_over:
             self.end_game()
         if self.visualize:
@@ -540,7 +542,7 @@ class CivController(CivPropController):
 
     def pregame_choose_nation(self, player_id):
         namelist = self.rule_ctrl.get_nation_options()
-        chosen_nation_name = namelist[random.randint(0, len(namelist))]
+        chosen_nation_name = namelist[random.randint(0, len(namelist) - 1)]
         player_num = self.clstate.player_num()
         if (chosen_nation_name == -1 or player_num == None
                 or player_id == None or player_id < 0):

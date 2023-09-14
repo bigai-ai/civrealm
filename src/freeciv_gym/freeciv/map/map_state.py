@@ -30,6 +30,7 @@ class MapState(PlainState):
 
         self.rule_ctrl = rule_ctrl
         self._extra_num = 0
+        self._extra_num = 0
         self._tiles = []
 
         # Type: dict[str, np.ndarray]
@@ -57,6 +58,7 @@ class MapState(PlainState):
         """
         # The "extras" variable in the ruleset controller stores duplicated extra types, keys are the extra names and extra ids.
         self._extra_num = len(self.rule_ctrl.extras)//2
+        self._unit_type_num = len(self.rule_ctrl.unit_types)
 
         self._state['status'] = np.full((x_size, y_size), 0, dtype=np.ushort)
         self._state['terrain'] = np.full((x_size, y_size), 255, dtype=np.ushort)
@@ -64,7 +66,7 @@ class MapState(PlainState):
         self._state['output'] = np.full((x_size, y_size, 6), 0, dtype=np.ushort)
         self._state['tile_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
         self._state['city_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
-        self._state['unit'] = np.full((x_size, y_size, len(UNIT_TYPES)), 0, dtype=np.ushort)
+        self._state['unit'] = np.full((x_size, y_size, self._unit_type_num), 0, dtype=np.ushort)
         self._state['unit_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
 
         for y in range(y_size):
@@ -169,7 +171,7 @@ class MapState(PlainState):
             'city_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8),
             'unit': gymnasium.spaces.Box(
-            low=0, high=1, shape=(*map_shape, len(UNIT_TYPES)),
+            low=0, high=1, shape=(*map_shape, self._unit_type_num),
             dtype=np.uint8),
             'unit_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8), })

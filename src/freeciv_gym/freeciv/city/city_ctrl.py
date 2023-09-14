@@ -42,6 +42,19 @@ CITYO_LAST = 3
 
 B_LAST = MAX_NUM_ITEMS
 INCITE_IMPOSSIBLE_COST = 1000 * 1000 * 1000
+"""
+before any of the modifiers below 
+after luxury
+after building effects
+after citizen nationality effects 
+after units enforce martial order
+after wonders: final result
+"""
+FEELING_BASE = 0
+FEELING_LUXURY = 1
+FEELING_EFFECT = 2
+FEELING_NATIONALITY = 3
+FEELING_MARTIAL = 4
 FEELING_FINAL = 5
 
 

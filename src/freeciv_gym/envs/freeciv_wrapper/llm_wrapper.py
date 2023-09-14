@@ -162,22 +162,22 @@ class LLMWrapper(Wrapper):
                     mini_map_info[ptile].append(unit_owner_str)
                     owner_set.append(unit_owner)
 
-                owner_set = []
-                for city_owner in list(city_owner_arr[city_owner_arr != 255]):
-                    if city_owner in owner_set:
+                city_owners = list(city_owner_arr[city_owner_arr != 255])
+                for city_owner in self.civ_controller.player_ctrl.players():
+                    owner_num = city_owners.count(city_owner)
+                    if owner_num == 0:
                         continue
 
                     if city_owner == self.civ_controller.player_ctrl.my_player_id:
-                        city_owner_str = '1 city of myself player_' + str(int(city_owner))
+                        city_owner_str = str(owner_num) + ' cities of myself player_' + str(int(city_owner))
                     else:
                         ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[city_owner]
-                        city_owner_str = '1 city of a ' + DS_TXT[ds_of_owner] + ' player_' + str(int(city_owner))
+                        city_owner_str = (str(owner_num) + ' cities of a ' + DS_TXT[ds_of_owner] +
+                                          ' player_' + str(int(city_owner)))
                     mini_map_info[ptile].append(city_owner_str)
-                    owner_set.append(city_owner)
 
             tile_id += 1
         return mini_map_info
-
 
 
 

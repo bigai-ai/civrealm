@@ -46,10 +46,13 @@ class CivMonitor():
             while getattr(t, "do_run", True):
                 if self.state == "go_multi_player_and_join":
                     try:
-                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, "#multiplayer-table .highlight .label")[1]  # play [join]
+                        bt_single_game = self._driver.find_elements(
+                            By.CSS_SELECTOR, "#multiplayer-table .label")[1]  # play [join]
                         bt_single_game.click()
                         sleep(self._poll_interval)
-                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, ".label.label-success")[0]  # join, You can join this game now
+                        self._driver.refresh()
+                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, ".label")[
+                            0]  # join, You can join this game now
                         bt_single_game.click()
                         self.state = "input_observer_name"
                     except Exception as err:
@@ -68,7 +71,8 @@ class CivMonitor():
                         bt_single_game.clear()
                         bt_single_game.send_keys("observer")
                         sleep(self._poll_interval)
-                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, ".ui-dialog-buttonset .ui-button.ui-corner-all.ui-widget")[1] # Join Games
+                        bt_single_game = self._driver.find_elements(
+                            By.CSS_SELECTOR, ".ui-dialog-buttonset .ui-button.ui-corner-all.ui-widget")[1]  # Join Games
                         bt_single_game.click()
                         self.state = "viewing"
                     except Exception as err:

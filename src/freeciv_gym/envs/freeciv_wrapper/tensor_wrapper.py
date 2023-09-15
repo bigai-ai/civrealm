@@ -10,7 +10,6 @@ class TensorWrapper(Wrapper):
         self.tensor_config = config
         self._obs_initialized = False
         self._observation_space: Optional[spaces.Dict] = None
-        self._seed = None
         self._embarkable_units = {}
 
         super().__init__(env)
@@ -23,8 +22,6 @@ class TensorWrapper(Wrapper):
         options: Optional[dict[str, Any]] = None,
         **kwargs,
     ):
-        if seed is None:
-            seed = self._seed
         obs, info = self.__env.reset(seed=seed, options=options, **kwargs)
         self.unit_ids = []
         self.city_ids = []
@@ -126,9 +123,6 @@ class TensorWrapper(Wrapper):
             raise ValueError(
                 "'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
             )
-
-    def seed(self, seed):
-        self._seed = seed
 
     def _infer_obs_space(self, observation) -> spaces.Dict:
         return spaces.Dict(

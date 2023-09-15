@@ -89,7 +89,8 @@ class PlayerCtrl(CivPropController):
         return self.prop_state.my_player
 
     def previous_players_finished(self) -> bool:
-        # Determine whether other players with a smaller playno have finished. Note that here we assume the host has a smallest playerno so that it always starts its turn first.
+        # Determine whether other players with a smaller playno have finished. Note that here we assume the host has
+        # a smallest playerno so that it always starts its turn first.
         for playerno in self.players:
             if playerno < self.my_player_id and not self.players[playerno]['phase_done']:
                 return False
@@ -111,7 +112,7 @@ class PlayerCtrl(CivPropController):
         return pplayer['team'] != self.my_player['team']
 
     def is_player_ready(self):
-        return self.my_player_id != None and self.my_player_id in self.players.keys() and self.my_player["is_ready"]
+        return self.my_player_id is not None and self.my_player_id in self.players.keys() and self.my_player["is_ready"]
 
     def get_player(self, player_num):
         return self.players[player_num]
@@ -275,15 +276,17 @@ class PlayerCtrl(CivPropController):
             pplayer.update(packet)
             del pplayer['id']
 
-        if (not self.clstate.client_is_observer() and old_inventions != None and self.player_is_myself(packet['id'])):
+        if not self.clstate.client_is_observer() and old_inventions != None and self.player_is_myself(packet['id']):
             for i, invention in enumerate(packet['inventions']):
                 if invention != old_inventions[i] and invention == tech_const.TECH_KNOWN:
                     fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")
                     break
 
-    # TODO: Check whether there are other cases that would also lead to player removal, e.g., other players are conquered.
+    # TODO: Check whether there are other cases that would also lead to player removal, e.g., other players are
+    #  conquered.
     def handle_player_remove(self, packet):
-        # When we load a game, we will receive player_remove packet. In this case, packet['playerno'] is not in self.players.
+        # When we load a game, we will receive player_remove packet. In this case, packet['playerno'] is not in
+        # self.players.
         if packet['playerno'] in self.players:
             del self.players[packet['playerno']]
             # update_player_info_pregame()

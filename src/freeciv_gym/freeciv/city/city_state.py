@@ -260,7 +260,7 @@ class CityState(DictState):
         if pcity['production_kind'] == VUT_IMPROVEMENT:
             improvement = self.rule_ctrl.improvements[pcity['production_value']]
             if improvement['name'] == 'Coinage':
-                return FC_INFINITY
+                return 0
             return pcity['shield_stock'] / RulesetCtrl.universal_build_shield_cost(improvement)
 
         return FC_INFINITY

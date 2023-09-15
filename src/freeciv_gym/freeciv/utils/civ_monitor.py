@@ -15,107 +15,85 @@
 
 import threading
 from selenium import webdriver
+from selenium.webdriver import Keys
+from selenium.webdriver.common.by import By
 from time import sleep
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivMonitor():
-    def __init__(self, host, user_name, poll_interval=2):
+    def __init__(self, host, user_name, poll_interval=4):
         self._driver = None
         self._poll_interval = poll_interval
         self._initiated = False
         self._host = host
         self._user_name = user_name
         self.monitor_thread = None
-        self.state = "review_games"
+        self.state = "go_multi_player_and_join"
         self.start_observe = False
 
     def _observe_game(self, user_name):
         if not self._initiated:
             self._driver = webdriver.Firefox()
-            self._driver.get(f'http://{self._host}:8080/')
-            sleep(2)
+            self._driver.maximize_window()
+            self._driver.get(f'http://{self._host}:8080/game/list?v=multiplayer')
+            sleep(10)
             self._initiated = True
-
-        bt_single_games = None
-        bt_observe_game = None
-        bt_start_observe = None
 
         if self._initiated:
             t = threading.currentThread()
             while getattr(t, "do_run", True):
-                # Find single player button
-                if self.state == "review_games":
+                if self.state == "go_multi_player_and_join":
                     try:
-                        bt_single_games = self._driver.find_element("xpath", "/html/body/div/nav/div/div[2]/ul/li[2]/a")
-                        bt_single_games.click()
-                        self.state = "find_current_game"
+                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, "#multiplayer-table .highlight .label")[1]  # play [join]
+                        bt_single_game.click()
+                        sleep(self._poll_interval)
+                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, ".label.label-success")[0]  # join, You can join this game now
+                        bt_single_game.click()
+                        self.state = "input_observer_name"
                     except Exception as err:
-                        fc_logger.info("Single Games Element not found! %s" % err)
+                        self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a").click()
+                        sleep(self._poll_interval)
+                        bt_single_games = self._driver.find_element("xpath",
+                                                                    "/html/body/div/div/ul/li[2]/a")  # select multiplayer
+                        bt_single_games.click()
+                        sleep(self._poll_interval)
+                        fc_logger.info("go_multi_player_and_join err! %s" % err)
                     sleep(self._poll_interval)
 
-                if self.state == "find_current_game":
+                if self.state == "input_observer_name":
                     try:
-                        bt_observe_game = self._driver.find_element(
-                            "xpath", "/html/body/div/div/div/div[1]/table/tbody/tr[2]/td[7]/a[1]")
-                        bt_observe_game.click()
-                        self.state = "logon_game"
+                        bt_single_game = self._driver.find_element(By.ID, "username_req")
+                        bt_single_game.clear()
+                        bt_single_game.send_keys("observer")
+                        sleep(self._poll_interval)
+                        bt_single_game = self._driver.find_elements(By.CSS_SELECTOR, ".ui-dialog-buttonset .ui-button.ui-corner-all.ui-widget")[1] # Join Games
+                        bt_single_game.click()
+                        self.state = "viewing"
                     except Exception as err:
-                        fc_logger.info("Observe Game Element not found! %s" % err)
-                        bt_single_games = self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a")
-                        bt_single_games.click()
+                        fc_logger.info("input_observer_name err! %s" % err)
                     sleep(self._poll_interval)
 
-                if self.state == "logon_game":
+                if self.state == "viewing":
                     try:
-                        inp_username = self._driver.find_element("xpath", "//*[@id='username_req']")
-                        bt_start_observe = self._driver.find_element(
-                            "xpath", "/html/body/div[contains(@class, 'ui-dialog')]/div[3]/div/button[1]")
-
-                        inp_username.send_keys("")
-                        inp_username.clear()
-                        inp_username.send_keys('civmonitor')
-                        bt_start_observe.click()
+                        bt_single_game = self._driver.find_element(By.ID, "pregame_text_input")  # console
+                        bt_single_game.clear()
+                        bt_single_game.send_keys("/observe myagent")
+                        sleep(self._poll_interval)
+                        bt_single_game.send_keys(Keys.ENTER)
                         self.state = "view_game"
                     except Exception as err:
-                        fc_logger.info("Username Element not found! %s" % err)
+                        fc_logger.info("viewing err! %s" % err)
                     sleep(self._poll_interval)
 
-                if self.state == "view_bot":
-                    try:
-                        players_tab = self._driver.find_element("xpath", "//*[@id='players_tab']")
-                        players_tab.click()
-
-                        players_table = self._driver.find_element(
-                            "xpath", "/html/body/div[1]/div/div[4]/div/div[3]/div/table/tbody")
-
-                        for row in players_table.find_elements("xpath", ".//tr"):
-                            for td in row.find_elements("xpath", ".//td"):
-                                if td.text.lower() == user_name.lower():
-                                    td.click()
-                                    break
-                            else:
-                                continue
-                            break
-
-                        bt_view_player = self._driver.find_element("xpath", "//*[@id='view_player_button']")
-                        bt_view_player.click()
-                        # state = "keep_silent"
-                        self.state = "view_game"
-                    except Exception as err:
-                        fc_logger.info(err)
-                    sleep(self._poll_interval)
-
-                # if state == "keep_silent":
-                #     sleep(self._poll_interval)
-                if self.state == "view_game" and self.start_observe == False:
-                    map_tab = self._driver.find_element("xpath", "//*[@id='map_tab']")
-                    map_tab.click()
+                if (self.state == "view_game") and (self.start_observe == False):
+                    self._driver.execute_script("center_tile_mapcanvas(tiles[Object.entries(units)[0][1].tile])")
                     self.start_observe = True
-
-        if self._initiated:
-            self._driver.close()
+                    break
+        #
+        # if self._initiated:
+        #     self._driver.close()
 
     def start_monitor(self):
         self.monitor_thread = threading.Thread(target=self._observe_game, args=[self._user_name])
@@ -124,3 +102,6 @@ class CivMonitor():
     def stop_monitor(self):
         self.monitor_thread.do_run = False
         self.monitor_thread.join()
+
+    def take_screenshot(self, file_path):
+        self._driver.save_screenshot(file_path)

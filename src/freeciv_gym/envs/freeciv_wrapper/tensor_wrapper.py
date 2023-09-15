@@ -10,7 +10,6 @@ class TensorWrapper(Wrapper):
         self.tensor_config = config
         self._obs_initialized = False
         self._observation_space: Optional[spaces.Dict] = None
-        self._seed = None
         self._embarkable_units = {}
 
         super().__init__(env)
@@ -23,8 +22,6 @@ class TensorWrapper(Wrapper):
         options: Optional[dict[str, Any]] = None,
         **kwargs,
     ):
-        if seed is None:
-            seed = self._seed
         obs, info = self.__env.reset(seed=seed, options=options, **kwargs)
         self.unit_ids = []
         self.city_ids = []
@@ -126,9 +123,6 @@ class TensorWrapper(Wrapper):
             raise ValueError(
                 "'actor_type' field in action dict should be an int between 0 and 3, but got {actor_type}."
             )
-
-    def seed(self, seed):
-        self._seed = seed
 
     def _infer_obs_space(self, observation) -> spaces.Dict:
         return spaces.Dict(
@@ -352,9 +346,7 @@ class TensorWrapper(Wrapper):
                 action["unit_id"], action["unit_action_type"]
             ] *= 0
         elif actor_name == "city":
-            self.city_action_type_mask[
-                action["city_id"], action["city_action_type"]
-            ] *= 0
+            self.city_action_type_mask[action["city_id"]] *= 0
         elif actor_name == "gov":
             # self.gov_action_type_mask[action["gov_action_type"]] *= 0
             self.gov_action_type_mask *= 0
@@ -378,10 +370,12 @@ class TensorWrapper(Wrapper):
 
         for pos, id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
             unit = observation["unit"][id]
-            if (
-                unit["moves_left"] == 0
-                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] not in [0, 4] # agent busy or fortified
-            ):
+            if unit["moves_left"] == 0 or self.__env.civ_controller.unit_ctrl.units[id][
+                "activity"
+            ] not in [
+                0,
+                4,
+            ]:  # agent busy or fortified
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0
 

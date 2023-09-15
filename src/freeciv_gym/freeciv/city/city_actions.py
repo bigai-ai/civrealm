@@ -407,7 +407,10 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
-        if not self.city_can_change_build() or self.pimprovement['name'] == "Coinage":
+        if not self.city_can_change_build():
+            return False
+
+        if self.pimprovement['genus'] != IG_CONVERT and self.pcity['improvements'][self.prod_value] == 1:
             return False
 
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:

@@ -747,9 +747,8 @@ class ActFortress(EngineerAction):
                 self.focus.punit['activity_tgt'] == EXTRA_FORTRESS or self.focus.punit['activity_tgt'] == EXTRA_BUOY):
             return False
 
-        # If locate inside own city, cannot perform this action.
-        if self.focus.pcity != None and CityState.city_owner_player_id(
-                self.focus.pcity) == self.focus.pplayer["playerno"]:
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
             return False
 
         return is_tech_known(self.focus.pplayer, 19)

@@ -17,6 +17,7 @@
 import os
 import json
 import time
+import datetime
 import matplotlib.pyplot as plt
 from BitVector import BitVector
 
@@ -34,11 +35,20 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     metadata = {'render_modes': ['human']}
 
     def __init__(self, username: str = fc_args['username'], client_port: int = fc_args['client_port']):
-        self.civ_controller = CivController(username=username, client_port=client_port)
+        self.civ_controller = CivController(username=username, client_port=client_port, visualize=fc_args['debug.take_screenshot'])
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
+        self.set_up_screenshots()
         utils.EzPickle.__init__(self, client_port)
+
+    def set_up_screenshots(self):
+        self._screenshot_step_count = 0
+        curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time())
+        self.screenshot_dir = os.path.join(
+            os.path.dirname(fc_logger.handlers[0].baseFilename),
+            'screenshots', fc_args['username'] + "_" + curr_date_time)
+        os.makedirs(self.screenshot_dir, exist_ok=True)
 
     def set_up_recording(self):
         # For recording purposes. self.record_step_count only increases when recording is enabled.
@@ -58,8 +68,17 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self._observation_space = self.civ_controller.observation_space
         return self._observation_space
 
+    def _take_screenshot(self):
+        if fc_args['debug.take_screenshot'] is False:
+            return
+        turn = self.civ_controller.get_turn()
+        screenshot_filename = os.path.join(
+            self.screenshot_dir, f'turn_{turn:03d}_step_{self._screenshot_step_count:04d}.png')
+        self.civ_controller.take_screenshot(screenshot_filename)
+        self._screenshot_step_count += 1
+
     def _record_to_file(self, name, content, default_json_encoder=None):
-        if fc_args['debug.record'] is False:
+        if fc_args['debug.record_action_and_observation'] is False:
             return
 
         turn = self.civ_controller.get_turn()
@@ -95,7 +114,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def step(self, action):
         import time
         start_time = time.time()
-
         self.civ_controller.perform_action(action)
 
         info, observation = self._get_info_and_observation()
@@ -105,6 +123,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         available_actions = info['available_actions']
         self._record_action(available_actions, action)
+        self._take_screenshot()
 
         # TODO: check if we still need this logic
         end_time = time.time()

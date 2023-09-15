@@ -410,7 +410,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
         if not self.city_can_change_build():
             return False
 
-        if self.pcity['improvements'][self.prod_value] == 1:
+        if self.pimprovement['genus'] != IG_CONVERT and self.pcity['improvements'][self.prod_value] == 1:
             return False
 
         if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:

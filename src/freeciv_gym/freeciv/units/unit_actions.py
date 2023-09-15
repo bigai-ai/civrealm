@@ -608,6 +608,11 @@ class ActTransform(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSFORM_TERRAIN):
             return False
+        
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
+            return False
+
         return True
 
     def _eng_packet(self):
@@ -619,6 +624,10 @@ class ActMine(EngineerAction):
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_MINE):
+            return False
+
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
             return False
 
         # If the tile already has MINE extra, we cannot do mine again.
@@ -765,6 +774,10 @@ class ActAirbase(EngineerAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_BASE):
             return False
 
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
+            return False
+
         # If the tile already has airbase extra, we cannot do airbase again.
         if TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE):
             return False
@@ -773,10 +786,6 @@ class ActAirbase(EngineerAction):
         if self.focus.punit['activity'] == fc_types.ACTIVITY_BASE and self.focus.punit['activity_tgt'] == EXTRA_AIRBASE:
             return False
 
-        # If locate inside own city, cannot perform this action.
-        if self.focus.pcity != None and CityState.city_owner_player_id(
-                self.focus.pcity) == self.focus.pplayer["playerno"]:
-            return False
 
         return is_tech_known(self.focus.pplayer, 64)
 
@@ -795,6 +804,10 @@ class ActIrrigation(EngineerAction):
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_IRRIGATE):
+            return False
+        
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
             return False
 
         # Is already performing irrigation, no need to show this action again.
@@ -1027,6 +1040,10 @@ class ActBuildRoad(EngineerAction):
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
             return False
+        
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
+            return False
 
         # Is already performing road building, no need to show this action again.
         if self.focus.punit['activity'] == fc_types.ACTIVITY_GEN_ROAD:
@@ -1050,6 +1067,10 @@ class ActBuildRailRoad(EngineerAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ROAD):
             return False
 
+        # If locate inside a city, cannot perform this action.
+        if self.focus.pcity != None:
+            return False
+        
         # Is already performing road building, no need to show this action again.
         if self.focus.punit['activity'] == fc_types.ACTIVITY_GEN_ROAD:
             return False

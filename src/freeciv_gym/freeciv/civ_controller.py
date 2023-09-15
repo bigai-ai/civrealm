@@ -297,6 +297,7 @@ class CivController(CivPropController):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
         if self.my_player_is_defeated():
+            fc_logger.info('my_player_is_defeated....')
             return {}
 
         return self.turn_manager.get_observation()
@@ -400,6 +401,7 @@ class CivController(CivPropController):
     def close(self):
         if fc_args['debug.interrupt_save']:
             self.save_game()
+        # fc_logger.info(f'game_is_over: {self.game_is_over}')
         if not self.game_is_over:
             self.end_game()
         if self.visualize:
@@ -646,7 +648,7 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        elif event == E_GAME_END:
+        elif (event == E_GAME_END) and ('Game is over.' in message):
             self.game_is_over = True
 
         if 'connected to no player' in message:

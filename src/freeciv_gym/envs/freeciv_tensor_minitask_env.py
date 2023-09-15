@@ -38,7 +38,7 @@ class FreecivTensorMinitaskEnv(Wrapper):
             config=config,
         )
         super().__init__(tensor_env)
-
+        # print(f'Env port: {tensor_env.get_port()}')
         self._cached_reset_result = self.env.reset()
         # reset during init to get valid obs space
         self.first_reset = True

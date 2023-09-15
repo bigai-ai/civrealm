@@ -132,7 +132,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         if elapsed_time > 15:
             fc_logger.debug('Running too slow.')
             assert (False)
-
+        # fc_logger.info(f'terminated: {terminated}, truncated: {truncated}')
         return observation, reward, terminated, truncated, info
 
     def get_port(self):
@@ -189,6 +189,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         pass
 
     def close(self):
+        # fc_logger.info(f'Env port: {self.get_port()} closes ....')
         self.civ_controller.close()
 
 

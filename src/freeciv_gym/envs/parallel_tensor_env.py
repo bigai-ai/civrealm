@@ -17,6 +17,7 @@ class ParallelTensorEnv:
         self.env_name = env_name
         for i in range(self.batch_size_run):
             temp_port = port_start + i * 2
+            # print(f'temp_port...: {temp_port}')
             env = FreecivParallelEnv.remote(env_name, client_port=temp_port)
             self.envs.append(env)
 
@@ -102,15 +103,16 @@ class ParallelTensorEnv:
 
             if dones[env_id]:
                 env_port = ray.get(self.envs[env_id].get_port.remote())
+                # print(f'Original port: {env_port}')
                 ray.get(self.envs[env_id].close.remote())
                 new_env_port = env_port ^ 1
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
                 print("Reinitialze env....")
-                # import time
+                import time
 
-                # time.sleep(10)
+                time.sleep(10)
                 result_id = env.reset.remote()
                 (observation, info) = ray.get(
                     result_id

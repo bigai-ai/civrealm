@@ -107,6 +107,25 @@ class UnitCtrl(CivPropController):
 
         return result
 
+    def my_units_have_type(self, type_name: str):
+        """Check if my units has the type of unit."""
+        unit_type_id = self.rule_ctrl.unit_type_id_by_name(type_name)
+
+        for _, punit in self.units.items():
+            if punit['owner'] == self.player_ctrl.my_player_id and punit['type'] == unit_type_id:
+                return True
+        return False
+
+    def have_attack_unit(self):
+        """Check if my units have attack unit."""
+        for _, punit in self.units.items():
+            if punit['owner'] == self.player_ctrl.my_player_id:
+                unit_type = self.rule_ctrl.unit_type(punit)
+                attack_strength = unit_type['attack_strength']
+                if attack_strength > 0:
+                    return True
+        return False
+
     def _player_find_unit_by_id(self, pplayer, unit_id):
         """
          If the specified player owns the unit with the specified id,

@@ -372,6 +372,13 @@ class RulesetCtrl(CivPropController):
     def unit_type(self, unit):
         """Returns the type of the unit."""
         return self.unit_types[unit['type']]
+    
+    def unit_type_id_by_name(self, type_name):
+        """Returns the type of the unit."""
+        for unit_type_id, unit_type in self.unit_types.items():
+            if unit_type['name'] == type_name:
+                return unit_type_id
+        return None
 
     def get_nation_options(self):
         """Shows the pick nation dialog."""

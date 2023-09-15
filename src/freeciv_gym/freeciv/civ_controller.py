@@ -236,6 +236,10 @@ class CivController(CivPropController):
         return self.turn_manager.turn_active and not self.should_wait()
 
     def my_player_is_defeated(self):
+        if self.clstate.client_state() == C_S_RUNNING:
+            if len(self.city_ctrl.cities) == 0 and not self.unit_ctrl.my_units_have_type('Settlers') and not self.unit_ctrl.have_attack_unit():
+                return True
+
         if self.player_ctrl.my_player_id in self.player_ctrl.players:
             if not self.player_ctrl.my_player['is_alive']:
                 return True

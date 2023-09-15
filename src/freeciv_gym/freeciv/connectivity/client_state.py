@@ -239,7 +239,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/set netwait 15")
         # self.ws_client.send_message("/set nettimeout 120")
         self.ws_client.send_message("/set pingtime 30")
-        # self.ws_client.send_message("/set pingtimeout 120")
+        self.ws_client.send_message("/set pingtimeout 720")
         self.ws_client.send_message("/set threaded_save enabled")
         self.ws_client.send_message("/set scorelog enabled")
         self.ws_client.send_message("/set size 4")

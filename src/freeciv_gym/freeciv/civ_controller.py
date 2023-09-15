@@ -525,6 +525,7 @@ class CivController(CivPropController):
             raise RuntimeError(
                 f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
         self.ws_client.send_message(f"/load {save_name}")
+        self.ws_client.send_message("/set pingtimeout 720")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):
@@ -737,8 +738,8 @@ class CivController(CivPropController):
         # fc_logger.info('handle_end_turn')
         # if self.turn_manager.turn == 228:
         #     self.delete_save = False
-        if fc_args['debug.autosave'] and self.delete_save:
-            self.delete_save_game()
+        # if fc_args['debug.autosave'] and self.delete_save:
+        #     self.delete_save_game()
         # # Set delete_save for the next turn
         # self.delete_save = True
 

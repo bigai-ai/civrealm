@@ -346,9 +346,7 @@ class TensorWrapper(Wrapper):
                 action["unit_id"], action["unit_action_type"]
             ] *= 0
         elif actor_name == "city":
-            self.city_action_type_mask[
-                action["city_id"], action["city_action_type"]
-            ] *= 0
+            self.city_action_type_mask[action["city_id"]] *= 0
         elif actor_name == "gov":
             # self.gov_action_type_mask[action["gov_action_type"]] *= 0
             self.gov_action_type_mask *= 0
@@ -372,10 +370,12 @@ class TensorWrapper(Wrapper):
 
         for pos, id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
             unit = observation["unit"][id]
-            if (
-                unit["moves_left"] == 0
-                or self.__env.civ_controller.unit_ctrl.units[id]["activity"] not in [0, 4] # agent busy or fortified
-            ):
+            if unit["moves_left"] == 0 or self.__env.civ_controller.unit_ctrl.units[id][
+                "activity"
+            ] not in [
+                0,
+                4,
+            ]:  # agent busy or fortified
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0
 

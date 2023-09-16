@@ -132,7 +132,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return False
     
     def _get_terminated(self):
-        return self.civ_controller.game_has_terminated() or self.minitask_has_terminated()
+        return self.civ_controller.game_has_terminated(is_mini_game=True) or self.minitask_has_terminated()
 
     def _get_reward(self):
         minitask_results = self.civ_controller.get_turn_message()

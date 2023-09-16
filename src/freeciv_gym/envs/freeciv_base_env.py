@@ -131,7 +131,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         # If running is too slow, we stop the program.
         if elapsed_time > 15:
             fc_logger.debug('Running too slow.')
-            assert (False)
+            # assert (False)
         # fc_logger.info(f'terminated: {terminated}, truncated: {truncated}')
         return observation, reward, terminated, truncated, info
 

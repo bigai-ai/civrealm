@@ -96,6 +96,9 @@ class CityCtrl(CivPropController):
             if CityState.is_city_center(pcity, ptile):
                 return pcity
         return None
+    
+    def get_cities_by_player_id(self, player_id):
+        return [city for city in self.cities.values() if city['owner'] == player_id]
 
     def get_unit_homecity_name(self, punit):
         """Returns the name of the unit's homecity."""

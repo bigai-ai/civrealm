@@ -97,6 +97,8 @@ class CityActions(ActionList):
                 if pimprovement['genus'] == IG_IMPROVEMENT:
                     self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
+            self.add_action(city_id, CityKeepProduction(pcity, self.ws_client))
+
 
 class CityWorkTile(Action):
     action_key = "city_work"
@@ -409,7 +411,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
     def is_action_valid(self):
         if not self.city_can_change_build():
             return False
-
+        
+        """ may already be included in can_city_build_improvement_now """
         if self.pimprovement['genus'] != IG_CONVERT and self.pcity['improvements'][self.prod_value] == 1:
             return False
 
@@ -438,5 +441,24 @@ class CityChangeImprovementProduction(CityChangeProduction):
         infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
         infos["build_cost"] = build_cost
         return infos
+
+
+class CityKeepProduction(Action):
+    action_key = 'keep_production'
+
+    def __init__(self, pcity, ws_client):
+        super().__init__()
+        self.pcity = pcity
+        self.ws_client = ws_client
+
+    def is_action_valid(self):
+        """ always valid """
+        return True
+
+    def _action_packet(self):
+        return 'keep_production'
+
+    def trigger_action(self, ws_client):
+        self.ws_client.send_message(f"City {self.pcity['id']} keeps production.")
 
 

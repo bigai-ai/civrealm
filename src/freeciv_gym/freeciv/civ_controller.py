@@ -237,7 +237,8 @@ class CivController(CivPropController):
 
     def my_player_is_defeated(self):
         if self.clstate.client_state() == C_S_RUNNING:
-            if len(self.city_ctrl.cities) == 0 and not self.unit_ctrl.my_units_have_type('Settlers') and not self.unit_ctrl.have_attack_unit():
+            # NOTE: maybe we should return False if the player still has attack units, or allow for a short time of survival (e.g., 10 turns).
+            if len(self.city_ctrl.cities) == 0 and not self.unit_ctrl.my_units_have_type('Settlers'):
                 return True
 
         if self.player_ctrl.my_player_id in self.player_ctrl.players:

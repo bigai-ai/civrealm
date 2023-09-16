@@ -97,7 +97,7 @@ class CityActions(ActionList):
                 if pimprovement['genus'] == IG_IMPROVEMENT:
                     self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
-            self.add_action(city_id, CityKeepProduction(pcity, self.ws_client))
+            """ self.add_action(city_id, CityKeepProduction(pcity, self.ws_client)) """
 
 
 class CityWorkTile(Action):
@@ -353,7 +353,10 @@ class CityChangeProduction(Action):
                   "city_id": self.pcity["id"],
                   "production_kind": self.prod_kind,
                   "production_value": self.prod_value}
-        self.wait_for_pid = (31, self.pcity['tile'])
+
+        """ include keep_production choice """
+        if self.pcity['production_kind'] != self.prod_kind or self.pcity['production_value'] != self.prod_value:
+            self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def city_can_change_build(self):
@@ -376,9 +379,6 @@ class CityChangeUnitProduction(CityChangeProduction):
     def is_action_valid(self):
         if (not self.city_can_change_build() or self.punit_type['name'] == "Barbarian Leader"
                 or self.punit_type['name'] == "Leader"):
-            return False
-
-        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
         return self.can_city_build_unit_now(self.pcity, self.punit_type["id"])
@@ -411,12 +411,9 @@ class CityChangeImprovementProduction(CityChangeProduction):
     def is_action_valid(self):
         if not self.city_can_change_build():
             return False
-        
+
         """ may already be included in can_city_build_improvement_now """
         if self.pimprovement['genus'] != IG_CONVERT and self.pcity['improvements'][self.prod_value] == 1:
-            return False
-
-        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
         return self.can_city_build_improvement_now(self.pcity, self.prod_value)
@@ -443,6 +440,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
         return infos
 
 
+""" included in CityChangeProduction """
 class CityKeepProduction(Action):
     action_key = 'keep_production'
 
@@ -460,5 +458,6 @@ class CityKeepProduction(Action):
 
     def trigger_action(self, ws_client):
         self.ws_client.send_message(f"City {self.pcity['id']} keeps production.")
+
 
 

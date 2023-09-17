@@ -67,7 +67,7 @@ MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'mov
               'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
 INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 
-KEYWORDS = ['change_unit_prod', 'change_improve_prod', 'keep_production']
+KEYWORDS = ['produce']
 
 
 def action_mask(avail_action_set):

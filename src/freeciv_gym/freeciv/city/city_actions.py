@@ -335,7 +335,7 @@ class CitySellImprovement(Action):
 
 class CityChangeProduction(Action):
     """Change city production."""
-    action_key = "change_production"
+    action_key = "produce"
 
     def __init__(self, pcity, prod_kind, prod_value, prod_name):
         super().__init__()
@@ -343,7 +343,7 @@ class CityChangeProduction(Action):
         self.prod_kind = prod_kind
         self.prod_value = prod_value
         self.prod_name = prod_name
-        self.action_key += "_%s_%i" % (prod_name, prod_value)
+        self.action_key += "_%s" % prod_name
 
     def is_action_valid(self):
         raise Exception("To be overwritten")
@@ -370,7 +370,6 @@ class CityChangeProduction(Action):
 
 
 class CityChangeUnitProduction(CityChangeProduction):
-    action_key = "change_unit_prod"
 
     def __init__(self, pcity, punit_type):
         super().__init__(pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
@@ -402,7 +401,6 @@ class CityChangeUnitProduction(CityChangeProduction):
 
 
 class CityChangeImprovementProduction(CityChangeProduction):
-    action_key = "change_improve_prod"
 
     def __init__(self, pcity, pimprovement):
         super().__init__(pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])

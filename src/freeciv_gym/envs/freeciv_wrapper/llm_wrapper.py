@@ -22,6 +22,7 @@ from freeciv_gym.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE
                                                               DIR, action_mask, get_valid_actions)
 from freeciv_gym.freeciv.players.player_const import DS_TXT
 from freeciv_gym.freeciv.utils.utility import read_sub_arr_with_wrap
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class LLMWrapper(Wrapper):
@@ -37,11 +38,13 @@ class LLMWrapper(Wrapper):
             observation, info = self.__env.reset()
 
         info['llm_info'] = self.get_llm_info(observation, info)
+        info['my_player_id'] = self.civ_controller.player_ctrl.my_player_id
         return observation, info
 
     def step(self, action):
         observation, reward, terminated, truncated, info = self.__env.step(action)
         info['llm_info'] = self.get_llm_info(observation, info)
+        info['my_player_id'] = self.civ_controller.player_ctrl.my_player_id
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
@@ -50,7 +53,7 @@ class LLMWrapper(Wrapper):
             llm_info[ctrl_type] = dict()
 
             if ctrl_type == 'unit':
-                units = self.__env.civ_controller.unit_ctrl.units
+                units = self.civ_controller.unit_ctrl.units
                 for unit_id in actors_can_act:
                     if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]:
                         continue
@@ -96,6 +99,8 @@ class LLMWrapper(Wrapper):
         actor_info['observations'] = dict()
         actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, 0, 0, TILE_INFO_TEMPLATE)
         actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, 2, 2, BLOCK_INFO_TEMPLATE)
+
+        fc_logger.debug(f'actor observations: {actor_info}')
 
         return actor_info
 
@@ -160,8 +165,8 @@ class LLMWrapper(Wrapper):
                     else:
                         ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
                         unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
-                    mini_map_info[ptile].append(unit_owner_str)
                     owner_set.append(unit_owner)
+                mini_map_info[ptile].append(unit_owner_str)
 
                 city_owners = list(city_owner_arr[city_owner_arr != 255])
                 for city_owner in self.civ_controller.player_ctrl.players:

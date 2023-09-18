@@ -154,19 +154,21 @@ class LLMWrapper(Wrapper):
                         unit_str = str(int(units_num)) + ' ' + unit
                         mini_map_info[ptile].append(unit_str)
 
-                owner_set = []
-                unit_owner_str = 'unit owners are:'
-                for unit_owner in list(unit_owner_arr[unit_owner_arr != 255]):
-                    if unit_owner in owner_set:
-                        continue
+                unit_owners = list(unit_owner_arr[unit_owner_arr != 255])
+                if len(unit_owners) != 0:
+                    owner_set = []
+                    unit_owner_str = 'unit owners are:'
+                    for unit_owner in unit_owners:
+                        if unit_owner in owner_set:
+                            continue
 
-                    if unit_owner == self.civ_controller.player_ctrl.my_player_id:
-                        unit_owner_str += ' myself player_' + str(int(unit_owner))
-                    else:
-                        ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
-                        unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
-                    owner_set.append(unit_owner)
-                mini_map_info[ptile].append(unit_owner_str)
+                        if unit_owner == self.civ_controller.player_ctrl.my_player_id:
+                            unit_owner_str += ' myself player_' + str(int(unit_owner))
+                        else:
+                            ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
+                            unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
+                        owner_set.append(unit_owner)
+                    mini_map_info[ptile].append(unit_owner_str)
 
                 city_owners = list(city_owner_arr[city_owner_arr != 255])
                 for city_owner in self.civ_controller.player_ctrl.players:

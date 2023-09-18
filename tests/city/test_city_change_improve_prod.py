@@ -20,6 +20,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from freeciv_gym.freeciv.utils.unit_improvement_const import IMPR_TYPES
 
 
 @pytest.fixture
@@ -49,12 +50,19 @@ def test_city_change_improve_prod(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_improve_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
-                                                            'change_improve_prod')
+        valid_improve_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True), 'produce')
         if len(valid_improve_prod_actions) == 0:
             continue
 
-        improve_prod_action = random.choice(valid_improve_prod_actions)
+        improve_prod_action = None
+        for act in valid_improve_prod_actions:
+            production_name = act.action_key.split('_')[-1]
+            if production_name in IMPR_TYPES:
+                improve_prod_action = act
+                break
+        if improve_prod_action is None:
+            continue
+
         assert (improve_prod_action.is_action_valid())
 
         prod_kind_1 = pcity['production_kind']
@@ -65,3 +73,4 @@ def test_city_change_improve_prod(controller):
         prod_kind_2 = pcity['production_kind']
 
         assert (prod_kind_1 != prod_kind_2)
+

@@ -20,6 +20,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 
 @pytest.fixture
@@ -49,9 +50,19 @@ def test_city_change_unit_prod(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_unit_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
-                                                         'change_unit_prod_Settler')
-        unit_prod_action = random.choice(valid_unit_prod_actions)
+        valid_unit_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True), 'produce')
+        if len(valid_unit_prod_actions) == 0:
+            continue
+
+        unit_prod_action = None
+        for act in valid_unit_prod_actions:
+            unit_name = act.action_key.split('_')[-1]
+            if unit_name in UNIT_TYPES:
+                unit_prod_action = act
+                break
+        if unit_prod_action is None:
+            continue
+
         assert (unit_prod_action.is_action_valid())
 
         prod_kind_1 = pcity['production_kind']

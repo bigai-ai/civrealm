@@ -48,6 +48,8 @@ class LLMWrapper(Wrapper):
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
+        current_turn = info['turn']
+        
         llm_info = dict()
         for ctrl_type, actors_can_act in info['available_actions'].items():
             llm_info[ctrl_type] = dict()
@@ -65,8 +67,8 @@ class LLMWrapper(Wrapper):
 
             elif ctrl_type == 'city':
                 for city_id in actors_can_act:
-                    if obs[ctrl_type][city_id]['prod_process'] == 0:
-
+                    # The following two conditions are used to check if 1.  the city is just built or is building coinage, and 2. the city has just built a unit or an improvement last turn and there are some production points left in stock.
+                    if (obs[ctrl_type][city_id]['prod_process'] == 0) or (current_turn == obs[ctrl_type][city_id]['turn_last_built'] +1):
                         x = obs[ctrl_type][city_id]['x']
                         y = obs[ctrl_type][city_id]['y']
                         llm_info[ctrl_type][city_id] = self.get_actor_info(x, y, info, ctrl_type, city_id)

@@ -49,8 +49,8 @@ class CityState(DictState):
         self.common_city_fields = ['id', 'owner', 'size', 'x', 'y', 'name']
         self.my_city_fields_from_packet = [
             'food_stock', 'granary_size', 'granary_turns', 'production_kind', 'production_value', 'city_radius_sq',
-            'buy_cost', 'shield_stock', 'disbanded_shields', 'caravan_shields', 'last_turns_shield_surplus',
-            'can_build_unit', 'improvements']
+            'buy_cost', 'shield_stock', 'disbanded_shields', 'caravan_shields', 'last_turns_shield_surplus', 
+            'can_build_unit', 'improvements', 'turn_last_built']
         self.my_city_fields = self.my_city_fields_from_packet + [
             'luxury', 'science', 'prod_food', 'surplus_food', 'prod_gold', 'surplus_gold', 'prod_shield', 'surplus_shield',
             'prod_trade', 'surplus_trade', 'bulbs', 'city_waste', 'city_corruption', 'city_pollution', 'state',

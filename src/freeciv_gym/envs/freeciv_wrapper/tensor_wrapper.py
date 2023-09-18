@@ -365,7 +365,8 @@ class TensorWrapper(Wrapper):
 
         for pos, id in enumerate(self.city_ids[: self.tensor_config["resize"]["city"]]):
             city = observation["city"][id]
-            if city["prod_process"] != 0:
+            # The following two conditions are used to check if 1.  the city is just built or is building coinage, and 2. the city has just built a unit or an improvement last turn and there are some production points left in stock.
+            if (city['prod_process'] != 0) and (self.turn != city['turn_last_built'] +1):
                 self.city_mask[pos] *= 0
                 self.city_action_type_mask[pos] *= 0
 

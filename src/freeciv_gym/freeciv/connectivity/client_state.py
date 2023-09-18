@@ -248,7 +248,8 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/set landm 50")
         # use /set minp 1 will allow single agent to play
         self.ws_client.send_message(f"/set minp {fc_args['minp']}")
-        self.ws_client.send_message("/set generator FAIR")
+        # FRACTAL to make players on one continent, FAIR to make players on islands with the same geography
+        self.ws_client.send_message("/set generator FRACTAL")
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message(
             f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")

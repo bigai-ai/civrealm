@@ -19,7 +19,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-from freeciv_gym.freeciv.utils.fc_types import VUT_UTYPE, VUT_IMPROVEMENT
+from freeciv_gym.freeciv.utils.fc_types import VUT_UTYPE
 
 
 @pytest.fixture
@@ -57,14 +57,17 @@ def test_city_buy_prod(controller):
         city_buy_action = random.choice(valid_city_buy_actions)
         assert (city_buy_action.is_action_valid())
 
-        if city_buy_action.kind == VUT_UTYPE:
+        kind = city_buy_action.pcity['production_kind']
+        value = city_buy_action.pcity['production_value']
+
+        if kind == VUT_UTYPE:
             continue
-        improvement_1 = pcity['improvements'][city_buy_action.value]
+        improvement_1 = pcity['improvements'][value]
 
         city_buy_action.trigger_action(controller.ws_client)
         controller.send_end_turn()
         controller.get_info_and_observation()
 
-        improvement_2 = pcity['improvements'][city_buy_action.value]
+        improvement_2 = pcity['improvements'][value]
 
         assert (improvement_1 == 0 and improvement_2 == 1)

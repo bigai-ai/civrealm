@@ -15,7 +15,7 @@
 
 import numpy as np
 from gymnasium.core import Wrapper
-from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY
+from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from freeciv_gym.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from freeciv_gym.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from freeciv_gym.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE, BLOCK_INFO_TEMPLATE,
@@ -52,7 +52,7 @@ class LLMWrapper(Wrapper):
             if ctrl_type == 'unit':
                 units = self.__env.civ_controller.unit_ctrl.units
                 for unit_id in actors_can_act:
-                    if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY]:
+                    if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]:
                         continue
 
                     x = obs[ctrl_type][unit_id]['x']

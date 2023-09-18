@@ -2,7 +2,7 @@ from typing import Any, Optional
 
 from gymnasium.core import Env, Wrapper
 
-from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY
+from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from freeciv_gym.envs.freeciv_wrapper.utils import *
 
 
@@ -374,7 +374,7 @@ class TensorWrapper(Wrapper):
             if unit["moves_left"] == 0 or self.__env.civ_controller.unit_ctrl.units[id][
                 "activity"
             ] not in [
-                ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY
+                ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
             ]:  # agent busy or fortified
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0

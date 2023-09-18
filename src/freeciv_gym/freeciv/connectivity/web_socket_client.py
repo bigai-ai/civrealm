@@ -23,6 +23,7 @@ from tornado import httputil
 from tornado import websocket
 from tornado import ioloop
 import asyncio
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 APPLICATION_JSON = 'application/json'
 
@@ -79,10 +80,12 @@ class WebSocketClient(object):
         :param str data: message.
         """
         if not self._ws_connection:
+            fc_logger.debug(f'web_socket_client::send: Web socket connection is closed.')
             raise RuntimeError('Web socket connection is closed.')
         # TODO: check if we need to clear empty spaces
         msg = json.dumps(data)
         ret_future = self._ws_connection.write_message(msg)
+        # fc_logger.debug(f'ret_future: {ret_future}')
 
     @final
     def close(self):

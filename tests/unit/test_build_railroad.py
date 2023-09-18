@@ -92,9 +92,6 @@ def test_build_railroad(controller):
                 f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
             assert (build_tile['extras'][EXTRA_RAILROAD] == 1)
 
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

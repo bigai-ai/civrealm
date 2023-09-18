@@ -56,9 +56,6 @@ def test_upgrade(controller):
     punit = unit_opt.unit_ctrl.units[unit_id]
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert (punit['type'] == 8 and not ('upgrade' in valid_actions.keys()))
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

@@ -290,6 +290,9 @@ class CivController(CivPropController):
     def _get_info(self):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
+        # If there is exception during _on_message callback, we raise it.
+        if self.ws_client.on_message_exception != None:
+            raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated():
             info['available_actions'] = {}
@@ -417,6 +420,7 @@ class CivController(CivPropController):
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         self.ws_client.close()
+        # time.sleep(3)
 
     def end_game_packet_list(self):
         wait_for_pid_list = []
@@ -638,6 +642,8 @@ class CivController(CivPropController):
         except KeyError:
             fc_logger.error(f'Packet is missing some keys: {packet}')
             print(f'Packet is missing some keys: {packet}')
+            if 'message' in packet and 'Error' in packet['message']:
+                raise Exception("Receiving error messages.")
             return
             # raise Exception("Packet is missing some keys")
 

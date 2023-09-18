@@ -8,6 +8,8 @@ host: localhost
 client_port: 6001
 # Whether to start in multiplayer mode or single player mode
 multiplayer_game: True
+# Whether start multiple clients for self play. When it is true, the following clients will add increasing index to their username for login to the same game. Note that when running pytest, we should set this as False. By doing so, different tests connecting to the same port will raise exception and force one test to re-select a random new port.
+self_play: False
 # Whether to start hotseat game in single player mode
 hotseat_game: False
 # Whether to wait a observer join before start the game

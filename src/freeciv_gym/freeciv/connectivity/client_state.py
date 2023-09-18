@@ -201,7 +201,9 @@ class ClientState(CivPropController):
                          "port": self.ws_client.client_port, "password": sha_password,
                          "subject": google_user_subject}
         # print(login_message)
+        fc_logger.debug(f'Log in to port {self.ws_client.client_port}')
         self.ws_client.send(login_message)
+        fc_logger.debug(f'Log in message: {login_message}')
 
     def set_hotseat_game(self):
         # set player to 2. Based on HACKING file
@@ -278,9 +280,8 @@ class ClientState(CivPropController):
         # show_auth_dialog(packet)
 
     def handle_server_shutdown(self, packet):
-        # /* TODO: implement*/
-        pass
-
+        raise Exception('Receive server shutdown message.')
+    
     def handle_conn_ping_info(self, packet):
         if self.debug_active:
             self.conn_ping_info = packet
@@ -313,6 +314,7 @@ class ClientState(CivPropController):
             After we send a join packet to the server we receive a reply.  This
             function handles the reply.  100% Complete.
         """
+        fc_logger.debug(f'Join response packet: {packet}')
         if packet['you_can_join']:
             self.client["conn"]["established"] = True
             self.client["conn"]["id"] = packet['conn_id']
@@ -321,8 +323,11 @@ class ClientState(CivPropController):
             self.send_client_info()
 
         elif 'already connected' in packet['message']:
-            # login() in network_init() will increase name_index and connect again
-            self.ws_client.network_init()
+            if fc_args['self_play']:
+                # login() in network_init() will increase name_index and connect again
+                self.ws_client.network_init()
+            else:
+                raise RuntimeError(f"Login congestion: {packet['message']}. Port: {self.ws_client.client_port}")
         else:
             raise RuntimeError(f"Log in rejected: {packet['message']}")
 

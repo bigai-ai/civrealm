@@ -68,10 +68,6 @@ def test_pollution(controller):
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('pollution' not in valid_actions.keys())
 
-    import time
-    time.sleep(2)
-
-
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T257_2023-08-07-14_04')

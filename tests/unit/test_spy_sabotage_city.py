@@ -64,9 +64,6 @@ def test_spy_sabotage(controller):
     unit_opt = options['unit']
     # The diplomat should have been comsumed
     assert not (diplomat_id in unit_opt.unit_ctrl.units.keys())
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

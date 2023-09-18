@@ -158,9 +158,6 @@ def test_trade_route_market(controller):
     # Unit 1964 has been removed due to market action.
     assert (1964 not in unit_opt.unit_data)
 
-    # import time
-    # time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

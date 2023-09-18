@@ -194,9 +194,6 @@ def test_embark_disembark(controller):
     #     if unit_focus.action_prob[map_const.DIR8_NORTH][i] != {'min': 0, 'max': 0}:
     #         print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_NORTH][i]}')
 
-    # import time
-    # time.sleep(2)
-
 
 def main():
     controller = CivController(fc_args['username'])

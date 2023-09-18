@@ -89,9 +89,6 @@ def test_homecity(controller):
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
 
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

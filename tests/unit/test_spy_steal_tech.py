@@ -68,9 +68,6 @@ def test_spy_steal_tech(controller):
     player_opt = options['player']
     techs_researched_after = player_opt.players[0]['techs_researched']
     assert (techs_researched_after == techs_researched_before + 1)
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

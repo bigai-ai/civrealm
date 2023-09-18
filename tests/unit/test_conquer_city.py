@@ -69,9 +69,6 @@ def test_conquer_city(controller):
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     # The enemy city is now under our rule
     assert (unit_opt.unit_ctrl.city_ctrl.tile_city(unit_tile)['owner'] == unit_opt.player_ctrl.my_player_id)
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

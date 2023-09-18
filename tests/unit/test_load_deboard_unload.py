@@ -164,10 +164,6 @@ def test_load_deboard_unload(controller):
         print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
         print(f"Unit{unit_id}\'s move left: {unit_focus.punit['movesleft']}")
 
-    # import time
-    # time.sleep(2)
-
-
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T376_2023-08-07-07_35')

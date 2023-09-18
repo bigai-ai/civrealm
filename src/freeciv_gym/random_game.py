@@ -39,6 +39,8 @@ def main():
             observations, reward, terminated, truncated, info = env.step(action)
             print(
                 f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}')
+            if info["turn"] > 100:
+                print('Debug')
             step += 1
             done = terminated or truncated
         except Exception as e:

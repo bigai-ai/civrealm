@@ -101,9 +101,6 @@ def test_airbase(controller):
     assert ('fortress' not in valid_actions)
     print(f'valid action keys: {valid_actions.keys()}')
 
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController(fc_args['username'])

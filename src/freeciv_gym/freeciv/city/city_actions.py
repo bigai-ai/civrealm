@@ -97,6 +97,8 @@ class CityActions(ActionList):
                 if pimprovement['genus'] == IG_IMPROVEMENT:
                     self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
 
+            """ self.add_action(city_id, CityKeepProduction(pcity, self.ws_client)) """
+
 
 class CityWorkTile(Action):
     action_key = "city_work"
@@ -333,7 +335,7 @@ class CitySellImprovement(Action):
 
 class CityChangeProduction(Action):
     """Change city production."""
-    action_key = "change_production"
+    action_key = "produce"
 
     def __init__(self, pcity, prod_kind, prod_value, prod_name):
         super().__init__()
@@ -341,7 +343,7 @@ class CityChangeProduction(Action):
         self.prod_kind = prod_kind
         self.prod_value = prod_value
         self.prod_name = prod_name
-        self.action_key += "_%s_%i" % (prod_name, prod_value)
+        self.action_key += "_%s" % prod_name
 
     def is_action_valid(self):
         raise Exception("To be overwritten")
@@ -351,7 +353,10 @@ class CityChangeProduction(Action):
                   "city_id": self.pcity["id"],
                   "production_kind": self.prod_kind,
                   "production_value": self.prod_value}
-        self.wait_for_pid = (31, self.pcity['tile'])
+
+        """ include keep_production choice """
+        if self.pcity['production_kind'] != self.prod_kind or self.pcity['production_value'] != self.prod_value:
+            self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def city_can_change_build(self):
@@ -365,7 +370,6 @@ class CityChangeProduction(Action):
 
 
 class CityChangeUnitProduction(CityChangeProduction):
-    action_key = "change_unit_prod"
 
     def __init__(self, pcity, punit_type):
         super().__init__(pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
@@ -374,9 +378,6 @@ class CityChangeUnitProduction(CityChangeProduction):
     def is_action_valid(self):
         if (not self.city_can_change_build() or self.punit_type['name'] == "Barbarian Leader"
                 or self.punit_type['name'] == "Leader"):
-            return False
-
-        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
         return self.can_city_build_unit_now(self.pcity, self.punit_type["id"])
@@ -400,7 +401,6 @@ class CityChangeUnitProduction(CityChangeProduction):
 
 
 class CityChangeImprovementProduction(CityChangeProduction):
-    action_key = "change_improve_prod"
 
     def __init__(self, pcity, pimprovement):
         super().__init__(pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])
@@ -410,10 +410,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
         if not self.city_can_change_build():
             return False
 
+        """ may already be included in can_city_build_improvement_now """
         if self.pimprovement['genus'] != IG_CONVERT and self.pcity['improvements'][self.prod_value] == 1:
-            return False
-
-        if self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value:
             return False
 
         return self.can_city_build_improvement_now(self.pcity, self.prod_value)
@@ -438,5 +436,26 @@ class CityChangeImprovementProduction(CityChangeProduction):
         infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
         infos["build_cost"] = build_cost
         return infos
+
+
+""" included in CityChangeProduction """
+class CityKeepProduction(Action):
+    action_key = 'keep_production'
+
+    def __init__(self, pcity, ws_client):
+        super().__init__()
+        self.pcity = pcity
+        self.ws_client = ws_client
+
+    def is_action_valid(self):
+        """ always valid """
+        return True
+
+    def _action_packet(self):
+        return 'keep_production'
+
+    def trigger_action(self, ws_client):
+        self.ws_client.send_message(f"City {self.pcity['id']} keeps production.")
+
 
 

@@ -58,7 +58,6 @@ BLOCK_INFO_TEMPLATE = {
     'block_south_1_west_1': []
 }
 
-
 DIR = [(0, 0), (0, -1), (0, 1), (1, 0), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1),
        (0, -2), (1, -2), (-1, -2), (2, -2), (-2, -2), (0, 2), (1, 2), (-1, 2), (2, 2),
        (-2, 2), (2, 0), (2, -1), (2, 1), (-2, 0), (-2, -1), (-2, 1)]
@@ -68,7 +67,7 @@ MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'mov
               'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
 INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 
-KEYWORDS = ['change_unit_prod', 'change_improve_prod']
+KEYWORDS = ['produce']
 
 
 def action_mask(avail_action_set):

@@ -73,9 +73,6 @@ def test_spy_bribe_unit(controller):
     else:
         target_id = -1
     assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

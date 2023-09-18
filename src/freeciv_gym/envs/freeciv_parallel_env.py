@@ -24,6 +24,7 @@ import gymnasium as gym
 @ray.remote
 class FreecivParallelEnv():
     def __init__(self, env_id,*args,**kwargs):
+        # Note that when the env_id is FreecivTensor-v0, it will call its reset() inside the make process. Therefore, the FreecivTensor-v0 has already connected to the server after initializing the environment.
         self.env = gym.make(env_id,*args,**kwargs)
         # print(f'FreecivParallelEnv: {self.env.get_username()}')
         # self.port = port

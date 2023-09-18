@@ -235,14 +235,22 @@ class CivController(CivPropController):
         """
         return self.turn_manager.turn_active and not self.should_wait()
 
-    def my_player_is_defeated(self):
+    def my_player_is_defeated(self, is_mini_game: bool = False):
         if self.clstate.client_state() == C_S_RUNNING:
-            if len(self.city_ctrl.cities) == 0 and not self.unit_ctrl.my_units_have_type('Settlers') and not self.unit_ctrl.have_attack_unit():
-                return True
+            my_cities = self.city_ctrl.get_cities_by_player_id(self.player_ctrl.my_player_id)
+            have_settlers = self.unit_ctrl.my_units_have_type('Settlers')
+            if is_mini_game:
+                if len(my_cities) == 0 and not have_settlers and not self.unit_ctrl.have_attack_unit():
+                    return True
+            else:
+                # NOTE: maybe we should return False if the player still has attack units, or allow for a short time of survival (e.g., 10 turns).
+                if len(my_cities) == 0 and not have_settlers:
+                    return True
 
         if self.player_ctrl.my_player_id in self.player_ctrl.players:
             if not self.player_ctrl.my_player['is_alive']:
                 return True
+
         return False
 
     def maybe_grant_control_to_player(self):
@@ -282,6 +290,9 @@ class CivController(CivPropController):
     def _get_info(self):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
+        # If there is exception during _on_message callback, we raise it.
+        if self.ws_client.on_message_exception != None:
+            raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated():
             info['available_actions'] = {}
@@ -333,11 +344,11 @@ class CivController(CivPropController):
         # fc_logger.debug(f"game_has_truncated: {self.turn_manager.turn > fc_args['max_turns']}")
         return self.turn_manager.turn > fc_args['max_turns']
 
-    def game_has_terminated(self) -> bool:
+    def game_has_terminated(self, is_mini_game: bool = False) -> bool:
         """Returns True if the game has ended.       
         """
         # FIXME: check victory conditions.
-        if self.my_player_is_defeated():
+        if self.my_player_is_defeated(is_mini_game):
             return True
 
         return False
@@ -409,6 +420,7 @@ class CivController(CivPropController):
         if fc_args['debug.autosave'] and self.delete_save:
             self.delete_save_game()
         self.ws_client.close()
+        # time.sleep(3)
 
     def end_game_packet_list(self):
         wait_for_pid_list = []
@@ -631,6 +643,8 @@ class CivController(CivPropController):
         except KeyError:
             fc_logger.error(f'Packet is missing some keys: {packet}')
             print(f'Packet is missing some keys: {packet}')
+            if 'message' in packet and 'Error' in packet['message']:
+                raise Exception("Receiving error messages.")
             return
             # raise Exception("Packet is missing some keys")
 

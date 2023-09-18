@@ -97,9 +97,6 @@ def test_cancel_order(controller):
             # Change irrigation activity to mine
             # print(f'unit_id: {unit_id} do mine.')
             # valid_actions['mine'].trigger_action(controller.ws_client)
-            # import time
-            # time.sleep(10)
-
             # TODO: if comment out the below two lines, the test will become very slow. Figure out why.
             print(f'unit_id: {unit_id} cancel order.')
             valid_actions['cancel_order'].trigger_action(controller.ws_client)
@@ -128,9 +125,6 @@ def test_cancel_order(controller):
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'unit_id: {unit_id}, valid_actions: {valid_actions.keys()}')
-
-    import time
-    time.sleep(2)
 
 
 def main():

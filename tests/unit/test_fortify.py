@@ -72,9 +72,6 @@ def test_fortify(controller):
     print(punit)
     # When a unit has activity, the move pro get from server is 0 even the unit still has move.
     # print(unit_opt.unit_data[unit_id].action_prob[4][ACTION_UNIT_MOVE])
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController('testcontroller')

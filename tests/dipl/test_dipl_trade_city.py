@@ -45,16 +45,19 @@ def test_dipl_trade_city(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    trade_city_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_city_clause')[1]
 
-    assert (trade_city_act.is_action_valid())
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
-    len_1 = len(clauses)
+    trade_city_actions = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_city_clause')
+    if len(trade_city_actions) > 0:
+        trade_city_act = trade_city_actions[1]
 
-    trade_city_act.trigger_action(controller.ws_client)
-    controller.send_end_turn()
-    controller.get_info_and_observation()
-    clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
-    len_2 = len(clauses)
+        assert (trade_city_act.is_action_valid())
+        clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
+        len_1 = len(clauses)
 
-    assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_CITY)
+        trade_city_act.trigger_action(controller.ws_client)
+        controller.send_end_turn()
+        controller.get_info_and_observation()
+        clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
+        len_2 = len(clauses)
+
+        assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_CITY)

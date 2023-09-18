@@ -113,9 +113,6 @@ def test_cultivate(controller):
         # The terrain which had forest before should allow plant action.
         assert ('plant' in valid_actions)
 
-    import time
-    time.sleep(2)
-
 
 def main():
     controller = CivController(fc_args['username'])

@@ -36,6 +36,8 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         self.on_connection_success_callback = None
         self.on_message_callback = None
+        # Store the exception raised in _on_message()
+        self.on_message_exception = None
 
     def set_on_connection_success_callback(self, callback_func):
         self.on_connection_success_callback = callback_func
@@ -58,8 +60,13 @@ class CivWSClient(WebSocketClient):
         except Exception as e:
             # self.close()
             fc_logger.error(f"{str(e)}")
-            # assert False, f"{str(e)}"
-            raise Exception("Exception occurred in on_message_callback")
+            # Store the exception raised in callback to the main process, and then stop the ioloop to handle the exception.
+            self.on_message_exception = e
+            try:
+                self.stop_ioloop()
+            except Exception as e:
+                fc_logger.error(f"{str(e)}")
+            # raise Exception("Exception occurred in on_message_callback")
 
     @override
     def _on_connection_success(self):
@@ -121,7 +128,7 @@ class CivConnection(CivWSClient):
     def __init__(
             self, host, client_port, restart_server_if_down=False, wait_for_server=120,
             retry_interval=5,
-            retry_connection=False):
+            retry_connection=True):
         '''
             restart_server_if_down - True if server should be restarted if down
             wait_for_server - Overall time waiting for server being up

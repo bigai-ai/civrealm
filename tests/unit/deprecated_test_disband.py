@@ -54,8 +54,6 @@ def test_disband(controller):
         controller.get_info_and_observation()
     unit_opt = options['unit']
     assert not (unit_id in unit_opt.unit_ctrl.units.keys())
-    import time
-    time.sleep(2)
 
 
 def main():

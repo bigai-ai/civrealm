@@ -82,5 +82,3 @@ def test_build_road(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_ROAD]: {build_tile['extras'][EXTRA_ROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (build_tile['extras'][EXTRA_ROAD] == 1)
-    import time
-    time.sleep(2)

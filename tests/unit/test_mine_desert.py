@@ -66,10 +66,6 @@ def test_mine_desert(controller):
     # Cannot mine again
     assert ('mine' not in valid_actions)
 
-    import time
-    time.sleep(2)
-
-
 def main():
     controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T139_2023-07-28-09_49')

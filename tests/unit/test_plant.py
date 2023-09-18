@@ -142,10 +142,6 @@ def test_plant(controller):
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             assert ('plant' in valid_actions)
 
-    import time
-    time.sleep(2)
-
-
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')

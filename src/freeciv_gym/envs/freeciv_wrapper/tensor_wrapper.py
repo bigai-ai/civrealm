@@ -2,8 +2,11 @@ from typing import Any, Optional
 
 from gymnasium.core import Env, Wrapper
 
-from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from freeciv_gym.envs.freeciv_wrapper.utils import *
+from freeciv_gym.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
+                                                ACTIVITY_FORTIFYING,
+                                                ACTIVITY_IDLE, 
+                                                ACTIVITY_SENTRY)
 
 
 class TensorWrapper(Wrapper):
@@ -32,6 +35,7 @@ class TensorWrapper(Wrapper):
         info = self._handle_embark_info(info)
         self.mask = self._get_mask(obs, info)
         obs = self.observation(obs)
+        self._cached_last_obs, self._cached_last_info = deepcopy(obs), deepcopy(info)
         return obs, info
 
     def step(self, action):
@@ -366,7 +370,9 @@ class TensorWrapper(Wrapper):
         for pos, id in enumerate(self.city_ids[: self.tensor_config["resize"]["city"]]):
             city = observation["city"][id]
             # The following two conditions are used to check if 1.  the city is just built or is building coinage, and 2. the city has just built a unit or an improvement last turn and there are some production points left in stock.
-            if (city['prod_process'] != 0) and (self.turn != city['turn_last_built'] +1):
+            if (city["prod_process"] != 0) and (
+                self.turn != city["turn_last_built"] + 1
+            ):
                 self.city_mask[pos] *= 0
                 self.city_action_type_mask[pos] *= 0
 
@@ -375,7 +381,10 @@ class TensorWrapper(Wrapper):
             if unit["moves_left"] == 0 or self.__env.civ_controller.unit_ctrl.units[id][
                 "activity"
             ] not in [
-                ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
+                ACTIVITY_IDLE,
+                ACTIVITY_FORTIFIED,
+                ACTIVITY_SENTRY,
+                ACTIVITY_FORTIFYING,
             ]:  # agent busy or fortified
                 self.unit_mask[pos] *= 0
                 self.unit_action_type_mask[pos] *= 0

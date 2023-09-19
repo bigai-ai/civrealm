@@ -38,7 +38,7 @@ class RewardWrapper(Wrapper):
 
 
 class PenalizeTurnDoneReward(RewardWrapper):
-    def __init__(self, env, penalty=-1):
+    def __init__(self, env, penalty: float = -1):
         self._penalty_reward = penalty
         RewardWrapper.__init__(self, env)
 

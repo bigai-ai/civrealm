@@ -315,6 +315,7 @@ class CityState(DictState):
             'can_build_unit': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_unit_types'],), dtype=np.int8),
             # Boolean vector
             'improvements': gymnasium.spaces.Box(low=0, high=1, shape=(self.rule_ctrl.ruleset_control['num_impr_types'],), dtype=np.int8),
+            'turn_last_built': gymnasium.spaces.Box(low=1, high=32767, shape=(1,), dtype=np.int16),
         })
 
         return gymnasium.spaces.Dict({city_id: city_space for city_id in self.city_dict.keys()})

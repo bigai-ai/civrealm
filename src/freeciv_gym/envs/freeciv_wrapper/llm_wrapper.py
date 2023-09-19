@@ -49,7 +49,7 @@ class LLMWrapper(Wrapper):
 
     def get_llm_info(self, obs, info):
         current_turn = info['turn']
-        
+
         llm_info = dict()
         for ctrl_type, actors_can_act in info['available_actions'].items():
             llm_info[ctrl_type] = dict()
@@ -57,21 +57,31 @@ class LLMWrapper(Wrapper):
             if ctrl_type == 'unit':
                 units = self.civ_controller.unit_ctrl.units
                 for unit_id in actors_can_act:
-                    if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]:
+                    if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY,
+                                                          ACTIVITY_FORTIFYING]:
                         continue
 
                     x = obs[ctrl_type][unit_id]['x']
                     y = obs[ctrl_type][unit_id]['y']
                     utype = obs[ctrl_type][unit_id]['type_rule_name']
-                    llm_info[ctrl_type][unit_id] = self.get_actor_info(x, y, info, ctrl_type, unit_id, utype)
+
+                    unit_dict = self.get_actor_info(x, y, info, ctrl_type, unit_id, utype)
+                    if unit_dict:
+                        llm_info[ctrl_type][unit_id] = unit_dict
 
             elif ctrl_type == 'city':
                 for city_id in actors_can_act:
-                    # The following two conditions are used to check if 1.  the city is just built or is building coinage, and 2. the city has just built a unit or an improvement last turn and there are some production points left in stock.
-                    if (obs[ctrl_type][city_id]['prod_process'] == 0) or (current_turn == obs[ctrl_type][city_id]['turn_last_built'] +1):
+                    # The following two conditions are used to check if 1.  the city is just built or is building
+                    # coinage, and 2. the city has just built a unit or an improvement last turn and there are some
+                    # production points left in stock.
+                    if (obs[ctrl_type][city_id]['prod_process'] == 0 or
+                            current_turn == obs[ctrl_type][city_id]['turn_last_built'] + 1):
                         x = obs[ctrl_type][city_id]['x']
                         y = obs[ctrl_type][city_id]['y']
-                        llm_info[ctrl_type][city_id] = self.get_actor_info(x, y, info, ctrl_type, city_id)
+
+                        city_dict = self.get_actor_info(x, y, info, ctrl_type, city_id)
+                        if city_dict:
+                            llm_info[ctrl_type][city_id] = city_dict
                     else:
                         continue
             else:
@@ -90,7 +100,7 @@ class LLMWrapper(Wrapper):
         actor_info['name'] = actor_name
 
         available_actions = get_valid_actions(info, ctrl_type, actor_id)
-        if not available_actions:
+        if not available_actions or (len(available_actions) == 1 and available_actions[0] == 'keep_activity'):
             return dict()
         else:
             if ctrl_type == 'unit':
@@ -188,6 +198,5 @@ class LLMWrapper(Wrapper):
 
             tile_id += 1
         return mini_map_info
-
 
 

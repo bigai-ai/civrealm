@@ -579,6 +579,7 @@ class ActTileInfo(StdAction):
 
 
 class EngineerAction(UnitAction):
+    # If a unit is performing an engineering action, we don't show it in the valid action list again. If the unit continues to perform the same action again, we cannot receive response from the server.
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
             return False  # raise Exception("Unit has no moves left to build city")
@@ -609,11 +610,15 @@ class ActTransform(EngineerAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_TRANSFORM_TERRAIN):
             return False
         
+        # Is already performing transform, no need to show this action again.
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_TRANSFORM:
+            return False
+
         # If locate inside a city, cannot perform this action.
         if self.focus.pcity != None:
             return False
 
-        return True
+        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_TRANSFORM_TERRAIN])
 
     def _eng_packet(self):
         return self._request_new_unit_activity(ACTIVITY_TRANSFORM, EXTRA_NONE)
@@ -865,7 +870,7 @@ class ActPollution(EngineerAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CLEAN_POLLUTION):
             return False
 
-        # Is already performing cultivate, no need to show this action again.
+        # Is already removing pollution, no need to show this action again.
         if self.focus.punit['activity'] == fc_types.ACTIVITY_POLLUTION:
             return False
 

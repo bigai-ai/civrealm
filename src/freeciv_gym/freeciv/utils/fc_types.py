@@ -75,7 +75,7 @@ ACTIVITY_ACTION_MAP = {
     ACTIVITY_IRRIGATE: 'irrigation', 
     ACTIVITY_FORTIFIED: 'fortify', 
     ACTIVITY_PILLAGE: 'pillage', 
-    ACTIVITY_TRANSFORM: 'transform', 
+    ACTIVITY_TRANSFORM: 'transform_terrain', 
     ACTIVITY_FORTIFYING: 'fortify', 
     ACTIVITY_BASE: {EXTRA_FORTRESS: 'fortress', EXTRA_AIRBASE: 'airbase', EXTRA_BUOY: 'fortress'},
     ACTIVITY_GEN_ROAD: {EXTRA_ROAD: 'build_road', EXTRA_RAILROAD: 'build_railroad'},

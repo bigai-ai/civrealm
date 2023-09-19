@@ -213,6 +213,18 @@ class CivController(CivPropController):
             self.monitor.start_monitor()
         # print('init_game')
         self.clstate.login()
+        # Add server timeout handler
+        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.timeout_callback)
+
+    # Set a timeout callback
+    def timeout_callback(self):
+        fc_logger.debug('Call timeout_callback()...')
+        try:
+            self.ws_client.stop_ioloop()
+            fc_logger.debug('Server Timeout. Stop ioloop...')
+        except Exception as e:
+            fc_logger.error(f"{str(e)}")
+        self.ws_client.on_message_exception = Exception('Timeout: No response received from server.')
 
     def get_turn(self):
         return self.turn_manager.turn
@@ -283,9 +295,11 @@ class CivController(CivPropController):
         if action == None:
             self.send_end_turn()
         elif action == 'pass':
-            self.ws_client.send_message(f"Debug.Do nothing for this step.")
+            self.ws_client.send_message(f"Debug. Do nothing for this step.")
         else:
             self.turn_manager.perform_action(action, self.ws_client)
+        # Add server timeout handler
+        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.timeout_callback)
 
     def _get_info(self):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')

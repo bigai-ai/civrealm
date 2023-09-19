@@ -22,6 +22,7 @@ def get_first_observation_option(controller: CivController, client_port=None):
         return observation, options
     except Exception as e:
         fc_logger.error(f'get_first_observation_option error: {repr(e)}')
+        controller.ws_client.close()
         # Sleep for a random time and try again
         time.sleep(random.uniform(3, 5))
         return get_first_observation_option(controller, client_port)

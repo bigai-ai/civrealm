@@ -38,6 +38,8 @@ class CivWSClient(WebSocketClient):
         self.on_message_callback = None
         # Store the exception raised in _on_message()
         self.on_message_exception = None
+        # Store the timeout_callback handle. We use this to cancel the timeout_callback if we receive non-empty messages from the server. 
+        self.server_timeout_handle = None
 
     def set_on_connection_success_callback(self, callback_func):
         self.on_connection_success_callback = callback_func
@@ -49,9 +51,14 @@ class CivWSClient(WebSocketClient):
     def _on_message(self, message):
         try:
             if message is None:
-                # fc_logger.warning('Received empty message from server. Closing connection')
+                fc_logger.warning('Received empty message from server.')
                 return
-                # raise Exception("Received empty message from server. Closing connection")
+            # Remove the timeout_callback. Even the callback has been called, this remove will not raise exception.
+            if self.server_timeout_handle != None:
+                self.get_ioloop().remove_timeout(self.server_timeout_handle)
+                # fc_logger.debug('Remove timeout callback.')
+                self.server_timeout_handle = None
+
             self.read_packs = json.loads(message)
             fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
             self.packets_callback(self.read_packs)

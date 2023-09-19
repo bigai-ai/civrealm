@@ -75,6 +75,10 @@ class WebSocketClient(object):
         ioloop.IOLoop.current().stop()
 
     @final
+    def get_ioloop(self):
+        return ioloop.IOLoop.current()
+
+    @final
     def send(self, data):
         """Send message to the server
         :param str data: message.

@@ -21,32 +21,10 @@ from freeciv_gym.freeciv.city.city_state import CityState
 from freeciv_gym.freeciv.city.city_ctrl import INCITE_IMPOSSIBLE_COST
 from freeciv_gym.freeciv.game import ruleset
 from freeciv_gym.freeciv.game.game_ctrl import EXTRA_NONE
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE, EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS, EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_RIVER
-
-from freeciv_gym.freeciv.utils.fc_types import ACTION_UPGRADE_UNIT, packet_unit_do_action,\
-    packet_unit_load, packet_unit_unload, ACTION_PARADROP, ACTION_AIRLIFT,\
-    ACTIVITY_GEN_ROAD, ACTION_HOME_CITY, ACTION_UNIT_MOVE, packet_unit_autosettlers,\
-    ACTION_DISBAND_UNIT, ACTION_DISBAND_UNIT_RECOVER, packet_city_name_suggestion_req,\
-    ACTION_JOIN_CITY, ACTIVITY_FALLOUT, ACTIVITY_POLLUTION,\
-    packet_unit_change_activity, ACTIVITY_IRRIGATE, ACTIVITY_BASE, ACTIVITY_MINE,\
-    ACTIVITY_CULTIVATE, ACTIVITY_PLANT,\
-    ACTIVITY_TRANSFORM, ACTIVITY_SENTRY, ACTIVITY_EXPLORE, ACTIVITY_PILLAGE,\
-    ACTIVITY_FORTIFYING, ACTION_FOUND_CITY, packet_unit_orders, ORDER_MOVE,\
-    ACTIVITY_LAST, ACTION_COUNT, ACTION_SPY_STEAL_TECH_ESC,\
-    ACTION_SPY_INCITE_CITY_ESC, ACTION_SPY_STEAL_TECH,\
-    ACTION_SPY_SABOTAGE_CITY, ACTION_SPY_SABOTAGE_CITY_ESC,\
-    ACTION_SPY_TARGETED_STEAL_TECH, ACTION_SPY_BRIBE_UNIT,\
-    packet_unit_action_query, packet_unit_get_actions, ACTION_SPY_INCITE_CITY,\
-    ACTION_SPY_TARGETED_SABOTAGE_CITY_ESC, ACTION_SPY_TARGETED_SABOTAGE_CITY,\
-    ACTION_SPY_TARGETED_STEAL_TECH_ESC, ORDER_PERFORM_ACTION, ACTION_NUKE,\
-    ACTION_ATTACK, ACTIVITY_IDLE, SSA_NONE, ACT_DEC_NOTHING
 from freeciv_gym.freeciv.utils.base_action import Action, ActionList
-
 from freeciv_gym.freeciv.units.action_dialog import action_prob_possible, encode_building_id
 
 from freeciv_gym.freeciv.map.tile import TileState
-# from freeciv_gym.freeciv.map.map_ctrl import DIR8_NORTH, DIR8_NORTHEAST, DIR8_EAST, DIR8_SOUTHEAST,\
-#     DIR8_SOUTHWEST, DIR8_WEST, DIR8_SOUTH, DIR8_NORTHWEST
 import freeciv_gym.freeciv.map.map_const as map_const
 from freeciv_gym.freeciv.utils.utility import find_set_bits
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
@@ -334,14 +312,14 @@ class UnitActions(ActionList):
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == SSA_NONE and not punit['keep_activity']
+            punit['ssa_controller'] == fc_types.SSA_NONE and not punit['keep_activity']
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
 
     def _can_query_action_pro(self, unit_id):
         punit = self.unit_data[unit_id].punit
         # If an unit has orders or action_decision_want, we don't query its action pro here.
         return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
+            punit['ssa_controller'] == fc_types.SSA_NONE and not punit['has_orders'] and punit['action_decision_want'] == fc_types.ACT_DEC_NOTHING
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE and not punit['has_orders'] and punit['action_decision_want'] == ACT_DEC_NOTHING
 
     def get_get_pro_actions(self, actor_id, valid_only=False):
@@ -430,7 +408,7 @@ class UnitAction(Action):
         if not 'utype_actions' in putype:
             fc_logger.error('utype_can_do_action(): bad unit type.')
             return False
-        if action_id >= ACTION_COUNT or action_id < 0:
+        if action_id >= fc_types.ACTION_COUNT or action_id < 0:
             fc_logger.error(f'utype_can_do_action(): invalid action id: {action_id}')
             return False
 
@@ -440,7 +418,7 @@ class UnitAction(Action):
         """Tell server action of actor_id towards unit target_id with the respective
         action_type"""
 
-        packet = {"pid": packet_unit_do_action,
+        packet = {"pid": fc_types.packet_unit_do_action,
                   "actor_id": actor_id,
                   "extra_id": EXTRA_NONE,
                   "target_id": target_id,
@@ -452,12 +430,12 @@ class UnitAction(Action):
         return packet
 
     def _request_new_unit_activity(self, activity, target):
-        packet = {"pid": packet_unit_change_activity, "unit_id": self.focus.punit['id'],
+        packet = {"pid": fc_types.packet_unit_change_activity, "unit_id": self.focus.punit['id'],
                   "activity": activity, "target": target}
         return packet
 
     def _unit_do_activity(self, actor_id, activity, target):
-        packet = {"pid": packet_unit_change_activity, "unit_id": actor_id,
+        packet = {"pid": fc_types.packet_unit_change_activity, "unit_id": actor_id,
                   "activity": activity, "target": target}
         return packet
 
@@ -479,7 +457,7 @@ class ActSEntry(StdAction):
     action_key = "sentry"
 
     def _action_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_SENTRY, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_SENTRY, EXTRA_NONE)
 
 
 class ActCancelOrder(UnitAction):
@@ -491,12 +469,12 @@ class ActCancelOrder(UnitAction):
         # if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
         #     return False
         # Only when the unit has a non-idle activity, we can cancel its order.
-        return self.focus.punit['activity'] != ACTIVITY_IDLE
+        return self.focus.punit['activity'] != fc_types.ACTIVITY_IDLE
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
         # self.wait_for_pid = 63
-        packet = self._request_new_unit_activity(ACTIVITY_IDLE, EXTRA_NONE)
+        packet = self._request_new_unit_activity(fc_types.ACTIVITY_IDLE, EXTRA_NONE)
         return packet
 
 
@@ -530,7 +508,7 @@ class ActDisband(StdAction):
         # domestic and allied cities are supported here.
         target_city = self.focus.pcity
         target_id = self.focus.punit['id'] if target_city is None else target_city['id']
-        action_id = ACTION_DISBAND_UNIT if target_city is None else ACTION_DISBAND_UNIT_RECOVER
+        action_id = fc_types.ACTION_DISBAND_UNIT if target_city is None else fc_types.ACTION_DISBAND_UNIT_RECOVER
         self.wait_for_pid = (62, self.focus.punit['id'])
         return self.unit_do_action(self.focus.punit['id'], target_id, action_id)
 
@@ -621,7 +599,7 @@ class ActTransform(EngineerAction):
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_TRANSFORM_TERRAIN])
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_TRANSFORM, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_TRANSFORM, EXTRA_NONE)
 
 
 class ActMine(EngineerAction):
@@ -637,8 +615,8 @@ class ActMine(EngineerAction):
 
         # If the tile already has MINE extra, we cannot do mine again.
         if TileState.tile_has_extra(
-                self.focus.ptile, EXTRA_MINE) or TileState.tile_has_extra(
-                self.focus.ptile, EXTRA_OIL_MINE):
+                self.focus.ptile, fc_types.EXTRA_MINE) or TileState.tile_has_extra(
+                self.focus.ptile, fc_types.EXTRA_OIL_MINE):
             return False
 
         # Is already performing mine, no need to show this action again.
@@ -717,7 +695,7 @@ class ActCultivate(EngineerAction):
         return self.focus.pterrain['cultivate_time'] > 0
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_CULTIVATE, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_CULTIVATE, EXTRA_NONE)
 
 
 class ActPlant(EngineerAction):
@@ -739,7 +717,7 @@ class ActPlant(EngineerAction):
         return self.focus.pterrain['plant_time'] > 0
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_PLANT, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_PLANT, EXTRA_NONE)
 
 
 class ActFortress(EngineerAction):
@@ -752,13 +730,13 @@ class ActFortress(EngineerAction):
 
         # If the tile already has FORTRESS or BUOY extra, we cannot do FORTRESS again.
         if TileState.tile_has_extra(
-                self.focus.ptile, EXTRA_FORTRESS) or TileState.tile_has_extra(
-                self.focus.ptile, EXTRA_BUOY):
+                self.focus.ptile, fc_types.EXTRA_FORTRESS) or TileState.tile_has_extra(
+                self.focus.ptile, fc_types.EXTRA_BUOY):
             return False
 
         # Is already performing fortress, no need to show this action again.
         if self.focus.punit['activity'] == fc_types.ACTIVITY_BASE and (
-                self.focus.punit['activity_tgt'] == EXTRA_FORTRESS or self.focus.punit['activity_tgt'] == EXTRA_BUOY):
+                self.focus.punit['activity_tgt'] == fc_types.EXTRA_FORTRESS or self.focus.punit['activity_tgt'] == fc_types.EXTRA_BUOY):
             return False
 
         # If locate inside a city, cannot perform this action.
@@ -784,28 +762,24 @@ class ActAirbase(EngineerAction):
             return False
 
         # If the tile already has airbase extra, we cannot do airbase again.
-        if TileState.tile_has_extra(self.focus.ptile, EXTRA_AIRBASE):
+        if TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_AIRBASE):
             return False
 
         # Is already performing airbase, no need to show this action again.
-        if self.focus.punit['activity'] == fc_types.ACTIVITY_BASE and self.focus.punit['activity_tgt'] == EXTRA_AIRBASE:
+        if self.focus.punit['activity'] == fc_types.ACTIVITY_BASE and self.focus.punit['activity_tgt'] == fc_types.EXTRA_AIRBASE:
             return False
 
 
         return is_tech_known(self.focus.pplayer, 64)
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_BASE, ruleset.EXTRA_AIRBASE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_BASE, ruleset.EXTRA_AIRBASE)
 
 
 # class ActIrrigation(ActOnExtra):
 class ActIrrigation(EngineerAction):
     """Action to create an irrigation"""
     action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_IRRIGATE]
-
-    # def __init__(self, cur_focus):
-    #     self.extra_type = EXTRA_IRRIGATION
-    #     super().__init__(cur_focus)
 
     def is_eng_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_IRRIGATE):
@@ -854,7 +828,7 @@ class ActFallout(ActOnExtra):
         super().__init__(cur_focus)
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_FALLOUT, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_FALLOUT, EXTRA_NONE)
 
 
 # class ActPollution(ActOnExtra):
@@ -881,7 +855,7 @@ class ActPollution(EngineerAction):
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CLEAN_POLLUTION])
 
     def _eng_packet(self):
-        return self._request_new_unit_activity(ACTIVITY_POLLUTION, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_POLLUTION, EXTRA_NONE)
 
 # -------Further unit specific actions
 
@@ -895,7 +869,7 @@ class ActAutoSettler(UnitAction):
         return self.focus.ptype["name"] in ["Settlers", "Workers", "Engineers"]
 
     def _action_packet(self):
-        packet = {"pid": packet_unit_autosettlers,
+        packet = {"pid": fc_types.packet_unit_autosettlers,
                   "unit_id": self.focus.punit['id']}
         return packet
 
@@ -912,7 +886,7 @@ class ActExplore(UnitAction):
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
         # self.wait_for_pid = 63
-        return self._request_new_unit_activity(ACTIVITY_EXPLORE, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_EXPLORE, EXTRA_NONE)
 
 
 class ActParadrop(UnitAction):
@@ -925,7 +899,7 @@ class ActParadrop(UnitAction):
     def _action_packet(self):
         return self.unit_do_action(self.focus.punit['id'],
                                    self.focus.ptile['index'],
-                                   ACTION_PARADROP)
+                                   fc_types.ACTION_PARADROP)
 
 
 class ActBuildCity(UnitAction):
@@ -941,7 +915,7 @@ class ActBuildCity(UnitAction):
             return False  # raise Exception("Unit has no moves left to build city")
 
         # Check whether the unit type can do the given action
-        if not self.utype_can_do_action(self.focus.punit, ACTION_FOUND_CITY):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FOUND_CITY):
             return False
         # if self.focus.ptype["name"] not in ["Settlers", "Engineers"]:
             # return False
@@ -969,7 +943,7 @@ class ActBuildCity(UnitAction):
         unit_id = self.focus.punit["id"]
         self.wait_for_pid = None
         if self.next_city_name is None:
-            packet = {"pid": packet_city_name_suggestion_req,
+            packet = {"pid": fc_types.packet_city_name_suggestion_req,
                       "unit_id": unit_id}
             self.wait_for_pid = (44, self.focus.punit['id'])
             # self.wait_for_pid = 44
@@ -986,7 +960,7 @@ class ActBuildCity(UnitAction):
         self.wait_for_pid = (31, actor_unit['tile'])
         return self.unit_do_action(
             unit_id, actor_unit['tile'],
-            ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
+            fc_types.ACTION_FOUND_CITY, name=urllib.parse.quote(self.next_city_name, safe='~()*!.\''))
 
 
 class ActJoinCity(UnitAction):
@@ -1001,7 +975,7 @@ class ActJoinCity(UnitAction):
             return False  # raise Exception("Unit has no moves left to build city")
 
         # Check whether the unit type can do the given action
-        if not self.utype_can_do_action(self.focus.punit, ACTION_JOIN_CITY):
+        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_JOIN_CITY):
             return False
 
         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY])
@@ -1015,7 +989,7 @@ class ActJoinCity(UnitAction):
         # Join city will cause the removal of unit. Wait for the unit remove packet.
         self.wait_for_pid = (62, unit_id)
         # self.wait_for_pid = 62
-        return self.unit_do_action(unit_id, target_city['id'], ACTION_JOIN_CITY)
+        return self.unit_do_action(unit_id, target_city['id'], fc_types.ACTION_JOIN_CITY)
 
 
 class ActFortify(UnitAction):
@@ -1055,8 +1029,8 @@ class ActBuildRoad(EngineerAction):
             return False
 
         bridge_known = is_tech_known(self.focus.pplayer, 8)
-        tile_no_river = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RIVER)
-        no_road_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
+        tile_no_river = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_RIVER)
+        no_road_yet = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_ROAD)
         return (bridge_known or tile_no_river) and no_road_yet
 
     def _eng_packet(self):
@@ -1081,13 +1055,13 @@ class ActBuildRailRoad(EngineerAction):
             return False
 
         railroad_known = is_tech_known(self.focus.pplayer, 65)
-        already_road = TileState.tile_has_extra(self.focus.ptile, EXTRA_ROAD)
-        no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, EXTRA_RAILROAD)
+        already_road = TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_ROAD)
+        no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_RAILROAD)
         return railroad_known and already_road and no_rail_yet
 
     def _eng_packet(self):
         extra_id = self.focus.rule_ctrl.extras['Railroad']['id']
-        return self._request_new_unit_activity(ACTIVITY_GEN_ROAD, extra_id)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_GEN_ROAD, extra_id)
 
 
 class ActPillage(UnitAction):
@@ -1117,17 +1091,16 @@ class ActPillage(UnitAction):
 
         extra_num = 0
         # If locate in other player's city, we cannot pillage the city's road. But we can pillage other extras.
-        extra_list = [EXTRA_IRRIGATION, EXTRA_MINE, EXTRA_OIL_MINE,
-                      EXTRA_FARMLAND, EXTRA_FORTRESS, EXTRA_AIRBASE, EXTRA_BUOY, EXTRA_RUINS]
+        extra_list = [fc_types.EXTRA_IRRIGATION, fc_types.EXTRA_MINE, fc_types.EXTRA_OIL_MINE, fc_types.EXTRA_FARMLAND, fc_types.EXTRA_FORTRESS, fc_types.EXTRA_AIRBASE, fc_types.EXTRA_BUOY, fc_types.EXTRA_RUINS]
         if self.focus.pcity == None:
-            extra_list.extend([EXTRA_ROAD, EXTRA_RAILROAD])
+            extra_list.extend([fc_types.EXTRA_ROAD, fc_types.EXTRA_RAILROAD])
 
         for extra in extra_list:
             if TileState.tile_has_extra(self.focus.ptile, extra):
                 extra_num += 1
-                if extra == EXTRA_ROAD:
+                if extra == fc_types.EXTRA_ROAD:
                     has_road = True
-                if extra == EXTRA_RAILROAD:
+                if extra == fc_types.EXTRA_RAILROAD:
                     has_railroad = True
         # When have both road and railroad, we cannot pillage them simultaneously. Instead, we need to pillage railroad first and then road. Therefore, the available extra number should decrease by 1.
         if has_road and has_railroad:
@@ -1174,7 +1147,7 @@ class ActPillage(UnitAction):
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
         # self.wait_for_pid = 63
-        return self._request_new_unit_activity(ACTIVITY_PILLAGE, EXTRA_NONE)
+        return self._request_new_unit_activity(fc_types.ACTIVITY_PILLAGE, EXTRA_NONE)
 
 
 class ActHomecity(UnitAction):
@@ -1277,7 +1250,7 @@ class ActAirlift(UnitAction):
     def _action_packet(self):
         return self.unit_do_action(self.focus.punit['id'],
                                    self.focus.pcity['id'],
-                                   ACTION_AIRLIFT)
+                                   fc_types.ACTION_AIRLIFT)
 
 
 class ActUpgrade(UnitAction):
@@ -1292,7 +1265,7 @@ class ActUpgrade(UnitAction):
 
     def _action_packet(self):
         target_id = self.focus.pcity['id'] if self.focus.pcity != None else 0
-        return self.unit_do_action(self.focus.punit['id'], target_id, ACTION_UPGRADE_UNIT)
+        return self.unit_do_action(self.focus.punit['id'], target_id, fc_types.ACTION_UPGRADE_UNIT)
 
 
 class ActDeboard(UnitAction):
@@ -1473,19 +1446,19 @@ class ActSpyStealTech(ActSpyCityAction):
         * go for the untargeted version after concluding that no listed tech is
         * worth the extra risk. """
     action_key = 'spy_steal_tech'
-    action_id = ACTION_SPY_STEAL_TECH
+    action_id = fc_types.ACTION_SPY_STEAL_TECH
 
 
 class ActSpyStealTechESC(ActSpyStealTech):
     """Action to steal technology and then escape- unspecific"""
     action_key = 'spy_steal_tech_esc'
-    action_id = ACTION_SPY_STEAL_TECH_ESC
+    action_id = fc_types.ACTION_SPY_STEAL_TECH_ESC
 
 
 class ActSpyStealTechTargeted(ActSpyStealTech):
     """Action to steal specific technology"""
     action_key = 'sply_steal_tech_targeted'
-    action_id = ACTION_SPY_TARGETED_STEAL_TECH
+    action_id = fc_types.ACTION_SPY_TARGETED_STEAL_TECH
 
     def __init__(self, cur_focus):
         super().__init__(cur_focus)
@@ -1500,7 +1473,7 @@ class ActSpyStealTechTargeted(ActSpyStealTech):
             return self.tech_valid
 
         for tech_id in self.focus.rule_ctrl.techs:
-            tgt_kn = is_tech_known(city_owner(self.pcity), tech_id)
+            tgt_kn = is_tech_known(self.focus.unit_ctrl.player_ctrl.city_owner(self.focus.pcity), tech_id)
 
             if not tgt_kn:
                 continue
@@ -1527,31 +1500,31 @@ class ActSpyStealTechTargeted(ActSpyStealTech):
 
 class ActSpyStealTechTargetedESC(ActSpyStealTechTargeted):
     action_key = 'spy_steal_tech_targeted_esc'
-    action_id = ACTION_SPY_TARGETED_STEAL_TECH_ESC
+    action_id = fc_types.ACTION_SPY_TARGETED_STEAL_TECH_ESC
 
 
 class ActSpySabotageCity(ActSpyCityAction):
     """Sabotage City"""
     action_key = 'spy_sabotage_city'
-    action_id = ACTION_SPY_SABOTAGE_CITY
+    action_id = fc_types.ACTION_SPY_SABOTAGE_CITY
 
 
 class ActSpySabotageCityESC(ActSpyCityAction):
     """Sabotage City"""
     action_key = 'spy_sabotage_city_esc'
-    action_id = ACTION_SPY_SABOTAGE_CITY_ESC
+    action_id = fc_types.ACTION_SPY_SABOTAGE_CITY_ESC
 
 
 class ActSpyInciteCity(ActSpyCityAction):
     """Incite City"""
     action_key = 'spy_incite_city'
-    action_id = ACTION_SPY_INCITE_CITY
+    action_id = fc_types.ACTION_SPY_INCITE_CITY
 
 
 class ActSpyInciteCityESC(ActSpyCityAction):
     """Incite City"""
     action_key = 'spy_incite_city_esc'
-    action_id = ACTION_SPY_INCITE_CITY_ESC
+    action_id = fc_types.ACTION_SPY_INCITE_CITY_ESC
 
 
 class ActSpyUnitAction(DiplomaticAction):
@@ -1589,13 +1562,13 @@ class ActSpyUnitAction(DiplomaticAction):
 
 class ActSpyBribeUnit(ActSpyUnitAction):
     """ Bribe Unit"""
-    action_id = ACTION_SPY_BRIBE_UNIT
+    action_id = fc_types.ACTION_SPY_BRIBE_UNIT
     action_key = "spy_bribe_unit"
 
 
 class ActSpyUpgradeUnit(ActSpyUnitAction):
     """Upgrade Unit"""
-    action_id = ACTION_UPGRADE_UNIT
+    action_id = fc_types.ACTION_UPGRADE_UNIT
     """
     target_units = self.tile_units(target_tile)
         if target_unit != None and len(target_units) > 1:
@@ -1608,7 +1581,7 @@ class ActSpyUpgradeUnit(ActSpyUnitAction):
         action_options = {}
 
         for tgt_unit in potential_tgt_units:
-            packet = {"pid": packet_unit_get_actions,
+            packet = {"pid": fc_types.packet_unit_get_actions,
                       "actor_unit_id": actor_unit["id"],
                       "target_unit_id": tgt_unit["id"],
                       "target_tile_id": target_tile["id"],
@@ -1677,7 +1650,7 @@ class ActGoto(StdAction):
         # return False
         # print(f"unit id: {self.focus.punit['id']}")
         # print(self.focus.action_prob.keys())
-        if not action_prob_possible(self.focus.action_prob[self.dir8][ACTION_UNIT_MOVE]):
+        if not action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_UNIT_MOVE]):
             return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
@@ -1705,17 +1678,17 @@ class ActGoto(StdAction):
         #           "dest_tile" : target_tile['index'],
         #           "extra"     : [EXTRA_NONE]
         #           }
-        packet = {"pid": packet_unit_orders,
+        packet = {"pid": fc_types.packet_unit_orders,
                   "unit_id": actor_unit['id'],
                   "src_tile": actor_unit['tile'],
                   "length": 1,
                   "repeat": False,
                   "vigilant": False,
-                  "orders": [{"order": ORDER_MOVE,
-                              "activity": ACTIVITY_LAST,
+                  "orders": [{"order": fc_types.ORDER_MOVE,
+                              "activity": fc_types.ACTIVITY_LAST,
                               "target": EXTRA_NONE,
                               "sub_target": 0,
-                              "action": ACTION_COUNT,
+                              "action": fc_types.ACTION_COUNT,
                               "dir": dir8
                               }],
                   #   "extra"     : [EXTRA_NONE]
@@ -1752,7 +1725,7 @@ class ActHutEnter(StdAction):
 
     def _action_packet(self):
         # When the unit is on a certain activity, we need to cancel the order before we enter hut.
-        if self.focus.punit['activity'] != ACTIVITY_IDLE:
+        if self.focus.punit['activity'] != fc_types.ACTIVITY_IDLE:
             cancel_order_action = ActCancelOrder(self.focus)
             cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
         self.wait_for_pid = (63, self.focus.punit['id'])
@@ -1880,7 +1853,7 @@ class ActGetActionPro(UnitAction):
     def _action_packet(self):
         if type(self.target_extra_id) == int and type(self.target_unit_id) == int:
             actor_unit = self.focus.punit
-            packet = {"pid": packet_unit_get_actions,
+            packet = {"pid": fc_types.packet_unit_get_actions,
                       "actor_unit_id": actor_unit['id'],
                       "target_tile_id": self.target_tile_id,
                       # "target_city_id": self.target_city_id,
@@ -1898,7 +1871,7 @@ class ActGetActionPro(UnitAction):
                 # self.wait_for_pid = 90
                 for extra_id in self.target_extra_id:
                     actor_unit = self.focus.punit
-                    packet = {"pid": packet_unit_get_actions,
+                    packet = {"pid": fc_types.packet_unit_get_actions,
                               "actor_unit_id": actor_unit['id'],
                               "target_tile_id": self.target_tile_id,
                               # "target_city_id": self.target_city_id,
@@ -1915,7 +1888,7 @@ class ActGetActionPro(UnitAction):
                 # self.wait_for_pid = 90
                 for unit_id in self.target_unit_id:
                     actor_unit = self.focus.punit
-                    packet = {"pid": packet_unit_get_actions,
+                    packet = {"pid": fc_types.packet_unit_get_actions,
                               "actor_unit_id": actor_unit['id'],
                               "target_tile_id": self.target_tile_id,
                               # "target_city_id": self.target_city_id,
@@ -1928,7 +1901,7 @@ class ActGetActionPro(UnitAction):
 
             # Both target_extra_id and target_unit_id is a list. We currently do not handle this case.
             actor_unit = self.focus.punit
-            packet = {"pid": packet_unit_get_actions,
+            packet = {"pid": fc_types.packet_unit_get_actions,
                       "actor_unit_id": actor_unit['id'],
                       "target_tile_id": self.target_tile_id,
                       # "target_city_id": self.target_city_id,
@@ -1950,7 +1923,7 @@ class ActNuke(UnitAction):
 
     def key_unit_nuke(self):
         # /* The last order of the goto is the nuclear detonation. */
-        self.activate_goto_last(ORDER_PERFORM_ACTION, ACTION_NUKE)
+        self.activate_goto_last(fc_types.ORDER_PERFORM_ACTION, fc_types.ACTION_NUKE)
 
 
 class ActEmbassyStay(UnitAction):
@@ -1994,14 +1967,14 @@ class ActAttack(UnitAction):
     def is_action_valid(self):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_ATTACK):
             return False
-        return action_prob_possible(self.focus.action_prob[self.dir8][ACTION_ATTACK])
+        return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_ATTACK])
 
     def _action_packet(self):
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_tile_id,
-                                     ACTION_ATTACK)
+                                     fc_types.ACTION_ATTACK)
 
         self.wait_for_pid = (65, self.focus.punit['id'])
         return packet
@@ -2127,15 +2100,15 @@ def order_wants_direction(order, act_id, ptile):
     #  adjacent tile.
 
     action = actions[act_id]
-    if order == ORDER_PERFORM_ACTION and action == None:
+    if order == fc_types.ORDER_PERFORM_ACTION and action == None:
         # /* Bad action id or action rule data not received and stored
         # * properly. */
         logger.warning("Asked to put invalid action " + act_id + " in an order.")
         return False
 
-    if order in [ORDER_MOVE, ORDER_ACTION_MOVE]:
+    if order in [fc_types.ORDER_MOVE, ORDER_ACTION_MOVE]:
         return True
-    elif order == ORDER_PERFORM_ACTION:
+    elif order == fc_types.ORDER_PERFORM_ACTION:
         if action['min_distance'] > 0:
             # Always illegal to do to a target on the actor's own tile.
             return True

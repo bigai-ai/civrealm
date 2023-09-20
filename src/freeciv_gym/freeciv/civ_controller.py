@@ -301,14 +301,14 @@ class CivController(CivPropController):
         # Add server timeout handler
         self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.timeout_callback)
 
-    def _get_info(self):
+    def _get_info(self, **kwargs):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         # If there is exception during _on_message callback, we raise it.
         if self.ws_client.on_message_exception != None:
             raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
-        if self.my_player_is_defeated():
+        if self.my_player_is_defeated(is_mini_game=kwargs.get("is_mini_game")):
             info['available_actions'] = {}
         else:
             self.turn_manager.get_available_actions()
@@ -318,24 +318,24 @@ class CivController(CivPropController):
 
         return info
 
-    def _get_observation(self):
+    def _get_observation(self, **kwargs):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
         # TODO: change function name and return value
-        if self.my_player_is_defeated():
+        if self.my_player_is_defeated(is_mini_game=kwargs.get("is_mini_game")):
             fc_logger.info('my_player_is_defeated....')
             return {}
 
         return self.turn_manager.get_observation()
 
-    def get_info_and_observation(self):
+    def get_info_and_observation(self, **kwargs):
         '''
         We put _get_info() before _get_observation() because the actions of new units will be initialized in 
         _get_info() and we need to get the probabilities of some actions (e.g., attack). We will trigger the 
         corresponding get_probability (e.g., GetAttack) actions in _get_info() to query the probabilities from 
         server. Therefore, we call _get_observation() after that to receive the action probabilities from server.        
         '''
-        info = self._get_info()
-        observation = self._get_observation()
+        info = self._get_info(**kwargs)
+        observation = self._get_observation(**kwargs)
         return info, observation
 
     def get_reward(self):

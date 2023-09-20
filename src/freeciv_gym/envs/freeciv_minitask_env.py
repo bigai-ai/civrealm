@@ -29,15 +29,18 @@ class ExtendedEnum(Enum):
 
 @unique
 class MinitaskType(ExtendedEnum):
-    MT_BUILD_CITY = "buildcity"
+    MT_DEVELOPMENT_BUILD_CITY = "development_build_city"
+    MT_DEVELOPMENT_CITYTILE_WONDER = "development_citytile_wonder"
     MT_BATTLE_ANCIENT = "battle_ancient_era"
     MT_BATTLE_INDUSTRY = "battle_industry_era"
     MT_BATTLE_INFO = "battle_info_era"
     MT_BATTLE_MEDIEVAL = "battle_medieval"
     MT_BATTLE_MODERN = "battle_modern_era"
-    MT_ATTACK_CITY = "attackcity"
-    MT_DEFEND_CITY = "defendcity"
-    MT_TRADE_TECH = "tradetech"
+    MT_BATTLE_NAVAL_MODERN = "battle_naval_modern"
+    MT_BATTLE_NAVAL = "battle_naval"
+    MT_BATTLE_ATTACK_CITY = "battle_attack_city"
+    MT_BATTLE_DEFEND_CITY = "battle_defend_city"
+    MT_DIPLOMACY_TRADE_TECH = "diplomacy_trade_tech"
 
 @unique
 class MinitaskGameStatus(ExtendedEnum):
@@ -58,14 +61,7 @@ class MinitaskDifficulty(ExtendedEnum):
 
 DEFAULT_TASK = "minitask"
 MAX_ID = 999
-SUPPORT_MINITASK_TYPE = [
-    MinitaskType.MT_BUILD_CITY.value, 
-    MinitaskType.MT_BATTLE_ANCIENT.value,
-    MinitaskType.MT_BATTLE_INDUSTRY.value,
-    MinitaskType.MT_BATTLE_INFO.value,
-    MinitaskType.MT_BATTLE_MEDIEVAL.value,
-    MinitaskType.MT_BATTLE_MODERN.value,
-]
+BATTLE_MINITASK_LIST = [_minitask for _minitask in MinitaskType.list() if _minitask.startswith("battle")]
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
@@ -85,35 +81,30 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         if minitask_pattern is not None:
             if 'id' in minitask_pattern:
                 minitask = minitask_pattern
-            elif minitask_pattern in SUPPORT_MINITASK_TYPE:
+            elif minitask_pattern in MinitaskType.list():
                 minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_pattern, 
                                                          random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, max_id))
+                                                         random.randint(0, MAX_ID))
             else:
-                raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {SUPPORT_MINITASK_TYPE}!")
+                raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
         else:
-            minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, random.choice(SUPPORT_MINITASK_TYPE), 
+            minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, random.choice(MinitaskType.list()), 
                                                          random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, max_id))
+                                                         random.randint(0, MAX_ID))
         fc_logger.debug(f"Randomly selected minitask {minitask}!")
         return minitask
 
     def _get_info_and_observation(self):
         info, observation = super()._get_info_and_observation()
         # Remove player action from available actions. This is to prevent the agent from making pacts (peace, alliance, etc.) with other players in battle minitasks.
-        if 'player' in info['available_actions'] and self.task_type in [MinitaskType.MT_BATTLE_ANCIENT.value, 
-                                                                        MinitaskType.MT_BATTLE_INDUSTRY.value, 
-                                                                        MinitaskType.MT_BATTLE_INFO.value, 
-                                                                        MinitaskType.MT_BATTLE_MEDIEVAL.value, 
-                                                                        MinitaskType.MT_BATTLE_MODERN.value, 
-                                                                        MinitaskType.MT_ATTACK_CITY.value, 
-                                                                        MinitaskType.MT_DEFEND_CITY.value]:
+        if 'player' in info['available_actions'] and self.task_type in BATTLE_MINITASK_LIST:
             del info['available_actions']['player']
         return info, observation
     
     def reset(self, seed=None, options=None, minitask_pattern=None, max_id=MAX_ID):
         self.set_minitask(seed, minitask_pattern, max_id)
-        return super().reset(seed, options)
+        observations, info = super().reset(seed, options)
+        return observations, info
 
     def set_minitask(self, seed, minitask_pattern, max_id):
         """ Set Minitask. """
@@ -189,3 +180,8 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         results.update({"minitask_type": self.task_type})
         results.update(dict(minitask=minitask_results))
         return results
+    
+    def _get_info_and_observation(self):
+        info, observation = self.civ_controller.get_info_and_observation(is_mini_game=True)
+        self._record_observation(observation)
+        return info, observation

@@ -1,7 +1,7 @@
 # username: testcontroller
 username: myagent
 # Max number of turns per game
-max_turns: 500
+max_turns: 10
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
@@ -16,6 +16,8 @@ hotseat_game: False
 wait_for_observer: False
 # We consider the server is timeout after it does not respond any messages for server_timeout seconds.
 server_timeout: 5
+# The number of episode scores maintained in the ParallelTensorEnv
+score_window: 10
 # Number of AI players
 aifill: 4
 # The maximum number of players

@@ -170,45 +170,47 @@ class GameCtrl(CivPropController):
         if game_scores is None:
             return None, None, None, None
 
-        start_turn = 0
+        # start_turn = 0
         score_items = game_scores.split("\n")
+        # Format: {player_id: {'name':PLAYER_NAME, 'start_turn': when the player is added in the game}}
         players = {}
+        # Format: {turn_num: year_description}
         turns = {}
+        # Format: {tag_id: tag_description}
         tags = {}
+        # Format: {tag_name: {player_id: [scores]}}. The length of scores is the active turns of the player. It starts from the turn when the player is added and ends in the turn when the player is removed.
         evaluations = {}
 
         for score_item in score_items:
             scores = score_item.split(" ")
-            if len(scores) >= 3:
+            if scores[0] == 'tag':
+                ptag = int(scores[1])
+                tags[ptag] = scores[2] + '-' + EVALUATION_TAGS[ptag]
 
-                if scores[0] == 'tag':
-                    ptag = int(scores[1])
-                    tags[ptag] = scores[2] + '-' + EVALUATION_TAGS[ptag]
+            elif scores[0] == 'turn':
+                pturn = int(scores[1])
+                turn_name = " ".join(scores[3:])
+                turns[pturn] = turn_name
 
-                elif scores[0] == 'turn':
-                    pturn = int(scores[1])
-                    turn_name = " ".join(scores[3:])
-                    turns[pturn] = turn_name
+            elif scores[0] == 'addplayer':
+                player_id = int(scores[2])
+                players[player_id] = {}
+                player_name = " ".join(scores[3:])
+                players[player_id]['name'] = player_name
+                players[player_id]['start_turn'] = int(scores[1])
 
-                elif scores[0] == 'addplayer':
-                    player_id = int(scores[2])
-                    players[player_id] = {}
-                    player_name = " ".join(scores[3:])
-                    players[player_id]['name'] = player_name
-                    players[player_id]['start_turn'] = start_turn
+            elif scores[0] == 'data':
+                ptag = int(scores[2])
+                ptag_name = EVALUATION_TAGS[ptag]
+                pplayer = int(scores[3])
+                value = int(scores[4])
 
-                elif scores[0] == 'data':
-                    ptag = int(scores[2])
-                    ptag_name = EVALUATION_TAGS[ptag]
-                    pplayer = int(scores[3])
-                    value = int(scores[4])
+                if ptag_name not in evaluations:
+                    evaluations[ptag_name] = dict()
+                if pplayer not in evaluations[ptag_name]:
+                    evaluations[ptag_name][pplayer] = []
 
-                    if ptag_name not in evaluations:
-                        evaluations[ptag_name] = dict()
-                    if pplayer not in evaluations[ptag_name]:
-                        evaluations[ptag_name][pplayer] = []
-
-                    evaluations[ptag_name][pplayer].append(value)
+                evaluations[ptag_name][pplayer].append(value)
 
         game_scores_folder = f"game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-{self.ws_client.client_port}"
         if not os.path.exists(game_scores_folder):

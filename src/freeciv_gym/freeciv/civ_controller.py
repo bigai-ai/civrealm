@@ -47,7 +47,7 @@ from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
 
-MAX_REQUESTS = 10
+MAX_REQUESTS = 1
 SLEEP_TIME = 1
 
 
@@ -90,7 +90,7 @@ class CivController(CivPropController):
         self.visualize = visualize
         self.monitor = None
         if self.visualize:
-            self.monitor = CivMonitor(host, username)
+            self.monitor = CivMonitor(host, username, client_port)
 
         # Host address
         self.host = host

@@ -47,7 +47,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time())
         self.screenshot_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
-            'screenshots', fc_args['username'] + "_" + curr_date_time)
+            'screenshots', fc_args['username'] + "_" + str(fc_args['client_port']) + "_" + curr_date_time)
         os.makedirs(self.screenshot_dir, exist_ok=True)
 
     def set_up_recording(self):

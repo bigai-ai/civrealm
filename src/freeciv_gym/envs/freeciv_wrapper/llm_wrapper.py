@@ -57,8 +57,8 @@ class LLMWrapper(Wrapper):
             if ctrl_type == 'unit':
                 units = self.civ_controller.unit_ctrl.units
                 for unit_id in actors_can_act:
-                    if units[unit_id]['activity'] not in [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY,
-                                                          ACTIVITY_FORTIFYING]:
+                    if (units[unit_id]['type'] == 1 and units[unit_id]['activity'] not in
+                            [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]):
                         continue
 
                     x = obs[ctrl_type][unit_id]['x']

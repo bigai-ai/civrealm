@@ -56,3 +56,12 @@ class GameOverScoreInfo(InfoWrapper):
             last_scores = {k: v[0][-1] for k, v in game_scores.items()}
         info["scores"] = last_scores
         return info
+
+class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
+    def __init__(self, env):
+        GameOverScoreInfo.__init__(self, env)
+
+    def info(self, info, terminated, truncated, **kwargs):
+        info = super().info(info, terminated, truncated, **kwargs)
+        info['scores']['score'] = info["minitask"]["mini_score"]
+        return info

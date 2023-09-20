@@ -134,3 +134,10 @@ The following are some common issues that you may encounter when running the cod
     sudo apt install firefox-geckodriver
     ln -s /snap/bin/firefox.geckodriver geckodriver
     ```
+
+* If you see the following error when setting `take_screenshot: True`, it is caused by snap version of Firefox. Please try [System Firefox installation](https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-from-mozilla-builds-for-advanced-users).
+
+  ```bash
+  Your Firefox profile cannot be loaded. 
+  It may be missing or inaccessible.
+  ```

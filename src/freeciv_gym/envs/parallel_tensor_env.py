@@ -1,3 +1,5 @@
+from collections import deque
+import copy
 import gymnasium
 import ray
 from gymnasium.envs.registration import register
@@ -5,7 +7,7 @@ from gymnasium.envs.registration import register
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
-
+from freeciv_gym.freeciv.utils.eval_tags import EVALUATION_TAGS
 
 class ParallelTensorEnv:
     def __init__(self, env_name, batch_size_run, port_start):
@@ -24,6 +26,8 @@ class ParallelTensorEnv:
         self.observation_spaces = self.getattr("observation_space")
         self.action_spaces = self.getattr("action_space")
 
+        self.recent_scores = {tag: deque(maxlen=fc_args['score_window']) for tag in EVALUATION_TAGS}
+    
     def close(self):
         for env_id in range(self.batch_size_run):
             ray.get(self.envs[env_id].close.remote())
@@ -105,6 +109,11 @@ class ParallelTensorEnv:
                 env_port = ray.get(self.envs[env_id].get_port.remote())
                 # print(f'Original port: {env_port}')
                 ray.get(self.envs[env_id].close.remote())
+                final_score = ray.get(self.envs[env_id].get_final_score.remote())
+                # Append the new final score to recent_scores
+                for tag in EVALUATION_TAGS:
+                    self.recent_scores[tag].append(final_score[tag])
+
                 new_env_port = env_port ^ 1
                 # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
@@ -117,10 +126,15 @@ class ParallelTensorEnv:
                     result_id
                 )  # results: [(observation, info), ...]
                 observations[env_id] = observation
+                last_score = copy.deepcopy(infos[env_id]['scores'])
                 infos[env_id] = info
+                infos[env_id]['scores'] = last_score
                 self.envs[env_id] = env
 
             if not unready:
                 unfinished = False
 
         return observations, rewards, terminated, truncated, infos
+    
+    def get_recent_scores(self):
+        return {tag: list(self.recent_scores[tag]) for tag in EVALUATION_TAGS}

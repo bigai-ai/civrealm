@@ -33,9 +33,7 @@ def get_client_port():
 
 @pytest.fixture
 def env():
-    env = TensorWrapper(
-        env=gym.make("freeciv/FreecivMinitask-v0", client_port=get_client_port())
-    )
+    env = gym.make("freeciv/FreecivTensorMinitask-v0", client_port=get_client_port())
     yield env
     env.close()
 
@@ -47,9 +45,9 @@ def task_name(request):
 
 def test_minitask_tensor_env(env, task_name):
     # TODO: test other tasks, only buildcity and battle saves are supported now
-    if task_name not in ["buildcity", "battle"]:
-        _, _ = env.reset()
-        return
+    # if task_name not in ["buildcity", "battle"]:
+    #     _, _ = env.reset()
+    #     return
 
     obs, _ = env.reset(minitask_pattern=task_name)
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)

@@ -56,3 +56,6 @@ class FreecivParallelEnv():
 
     def getattr(self, attr):
         return getattr(self.env, attr)
+
+    def get_final_score(self):
+        return self.env.get_final_score()

@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import time
 import threading
 from selenium import webdriver
 from selenium.webdriver import Keys
@@ -23,21 +24,24 @@ from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivMonitor():
-    def __init__(self, host, user_name, poll_interval=4):
+    def __init__(self, host, user_name, client_port, poll_interval=4):
         self._driver = None
         self._poll_interval = poll_interval
         self._initiated = False
         self._host = host
         self._user_name = user_name
         self.monitor_thread = None
-        self.state = "go_multi_player_and_join"
+        self.state = "input_observer_name"
         self.start_observe = False
+        self.client_port = client_port
 
     def _observe_game(self, user_name):
         if not self._initiated:
             self._driver = webdriver.Firefox()
             self._driver.maximize_window()
-            self._driver.get(f'http://{self._host}:8080/game/list?v=multiplayer')
+
+            self._driver.get(f'http://{self._host}:8080/webclient/?action=multi&civserverport='
+                             f'{self.client_port}&civserverhost=unknown&multi=true&type=multiplayer')
             sleep(10)
             self._initiated = True
 
@@ -69,7 +73,9 @@ class CivMonitor():
                     try:
                         bt_single_game = self._driver.find_element(By.ID, "username_req")
                         bt_single_game.clear()
-                        bt_single_game.send_keys("observer")
+
+                        cur_time = time.strftime('%Y%m%d%H%M%S')
+                        bt_single_game.send_keys(f'observer{self.client_port}{cur_time}')
                         sleep(self._poll_interval)
                         bt_single_game = self._driver.find_elements(
                             By.CSS_SELECTOR, ".ui-dialog-buttonset .ui-button.ui-corner-all.ui-widget")[1]  # Join Games
@@ -83,7 +89,7 @@ class CivMonitor():
                     try:
                         bt_single_game = self._driver.find_element(By.ID, "pregame_text_input")  # console
                         bt_single_game.clear()
-                        bt_single_game.send_keys("/observe myagent")
+                        bt_single_game.send_keys(f'/observe {self._user_name}')
                         sleep(self._poll_interval)
                         bt_single_game.send_keys(Keys.ENTER)
                         self.state = "view_game"

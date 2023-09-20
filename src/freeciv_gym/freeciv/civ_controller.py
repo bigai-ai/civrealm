@@ -47,7 +47,7 @@ from freeciv_gym.freeciv.utils.port_list import PORT_LIST
 from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.fc_types import packet_chat_msg_req
 
-MAX_REQUESTS = 10
+MAX_REQUESTS = 1
 SLEEP_TIME = 1
 
 
@@ -90,7 +90,7 @@ class CivController(CivPropController):
         self.visualize = visualize
         self.monitor = None
         if self.visualize:
-            self.monitor = CivMonitor(host, username)
+            self.monitor = CivMonitor(host, username, client_port)
 
         # Host address
         self.host = host
@@ -107,6 +107,7 @@ class CivController(CivPropController):
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
+        self.game_score = None
         self.init_controllers()
 
     def reset(self):
@@ -120,6 +121,7 @@ class CivController(CivPropController):
         self.turn_manager = TurnManager(self.client_port)
         self.delete_save = True
         self.game_saving_time_range = []
+        self.game_score = None
         self.init_controllers()
 
     def register_all_handlers(self):
@@ -426,6 +428,7 @@ class CivController(CivPropController):
     def close(self):
         if fc_args['debug.interrupt_save']:
             self.save_game()
+        self.game_score = self.request_scorelog()
         # fc_logger.info(f'game_is_over: {self.game_is_over}')
         if not self.game_is_over:
             self.end_game()

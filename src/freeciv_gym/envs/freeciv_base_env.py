@@ -47,7 +47,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time())
         self.screenshot_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
-            'screenshots', fc_args['username'] + "_" + curr_date_time)
+            'screenshots', fc_args['username'] + "_" + str(fc_args['client_port']) + "_" + curr_date_time)
         os.makedirs(self.screenshot_dir, exist_ok=True)
 
     def set_up_recording(self):
@@ -155,8 +155,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return dict(sorted(game_results.items()))
 
     def evaluate_game(self):
-        game_scores = self.civ_controller.request_scorelog()
-        return self.civ_controller.game_ctrl.get_game_scores(game_scores)
+        # game_scores = self.civ_controller.request_scorelog()
+        return self.civ_controller.game_ctrl.get_game_scores(self.civ_controller.game_score)
 
     def plot_game_scores(self):
         plot_game_scores_folder = (f"plot_game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-"
@@ -174,13 +174,21 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             for player_id in evaluations[ptag].keys():
                 scores = evaluations[ptag][player_id]
                 x_1 = players[player_id]['start_turn']
-                x_axis = range(x_1 + x_1 + len(scores))
+                x_axis = range(x_1, x_1 + len(scores))
                 plt.plot(x_axis, scores, color=player_colors[player_id], label='player' + '_' + str(player_id))
 
             plt.legend()
             pfile = os.path.join(plot_game_scores_folder, ptag + '.png')
             plt.savefig(pfile)
             plt.close()
+
+    def get_final_score(self):
+        _, _, _, evaluations = self.evaluate_game()
+        score = {}
+        if evaluations != None:
+            for tag in EVALUATION_TAGS:
+                score[tag] = evaluations[tag][self.civ_controller.player_ctrl.my_player_id][-1]
+        return score
 
     def render(self):
         """Render the environment based on freeciv-web.

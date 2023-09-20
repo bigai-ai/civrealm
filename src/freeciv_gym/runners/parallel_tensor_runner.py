@@ -35,4 +35,6 @@ class ParallelTensorRunner:
             )
 
             self.steps += self.batch_size_run
+            if self.steps > 20:
+                print(self.tensor_env.get_recent_scores())
         self.close()

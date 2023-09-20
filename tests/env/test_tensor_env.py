@@ -110,7 +110,7 @@ def test_tensor_make_env(make_env):
     city_action_pos = np.where(obs["city_action_type_mask"] == 1)
     idx = np.random.randint(len(city_action_pos[0]))
     act_end_turn = {
-        "actor_type": 0,
+        "actor_type": 3,
         "city_id": city_action_pos[0][idx],
         "city_action_type": city_action_pos[1][idx],
     }
@@ -152,3 +152,10 @@ def test_tensor_zero_start_env(zero_start_env):
         "gov_action_type": action_type,
     }
     obs, reward, terminated, truncated, info = env.step(act_gov)
+
+    act_end_turn = {
+        "actor_type": 3,
+    }
+    obs, reward, terminated, truncated, info = env.step(act_end_turn)
+
+    import pdb; pdb.set_trace()

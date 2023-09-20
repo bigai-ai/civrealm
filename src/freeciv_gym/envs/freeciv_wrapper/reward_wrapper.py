@@ -1,7 +1,4 @@
 from gymnasium.core import Wrapper
-from gymnasium.wrappers import flatten_observation
-
-from freeciv_gym.envs.freeciv_wrapper.utils import *
 
 
 class RewardWrapper(Wrapper):

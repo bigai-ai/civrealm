@@ -14,7 +14,8 @@ from gymnasium.core import Wrapper
 
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
-from freeciv_gym.envs.freeciv_wrapper import (PenalizeTurnDoneReward,
+from freeciv_gym.envs.freeciv_wrapper import (GameOverScoreInfo,
+                                              PenalizeTurnDoneReward,
                                               TensorWrapper)
 from freeciv_gym.envs.freeciv_wrapper.utils import default_tensor_config
 
@@ -30,11 +31,14 @@ class FreecivTensorEnv(Wrapper):
         client_port: int = fc_args["client_port"],
         config: dict = default_tensor_config,
     ):
-        tensor_env = TensorWrapper(
-            env=PenalizeTurnDoneReward(
-                FreecivBaseEnv(username=username, client_port=client_port), penalty=-0.1
-            ),
-            config=config,
+        tensor_env = GameOverScoreInfo(
+            TensorWrapper(
+                env=PenalizeTurnDoneReward(
+                    FreecivBaseEnv(username=username, client_port=client_port),
+                    penalty=-0.1,
+                ),
+                config=config,
+            )
         )
         super().__init__(tensor_env)
         self._cached_reset_result = self.env.reset()

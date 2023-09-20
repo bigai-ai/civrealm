@@ -1,4 +1,5 @@
 from collections import deque
+import copy
 import gymnasium
 import ray
 from gymnasium.envs.registration import register
@@ -125,7 +126,9 @@ class ParallelTensorEnv:
                     result_id
                 )  # results: [(observation, info), ...]
                 observations[env_id] = observation
+                last_score = copy.deepcopy(infos[env_id]['scores'])
                 infos[env_id] = info
+                infos[env_id]['scores'] = last_score
                 self.envs[env_id] = env
 
             if not unready:

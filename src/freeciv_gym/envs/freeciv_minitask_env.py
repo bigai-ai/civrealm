@@ -101,9 +101,18 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             del info['available_actions']['player']
         return info, observation
     
+    def _set_minitask_info(self, info):
+        info['minitask'] = {
+            'status': self._get_game_status(),
+            'success': self._get_success(),
+        }
+        info['minitask'].update(self._get_detail())
+        return
+    
     def reset(self, seed=None, options=None, minitask_pattern=None, max_id=MAX_ID):
         self.set_minitask(seed, minitask_pattern, max_id)
         observations, info = super().reset(seed, options)
+        self._set_minitask_info(info)
         return observations, info
 
     def set_minitask(self, seed, minitask_pattern, max_id):
@@ -164,11 +173,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
     def step(self, action):
         observation, reward, terminated, truncated, info = super().step(action)
-        info['minitask'] = {
-            'status': self._get_game_status(),
-            'success': self._get_success(),
-        }
-        info['minitask'].update(self._get_detail())
+        self._set_minitask_info(info)
         return observation, reward, terminated, truncated, info
 
     def get_game_results(self):

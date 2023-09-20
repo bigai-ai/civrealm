@@ -13,9 +13,11 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-EVALUATION_TAGS = ['score', 'population', 'economics', 'production', 'cities', 'techs',
-                   'military units', 'wonders', 'tech output', 'land area', 'settled area',
-                   'gold', 'units built', 'units killed', 'units lost', 'units used']
+# EVALUATION_TAGS = ['score', 'population', 'economics', 'production', 'cities', 'techs',
+#                    'military units', 'wonders', 'tech output', 'land area', 'settled area',
+#                    'gold', 'units built', 'units killed', 'units lost', 'units used']
+
+EVALUATION_TAGS = ['score', 'population', 'economics', 'production', 'cities', 'researched_techs', 'military_units', 'wonders', 'research_speed', 'land_area', 'settled_area', 'gold', 'units_built', 'units_killed', 'units_lost', 'units_used']
 
 RESULT_TAGS = ['Population', 'Trade', 'Production', 'Cities', 'Technologies', 'Military Service',
                'Wonders', 'Research Speed', 'Land Area', 'Settled Area', 'Literacy', 'Culture',

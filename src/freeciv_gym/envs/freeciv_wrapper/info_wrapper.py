@@ -66,4 +66,5 @@ class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
         last_scores = {}
         last_scores['score'] = self.unwrapped.overall_mini_score         
         info['scores'] = last_scores
+        info['scores']['success'] = info['minitask']['success']
         return info

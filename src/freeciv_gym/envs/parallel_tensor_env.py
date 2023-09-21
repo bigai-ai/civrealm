@@ -4,6 +4,7 @@ from collections import deque
 import ray
 
 from freeciv_gym.configs import fc_args
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
 
 
@@ -117,19 +118,26 @@ class ParallelTensorEnv:
                     if tag not in self.recent_scores:
                         self.recent_scores[tag] = deque(maxlen=fc_args['score_window'])
                     self.recent_scores[tag].append(final_score[tag])
-
-                # Reinitialize environment
-                new_env_port = env_port ^ 1
-                # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
-                # env = FreecivParallelEnv.remote(env_core, new_env_port)
-                # import time
-                # time.sleep(10)
-                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port,**self.init_kwargs)
-                print("Reinitialze env....")
-                result_id = env.reset.remote()
-                (observation, info) = ray.get(
-                    result_id
-                )  # results: [(observation, info), ...]
+                
+                while True:
+                    try:
+                        # Reinitialize environment
+                        new_env_port = env_port ^ 1
+                        # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
+                        # env = FreecivParallelEnv.remote(env_core, new_env_port)
+                        # import time
+                        # time.sleep(10)
+                        env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port,**self.init_kwargs)
+                        print("Reinitialze env....")
+                        result_id = env.reset.remote()
+                        (observation, info) = ray.get(
+                            result_id
+                        )  # results: [(observation, info), ...]
+                        break
+                    except Exception as e:
+                        fc_logger.error(repr(e))
+                        import time
+                        time.sleep(5)
                 observations[env_id] = observation
                 last_score = copy.deepcopy(infos[env_id]['scores'])
                 infos[env_id] = info

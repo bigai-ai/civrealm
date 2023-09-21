@@ -10,13 +10,12 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from gymnasium.core import Wrapper
-
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_base_env import FreecivBaseEnv
 from freeciv_gym.envs.freeciv_wrapper import (GameOverScoreInfo,
                                               PenalizeTurnDoneReward,
-                                              TensorWrapper)
+                                              TensorWrapper,
+                                              Wrapper)
 from freeciv_gym.envs.freeciv_wrapper.utils import default_tensor_config
 
 

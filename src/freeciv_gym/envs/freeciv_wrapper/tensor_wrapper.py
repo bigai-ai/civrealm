@@ -47,9 +47,12 @@ class TensorWrapper(Wrapper):
             f"action available in info: { self.action_list[log_action[0]][log_action[1]][log_action[2]] if log_action else 'end turn'} "
         )
         obs, reward, terminated, truncated, info = self.__env.step(self.action(action))
+
         if terminated or truncated:
-            obs, info = self._cached_last_obs, self._cached_last_info
+            obs = self._cached_last_obs
+            info = {} if info == None else info
             return obs, reward, terminated, truncated, info
+
         self._update_sequence_ids(obs)
         info = self._handle_embark_info(info)
         self.mask = self._get_mask(obs, info, action)
@@ -379,9 +382,9 @@ class TensorWrapper(Wrapper):
 
         for pos, id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
             unit = observation["unit"][id]
-            if unit["moves_left"] == 0 or self.unwrapped.civ_controller.unit_ctrl.units[id][
-                "activity"
-            ] not in [
+            if unit["moves_left"] == 0 or self.unwrapped.civ_controller.unit_ctrl.units[
+                id
+            ]["activity"] not in [
                 ACTIVITY_IDLE,
                 ACTIVITY_FORTIFIED,
                 ACTIVITY_SENTRY,

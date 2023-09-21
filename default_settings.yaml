@@ -1,7 +1,7 @@
 # username: testcontroller
 username: myagent
 # Max number of turns per game
-max_turns: 10
+max_turns: 500
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.
@@ -14,8 +14,10 @@ self_play: False
 hotseat_game: False
 # Whether to wait a observer join before start the game
 wait_for_observer: False
-# We consider the server is timeout after it does not respond any messages for server_timeout seconds.
-server_timeout: 5
+# We consider the server is timeout after it does not respond any messages for server_timeout seconds. In pytest, we automatically set it as 5 in conftest.py.
+server_timeout: 30
+# Whether in pytest mode. In pytest, we automatically set it as True in conftest.py.
+pytest: False
 # The number of episode scores maintained in the ParallelTensorEnv
 score_window: 10
 # Number of AI players

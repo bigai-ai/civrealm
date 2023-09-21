@@ -115,15 +115,22 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         import time
         start_time = time.time()
         self.civ_controller.perform_action(action)
+        try:
+            info, observation = self._get_info_and_observation()
+            reward = self._get_reward()
+            terminated = self._get_terminated()
+            truncated = self._get_truncated()
 
-        info, observation = self._get_info_and_observation()
-        reward = self._get_reward()
-        terminated = self._get_terminated()
-        truncated = self._get_truncated()
-
-        available_actions = info['available_actions']
-        self._record_action(available_actions, action)
-        self._take_screenshot()
+            available_actions = info['available_actions']
+            self._record_action(available_actions, action)
+            self._take_screenshot()
+        except Exception as e:
+            fc_logger.error(repr(e))
+            reward = 0
+            info = None
+            observation = None
+            terminated = False
+            truncated = True
 
         # TODO: check if we still need this logic
         end_time = time.time()

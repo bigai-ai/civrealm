@@ -679,6 +679,8 @@ class CivController(CivPropController):
             fc_logger.warning("Bad command event!")
             fc_logger.warning(message)
             # TODO: handle bad command
+            if not fc_args['pytest']:
+                raise Exception(f'Bad command event: {message}')
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)

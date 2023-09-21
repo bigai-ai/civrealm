@@ -357,17 +357,19 @@ class CivController(CivPropController):
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
         """
-        # fc_logger.debug(f"game_has_truncated: {self.turn_manager.turn > fc_args['max_turns']}")
-        return self.turn_manager.turn > fc_args['max_turns']
+        _turncated = self.turn_manager.turn > fc_args['max_turns']
+        if _turncated:
+            fc_logger.info(f"Game has truncated because the turns {self.turn_manager.turn} exceeded limit {fc_args['max_turns']}!")
+        return _turncated
 
     def game_has_terminated(self, is_mini_game: bool = False) -> bool:
         """Returns True if the game has ended.       
         """
         # FIXME: check victory conditions.
-        if self.my_player_is_defeated(is_mini_game):
-            return True
-
-        return False
+        _terminated = self.my_player_is_defeated(is_mini_game)
+        if _terminated:
+            fc_logger.info(f"Game has terminated because my player had been defeated!")
+        return _terminated
 
     # ============================================================
     # ========================= Handlers =========================

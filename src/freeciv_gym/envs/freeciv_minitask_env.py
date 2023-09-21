@@ -82,14 +82,14 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         if not isinstance(minitask_pattern, dict):
             minitask_pattern = dict()
 
-        minitask_id = minitask_pattern.get('id', random.randint(0, MAX_ID))
+        minitask_id = minitask_pattern.get('id', random.randint(0, max_id))
         minitask_level = minitask_pattern.get('level', random.choice(MinitaskDifficulty.list()))
         minitask_type = minitask_pattern.get('type', random.choice(MinitaskType.list()))
 
         if minitask_type not in MinitaskType.list():
             raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
-        if minitask_id > MAX_ID or minitask_id < 0:
-            raise ValueError(f"Not supported id as {minitask_id}. The suppported range is [0, {MAX_ID}]!")
+        if minitask_id > max_id or minitask_id < 0:
+            raise ValueError(f"Not supported id as {minitask_id}. The suppported range is [0, {max_id}]!")
         if minitask_level not in MinitaskDifficulty.list():
             raise ValueError(f"Not supported diffculty as {minitask_level}. The suppported list is {MinitaskDifficulty.list()}!")
 

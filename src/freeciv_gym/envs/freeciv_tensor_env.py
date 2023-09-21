@@ -46,7 +46,7 @@ class FreecivTensorEnv(Wrapper):
         self.first_reset = True
 
     def reset(self, **kwargs):
-        if self.first_reset:
+        if self.first_reset and len(kwargs)==0:
             # use cached reset during init for first reset
             obs, info = self._cached_reset_result
             self.first_reset = False

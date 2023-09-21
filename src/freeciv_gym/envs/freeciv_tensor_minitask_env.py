@@ -27,6 +27,7 @@ class FreecivTensorMinitaskEnv(Wrapper):
 
     def __init__(
         self,
+        minitask_pattern=None,
         username: str = fc_args["username"],
         client_port: int = fc_args["client_port"],
         config: dict = default_tensor_config,
@@ -42,15 +43,21 @@ class FreecivTensorMinitaskEnv(Wrapper):
             )
         )
         super().__init__(tensor_env)
+        self.minitask_pattern = minitask_pattern
         # print(f'Env port: {tensor_env.get_port()}')
-        self._cached_reset_result = self.env.reset()
+        self._cached_reset_result = self.env.reset(
+            minitask_pattern=self.minitask_pattern
+        )
         # reset during init to get valid obs space
         self.first_reset = True
 
     def reset(self, **kwargs):
-        if self.first_reset:
+        if self.first_reset and len(kwargs) == 0:
             # use cached reset during init for first reset
             obs, info = self._cached_reset_result
             self.first_reset = False
             return obs, info
-        return self.env.reset(**kwargs)
+        if "minitask_pattern" in kwargs:
+            return self.env.reset(**kwargs)
+        else:
+            return self.env.reset(minitask_pattern=self.minitask_pattern, **kwargs)

@@ -62,6 +62,8 @@ class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
         GameOverScoreInfo.__init__(self, env)
 
     def info(self, info, terminated, truncated, **kwargs):
-        info = super().info(info, terminated, truncated, **kwargs)
-        info['scores']['score'] = info["minitask"]["mini_score"]
+        # TODO: Add other metrics
+        last_scores = {}
+        last_scores['score'] = self.env.overall_mini_score         
+        info['scores'] = last_scores
         return info

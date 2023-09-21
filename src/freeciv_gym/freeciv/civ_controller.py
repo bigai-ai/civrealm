@@ -680,7 +680,7 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        elif (event == E_GAME_END) and ('Game is over.' in message):
+        elif (event == E_GAME_END) and ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
 
         if 'connected to no player' in message:

@@ -1,15 +1,12 @@
-from gymnasium.core import Wrapper
+from .core import Wrapper
 
 
 class RewardWrapper(Wrapper):
     def __init__(self, env):
         Wrapper.__init__(self, env)
 
-    def reset(self,**kwargs):
-        return self.env.reset(**kwargs)
-
     def step(self, action):
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = super().step(action)
         return (
             observation,
             self.reward(

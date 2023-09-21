@@ -1,3 +1,4 @@
+from .core import Wrapper
 from .observation_wrapper import FilterObservation, OnehotifyObservation
 from .reward_wrapper import PenalizeTurnDoneReward, MinitaskDelayedReward, MinitaskDenseReward
 from .info_wrapper import GameOverScoreInfo, MiniTaskGameOverScoreInfo

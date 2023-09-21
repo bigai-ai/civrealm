@@ -41,7 +41,7 @@ class FreecivTensorEnv(Wrapper):
             )
         )
         super().__init__(tensor_env)
-        self._cached_reset_result = self.env.reset()
+        self._cached_reset_result = super().reset()
         # reset during init to get valid obs space
         self.first_reset = True
 
@@ -51,4 +51,4 @@ class FreecivTensorEnv(Wrapper):
             obs, info = self._cached_reset_result
             self.first_reset = False
             return obs, info
-        return self.env.reset(**kwargs)
+        return super().reset(**kwargs)

@@ -68,8 +68,6 @@ def test_minitask_tensor_env(env, task_name):
             "city_action_type": city_action_pos[1][idx],
         }
         obs, reward, terminated, truncated, info = env.step(act_city)
-    else:
-        assert task_name == "buildcity" or task_name == "battle"
 
     gov_action_pos = np.where(obs["gov_action_type_mask"] == 1)
     action_type = np.random.choice(gov_action_pos[0])

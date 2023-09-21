@@ -25,6 +25,7 @@ class ParallelTensorEnv:
         self.action_spaces = self.getattr("action_space")
 
         self.recent_scores = {}
+        self.init_kwargs = kwargs
 
     def close(self):
         for env_id in range(self.batch_size_run):
@@ -123,7 +124,7 @@ class ParallelTensorEnv:
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 # import time
                 # time.sleep(10)
-                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
+                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port,**self.init_kwargs)
                 print("Reinitialze env....")
                 result_id = env.reset.remote()
                 (observation, info) = ray.get(

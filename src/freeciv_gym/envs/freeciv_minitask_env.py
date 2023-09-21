@@ -74,6 +74,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         self.task_type = None
         fc_args['debug.autosave'] = False
         self._last_minitask_score = None
+        self.overall_mini_score = 0
 
     @staticmethod
     def get_minitask(name, minitask_pattern, max_id):
@@ -143,6 +144,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
                     self._last_minitask_score = msg['metrics'][-1]['mini_score']
                 current_score = msg['metrics'][-1]['mini_score'] - self._last_minitask_score
                 self._last_minitask_score = msg['metrics'][-1]['mini_score']
+                self.overall_mini_score = msg['metrics'][-1]['mini_score']
                 return current_score
         return current_score
 
@@ -190,3 +192,8 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         info, observation = self.civ_controller.get_info_and_observation(is_mini_game=True)
         self._record_observation(observation)
         return info, observation
+
+    def get_final_score(self):
+        score = {}
+        score['mini_score'] = self.overall_mini_score
+        return score

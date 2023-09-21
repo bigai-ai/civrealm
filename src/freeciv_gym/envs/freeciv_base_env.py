@@ -166,14 +166,14 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.game_ctrl.get_game_scores(self.civ_controller.game_score)
 
     def plot_game_scores(self):
+        players, tags, turns, evaluations = self.evaluate_game()
+        if evaluations is None:
+            return
+
         plot_game_scores_folder = (f"plot_game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-"
                                    f"{self.civ_controller.client_port}")
         if not os.path.exists(plot_game_scores_folder):
             os.makedirs(plot_game_scores_folder)
-
-        players, tags, turns, evaluations = self.evaluate_game()
-        if evaluations is None:
-            return
 
         player_colors = self.civ_controller.player_ctrl.get_player_colors()
         for ptag in EVALUATION_TAGS:

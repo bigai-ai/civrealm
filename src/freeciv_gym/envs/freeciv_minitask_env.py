@@ -79,19 +79,21 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     @staticmethod
     def get_minitask(name, minitask_pattern, max_id):
         """ Get Minitask Sav File Randomly. """
-        if minitask_pattern is not None:
-            if 'id' in minitask_pattern:
-                minitask = minitask_pattern
-            elif minitask_pattern in MinitaskType.list():
-                minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_pattern, 
-                                                         random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, MAX_ID))
-            else:
-                raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
-        else:
-            minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, random.choice(MinitaskType.list()), 
-                                                         random.choice(MinitaskDifficulty.list()), 
-                                                         random.randint(0, MAX_ID))
+        if not isinstance(minitask_pattern, dict):
+            minitask_pattern = dict()
+
+        minitask_id = minitask_pattern.get('id', random.randint(0, MAX_ID))
+        minitask_level = minitask_pattern.get('level', random.choice(MinitaskDifficulty.list()))
+        minitask_type = minitask_pattern.get('type', random.choice(MinitaskType.list()))
+
+        if minitask_type not in MinitaskType.list():
+            raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
+        if minitask_id > MAX_ID or minitask_id < 0:
+            raise ValueError(f"Not supported id as {minitask_id}. The suppported range is [0, {MAX_ID}]!")
+        if minitask_level not in MinitaskDifficulty.list():
+            raise ValueError(f"Not supported diffculty as {minitask_level}. The suppported list is {MinitaskDifficulty.list()}!")
+
+        minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_type, minitask_level, minitask_id)
         fc_logger.debug(f"Randomly selected minitask {minitask}!")
         return minitask
 

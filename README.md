@@ -141,3 +141,6 @@ The following are some common issues that you may encounter when running the cod
   Your Firefox profile cannot be loaded. 
   It may be missing or inaccessible.
   ```
+
+* If the screenshot is not centered on the location of your first unit, it is because you are using multiple displays. Please ensure the Firefox browser for screenshot pops up on your primary display.
+

@@ -1,4 +1,4 @@
-from gymnasium.core import Wrapper
+from .core import Wrapper
 
 
 class RewardWrapper(Wrapper):
@@ -6,7 +6,7 @@ class RewardWrapper(Wrapper):
         Wrapper.__init__(self, env)
 
     def step(self, action):
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = super().step(action)
         return (
             observation,
             self.reward(

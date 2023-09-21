@@ -1,15 +1,14 @@
-from collections import deque
 import copy
-import gymnasium
+from collections import deque
+
 import ray
-from gymnasium.envs.registration import register
 
 from freeciv_gym.configs import fc_args
 from freeciv_gym.envs.freeciv_parallel_env import FreecivParallelEnv
-from freeciv_gym.freeciv.utils.freeciv_logging import ray_logger_setup
+
 
 class ParallelTensorEnv:
-    def __init__(self, env_name, batch_size_run, port_start):
+    def __init__(self, env_name, batch_size_run, port_start, **kwargs):
         # Number of envs that run simultaneously
         self.batch_size_run = batch_size_run
 
@@ -19,14 +18,15 @@ class ParallelTensorEnv:
         for i in range(self.batch_size_run):
             temp_port = port_start + i * 2
             # print(f'temp_port...: {temp_port}')
-            env = FreecivParallelEnv.remote(env_name, client_port=temp_port)
+            env = FreecivParallelEnv.remote(env_name, client_port=temp_port, **kwargs)
             self.envs.append(env)
 
         self.observation_spaces = self.getattr("observation_space")
         self.action_spaces = self.getattr("action_space")
 
         self.recent_scores = {}
-    
+        self.init_kwargs = kwargs
+
     def close(self):
         for env_id in range(self.batch_size_run):
             ray.get(self.envs[env_id].close.remote())
@@ -48,7 +48,7 @@ class ParallelTensorEnv:
             new_env_port = env_port ^ 1
             # env_core = gymnasium.make(self.env_name, client_port=new_env_port)
             # env = FreecivParallelEnv.remote(env_core, new_env_port)
-            env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
+            env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port,**self.init_kwargs)
             # print('Reinitialze env....')
             # import time
             # time.sleep(10)
@@ -124,7 +124,7 @@ class ParallelTensorEnv:
                 # env = FreecivParallelEnv.remote(env_core, new_env_port)
                 # import time
                 # time.sleep(10)
-                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port)
+                env = FreecivParallelEnv.remote(self.env_name, client_port=new_env_port,**self.init_kwargs)
                 print("Reinitialze env....")
                 result_id = env.reset.remote()
                 (observation, info) = ray.get(

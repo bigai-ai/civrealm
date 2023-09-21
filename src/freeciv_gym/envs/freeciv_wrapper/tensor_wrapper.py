@@ -1,12 +1,13 @@
 from typing import Any, Optional
 
-from gymnasium.core import Env, Wrapper
+from gymnasium.core import Env
 
 from freeciv_gym.envs.freeciv_wrapper.utils import *
 from freeciv_gym.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                                 ACTIVITY_FORTIFYING,
-                                                ACTIVITY_IDLE, 
-                                                ACTIVITY_SENTRY)
+                                                ACTIVITY_IDLE, ACTIVITY_SENTRY)
+
+from .core import Wrapper
 
 
 class TensorWrapper(Wrapper):
@@ -243,12 +244,12 @@ class TensorWrapper(Wrapper):
                 obs["others_city"][key] = obs["city"].pop(key)
         others_city = {
             k: v
-            for (k, v) in self.civ_controller.city_ctrl.cities.items()
+            for (k, v) in self.unwrapped.civ_controller.city_ctrl.cities.items()
             if v["owner"] != 0
         }
         others_unit = {
             k: v
-            for (k, v) in self.civ_controller.unit_ctrl.units.items()
+            for (k, v) in self.unwrapped.civ_controller.unit_ctrl.units.items()
             if v["owner"] != 0
         }
 
@@ -378,7 +379,7 @@ class TensorWrapper(Wrapper):
 
         for pos, id in enumerate(self.unit_ids[: self.tensor_config["resize"]["unit"]]):
             unit = observation["unit"][id]
-            if unit["moves_left"] == 0 or self.__env.civ_controller.unit_ctrl.units[id][
+            if unit["moves_left"] == 0 or self.unwrapped.civ_controller.unit_ctrl.units[id][
                 "activity"
             ] not in [
                 ACTIVITY_IDLE,

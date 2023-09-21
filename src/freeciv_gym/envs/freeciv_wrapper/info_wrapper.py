@@ -1,4 +1,4 @@
-from gymnasium.core import Wrapper
+from .core import Wrapper
 
 
 class InfoWrapper(Wrapper):
@@ -6,7 +6,7 @@ class InfoWrapper(Wrapper):
         Wrapper.__init__(self, env)
 
     def reset(self, **kwargs):
-        obs, info = self.env.reset(**kwargs)
+        obs, info = super().reset(**kwargs)
         return obs, self.info(
             observation=obs,
             info=info,
@@ -17,7 +17,7 @@ class InfoWrapper(Wrapper):
         )
 
     def step(self, action):
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = super().step(action)
         return (
             observation,
             reward,
@@ -62,6 +62,8 @@ class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
         GameOverScoreInfo.__init__(self, env)
 
     def info(self, info, terminated, truncated, **kwargs):
-        info = super().info(info, terminated, truncated, **kwargs)
-        info['scores']['score'] = info["minitask"]["mini_score"]
+        # TODO: Add other metrics
+        last_scores = {}
+        last_scores['score'] = self.unwrapped.overall_mini_score         
+        info['scores'] = last_scores
         return info

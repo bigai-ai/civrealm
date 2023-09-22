@@ -65,7 +65,7 @@ debug:
   load_game: ""
   # game-reproducer
   # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
-  randomly_generate_seeds: False
+  randomly_generate_seeds: True
   # set mapseed for generating a fixed map, can overwrite the above mapseed
   mapseed: 88
   # set gameseed for fixing the behavior of random outputs

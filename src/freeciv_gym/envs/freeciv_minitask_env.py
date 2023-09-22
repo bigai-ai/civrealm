@@ -67,7 +67,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     """ Freeciv gym environment for minitasks. """
 
     def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
-        super().__init__(username=username, client_port=client_port)
+        super().__init__(username=username, client_port=client_port, is_minitask=True)
         fc_args['username'] = username
         set_logging_file('.', username)
         self.filename = None
@@ -135,7 +135,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return False
     
     def _get_terminated(self):
-        return self.civ_controller.game_has_terminated(is_mini_game=True) or self.minitask_has_terminated()
+        return self.civ_controller.game_has_terminated() or self.minitask_has_terminated()
 
     def _get_reward(self):
         minitask_results = self.civ_controller.get_turn_message()
@@ -189,11 +189,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         results.update({"minitask_type": self.task_type})
         results.update(dict(minitask=minitask_results))
         return results
-    
-    def _get_info_and_observation(self):
-        info, observation = self.civ_controller.get_info_and_observation(is_mini_game=True)
-        self._record_observation(observation)
-        return info, observation
 
     def get_final_score(self):
         score = {}

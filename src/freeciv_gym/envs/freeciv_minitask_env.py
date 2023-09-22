@@ -94,7 +94,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             raise ValueError(f"Not supported diffculty as {minitask_level}. The suppported list is {MinitaskDifficulty.list()}!")
 
         minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_type, minitask_level, minitask_id)
-        fc_logger.debug(f"Randomly selected minitask {minitask}!")
+        fc_logger.warning(f"Randomly selected minitask {minitask}!")
         return minitask
 
     def _get_info_and_observation(self):

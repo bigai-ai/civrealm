@@ -18,7 +18,7 @@ LOGGING_CONFIG = {
             'mode': 'a',
         },
         'freecivFileHandler': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             # Change time.strftime('%%Y.%%m.%%d') to time.strftime('%%Y.%%m.%%d_%%H:%%M:%%S') to create a new file for each script
@@ -45,7 +45,7 @@ LOGGING_CONFIG = {
         },
         'freecivGym': {
             'handlers': ['freecivFileHandler'],
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'propagate': False
         },
     }

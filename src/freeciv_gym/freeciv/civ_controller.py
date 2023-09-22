@@ -535,9 +535,9 @@ class CivController(CivPropController):
                 fc_logger.warning('Failed to find saved game file to delete.')
                 for saving_time in self.game_saving_time_range:
                     possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-                    fc_logger.warning(f'Possible save name: {possible_saved_name}')
+                    fc_logger.debug(f'Possible save name: {possible_saved_name}')
                 for saved_name in save_list:
-                    fc_logger.warning(f'Save name in List: {saved_name}')
+                    fc_logger.debug(f'Save name in List: {saved_name}')
                 return
 
             # If use savegame=ALL, it will delete all saves under the given username.

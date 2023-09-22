@@ -156,7 +156,7 @@ class MapState(PlainState):
     def get_observation_space(self):
         map_shape = self._state['status'].shape
         self._observation_space = gymnasium.spaces.Dict({'status': gymnasium.spaces.Box(
-            low=0, high=1, shape=map_shape, dtype=np.uint8),
+            low=0, high=2, shape=map_shape, dtype=np.uint8),
             'terrain': gymnasium.spaces.Box(
             low=0, high=len(self.rule_ctrl.terrains) - 1,
             shape=map_shape, dtype=np.uint8),
@@ -171,7 +171,7 @@ class MapState(PlainState):
             'city_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8),
             'unit': gymnasium.spaces.Box(
-            low=0, high=1, shape=(*map_shape, self._unit_type_num),
+            low=0, high=1000, shape=(*map_shape, self._unit_type_num),
             dtype=np.uint8),
             'unit_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8), })

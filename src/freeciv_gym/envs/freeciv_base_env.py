@@ -162,8 +162,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return dict(sorted(game_results.items()))
 
     def evaluate_game(self):
-        # game_scores = self.civ_controller.request_scorelog()
-        return self.civ_controller.game_ctrl.get_game_scores(self.civ_controller.game_score)
+        game_scores = self.civ_controller.request_scorelog()
+        return self.civ_controller.game_ctrl.get_game_scores(game_scores)
 
     def plot_game_scores(self):
         players, tags, turns, evaluations = self.evaluate_game()

@@ -1,5 +1,5 @@
 from .core import Wrapper
-
+from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
 class InfoWrapper(Wrapper):
     def __init__(self, env):
@@ -53,6 +53,7 @@ class GameOverScoreInfo(InfoWrapper):
         last_scores = {}
         if terminated or truncated:
             game_scores = self.evaluate_game()[-1]
+            # fc_logger.debug(f'self.evaluate_game(): {self.evaluate_game()}')
             last_scores = {k: v[0][-1] for k, v in game_scores.items()}
         info["scores"] = last_scores
         return info

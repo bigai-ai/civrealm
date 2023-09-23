@@ -421,6 +421,7 @@ class CivController(CivPropController):
             raise
 
     def end_game(self):
+        fc_logger.debug(f'Send endgame message')
         packet = {'pid': packet_chat_msg_req,
                   'message': f"/endgame"}
         wait_for_pid_list = self.end_game_packet_list()
@@ -431,7 +432,7 @@ class CivController(CivPropController):
     def close(self):
         if fc_args['debug.interrupt_save']:
             self.save_game()
-        self.game_score = self.request_scorelog()
+        # self.game_score = self.request_scorelog()
         # fc_logger.info(f'game_is_over: {self.game_is_over}')
         if not self.game_is_over:
             self.end_game()
@@ -495,6 +496,7 @@ class CivController(CivPropController):
             if response.status_code == 200:
                 fc_logger.debug(f'Request of game_scores succeed')
                 game_scores = response.text
+                # fc_logger.debug(f'game_scores: {game_scores}')
                 break
             else:
                 fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')

@@ -471,11 +471,10 @@ class TensorWrapper(Wrapper):
     def _handle_embark_action(self, action):
         if action[-1][:6] != "embark":
             return action
-        elif len(self._embarkable_units) == 0:
-            return action
-        assert action[0] == "unit"
         id = action[1]
         dir = int(action[-1].split("_")[-1])
+        if len(self._embarkable_units.get((id,dir),[])) == 0:
+            return action
         assert dir in list(range(8))
         target_id = sorted(self._embarkable_units[(id, dir)])[0]
         action_type_name = f"embark_{dir}_{target_id}"

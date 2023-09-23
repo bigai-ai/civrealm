@@ -450,7 +450,7 @@ class TensorWrapper(Wrapper):
                         if len(args) == 3:
                             [dir, target_id] = map(int, args[1::])
                             actions[f"embark_{dir}"] = True
-                            if unit_dir := (id, dir) not in self._embarkable_units:
+                            if (unit_dir := (id, dir)) not in self._embarkable_units:
                                 self._embarkable_units[unit_dir] = [target_id]
                             else:
                                 self._embarkable_units[unit_dir] += [target_id]

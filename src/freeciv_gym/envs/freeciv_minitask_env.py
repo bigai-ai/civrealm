@@ -168,7 +168,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         metrics = self._get_step_msg('metrics')
         if metrics is None:
             return MinitaskPlayerStatus.MPS_UNKNOWN.value
-        return metrics['is_mini_success']
+        return metrics.get('is_mini_success') or metrics.get('is_minitask_success')
 
     def _get_detail(self):
         metrics = self._get_step_msg('metrics')

@@ -255,7 +255,7 @@ class CivController(CivPropController):
             my_cities = self.city_ctrl.get_cities_by_player_id(self.player_ctrl.my_player_id)
             have_settlers = self.unit_ctrl.my_units_have_type('Settlers')
             if self.is_minitask:
-                if len(my_cities) == 0 and not have_settlers and not self.unit_ctrl.have_attack_unit():
+                if len(my_cities) == 0 and not have_settlers and not self.unit_ctrl.have_units():
                     return True
             else:
                 # NOTE: maybe we should return False if the player still has attack units, or allow for a short time of survival (e.g., 10 turns).

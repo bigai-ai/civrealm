@@ -137,43 +137,44 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def _get_terminated(self):
         return self.civ_controller.game_has_terminated() or self.minitask_has_terminated()
 
-    def _get_reward(self):
+    def _get_step_msg(self, key):
         minitask_results = self.civ_controller.get_turn_message()
-        current_score = 0.0
         for msg in minitask_results[::-1]:
-            if 'metrics' in msg and 'mini_score' in msg['metrics'][-1]:
-                if self._last_minitask_score is None:
-                    self._last_minitask_score = msg['metrics'][-1]['mini_score']
-                current_score = msg['metrics'][-1]['mini_score'] - self._last_minitask_score
-                self._last_minitask_score = msg['metrics'][-1]['mini_score']
-                self.overall_mini_score = msg['metrics'][-1]['mini_score']
-                return current_score
+            if key in msg:
+                if key == 'metrics':
+                    return msg[key][-1]
+                return msg[key]
+        return
+
+    def _get_reward(self):
+        metrics = self._get_step_msg('metrics')
+        current_score = 0.0
+        if metrics is None:
+            return current_score
+        if self._last_minitask_score is None:
+            self._last_minitask_score = metrics['mini_score']
+        current_score = metrics['mini_score'] - self._last_minitask_score
+        self._last_minitask_score = metrics['mini_score']
+        self.overall_mini_score = metrics['mini_score']
         return current_score
 
     def _get_game_status(self):
-        minitask_results = self.civ_controller.get_turn_message()
-        for msg in minitask_results[::-1]:
-            if 'status' in msg:
-                return msg['status']
-        return MinitaskGameStatus.MGS_IN_GAME.value
+        status = self._get_step_msg('status')
+        if status is None:
+            return MinitaskGameStatus.MGS_IN_GAME.value
+        return status
 
     def _get_success(self):
-        minitask_results = self.civ_controller.get_turn_message()
-        for msg in minitask_results[::-1]:
-            if 'metrics' in msg and 'is_minitask_success' in msg['metrics'][-1]:
-                return msg['metrics'][-1]['is_minitask_success']
-        return MinitaskPlayerStatus.MPS_UNKNOWN.value
+        metrics = self._get_step_msg('metrics')
+        if metrics is None:
+            return MinitaskPlayerStatus.MPS_UNKNOWN.value
+        return metrics['is_mini_success']
 
     def _get_detail(self):
-        minitask_results = self.civ_controller.get_turn_message()
-        detail = dict()
-        for msg in minitask_results[::-1]:
-            if 'metrics' in msg:
-                for field in ['mini_goal', 'max_turn', 'mini_score']:
-                    if field in msg['metrics'][-1]:
-                        detail[field] = msg['metrics'][-1][field]
-                return detail
-        return detail
+        metrics = self._get_step_msg('metrics')
+        if metrics is None:
+            return dict()
+        return metrics
 
     def step(self, action):
         observation, reward, terminated, truncated, info = super().step(action)

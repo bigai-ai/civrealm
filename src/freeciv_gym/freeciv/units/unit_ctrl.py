@@ -126,6 +126,13 @@ class UnitCtrl(CivPropController):
                     return True
         return False
 
+    def have_units(self):
+        """Check if my units have units."""
+        for _, punit in self.units.items():
+            if punit['owner'] == self.player_ctrl.my_player_id:
+                return True
+        return False
+
     def _player_find_unit_by_id(self, pplayer, unit_id):
         """
          If the specified player owns the unit with the specified id,

@@ -109,6 +109,8 @@ class CivController(CivPropController):
         self.game_is_over = False
         self.game_score = None
         self.is_minitask = is_minitask
+        # Store the wait_for_pid timeout handle
+        self.wait_for_time_out_handle = None
         self.init_controllers()
 
     def reset(self):
@@ -217,17 +219,26 @@ class CivController(CivPropController):
         # print('init_game')
         self.clstate.login()
         # Add server timeout handler
-        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.timeout_callback)
+        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.server_timeout_callback)
 
-    # Set a timeout callback
-    def timeout_callback(self):
-        fc_logger.debug('Call timeout_callback()...')
+    # Set a server timeout callback
+    def server_timeout_callback(self):
+        fc_logger.debug('Call server_timeout_callback()...')
         try:
             self.ws_client.stop_ioloop()
             fc_logger.debug('Server Timeout. Stop ioloop...')
         except Exception as e:
             fc_logger.error(f"{str(e)}")
         self.ws_client.on_message_exception = Exception('Timeout: No response received from server.')
+
+    # Set a wait_for_timeout callback
+    def wait_for_timeout_callback(self):
+        fc_logger.warning(f'Call wait_for_timeout_callback()...Turn: {self.turn_manager.turn}. Time: {datetime.now()}')
+        # Try to store the save for this turn
+        self.delete_save = False
+        self.ws_client.wait_for_packs.clear()
+        self.ws_client.send_message(f"wait_for_timeout_callback clears wait_for_packs.")
+        
 
     def get_turn(self):
         return self.turn_manager.turn
@@ -302,7 +313,9 @@ class CivController(CivPropController):
         else:
             self.turn_manager.perform_action(action, self.ws_client)
         # Add server timeout handler
-        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.timeout_callback)
+        self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(fc_args['server_timeout'], self.server_timeout_callback)
+        # Add wait_for timeout handler
+        self.wait_for_time_out_handle = self.ws_client.get_ioloop().call_later(fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
 
     def _get_info(self):
         fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
@@ -414,6 +427,14 @@ class CivController(CivPropController):
                         pid_info = (packet['pid'], None)
                 self.ws_client.stop_waiting(pid_info)
                 self.handle_pack(packet['pid'], packet)
+
+            # Have received all responses, cancle the wait_for_time_out_handle
+            if not self.ws_client.is_waiting_for_responses():
+                fc_logger.debug('remove wait_for_time_out_handle')
+                if self.wait_for_time_out_handle != None:
+                    self.ws_client.get_ioloop().remove_timeout(self.wait_for_time_out_handle)
+                    # fc_logger.debug('Remove timeout callback.')
+                    self.wait_for_time_out_handle = None
 
             if not self.clstate.client_frozen:
                 self.maybe_grant_control_to_player()
@@ -534,7 +555,7 @@ class CivController(CivPropController):
                         break
 
             if real_saved_name == '':
-                fc_logger.warning('Failed to find saved game file to delete.')
+                fc_logger.debug('Failed to find saved game file to delete.')
                 for saving_time in self.game_saving_time_range:
                     possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
                     fc_logger.debug(f'Possible save name: {possible_saved_name}')
@@ -776,10 +797,10 @@ class CivController(CivPropController):
         # fc_logger.info('handle_end_turn')
         # if self.turn_manager.turn == 228:
         #     self.delete_save = False
-        # if fc_args['debug.autosave'] and self.delete_save:
-        #     self.delete_save_game()
-        # # Set delete_save for the next turn
-        # self.delete_save = True
+        if fc_args['debug.autosave'] and self.delete_save:
+            self.delete_save_game()
+        # Set delete_save for the next turn
+        self.delete_save = True
 
         self.turn_manager.turn += 1
         # if self.client_port == 6301:

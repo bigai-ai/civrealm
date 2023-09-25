@@ -65,9 +65,6 @@ addopts = [
     # "tests/env/test_env_wrappers.py",
     # "tests/env/test_tensor_env.py",
     # "tests/env/test_tensor_minigame_env.py",
-    # # Language_env
-    # "tests/language_env/test_unit_dict.py",
-    # "tests/language_env/test_city_dict.py",
 
     # City
     "tests/city/test_city_change_unit_prod.py",

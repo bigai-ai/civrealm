@@ -31,6 +31,8 @@ class ExtendedEnum(Enum):
 class MinitaskType(ExtendedEnum):
     MT_DEVELOPMENT_BUILD_CITY = "development_build_city"
     MT_DEVELOPMENT_CITYTILE_WONDER = "development_citytile_wonder"
+    MT_DEVELOPMENT_BUILD_INFRA = "development_build_infra"
+    MT_DEVELOPMENT_TRANSPORT = "development_transport"
     MT_BATTLE_ANCIENT = "battle_ancient_era"
     MT_BATTLE_INDUSTRY = "battle_industry_era"
     MT_BATTLE_INFO = "battle_info_era"
@@ -168,7 +170,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         metrics = self._get_step_msg('metrics')
         if metrics is None:
             return MinitaskPlayerStatus.MPS_UNKNOWN.value
-        return metrics.get('is_mini_success') or metrics.get('is_minitask_success', 0)
+        return metrics.get('is_mini_success')
 
     def _get_detail(self):
         metrics = self._get_step_msg('metrics')

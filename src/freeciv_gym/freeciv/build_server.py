@@ -45,7 +45,7 @@ def update_docker_image():
     modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_server_code')
 
     # Add more ports for multiplayer mode to enable parallel training and testing.
-    run_bash_command(f'docker exec -t {docker_image_name} sh -c "rm /docker/publite2/*longturn*.serv"')
+    run_bash_command(f'docker exec -t {docker_image_name} sh -c "rm /docker/publite2/*longturn*"')
 
     # Customize the civ2civ3 ruleset to allow building settlers with population cost 1
     run_bash_command(

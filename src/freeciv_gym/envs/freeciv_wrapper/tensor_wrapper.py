@@ -40,12 +40,8 @@ class TensorWrapper(Wrapper):
         return obs, info
 
     def step(self, action):
-        print(action)
         log_action = self.action(action)
         print(log_action)
-        print(
-            f"action available in info: { self.action_list[log_action[0]][log_action[1]][log_action[2]] if log_action else 'end turn'} "
-        )
         obs, reward, terminated, truncated, info = self.__env.step(self.action(action))
         print(f"reward:{reward},done:{terminated or truncated}")
 

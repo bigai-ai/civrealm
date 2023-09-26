@@ -345,7 +345,7 @@ class CivController(CivPropController):
             self.lock_control()
             info['available_actions'] = self.turn_manager.get_info()
 
-        return info
+        return info 
 
     def _get_observation(self):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
@@ -394,6 +394,8 @@ class CivController(CivPropController):
     def game_has_terminated(self) -> bool:
         """Returns True if the game has ended.       
         """
+        if self.game_is_over:
+            return True
         # FIXME: check victory conditions.
         _terminated = self.my_player_is_defeated()
         if _terminated:

@@ -186,10 +186,10 @@ class PlayerState(DictState):
         player_space = gymnasium.spaces.Dict({
             **{
                 # Common player fields
-                'player_id': gymnasium.spaces.Box(low=0, high=32, shape=(1,), dtype=int),
+                'player_id': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
                 'name': gymnasium.spaces.Text(max_length=100),
-                'score': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-                'team': gymnasium.spaces.Box(low=0, high=32, shape=(1,), dtype=int),
+                'score': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
+                'team': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=int),
                 'is_alive': gymnasium.spaces.Discrete(2),  # Boolean
                 'nation': gymnasium.spaces.Box(low=0, high=list(self.rule_ctrl.nations.keys())[-1], shape=(1,), dtype=int),
                 'turns_alive': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),

@@ -829,7 +829,7 @@ class CivController(CivPropController):
         #     self.close()
 
         """ tell city_ctrl turn info for CityBuyProduction """
-        self.city_ctrl.prop_actions.turn = self.turn_manager.turn
+        self.city_ctrl.prop_actions.turn['turn'] = self.turn_manager.turn
         """ update city_unhappiness """
         self.update_city_unhappiness()
 

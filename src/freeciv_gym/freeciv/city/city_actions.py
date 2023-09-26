@@ -49,7 +49,7 @@ class CityActions(ActionList):
         self.city_map = CityTileMap(1, map_ctrl)
 
         self.tiles_shared = dict()
-        self.turn = 1
+        self.turn = {'turn': 1}
         self.city_unhappiness = dict()
 
     def _can_actor_act(self, actor_id):
@@ -65,7 +65,6 @@ class CityActions(ActionList):
                 continue
 
             if self.actor_exists(city_id):
-                self.update_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
                 continue
 
             self.add_actor(city_id)
@@ -282,7 +281,7 @@ class CityBuyProduction(Action):
             return False
 
         """ in case self.turn is not consistent with 'turn' from server """
-        if self.pcity['turn_founded'] == self.turn:
+        if self.pcity['turn_founded'] == self.turn['turn'] or self.pcity['changed_from_kind'] == 0:
             return False
 
         if (self.pcity['production_kind'] == VUT_IMPROVEMENT and

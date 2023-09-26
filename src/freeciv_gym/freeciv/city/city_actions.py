@@ -63,8 +63,11 @@ class CityActions(ActionList):
                 if self.actor_exists(city_id):
                     del self._action_dict[city_id]
                 continue
+
             if self.actor_exists(city_id):
+                self.update_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
                 continue
+
             self.add_actor(city_id)
 
             r_city = int(floor(sqrt(pcity["city_radius_sq"])))
@@ -76,10 +79,10 @@ class CityActions(ActionList):
                     self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
                     self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
 
+            self.add_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
+
             for specialist_num in range(pcity['specialists_size']):
                 self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
-
-            self.add_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
@@ -279,7 +282,7 @@ class CityBuyProduction(Action):
             return False
 
         """ in case self.turn is not consistent with 'turn' from server """
-        if self.pcity['turn_founded'] == self.turn or self.pcity['changed_from_kind'] == 0:
+        if self.pcity['turn_founded'] == self.turn:
             return False
 
         if (self.pcity['production_kind'] == VUT_IMPROVEMENT and

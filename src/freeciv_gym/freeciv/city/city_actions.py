@@ -278,7 +278,8 @@ class CityBuyProduction(Action):
         if self.pcity['did_buy']:
             return False
 
-        if self.pcity['turn_founded'] == self.turn:
+        """ in case self.turn is not consistent with 'turn' from server """
+        if self.pcity['turn_founded'] == self.turn or self.pcity['changed_from_kind'] == 0:
             return False
 
         if (self.pcity['production_kind'] == VUT_IMPROVEMENT and

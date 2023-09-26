@@ -164,14 +164,14 @@ class MapState(PlainState):
             low=0, high=1, shape=(*map_shape, self._extra_num),
             dtype=np.uint8),
             'output': gymnasium.spaces.Box(
-            low=0, high=1, shape=(*map_shape, 6),
+            low=0, high=255, shape=(*map_shape, 6),
             dtype=np.uint8),
             'tile_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8),
             'city_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8),
             'unit': gymnasium.spaces.Box(
-            low=0, high=1000, shape=(*map_shape, self._unit_type_num),
+            low=0, high=255, shape=(*map_shape, self._unit_type_num),
             dtype=np.uint8),
             'unit_owner': gymnasium.spaces.Box(
             low=0, high=255, shape=map_shape, dtype=np.uint8), })

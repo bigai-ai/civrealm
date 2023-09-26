@@ -111,6 +111,9 @@ class CivController(CivPropController):
         self.is_minitask = is_minitask
         # Store the wait_for_pid timeout handle
         self.wait_for_time_out_handle = None
+        # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
+        self.begin_turn_time_out_handle = None
+
         self.init_controllers()
 
     def reset(self):
@@ -230,6 +233,16 @@ class CivController(CivPropController):
         except Exception as e:
             fc_logger.error(f"{str(e)}")
         self.ws_client.on_message_exception = Exception('Timeout: No response received from server.')
+
+    # Set a begin_turn timeout callback
+    def begin_turn_timeout_callback(self):
+        fc_logger.debug('Call begin_turn_timeout_callback()...')
+        try:
+            self.ws_client.stop_ioloop()
+            fc_logger.debug('Begin_turn Timeout. Stop ioloop...')
+        except Exception as e:
+            fc_logger.error(f"{str(e)}")
+        self.ws_client.on_message_exception = Exception('Timeout: No begin_turn packet received from server.')
 
     # Set a wait_for_timeout callback
     def wait_for_timeout_callback(self):
@@ -367,6 +380,8 @@ class CivController(CivPropController):
         packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         self.turn_manager.end_turn()
+        # Add begin_turn timeout handler
+        self.begin_turn_time_out_handle = self.ws_client.get_ioloop().call_later(fc_args['begin_turn_timeout'], self.begin_turn_timeout_callback)
 
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
@@ -762,6 +777,11 @@ class CivController(CivPropController):
         fc_logger.debug(packet)
 
     def handle_begin_turn(self, packet):
+        if self.begin_turn_time_out_handle != None:
+            self.ws_client.get_ioloop().remove_timeout(self.begin_turn_time_out_handle)
+            fc_logger.debug('Remove begin_turn_time_out callback.')
+            self.begin_turn_time_out_handle = None
+            
         """Handle signal from server to start turn"""
         if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:
             # Save the game state in the begining of every turn.

@@ -337,7 +337,7 @@ class CivController(CivPropController):
         if self.ws_client.on_message_exception != None:
             raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
-        if self.my_player_is_defeated():
+        if self.my_player_is_defeated() or self.game_is_over:
             info['available_actions'] = {}
         else:
             self.turn_manager.get_available_actions()
@@ -349,6 +349,8 @@ class CivController(CivPropController):
 
     def _get_observation(self):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
+        if self.game_is_over:
+            return {}
         # TODO: change function name and return value
         if self.my_player_is_defeated():
             fc_logger.info('my_player_is_defeated....')

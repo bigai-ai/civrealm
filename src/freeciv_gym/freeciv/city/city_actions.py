@@ -269,7 +269,6 @@ class CityBuyProduction(Action):
         self.rule_ctrl = rule_ctrl
         self.turn = turn
         self.city_unhappiness = city_unhappiness
-        self.action_key += "_%i_%i" % (self.pcity['production_kind'], self.pcity['production_value'])
 
     def is_action_valid(self):
         if 'buy_cost' not in self.pcity:

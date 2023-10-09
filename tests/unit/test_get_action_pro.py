@@ -30,7 +30,7 @@ from BitVector import BitVector
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T82_attack')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -118,7 +118,7 @@ def test_get_action_pro(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
+    controller.set_parameter('debug.load_game', 'testcontroller_T82_attack')
     test_get_action_pro(controller)
 
 

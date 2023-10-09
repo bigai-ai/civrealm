@@ -27,7 +27,6 @@ from freeciv_gym.freeciv.utils.fc_types import ACTIVITY_FORTIFIED, ACTIVITY_FORT
 def controller():
     controller = CivController(fc_args['username'])
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -76,7 +75,6 @@ def test_fortify(controller):
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
-    # controller.set_parameter('debug.load_game', 'testcontroller_T82_2023-07-17-03_56')
     test_fortify(controller)
 
 

@@ -21,7 +21,7 @@ import http.client
 #     # Cannot get server status
 #     assert False
 
-multi = 100
+multi = 32
 
 PORT_LIST = [6001]
 dev_multi = int(multi * 3 / 4)

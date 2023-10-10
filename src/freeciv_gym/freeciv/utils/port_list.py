@@ -1,27 +1,32 @@
-import http.client
+import docker
 
-# metahost = 'localhost'
-# metaport = 8080
-# statuspath = '/meta/status'
+client = docker.from_env()
+container_name = 'freeciv-web'
+settings_path = '/docker/publite2/settings.ini'
 
-# conn = http.client.HTTPConnection(metahost, metaport)
-# conn.request('GET', statuspath)
-# r1 = conn.getresponse()
-# multi = None
-# if r1.status == 200:
-#     html_doc = r1.read()
-#     meta_status = html_doc.decode('ascii').split(';')
-#     if len(meta_status) >= 4:
-#         total = int(meta_status[1])
-#         single = int(meta_status[2])
-#         multi = int(meta_status[3])
-#     if len(meta_status) == 5:
-#         pbem = int(meta_status[4])
-# else:
-#     # Cannot get server status
-#     assert False
+cmd = f'cat {settings_path}'
+exec_response = client.containers.get(container_name).exec_run(cmd)
+file_content = exec_response.output.decode("utf-8")
 
-multi = 32
+search_string = 'server_capacity_test'
+# Split the content into lines
+lines = file_content.splitlines()
+
+found_line = None
+for line in lines:
+    if search_string in line:
+        found_line = line
+        break  # Stop searching once the line is found
+
+assert found_line is not None, f"Server setting with '{search_string}' not found in file_content"
+
+# Read server_capacity_test configuration
+multi = int(found_line.split(' ')[-1])
+
+
+# from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
+# fc_logger.debug(f'*******Multi: {multi}')
+# print(f'*******Multi: {multi}')
 
 PORT_LIST = [6001]
 dev_multi = int(multi * 3 / 4)

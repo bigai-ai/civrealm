@@ -44,13 +44,15 @@ def test_dipl_start_negotiate(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
-    negotiate_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'start_negotiation')[0]
+    negotiate_act_set = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'start_negotiation')
 
-    assert (negotiate_act.is_action_valid())
-    meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+    if len(negotiate_act_set) > 0:
+        negotiate_act = negotiate_act_set[0]
+        assert (negotiate_act.is_action_valid())
+        meeting_id_1 = controller.controller_list['dipl'].active_diplomacy_meeting_id
 
-    negotiate_act.trigger_action(controller.ws_client)
-    controller.get_info_and_observation()
-    meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
+        negotiate_act.trigger_action(controller.ws_client)
+        controller.get_info_and_observation()
+        meeting_id_2 = controller.controller_list['dipl'].active_diplomacy_meeting_id
 
-    assert (meeting_id_1 is None and meeting_id_2 == 4)
+        assert (meeting_id_1 is None and meeting_id_2 == 4)

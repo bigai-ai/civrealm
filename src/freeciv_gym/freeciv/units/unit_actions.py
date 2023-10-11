@@ -1995,6 +1995,10 @@ class ActConquerCity(UnitAction):
         return action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_CONQUER_CITY])
 
     def _action_packet(self):
+        # When the unit is on a certain activity, we need to cancel the order before we conquer.
+        if self.focus.punit['activity'] != fc_types.ACTIVITY_IDLE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         pcity = self.focus.city_ctrl.tile_city(newtile)
         self.target_city_id = pcity['id']

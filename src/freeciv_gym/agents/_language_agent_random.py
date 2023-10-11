@@ -36,8 +36,8 @@ class RandomLLMAgent(BaseAgent):
         if info['turn'] != self.turn:
             self.planned_actor_ids = []
             self.turn = info['turn']
-    
-        # TODO: support actions of other controller types than units and cities
+
+        """
         for ctrl_type, actors_dict in info['llm_info'].items():
             for actor_id in actors_dict.keys():
                 if actor_id in self.planned_actor_ids:
@@ -47,86 +47,27 @@ class RandomLLMAgent(BaseAgent):
                     action_name = random.choice(available_actions)
                     self.planned_actor_ids.append(actor_id)
                     return (ctrl_type, actor_id, action_name)
+        """
 
+        for ctrl_type in info['available_actions']:
 
-class RuleAgent(BaseAgent):
-    def __init__(self, LLM_model='gpt-3.5-turbo', load_dialogue=False):
-        super().__init__()
-        if fc_args["debug.randomly_generate_seeds"]:
-            agentseed = os.getpid()
-            self.set_agent_seed(agentseed)
-        else:
-            if "debug.agentseed" in fc_args:
-                self.set_agent_seed(fc_args["debug.agentseed"])
-
-    def act(self, observation, info):
-        available_actions = info['available_actions']
-        for ctrl_type in available_actions.keys():
-
-            if ctrl_type == 'unit':
-                unit_dict = info['llm_info'][ctrl_type]['unit_dict']
-                fc_logger.debug(f'unit_dict: {unit_dict}')
-                valid_actor_id, valid_actor_name, valid_action_list = self.get_valid_actor_actions(unit_dict, info, ctrl_type)
-
-                if not valid_actor_id:
-                    continue
-
-                current_obs = info['llm_info'][ctrl_type][valid_actor_id]
-                fc_logger.debug(f'current obs: {current_obs}')
-                action_name = random.choice(valid_action_list)
-
-                fc_logger.debug(f'unit action: {action_name}')
-                return (ctrl_type, valid_actor_id, action_name)
-
-            elif ctrl_type == 'city':
-                city_dict = info['llm_info'][ctrl_type]['city_dict']
-                fc_logger.debug(f'city_dict: {city_dict}')
-                valid_city_id, valid_city_name, valid_action_list = self.get_valid_actor_actions(city_dict, info, ctrl_type)
-
-                if not valid_city_id:
-                    continue
-
-                current_obs = info['llm_info'][ctrl_type][valid_city_id]
-                fc_logger.debug(f'current obs: {current_obs}')
-                action_name = random.choice(valid_action_list)
-
-                fc_logger.debug(f'city action: {action_name}')
-                return (ctrl_type, valid_city_id, action_name)
-
-            else:
-                valid_actor_id, valid_action_dict = self.get_next_valid_actor(observation, info, ctrl_type)
-                if not valid_actor_id:
-                    continue
-
-                if not valid_action_dict:
-                    continue
-
-                action_name = random.choice(list(valid_action_dict.keys()))
-                return (ctrl_type, valid_actor_id, action_name)
-
-        return None
-
-    def get_valid_actor_actions(self, actor_dict, info, ctrl_type):
-        if info['turn'] != self.turn:
-            self.planned_actor_ids = []
-            self.turn = info['turn']
-
-        for actor in actor_dict:
-            actor_name = ' '.join(actor.split(' ')[0: -1])
-            actor_id = int(actor.split(' ')[-1])
-
-            if actor_id in self.planned_actor_ids:
+            """
+            if ctrl_type != 'player':
                 continue
+            """
 
-            avail_actions = []
-            for action_name in actor_dict[actor]['avail_actions']:
-                if info['available_actions'][ctrl_type][actor_id][action_name]:
-                    avail_actions.append(action_name)
+            for actor_id, action_dict in info['available_actions'][ctrl_type].items():
+                if actor_id in self.planned_actor_ids:
+                    continue
 
-            self.planned_actor_ids.append(actor_id)
-            return actor_id, actor_name, avail_actions
+                for action in list(action_dict.keys()):
+                    if not action_dict[action]:
+                        del action_dict[action]
 
-        return None, None, None
+                if not action_dict:
+                    continue
 
-
+                action_name = random.choice(list(action_dict.keys()))
+                self.planned_actor_ids.append(actor_id)
+                return (ctrl_type, actor_id, action_name)
 

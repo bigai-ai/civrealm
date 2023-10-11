@@ -16,7 +16,7 @@
 
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.envs.freeciv_wrapper import LLMWrapper
-from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RuleAgent, RandomLLMAgent
+from freeciv_gym.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RandomLLMAgent
 from freeciv_gym.configs import fc_args
 import freeciv_gym
 import gymnasium
@@ -25,10 +25,10 @@ import gymnasium
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
     # env = gymnasium.make('freeciv/FreecivMinitask-v0')
-    agent = ControllerAgent()
+    # agent = ControllerAgent()
 
-    # env = LLMWrapper(env)
-    # agent = RandomLLMAgent()
+    env = LLMWrapper(env)
+    agent = RandomLLMAgent()
 
     observations, info = env.reset(minitask_pattern=None)
     done = False
@@ -38,7 +38,7 @@ def main():
             action = agent.act(observations, info)
             observations, reward, terminated, truncated, info = env.step(action)
             print(
-                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}')
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}, action: {action}')
             step += 1
             done = terminated or truncated
         except Exception as e:

@@ -31,7 +31,7 @@ import freeciv_gym.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T52_2023-07-26-02_14')
+    controller.set_parameter('debug.load_game', 'testcontroller_T52_join_city')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -46,41 +46,42 @@ def test_join_city(controller):
     # Class: UnitActions
     unit_opt = options['unit']
     join_action = None
-
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        unit_focus = unit_opt.unit_data[unit_id]
-        ptile = unit_focus.ptile
-        print(
-            f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
-        if unit_id == 219:
-            # The settler is not inside a city, cannot join
-            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 0, 'max': 0})
-            # Get valid actions
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            assert ('join_city' not in valid_actions)
-            # Move to south
-            valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+    unit_id = 219
+    unit_focus = unit_opt.unit_data[unit_id]
+    ptile = unit_focus.ptile
+    print(
+        f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
+    # The settler is not inside a city, cannot join
+    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 0, 'max': 0})
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    assert ('join_city' not in valid_actions)
+    # Move to south
+    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
 
     controller.send_end_turn()
     # Get unit new state
     controller.get_info_and_observation()
-    options = controller.turn_manager.turn_actions
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        unit_focus = unit_opt.unit_data[unit_id]
-        ptile = unit_focus.ptile
-        print(
-            f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
-        if unit_id == 219:
-            # The settler can build city now.
-            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            join_action = valid_actions['join_city']
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # Start a plant activity
+    valid_actions['plant'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
 
-    # The unit has move in new turn, the build should be valid
+    
+    options = controller.turn_manager.turn_actions
+    unit_focus = unit_opt.unit_data[unit_id]
+    ptile = unit_focus.ptile
+    print(f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
+    # The settler can join city now.
+    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    join_action = valid_actions['join_city']
+
+    # The unit has move in new turn, the join should be valid
     assert (join_action.is_action_valid())
     join_action.trigger_action(controller.ws_client)
-    fc_logger.info('trigger join action')
-    # # Get unit new state
+    print('trigger join action')
+    # Get unit new state
     controller.get_info_and_observation()
     # After join city, the unit is removed.
     assert (219 not in unit_opt.unit_ctrl.units.keys())

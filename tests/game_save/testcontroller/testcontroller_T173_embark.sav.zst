@@ -139,7 +139,7 @@ set={"name","value","gamestart","gamesetdef"
 "mapsize","FULLSIZE","FULLSIZE","Internal"
 "maxconnectionsperhost",256,256,"Changed"
 "maxplayers",10,10,"Changed"
-"metamessage","Multiplayer Game hosted by myagent in port 6301","Multiplayer Game hosted by myagent in port 6301","Changed"
+"metamessage","Multiplayer Game hosted by testcontroller in port 6301","Multiplayer Game hosted by testcontroller in port 6301","Changed"
 "minplayers",1,1,"Changed"
 "multiresearch",FALSE,FALSE,"Internal"
 "nationset","all","all","Changed"
@@ -1173,13 +1173,13 @@ shuffled_player_6=3
 
 [player0]
 ai_type="classic"
-name="Myagent"
-username="myagent"
+name="Testcontroller"
+username="testcontroller"
 unassigned_user=FALSE
 color.r=255
 color.g=0
 color.b=0
-ranked_username="myagent"
+ranked_username="testcontroller"
 unassigned_ranked=FALSE
 orig_username=""
 delegation_username=""
@@ -7340,7 +7340,7 @@ count=1
 
 [treaty0]
 plr0="Unassigned"
-plr1="Myagent"
+plr1="Testcontroller"
 accept0=TRUE
 accept1=FALSE
 clause={"type","from","value"
@@ -7349,7 +7349,7 @@ clause={"type","from","value"
 
 [treaty1]
 plr0="Mutaga II"
-plr1="Myagent"
+plr1="Testcontroller"
 accept0=TRUE
 accept1=FALSE
 clause={"type","from","value"

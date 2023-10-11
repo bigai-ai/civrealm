@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T28_goto')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -41,11 +41,11 @@ def test_move_to(controller):
     # print(unit_opt.unit_ctrl.units.keys())
     test_action_list = []
     origin_position = {}
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    for unit_id in unit_opt.unit_data.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         print(
-            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
+            f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
         origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
@@ -76,12 +76,12 @@ def test_move_to(controller):
     controller.get_info_and_observation()
     options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
-    for unit_id in unit_opt.unit_ctrl.units.keys():
+    for unit_id in unit_opt.unit_data.keys():
         punit = unit_opt.unit_ctrl.units[unit_id]
         unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
         old_position = origin_position[unit_id]
         new_position = (unit_tile['x'], unit_tile['y'])
-        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
+        print(f"Unit id: {unit_id}, old_position: {old_position}, new_position: {new_position}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
         origin_position[unit_id] = (unit_tile['x'], unit_tile['y'])
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140 or unit_id == 189:
@@ -122,7 +122,7 @@ def test_move_to(controller):
 def main():
     fc_args['username'] = 'testcontroller'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter('debug.load_game', 'testcontroller_T28_goto')
     test_move_to(controller)
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)

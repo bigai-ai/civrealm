@@ -2087,6 +2087,10 @@ class ActEmbark(UnitAction):
         return True
 
     def _action_packet(self):
+        # When the unit is on a certain activity, we need to cancel the order before we embark.
+        if self.focus.punit['activity'] != fc_types.ACTIVITY_IDLE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
         self.wait_for_pid = (63, self.focus.punit['id'])
         packet = self.unit_do_action(self.focus.punit['id'],
                                      self.target_unit_id,

@@ -23,11 +23,6 @@ from freeciv_gym.configs import fc_args
 from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 import freeciv_gym.freeciv.utils.fc_types as fc_types
 
-# def is_port_in_use(port: int) -> bool:
-#     import socket
-#     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-#         return s.connect_ex(('localhost', port)) == 0
-
 
 @pytest.fixture
 def controller():

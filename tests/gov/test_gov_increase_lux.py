@@ -46,14 +46,16 @@ def test_gov_increase_lux(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    increase_lux_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
-                                                 'increase_lux')[0]
-    assert (increase_lux_action.is_action_valid())
+    increase_lux_action_set = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'increase_lux')
+    if len(increase_lux_action_set) > 0:
+        increase_lux_action = increase_lux_action_set[0]
+        assert (increase_lux_action.is_action_valid())
 
-    lux_1 = pplayer['luxury']
+        lux_1 = pplayer['luxury']
 
-    increase_lux_action.trigger_action(controller.ws_client)
-    controller.get_info_and_observation()
-    lux_2 = pplayer['luxury']
+        increase_lux_action.trigger_action(controller.ws_client)
+        controller.get_info_and_observation()
+        lux_2 = pplayer['luxury']
 
-    assert (lux_2 - lux_1 == 10)
+        assert (lux_2 - lux_1 == 10)

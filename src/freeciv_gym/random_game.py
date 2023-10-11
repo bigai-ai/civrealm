@@ -38,7 +38,8 @@ def main():
             action = agent.act(observations, info)
             observations, reward, terminated, truncated, info = env.step(action)
             print(
-                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}, action: {action}')
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
             step += 1
             done = terminated or truncated
         except Exception as e:

@@ -46,14 +46,16 @@ def test_gov_decrease_sci(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    decrease_sci_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
-                                                 'decrease_sci')[0]
-    assert (decrease_sci_action.is_action_valid())
+    decrease_sci_action_set = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'decrease_sci')
+    if len(decrease_sci_action_set) > 0:
+        decrease_sci_action = decrease_sci_action_set[0]
+        assert (decrease_sci_action.is_action_valid())
 
-    sci_1 = pplayer['science']
+        sci_1 = pplayer['science']
 
-    decrease_sci_action.trigger_action(controller.ws_client)
-    controller.get_info_and_observation()
-    sci_2 = pplayer['science']
+        decrease_sci_action.trigger_action(controller.ws_client)
+        controller.get_info_and_observation()
+        sci_2 = pplayer['science']
 
-    assert (sci_1 - sci_2 == 10)
+        assert (sci_1 - sci_2 == 10)

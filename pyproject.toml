@@ -94,6 +94,7 @@ addopts = [
     "tests/gov/test_gov_decrease_sci.py",
     "tests/gov/test_gov_increase_lux.py",
     "tests/gov/test_gov_decrease_lux.py",
+    "tests/gov/test_gov_set_sci_lux_tax.py",
     # Tech
     "tests/tech/test_choose_research_tech.py",
     "tests/tech/test_choose_research_goal.py",

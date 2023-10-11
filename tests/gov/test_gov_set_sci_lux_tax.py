@@ -24,7 +24,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T30_2023-07-31-09_09')
+    controller.set_parameter('debug.load_game', 'testcontroller_T31_2023-07-31-09_38')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -39,23 +39,25 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_gov_increase_sci(controller):
-    fc_logger.info("test_gov_increase_sci")
+def test_gov_increase_lux(controller):
+    fc_logger.info("test_gov_set_sci_lux_tax")
     _, options = get_first_observation_option(controller)
 
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    increase_sci_action_set = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
-                                                 'increase_sci')
-    if len(increase_sci_action_set) > 0:
-        increase_sci_action = increase_sci_action_set[0]
-        assert (increase_sci_action.is_action_valid())
+    print('current sci_lux_tax:', (pplayer['science'], pplayer['luxury'], pplayer['tax']))
 
-        sci_1 = pplayer['science']
+    set_sci_lux_tax_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True), 'set_sci_lux_tax_10_50_40')[0]
+    print('chosen action:', set_sci_lux_tax_action)
 
-        increase_sci_action.trigger_action(controller.ws_client)
-        controller.get_info_and_observation()
-        sci_2 = pplayer['science']
+    assert (set_sci_lux_tax_action.is_action_valid())
 
-        assert (sci_2 - sci_1 == 10)
+    set_sci_lux_tax_action.trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    sci = pplayer['science']
+    lux = pplayer['luxury']
+    tax = pplayer['tax']
+
+    assert (sci == 10 and lux == 50 and tax == 40)
+

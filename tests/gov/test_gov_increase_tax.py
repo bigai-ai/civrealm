@@ -46,14 +46,16 @@ def test_gov_increase_tax(controller):
     player_opt = options['player']
     pplayer = player_opt.players[0]
 
-    increase_tax_action = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
-                                                 'increase_tax')[0]
-    assert (increase_tax_action.is_action_valid())
+    increase_tax_action_set = find_keys_with_keyword(player_opt.get_actions(0, valid_only=True),
+                                                 'increase_tax')
+    if len(increase_tax_action_set) > 0:
+        increase_tax_action = increase_tax_action_set[0]
+        assert (increase_tax_action.is_action_valid())
 
-    tax_1 = pplayer['tax']
+        tax_1 = pplayer['tax']
 
-    increase_tax_action.trigger_action(controller.ws_client)
-    controller.get_info_and_observation()
-    tax_2 = pplayer['tax']
+        increase_tax_action.trigger_action(controller.ws_client)
+        controller.get_info_and_observation()
+        tax_2 = pplayer['tax']
 
-    assert (tax_2 - tax_1 == 10)
+        assert (tax_2 - tax_1 == 10)

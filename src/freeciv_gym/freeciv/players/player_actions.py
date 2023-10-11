@@ -82,13 +82,19 @@ class PlayerOptions(ActionList):
         return has_statue_of_liberty(self.city_ctrl.cities, cur_player)
 
     def update_player_options(self, counter_id, cur_player):
-
+        """
         self.add_action(counter_id, IncreaseLux(cur_player))
         self.add_action(counter_id, DecreaseLux(cur_player))
         self.add_action(counter_id, IncreaseSci(cur_player))
         self.add_action(counter_id, DecreaseSci(cur_player))
         self.add_action(counter_id, IncreaseTax(cur_player))
         self.add_action(counter_id, DecreaseTax(cur_player))
+        """
+
+        for sci in range(10, 101, 10):
+            for lux in range(10, 101, 10):
+                for tax in range(10, 101, 10):
+                    self.add_action(counter_id, SetSciLuxTax(cur_player, sci, lux, tax))
 
     def update_counterpart_options(self, counter_id, cur_player, counterpart, new_city_set):
         if self.diplomacy_possible(cur_player, counterpart):
@@ -106,7 +112,9 @@ class PlayerOptions(ActionList):
             add_clause = AddClause(ctype, 1, counter_id, cur_player, counterpart, self.dipl_ctrl, self.ws_client)
             self.add_action(counter_id, add_clause)
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, self.dipl_ctrl))
-            self.add_action(counter_id, RemoveClause(ctype, 0, counter_id, cur_player, counterpart, self.dipl_ctrl))
+
+            # TODO: check the meaning when value = 0 under this scenario
+            # self.add_action(counter_id, RemoveClause(ctype, 0, counter_id, cur_player, counterpart, self.dipl_ctrl))
 
         if self.rule_ctrl.game_info["trading_tech"]:
             for tech_id in self.rule_ctrl.techs:
@@ -292,6 +300,37 @@ class DecreaseTax(IncreaseSci):
             self.sci += 10
 
 
+class SetSciLuxTax(base_action.Action):
+    action_key = "set_sci_lux_tax"
+
+    def __init__(self, cur_player, sci, lux, tax):
+        super().__init__()
+        self.sci = sci
+        self.lux = lux
+        self.tax = tax
+        self.cur_player = cur_player
+        self.playerno = cur_player['playerno']
+        self.action_key += "_%i_%i_%i" % (self.sci, self.lux, self.tax)
+
+    def is_action_valid(self):
+        if self.sci + self.lux + self.tax != 100:
+            return False
+
+        for p in [self.sci, self.lux, self.tax]:
+            if p > player_helpers.government_max_rate(self.cur_player['government']):
+                return False
+
+        return True
+
+    def _action_packet(self):
+        packet = {"pid": packet_player_rates,
+                  "tax": self.tax,
+                  "luxury": self.lux,
+                  "science": self.sci}
+        self.wait_for_pid = (51, self.playerno)
+        return packet
+
+
 class StartNegotiate(base_action.Action):
     """
     logic from freeciv/common/diptreaty.c
@@ -458,8 +497,7 @@ class AddClause(RemoveClause):
                 fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
                 return False
 
-            if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][
-                self.cur_player['playerno']]:
+            if self.clause_type == player_const.CLAUSE_EMBASSY and self.counterpart['real_embassy'][self.cur_player['playerno']]:
                 fc_logger.debug('already has embassy')
                 return False
 

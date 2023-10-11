@@ -26,6 +26,8 @@ import freeciv_gym.freeciv.tech.tech_const as tech_const
 from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES, CONFLICTING_CLAUSES
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 
+GOLD_STEP = 1
+
 
 class PlayerOptions(ActionList):
     def __init__(self, ws_client, rule_ctrl, dipl_ctrl, city_ctrl, players):
@@ -60,12 +62,12 @@ class PlayerOptions(ActionList):
                 # ===================================================================
                 """
                 if counterpart != pplayer and len(new_city_set) > 0:
-                    self.update_city_action_set(counter_id, pplayer, counterpart, new_city_set)
-                    self.update_city_action_set(counter_id, counterpart, pplayer, new_city_set)
+                    self.update_trade_city_clauses(counter_id, pplayer, counterpart, new_city_set)
+                    self.update_trade_city_clauses(counter_id, counterpart, pplayer, new_city_set)
 
                 if counterpart != pplayer and self.current_max_gold > self.before_max_gold:
-                    self.update_gold_action_set(counter_id, pplayer, counterpart)
-                    self.update_gold_action_set(counter_id, counterpart, pplayer)
+                    self.update_trade_gold_clauses(counter_id, pplayer, counterpart)
+                    self.update_trade_gold_clauses(counter_id, counterpart, pplayer)
                 """
                 continue
 
@@ -130,8 +132,8 @@ class PlayerOptions(ActionList):
         # ====================== Consider trade gold & cities ===============
         # ===================================================================
         """
-        self.update_city_action_set(counter_id, cur_player, counterpart, new_city_set)
-        self.update_gold_action_set(counter_id, cur_player, counterpart)
+        self.update_trade_city_clauses(counter_id, cur_player, counterpart, new_city_set)
+        self.update_trade_gold_clauses(counter_id, cur_player, counterpart)
         """
 
     def update_max_gold(self):
@@ -139,8 +141,8 @@ class PlayerOptions(ActionList):
             if self.current_max_gold < self.players[player_id]['gold']:
                 self.current_max_gold = self.players[player_id]['gold']
 
-    def update_gold_action_set(self, counter_id, cur_player, counterpart):
-        for pgold in range(self.before_max_gold + 1, self.current_max_gold + 1):
+    def update_trade_gold_clauses(self, counter_id, cur_player, counterpart):
+        for pgold in range(self.before_max_gold + 1, self.current_max_gold + 1, GOLD_STEP):
             self.add_action(counter_id, AddTradeGoldClause(
                 player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.dipl_ctrl,
                 self.ws_client, self.rule_ctrl, self.players))
@@ -151,7 +153,7 @@ class PlayerOptions(ActionList):
     def new_cities(self):
         return set(self.city_ctrl.cities.keys()) - self.city_set
 
-    def update_city_action_set(self, counter_id, cur_player, counterpart, new_city_set):
+    def update_trade_city_clauses(self, counter_id, cur_player, counterpart, new_city_set):
         for pcity in new_city_set:
             self.add_action(counter_id, AddTradeCityClause(
                 player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.dipl_ctrl,

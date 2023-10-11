@@ -35,13 +35,16 @@ class PlayerOptions(ActionList):
         self.dipl_ctrl = dipl_ctrl
         self.city_ctrl = city_ctrl
         self.city_set = set()
+        self.before_max_gold = 0
+        self.current_max_gold = 0
         self.ws_client = ws_client
 
     def _can_actor_act(self, actor_id):
         return True
 
     def update(self, pplayer):
-        liberty_flag = self.has_statue_of_liberty(pplayer)
+        new_city_set = self.new_cities()
+        self.update_max_gold()
 
         for counter_id in self.players:
             counterpart = self.players[counter_id]
@@ -52,90 +55,102 @@ class PlayerOptions(ActionList):
                 continue
 
             if self.actor_exists(counter_id):
+                # ===================================================================
+                # ====================== Consider trade gold & cities ===============
+                # ===================================================================
+                """
+                if counterpart != pplayer and len(new_city_set) > 0:
+                    self.update_city_action_set(counter_id, pplayer, counterpart, new_city_set)
+                    self.update_city_action_set(counter_id, counterpart, pplayer, new_city_set)
+
+                if counterpart != pplayer and self.current_max_gold > self.before_max_gold:
+                    self.update_gold_action_set(counter_id, pplayer, counterpart)
+                    self.update_gold_action_set(counter_id, counterpart, pplayer)
+                """
                 continue
 
             self.add_actor(counter_id)
             if counterpart == pplayer:
                 self.update_player_options(counter_id, pplayer)
             else:
-                self.update_counterpart_options(self.dipl_ctrl, counter_id, pplayer, counterpart, liberty_flag)
+                self.update_counterpart_options(counter_id, pplayer, counterpart, new_city_set)
+
+        self.city_set = set(self.city_ctrl.cities.keys())
+        self.before_max_gold = self.current_max_gold
 
     def has_statue_of_liberty(self, cur_player):
-        for city_id in self.city_ctrl.cities:
-            pcity = self.city_ctrl.cities[city_id]
+        return has_statue_of_liberty(self.city_ctrl.cities, cur_player)
 
-            if pcity['owner'] == cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
-                return True
+    def update_player_options(self, counter_id, cur_player):
 
-        return False
+        self.add_action(counter_id, IncreaseLux(cur_player))
+        self.add_action(counter_id, DecreaseLux(cur_player))
+        self.add_action(counter_id, IncreaseSci(cur_player))
+        self.add_action(counter_id, DecreaseSci(cur_player))
+        self.add_action(counter_id, IncreaseTax(cur_player))
+        self.add_action(counter_id, DecreaseTax(cur_player))
 
-    def update_player_options(self, counter_id, pplayer):
-        maxrate = player_helpers.government_max_rate(pplayer['government'])
-        cur_state = {"playerno": pplayer['playerno'], "tax": pplayer['tax'], "sci": pplayer["science"],
-                     "lux": pplayer["luxury"], "max_rate": maxrate}
-
-        fc_logger.debug(f'current state of my government: {cur_state}')
-
-        self.add_action(counter_id, IncreaseLux(**cur_state))
-        self.add_action(counter_id, DecreaseLux(**cur_state))
-        self.add_action(counter_id, IncreaseSci(**cur_state))
-        self.add_action(counter_id, DecreaseSci(**cur_state))
-        self.add_action(counter_id, IncreaseTax(**cur_state))
-        self.add_action(counter_id, DecreaseTax(**cur_state))
-
-    def update_counterpart_options(self, dipl_ctrl, counter_id, cur_player, counterpart, liberty_flag):
+    def update_counterpart_options(self, counter_id, cur_player, counterpart, new_city_set):
         if self.diplomacy_possible(cur_player, counterpart):
-            self.add_action(counter_id, StartNegotiate(dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, StopNegotiate(dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, AcceptTreaty(dipl_ctrl, cur_player, counterpart))
-            self.add_action(counter_id, CancelTreaty(dipl_ctrl, cur_player, counterpart, liberty_flag))
-            self.add_action(counter_id, CancelVision(dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, StartNegotiate(self.dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, StopNegotiate(self.dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, AcceptTreaty(self.dipl_ctrl, cur_player, counterpart))
+            self.add_action(counter_id, CancelTreaty(self.dipl_ctrl, cur_player, counterpart, self.city_ctrl))
+            self.add_action(counter_id, CancelVision(self.dipl_ctrl, cur_player, counterpart))
 
-            self.update_clause_options(dipl_ctrl, counter_id, cur_player, counterpart)
-            self.update_clause_options(dipl_ctrl, counter_id, counterpart, cur_player)
+            self.update_clause_options(counter_id, cur_player, counterpart, new_city_set)
+            self.update_clause_options(counter_id, counterpart, cur_player, new_city_set)
 
-    def update_clause_options(self, dipl_ctrl, counter_id, cur_player, counterpart):
+    def update_clause_options(self, counter_id, cur_player, counterpart, new_city_set):
         for ctype in BASE_CLAUSES:
-            add_clause = AddClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl, self.ws_client)
+            add_clause = AddClause(ctype, 1, counter_id, cur_player, counterpart, self.dipl_ctrl, self.ws_client)
             self.add_action(counter_id, add_clause)
-            self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, dipl_ctrl))
-            self.add_action(counter_id, RemoveClause(ctype, 0, counter_id, cur_player, counterpart, dipl_ctrl))
+            self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player, counterpart, self.dipl_ctrl))
+            self.add_action(counter_id, RemoveClause(ctype, 0, counter_id, cur_player, counterpart, self.dipl_ctrl))
 
         if self.rule_ctrl.game_info["trading_tech"]:
             for tech_id in self.rule_ctrl.techs:
                 clause_type = player_const.CLAUSE_ADVANCE
                 add_trade_tech_clause = AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart,
-                                                           dipl_ctrl, self.ws_client, self.rule_ctrl, self.players)
+                                                           self.dipl_ctrl, self.ws_client, self.rule_ctrl, self.players)
                 self.add_action(counter_id, add_trade_tech_clause)
 
-                rem_clause = RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, dipl_ctrl)
+                rem_clause = RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, self.dipl_ctrl)
                 self.add_action(counter_id, rem_clause)
 
-    """
-    temporarily do NOT consider trades of cities & golds 
+        # ===================================================================
+        # ====================== Consider trade gold & cities ===============
+        # ===================================================================
+        """
+        self.update_city_action_set(counter_id, cur_player, counterpart, new_city_set)
+        self.update_gold_action_set(counter_id, cur_player, counterpart)
+        """
 
-        for pgold in range(1, MAX_GOLD):
-            self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold,
-            pplayer_id, counter_index, dipl_ctrl, counter_id, self.rule_ctrl, self.players))
+    def update_max_gold(self):
+        for player_id in self.players:
+            if self.current_max_gold < self.players[player_id]['gold']:
+                self.current_max_gold = self.players[player_id]['gold']
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold,
-            pplayer_id, counter_index, dipl_ctrl, counter_id))
+    def update_gold_action_set(self, counter_id, cur_player, counterpart):
+        for pgold in range(self.before_max_gold + 1, self.current_max_gold + 1):
+            self.add_action(counter_id, AddTradeGoldClause(
+                player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.dipl_ctrl,
+                self.ws_client, self.rule_ctrl, self.players))
 
-        self.update_city_action_set(counter_index, pplayer_id, counter_id, set(self.city_ctrl.cities.keys()))
+            self.add_action(counter_id, RemoveClause(
+                player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.dipl_ctrl))
 
     def new_cities(self):
-        new_city_set = set(self.city_ctrl.cities.keys()) - self.city_set
-        self.city_set = set(self.city_ctrl.cities.keys())
-        return new_city_set
+        return set(self.city_ctrl.cities.keys()) - self.city_set
 
-    def update_city_action_set(self, counter_index, pplayer_id, counter_id, new_city_set):
+    def update_city_action_set(self, counter_id, cur_player, counterpart, new_city_set):
         for pcity in new_city_set:
-            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, pplayer_id,
-            counter_index, self.dipl_ctrl, counter_id, self.rule_ctrl, self.city_ctrl, self.players))
+            self.add_action(counter_id, AddTradeCityClause(
+                player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.dipl_ctrl,
+                self.ws_client, self.rule_ctrl, self.city_ctrl))
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity,
-            pplayer_id, counter_index, self.dipl_ctrl, counter_id))
-    """
+            self.add_action(counter_id, RemoveClause(
+                player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.dipl_ctrl))
 
     def diplomacy_possible(self, cur_player, counterpart):
         if self.rule_ctrl.game_info['diplomacy'] == player_const.DIPLO_FOR_ALL:
@@ -158,24 +173,19 @@ class PlayerOptions(ActionList):
 class IncreaseSci(base_action.Action):
     action_key = "increase_sci"
 
-    def __init__(self, playerno, tax, sci, lux, max_rate):
+    def __init__(self, cur_player):
         super().__init__()
-        self.tax = self.get_corrected_num(tax)
-        self.sci = self.get_corrected_num(sci)
-        self.lux = self.get_corrected_num(lux)
-        self.max_rate = max_rate
-        self.playerno = playerno
-
-    def get_corrected_num(self, num):
-        if num % 10 != 0:
-            return num - (num % 10)
-        else:
-            return num
+        self.cur_player = cur_player
+        self.playerno = cur_player['playerno']
 
     def is_action_valid(self):
-        return 0 <= self.sci + 10 <= self.max_rate
+        return self.cur_player["science"] + 10 <= player_helpers.government_max_rate(self.cur_player['government'])
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.sci += 10
         if self.lux > 0:
             self.lux -= 10
@@ -189,7 +199,6 @@ class IncreaseSci(base_action.Action):
                   "luxury": self.lux,
                   "science": self.sci}
         self.wait_for_pid = (51, self.playerno)
-        # self.wait_for_pid = 51
         return packet
 
 
@@ -197,11 +206,15 @@ class DecreaseSci(IncreaseSci):
     action_key = "decrease_sci"
 
     def is_action_valid(self):
-        return 0 <= self.sci - 10 <= self.max_rate
+        return 0 <= self.cur_player["science"] - 10
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.sci -= 10
-        if self.lux < self.max_rate:
+        if self.lux < player_helpers.government_max_rate(self.cur_player['government']):
             self.lux += 10
         else:
             self.tax += 10
@@ -211,9 +224,13 @@ class IncreaseLux(IncreaseSci):
     action_key = "increase_lux"
 
     def is_action_valid(self):
-        return 0 <= self.lux + 10 <= self.max_rate
+        return self.cur_player["luxury"] + 10 <= player_helpers.government_max_rate(self.cur_player['government'])
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.lux += 10
         if self.tax > 0:
             self.tax -= 10
@@ -225,11 +242,15 @@ class DecreaseLux(IncreaseSci):
     action_key = "decrease_lux"
 
     def is_action_valid(self):
-        return 0 <= self.lux - 10 <= self.max_rate
+        return 0 <= self.cur_player["luxury"] - 10
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.lux -= 10
-        if self.tax < self.max_rate:
+        if self.tax < player_helpers.government_max_rate(self.cur_player['government']):
             self.tax += 10
         else:
             self.sci += 10
@@ -239,9 +260,13 @@ class IncreaseTax(IncreaseSci):
     action_key = "increase_tax"
 
     def is_action_valid(self):
-        return 0 <= self.tax + 10 <= self.max_rate
+        return self.cur_player["tax"] + 10 <= player_helpers.government_max_rate(self.cur_player['government'])
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.tax += 10
         if self.lux > 0:
             self.lux -= 10
@@ -253,11 +278,15 @@ class DecreaseTax(IncreaseSci):
     action_key = "decrease_tax"
 
     def is_action_valid(self):
-        return 0 <= self.tax - 10 <= self.max_rate
+        return 0 <= self.cur_player["tax"] - 10
 
     def _change_rate(self):
+        self.sci = self.cur_player["science"]
+        self.tax = self.cur_player["tax"]
+        self.lux = self.cur_player["luxury"]
+
         self.tax -= 10
-        if self.lux < self.max_rate:
+        if self.lux < player_helpers.government_max_rate(self.cur_player['government']):
             self.lux += 10
         else:
             self.sci += 10
@@ -318,24 +347,23 @@ class CancelTreaty(StartNegotiate):
 
     action_key = "cancel_treaty"
 
-    def __init__(self, dipl_ctrl, cur_player, counterpart, liberty_flag):
+    def __init__(self, dipl_ctrl, cur_player, counterpart, city_ctrl):
         super().__init__(dipl_ctrl, cur_player, counterpart)
-        self.dipl_state = self.dipl_ctrl.diplstates[self.counterpart['playerno']]
-        self.liberty_flag = liberty_flag
-        self.action_key += "_%s_%i" % (player_const.DS_TXT[self.dipl_state], self.dipl_state)
+        self.city_ctrl = city_ctrl
 
     def is_action_valid(self):
         return (self.dipl_ctrl.check_not_dipl_states(self.counterpart['playerno']) and
                 self.counterpart['team'] != self.cur_player['team'] and not self.senate_blocking())
 
     def senate_blocking(self):
+        liberty_flag = has_statue_of_liberty(self.city_ctrl.cities, self.cur_player)
         return (self.dipl_ctrl.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
-                and self.dipl_ctrl.is_republic_democracy(self.cur_player['government']) and not self.liberty_flag)
+                and self.dipl_ctrl.is_republic_democracy(self.cur_player['government']) and not liberty_flag)
 
     def _action_packet(self):
         packet = {"pid": packet_diplomacy_cancel_pact,
                   "other_player_id": self.counterpart["playerno"],
-                  "clause": self.dipl_state}
+                  "clause": self.dipl_ctrl.diplstates[self.counterpart['playerno']]}
 
         self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
@@ -490,14 +518,13 @@ class AddTradeTechClause(AddClause):
         return False
 
 
-"""
 class AddTradeGoldClause(AddClause):
     action_key = "trade_gold_clause"
 
-    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, players):
-        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, counter_id, cur_player, counterpart, dipl_ctrl, ws_client, rule_ctrl,
+                 players):
+        super().__init__(clause_type, value, counter_id, cur_player, counterpart, dipl_ctrl, ws_client)
         self.rule_ctrl = rule_ctrl
-        self.giver = giver
         self.players = players
 
     def is_action_valid(self):
@@ -511,12 +538,11 @@ class AddTradeGoldClause(AddClause):
 class AddTradeCityClause(AddClause):
     action_key = "trade_city_clause"
 
-    def __init__(self, clause_type, value, giver, counter_index, dipl_ctrl, counter_id, rule_ctrl, city_ctrl, players):
-        super().__init__(clause_type, value, giver, counter_index, dipl_ctrl, counter_id)
+    def __init__(self, clause_type, value, counter_id, cur_player, counterpart, dipl_ctrl, ws_client, rule_ctrl,
+                 city_ctrl):
+        super().__init__(clause_type, value, counter_id, cur_player, counterpart, dipl_ctrl, ws_client)
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
-        self.players = players
-        self.action_key += "_%s" % city_ctrl.cities[value]["name"]
 
     def is_action_valid(self):
         if not self.rule_ctrl.game_info["trading_city"]:
@@ -527,4 +553,13 @@ class AddTradeCityClause(AddClause):
             return (not self.if_clause_exists() and not self.city_ctrl.cities[self.value]['capital']
                     and self.city_ctrl.cities[self.value]['owner'] == self.giver)
         return False
-"""
+
+
+def has_statue_of_liberty(cities, cur_player):
+    for city_id in cities:
+        pcity = cities[city_id]
+
+        if pcity['owner'] == cur_player['playerno'] and 'improvements' in pcity and pcity['improvements'][63]:
+            return True
+
+    return False

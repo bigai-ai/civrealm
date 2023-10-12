@@ -1,5 +1,7 @@
 import docker
 
+# For 409 errors, it is possibly because the host uses docker desktop.
+# In this case, please set the DOCKER_HOST environment variable according to https://stackoverflow.com/questions/76919611/docker-python-client-cannot-connect-docker-desktop
 client = docker.from_env()
 container_name = 'freeciv-web'
 settings_path = '/docker/publite2/settings.ini'

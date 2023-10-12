@@ -155,7 +155,8 @@ class MapState(PlainState):
 
     def get_observation_space(self):
         map_shape = self._state['status'].shape
-        self._observation_space = gymnasium.spaces.Dict({'status': gymnasium.spaces.Box(
+        self._observation_space = gymnasium.spaces.Dict({
+            'status': gymnasium.spaces.Box(
             low=0, high=2, shape=map_shape, dtype=np.uint8),
             'terrain': gymnasium.spaces.Box(
             low=0, high=len(self.rule_ctrl.terrains) - 1,

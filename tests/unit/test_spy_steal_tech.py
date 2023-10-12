@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_steal')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -42,26 +42,28 @@ def test_spy_steal_tech(controller):
     test_action_list = []
     diplomat_id = 915
 
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == diplomat_id:
-            print(
-                f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-            # Get valid actions
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
-            break
-        else:
-            pass
+    punit = unit_opt.unit_ctrl.units[diplomat_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {diplomat_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    print(valid_actions.keys())
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Participate in activity {punit['activity']}")
+
+
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    test_action_list.append(valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
+        
     print('Steal technology from the city on the south tile')
     techs_researched_before = player_opt.players[0]['techs_researched']
-    assert (True)
     # Perform spy_steal_tech action of the diplomat
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    controller.send_end_turn()
+    # controller.send_end_turn()
     controller.get_info_and_observation()
     options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
@@ -71,7 +73,7 @@ def test_spy_steal_tech(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_steal')
     test_spy_steal_tech(controller)
 
 

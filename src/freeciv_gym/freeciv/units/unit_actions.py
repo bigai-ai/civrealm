@@ -2063,6 +2063,11 @@ class ActDisembark(UnitAction):
         return self.action_key != None
 
     def _action_packet(self):
+        # When the unit is on a certain activity, we need to cancel the order before we disembark.
+        if self.focus.punit['activity'] != fc_types.ACTIVITY_IDLE:
+            cancel_order_action = ActCancelOrder(self.focus)
+            cancel_order_action.trigger_action(self.focus.unit_ctrl.ws_client)
+        
         self.wait_for_pid = (63, self.focus.punit['id'])
         newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         self.target_tile_id = newtile['index']

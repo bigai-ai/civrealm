@@ -26,7 +26,7 @@ import freeciv_gym.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T385_2023-08-10-10_47')
+    controller.set_parameter('debug.load_game', 'testcontroller_T385_embassy_investigate')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -50,6 +50,10 @@ def test_investigate_spend(controller):
 
     # Can investigate city
     assert (investigate_spend)
+
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Partificate in activity {unit_opt.unit_data[unit_id].punit['activity']}")
 
     # unit_focus = unit_opt.unit_data[unit_id]
     # for i in range(len(unit_focus.action_prob[map_const.DIR8_NORTHWEST])):
@@ -78,7 +82,7 @@ def test_investigate_spend(controller):
 def main():
     fc_args['username'] = 'testcontroller'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T385_2023-08-10-10_47')
+    controller.set_parameter('debug.load_game', 'testcontroller_T385_embassy_investigate')
     test_investigate_spend(controller)
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)

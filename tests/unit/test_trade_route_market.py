@@ -74,9 +74,12 @@ def test_trade_route_market(controller):
         assert (trade_route)
         if unit_id == 1743 or unit_id == 1912:
             assert (trade_route_num == 1)
+        if unit_id == 1912:
+            valid_actions['fortify'].trigger_action(controller.ws_client)
         # Unit 1964 is adjacent to two cities, so it has two trade_route options.
         if unit_id == 1964:
             assert (trade_route_num == 2)
+            valid_actions['fortify'].trigger_action(controller.ws_client)
         if unit_id == 1743:
             # Unit 1743 changes its homecity.
             valid_actions['set_homecity'].trigger_action(controller.ws_client)
@@ -88,7 +91,7 @@ def test_trade_route_market(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+        print(f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
 
         trade_route = False
         trade_route_num = 0
@@ -102,7 +105,7 @@ def test_trade_route_market(controller):
             assert (not trade_route)
             assert (trade_route_num == 0)
 
-        # Unit 1743 is adjacent to two cities, so it has two trade_route options.
+        # Unit 1964 is adjacent to two cities, so it has two trade_route options.
         if unit_id == 1964:
             assert (trade_route)
             assert (trade_route_num == 2)
@@ -117,6 +120,7 @@ def test_trade_route_market(controller):
     # The trade route is empty before 1912 build one.
     assert (city_id not in controller.city_ctrl.city_trade_routes)
 
+    controller.send_end_turn()
     controller.get_info_and_observation()
 
     # Unit 1912 has built a trade route.
@@ -128,7 +132,7 @@ def test_trade_route_market(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+        print(f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
 
         trade_route = False
         trade_route_num = 0

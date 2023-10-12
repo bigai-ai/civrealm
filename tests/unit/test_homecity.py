@@ -43,6 +43,7 @@ def test_homecity(controller):
     unit_focus = unit_opt.unit_data[unit_id]
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('set_homecity' in valid_actions.keys())
     assert (len(valid_actions) > 0)
@@ -50,6 +51,7 @@ def test_homecity(controller):
     # Check whether the action pro is accurate
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     # Go to north
+    print('Go to north')
     valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
@@ -58,9 +60,18 @@ def test_homecity(controller):
     assert ('set_homecity' not in valid_actions.keys())
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     # Go back to city tile
+    print('Go back to south')
     valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
+
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    print(f"Unit {unit_id} participated in activity {punit['activity']}")
+    # Start fortify activity
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Unit {unit_id} now participate in activity {punit['activity']}")
+
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     unit_action = valid_actions['set_homecity']
@@ -69,7 +80,7 @@ def test_homecity(controller):
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
     print(f"Change the homecity of unit {unit_id} to the current garissoned city")
-    controller.send_end_turn()
+    # controller.send_end_turn()
     controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])

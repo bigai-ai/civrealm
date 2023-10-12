@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T134_2023-08-17-03_37_sabotage')
+    controller.set_parameter('debug.load_game', 'testcontroller_T134_sabotage')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -41,33 +41,36 @@ def test_spy_sabotage(controller):
     test_action_list = []
     diplomat_id = 915
 
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == diplomat_id:
-            print(
-                f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-            # Get valid actions
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'spy_sabotage_city_{map_const.DIR8_SOUTHWEST}'])
-            break
-        else:
-            pass
+    punit = unit_opt.unit_ctrl.units[diplomat_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {diplomat_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    print(valid_actions.keys())
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Participate in activity {punit['activity']}")
+
+
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    test_action_list.append(valid_actions[f'spy_sabotage_city_{map_const.DIR8_SOUTHWEST}'])
+
     print('Sabotage the city on southwest tile')
     # Perform spy_sabotage action of the diplomat
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    controller.send_end_turn()
+    # controller.send_end_turn()
     controller.get_info_and_observation()
     options = controller.turn_manager.turn_actions
     unit_opt = options['unit']
-    # The diplomat should have been comsumed
+    # The diplomat should have been consumed
     assert not (diplomat_id in unit_opt.unit_ctrl.units.keys())
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T134_2023-08-17-03_37_sabotage')
+    controller.set_parameter('debug.load_game', 'testcontroller_T134_sabotage')
     test_spy_sabotage(controller)
 
 

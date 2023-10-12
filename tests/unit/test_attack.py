@@ -40,22 +40,24 @@ def test_attack(controller):
     unit_opt = options['unit']
     test_action_list = []
     horseman_id = 250
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == horseman_id:
-            print(
-                f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-            # Get valid actions
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'])
-        else:
-            pass
+    punit = unit_opt.unit_ctrl.units[horseman_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {horseman_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(horseman_id, valid_only=True)
+    valid_actions['pillage'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Participate in activity {punit['activity']}")
+
+    assert(punit['activity'] != 0)
+
+
+    valid_actions = unit_opt.get_actions(horseman_id, valid_only=True)
+    print(valid_actions.keys())
     print('Attack the southeast tile')
-    # Perform attack action for the horseman
-    for action in test_action_list:
-        action.trigger_action(controller.ws_client)
-    fc_logger.info('Attack the southeast tile')
+    valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'].trigger_action(controller.ws_client)
+    
     # Get unit new state
     controller.get_info_and_observation()
     unit_opt = controller.turn_manager.turn_actions['unit']

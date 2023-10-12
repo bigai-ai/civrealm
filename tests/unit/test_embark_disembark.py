@@ -160,7 +160,8 @@ def test_embark_disembark(controller):
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit 886, valid action keys: {valid_actions.keys()}')
-    print(f"Unit {886}'s move left before disembark: {unit_opt.unit_data[886].punit['movesleft']}")
+    print(f"Unit {886}'s move left before disembark: {unit_opt.unit_data[886].punit['movesleft']}, activity: {unit_opt.unit_data[886].punit['activity']}")
+
     # Disembark to the north
     valid_actions['disembark_1'].trigger_action(controller.ws_client)
 

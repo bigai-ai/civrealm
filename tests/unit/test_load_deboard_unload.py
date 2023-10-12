@@ -225,6 +225,57 @@ def test_load_deboard_unload(controller):
     controller.get_info_and_observation()
     assert(1964 not in unit_opt.unit_data)
 
+    unit_id = 1912
+    unit_focus = unit_opt.unit_data[unit_id]
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # All units have deboarded.
+    assert (unit_focus.punit['transported'] == 0)
+    assert ('board' in valid_actions)
+    assert ('deboard' not in valid_actions)
+    valid_actions['board'].trigger_action(controller.ws_client)
+    print('Units 1912 board again.')
+    controller.get_info_and_observation()
+
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # print(valid_actions.keys())
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+
+    print('Unit 1912 disembark')
+    valid_actions['disembark_0'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # print(valid_actions.keys())
+
+    print('Unit 1912 embark again')
+    valid_actions['embark_7_1549'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # print(valid_actions.keys())
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+    print('Unit 1912 deboard')
+    valid_actions['deboard'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # print(valid_actions.keys())
+
+    print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+    print('Unit 1912 board')
+    valid_actions['board'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    print(valid_actions.keys())
+
+    print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+    print('Unit 1912 do marketplace')
+    valid_actions['marketplace_-1'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    assert(1912 not in unit_opt.unit_data)
+
+
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T376_load_deboard_unload')

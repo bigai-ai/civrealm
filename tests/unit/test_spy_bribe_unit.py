@@ -26,7 +26,7 @@ from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_bribe')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -41,22 +41,26 @@ def test_spy_bribe_unit(controller):
     test_action_list = []
     diplomat_id = 1164
 
-    for unit_id in unit_opt.unit_ctrl.units.keys():
-        punit = unit_opt.unit_ctrl.units[unit_id]
-        unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-        if unit_id == diplomat_id:
-            print(
-                f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-            # Get valid actions
-            valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
-            break
-        else:
-            pass
+    punit = unit_opt.unit_ctrl.units[diplomat_id]
+    unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
+    print(
+        f"Unit id: {diplomat_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, activity: {punit['activity']}.")
+    # Get valid actions
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    print(valid_actions.keys())
+    print(f"Participated in activity {punit['activity']}")
+    valid_actions['fortify'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    print(f"Now participate in activity {punit['activity']}")
+
+    valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
+    test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
+    
     print('Bribe the enemy unit on southwest tile')
     newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
     if len(newtile['units']) > 0:
         target_id = newtile['units'][0]['id']
+        print(f'Target unit ID: {target_id}')
     else:
         target_id = -1
     assert (unit_opt.unit_ctrl.units[target_id]['owner'] != unit_opt.player_ctrl.my_player_id)
@@ -64,19 +68,23 @@ def test_spy_bribe_unit(controller):
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
     # Get unit new state
-    controller.send_end_turn()
+    # controller.send_end_turn()
     controller.get_info_and_observation()
     unit_opt = controller.turn_manager.turn_actions['unit']
     newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
     if len(newtile['units']) > 0:
         target_id = newtile['units'][0]['id']
+        # The bribe action would change the unit ID
+        print(f'Target unit ID: {target_id}')
+        print(f"Number of units: {len(newtile['units'])}")
     else:
         target_id = -1
+    assert (target_id != diplomat_id)
     assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T154_2023-07-25-09_52_diplunit')
+    controller.set_parameter('debug.load_game', 'testcontroller_T154_bribe')
     test_spy_bribe_unit(controller)
 
 

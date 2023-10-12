@@ -49,6 +49,13 @@ def test_pillage(controller):
     #     # Get valid actions
     #     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
 
+
+    valid_actions = unit_opt.get_actions(551, valid_only=True)
+    valid_actions['plant'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+    assert(unit_opt.unit_ctrl.units[551]['activity'] != 0)
+    print(f"Unit 551 participate in activity {unit_opt.unit_ctrl.units[551]['activity']}")
+
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
         # pillage is valid for all works

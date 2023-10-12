@@ -27,7 +27,7 @@ import freeciv_gym.freeciv.map.map_const as map_const
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_steal')
     yield controller
     controller.handle_end_turn(None)
     controller.close()
@@ -48,7 +48,7 @@ def test_get_action_pro_spy(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-27-08_36')
+    controller.set_parameter('debug.load_game', 'testcontroller_T133_steal')
     test_get_action_pro_spy(controller)
 
 

@@ -52,7 +52,7 @@ class RandomLLMAgent(BaseAgent):
         for ctrl_type in info['available_actions']:
 
             """
-            if ctrl_type != 'player':
+            if ctrl_type in ['city', 'unit']:
                 continue
             """
 

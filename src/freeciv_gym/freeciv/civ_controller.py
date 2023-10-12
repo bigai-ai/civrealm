@@ -25,7 +25,7 @@ from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING, ClientS
 
 from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 import freeciv_gym.freeciv.players.player_const as player_const
-from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+from freeciv_gym.freeciv.players.diplomacy_state_ctrl import DiplomacyCtrl
 from freeciv_gym.freeciv.players.government import GovernmentCtrl
 
 from freeciv_gym.freeciv.game.game_ctrl import GameCtrl
@@ -160,16 +160,16 @@ class CivController(CivPropController):
         self.clstate = ClientState(self.username,
                                    self.ws_client, self.rule_ctrl)
 
-        self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.rule_ctrl)
-
         self.city_ctrl = CityCtrl(self.ws_client, self.rule_ctrl, self.clstate, self.game_ctrl, self.map_ctrl)
-        self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl, self.dipl_ctrl)
+        self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl)
+        self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl, self.player_ctrl)
+
         self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
 
         self.unit_ctrl = UnitCtrl(self.ws_client, self.opt_ctrl, self.rule_ctrl, self.map_ctrl,
                                   self.player_ctrl, self.city_ctrl, self.dipl_ctrl)
 
-        self.gov_ctrl = GovernmentCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
+        self.gov_ctrl = GovernmentCtrl(self.ws_client, self.rule_ctrl, self.dipl_ctrl)
 
         self.controller_list = {"game": self.game_ctrl,
                                 "rules": self.rule_ctrl,

@@ -18,20 +18,17 @@ from freeciv_gym.freeciv.utils.base_state import DictState
 import freeciv_gym.freeciv.tech.tech_const as tech_const
 import freeciv_gym.freeciv.players.player_const as player_const
 
-from freeciv_gym.freeciv.players.diplomacy import DiplomacyState
+from freeciv_gym.freeciv.players.diplomacy_state_ctrl import DiplomacyState
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.connectivity.client_state import ClientState
 
 
 class PlayerState(DictState):
-    def __init__(
-            self, player_ctrl, rule_ctrl: RulesetCtrl, clstate: ClientState, diplstates: DiplomacyState):
+    def __init__(self, player_ctrl, rule_ctrl: RulesetCtrl, clstate: ClientState):
         super().__init__()
         self.rule_ctrl = rule_ctrl
         self.player_ctrl = player_ctrl
         self.clstate = clstate
-
-        self.diplstates = diplstates
 
         self.common_player_fields = [
             'player_id', 'name', 'score', 'team', 'is_alive', 'nation', 'turns_alive', 'government', 'target_government', 'government_name', 'researching', 'research_name', 'tax', 'science', 'luxury']

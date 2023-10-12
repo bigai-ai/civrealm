@@ -1,5 +1,5 @@
-# username: testcontroller
-username: myagent
+username: testcontroller
+# username: myagent
 # Max number of turns per game
 max_turns: 500
 # The host url
@@ -17,9 +17,9 @@ wait_for_observer: False
 # We consider the server is timeout after it does not respond any messages for server_timeout seconds. In pytest, we automatically set it as 5 in conftest.py.
 server_timeout: 30
 # Sometimes we perform an invalid action and cannot receive the response to wait_for_packs. We wait for wait_for_timeout seconds and clear the wait_for_packs to prevent the process from stucking.
-wait_for_timeout: 10
+wait_for_timeout: 10000
 # Sometimes the server is stucked for unknown reasons and will not return begin_turn packet. We wait for begin_turn_timeout seconds before we close the environment. This configuration should be CAREFULLY set when playing with human or llm agents because they may use more than 60 seconds for each of their turn. In those cases, the server will send begin_turn packet only after they finish their turns.
-begin_turn_timeout: 10
+begin_turn_timeout: 10000
 # Whether in pytest mode. In pytest, we automatically set it as True in conftest.py.
 pytest: False
 # The number of episode scores maintained in the ParallelTensorEnv
@@ -65,8 +65,8 @@ debug:
   password: freecivgym
   # load_game: "testcontroller_T230_2023-09-08-09_14"
   # load_game: "myagent_T1_2023-08-28-12_19"
-  # load_game: "testcontroller_T200_2023-07-31-01_51"
-  load_game: ""
+  load_game: "testcontroller_T200_2023-07-31-01_51"
+  # load_game: ""
   # game-reproducer
   # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
   randomly_generate_seeds: True

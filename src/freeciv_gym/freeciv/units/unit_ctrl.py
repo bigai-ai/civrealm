@@ -18,7 +18,7 @@ from BitVector.BitVector import BitVector
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.game.options_ctrl import OptionCtrl
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
+from freeciv_gym.freeciv.players.diplomacy_state_ctrl import DiplomacyCtrl
 from freeciv_gym.freeciv.map.map_ctrl import MapCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
 from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl

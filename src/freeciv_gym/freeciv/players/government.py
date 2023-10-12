@@ -16,7 +16,6 @@
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
-from freeciv_gym.freeciv.players.player_ctrl import PlayerCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils import base_action
@@ -25,8 +24,8 @@ from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.tech.req_info import ReqInfo
 
 import freeciv_gym.freeciv.players.player_const as player_const
-from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, packet_report_req, RPT_CERTAIN
-
+from freeciv_gym.freeciv.utils.fc_types import packet_player_change_government, packet_report_req, RPT_CERTAIN, packet_player_rates
+import freeciv_gym.freeciv.players.player_helpers as player_helpers
 
 class GovState(PlainState):
     def __init__(self, rule_ctrl: RulesetCtrl):
@@ -40,10 +39,10 @@ class GovState(PlainState):
 
 
 class GovActions(ActionList):
-    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
+    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, dipl_ctrl):
         super().__init__(ws_client)
         self.rule_ctrl = rule_ctrl
-        self.player_ctrl = player_ctrl
+        self.dipl_ctrl = dipl_ctrl
 
     def _can_actor_act(self, actor_id):
         return True
@@ -52,18 +51,23 @@ class GovActions(ActionList):
         player_id = pplayer["playerno"]
         if not self.actor_exists(player_id):
             self.add_actor(player_id)
+
             for govt_id in self.rule_ctrl.governments:
-                act = ChangeGovernment(govt_id, self.rule_ctrl, self.player_ctrl, pplayer)
-                self.add_action(player_id, ChangeGovernment(govt_id, self.rule_ctrl, self.player_ctrl, pplayer))
+                self.add_action(player_id, ChangeGovernment(govt_id, self.rule_ctrl, self.dipl_ctrl, pplayer))
+
+            for sci in range(10, 101, 10):
+                for lux in range(10, 101, 10):
+                    for tax in range(10, 101, 10):
+                        self.add_action(player_id, SetSciLuxTax(pplayer, sci, lux, tax))
 
 
 class GovernmentCtrl(CivPropController):
-    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl):
+    def __init__(self, ws_client: CivConnection, rule_ctrl: RulesetCtrl, dipl_ctrl):
         super().__init__(ws_client)
-        self.player_ctrl = player_ctrl
+        self.dipl_ctrl = dipl_ctrl
         self.rule_ctrl = rule_ctrl
         self.prop_state = GovState(rule_ctrl)
-        self.prop_actions = GovActions(ws_client, rule_ctrl, player_ctrl)
+        self.prop_actions = GovActions(ws_client, rule_ctrl, dipl_ctrl)
 
     def register_all_handlers(self):
         pass
@@ -83,10 +87,10 @@ class GovernmentCtrl(CivPropController):
 class ChangeGovernment(base_action.Action):
     action_key = "change_gov"
 
-    def __init__(self, govt_id: int, rule_ctrl: RulesetCtrl, player_ctrl: PlayerCtrl, pplayer: dict):
+    def __init__(self, govt_id: int, rule_ctrl: RulesetCtrl, dipl_ctrl, pplayer: dict):
         super().__init__()
         self.govt_id = govt_id
-        self.player_ctrl = player_ctrl
+        self.dipl_ctrl = dipl_ctrl
         self.rule_ctrl = rule_ctrl
         self.pplayer = pplayer
         self.action_key += "_%s" % player_const.GOV_TXT[govt_id]
@@ -96,7 +100,7 @@ class ChangeGovernment(base_action.Action):
         if self.govt_id == self.rule_ctrl.governments[self.pplayer['government']]['id']:
             return False
 
-        return (self.player_ctrl.prop_actions.has_statue_of_liberty(self.pplayer) or
+        return (self.dipl_ctrl.prop_actions.has_statue_of_liberty(self.pplayer) or
                 ReqInfo.are_reqs_active(self.pplayer, self.rule_ctrl.governments[self.govt_id]["reqs"], RPT_CERTAIN))
 
     def _action_packet(self):
@@ -110,4 +114,34 @@ class ChangeGovernment(base_action.Action):
         switch to new gov in the end of the player phase
         self.wait_for_pid = (51, self.pplayer['playerno'])
         """
+        return packet
+
+class SetSciLuxTax(base_action.Action):
+    action_key = "set_sci_lux_tax"
+
+    def __init__(self, cur_player, sci, lux, tax):
+        super().__init__()
+        self.sci = sci
+        self.lux = lux
+        self.tax = tax
+        self.cur_player = cur_player
+        self.playerno = cur_player['playerno']
+        self.action_key += "_%i_%i_%i" % (self.sci, self.lux, self.tax)
+
+    def is_action_valid(self):
+        if self.sci + self.lux + self.tax != 100:
+            return False
+
+        for p in [self.sci, self.lux, self.tax]:
+            if p > player_helpers.government_max_rate(self.cur_player['government']):
+                return False
+
+        return True
+
+    def _action_packet(self):
+        packet = {"pid": packet_player_rates,
+                  "tax": self.tax,
+                  "luxury": self.lux,
+                  "science": self.sci}
+        self.wait_for_pid = (51, self.playerno)
         return packet

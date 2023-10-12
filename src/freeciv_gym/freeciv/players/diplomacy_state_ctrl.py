@@ -27,6 +27,7 @@ from freeciv_gym.freeciv.utils.base_action import NoActions
 import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
 from freeciv_gym.freeciv.players.player_const import CONFLICTING_CLAUSES
+from freeciv_gym.freeciv.players.diplomacy_actions import DiplOptions
 
 
 class DiplomacyState(DictState):
@@ -46,19 +47,22 @@ class DiplomacyState(DictState):
 
 
 class DiplomacyCtrl(CivPropController):
-    def __init__(self, ws_client: CivConnection, clstate: ClientState, rule_ctrl: RulesetCtrl, dipl_evaluator=None):
+    def __init__(self, ws_client: CivConnection, clstate: ClientState, city_ctrl, rule_ctrl: RulesetCtrl, player_ctrl, dipl_evaluator=None):
         super().__init__(ws_client)
         self.diplstates = dict()
         self.others_diplstates = dict()
         self.reason_to_cancel = dict()
         self.contact_turns_left = dict()
         self.diplomacy_request_queue = []
-        self.diplomacy_clause_map = {}
+        self.diplomacy_clause_map = dict()
         self.active_diplomacy_meeting_id = None
         self.rule_ctrl = rule_ctrl
+        self.city_ctrl = city_ctrl
+        self.player_ctrl = player_ctrl
+
         self.clstate = clstate
         self.prop_state = DiplomacyState(self.diplstates)
-        self.prop_actions = NoActions(ws_client)
+        self.prop_actions = DiplOptions(ws_client, rule_ctrl, city_ctrl, self.player_ctrl, self.diplomacy_clause_map, self.contact_turns_left, self.reason_to_cancel, self.diplstates, self.others_diplstates)
         # TODO: dipl_evaluator is not implemented yet
         self.dipl_evaluator = dipl_evaluator
 
@@ -69,13 +73,6 @@ class DiplomacyCtrl(CivPropController):
         self.register_handler(100, "handle_diplomacy_create_clause")
         self.register_handler(102, "handle_diplomacy_remove_clause")
         self.register_handler(104, "handle_diplomacy_accept_treaty")
-
-    # Check whether the given nation is barbarian or pirate.
-    def is_barbarian_pirate(self, nation_id):
-        return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
-
-    def is_republic_democracy(self, gov_id):
-        return self.rule_ctrl.governments[gov_id]['rule_name'] in ['Republic', 'Democracy']
 
     """
     for counterpart in self.players:

@@ -21,7 +21,6 @@ from freeciv_gym.freeciv.utils.utility import byte_to_bit_array
 
 from freeciv_gym.freeciv.connectivity.civ_connection import CivConnection
 from freeciv_gym.freeciv.connectivity.client_state import ClientState
-from freeciv_gym.freeciv.players.diplomacy import DiplomacyCtrl
 from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 from freeciv_gym.freeciv.city.city_ctrl import CityCtrl
 
@@ -41,21 +40,20 @@ from freeciv_gym.freeciv.connectivity.client_state import C_S_PREPARING
 
 class PlayerCtrl(CivPropController):
     def __init__(
-            self, ws_client: CivConnection, clstate: ClientState, city_ctrl: CityCtrl, rule_ctrl: RulesetCtrl,
-            dipl_ctrl: DiplomacyCtrl):
+            self, ws_client: CivConnection, clstate: ClientState, city_ctrl: CityCtrl, rule_ctrl: RulesetCtrl):
         super().__init__(ws_client)
 
         self.clstate = clstate
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
-        self.dipl_ctrl = dipl_ctrl
+
         self.players: Dict[int, Dict] = {}
-        # Include the data of the Player himself and the other players who have been met.
+
         self.research_data = {}
         self.endgame_player_info = []
 
-        self.prop_state = PlayerState(self, rule_ctrl, clstate, dipl_ctrl.diplstates)
-        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, dipl_ctrl, city_ctrl, self.players)
+        self.prop_state = PlayerState(self, rule_ctrl, clstate)
+        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, city_ctrl, self.players)
 
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")

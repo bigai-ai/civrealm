@@ -381,6 +381,9 @@ class AddClause(RemoveClause):
                  contact_turns_left, ws_client, diplstates, others_diplstates):
         super().__init__(clause_type, value, counter_id, cur_player, counterpart, diplomacy_clause_map, contact_turns_left)
         self.ws_client = ws_client
+
+        # diplstates contains diplomacy states of my_player
+        # others_diplstates contains diplomacy states of all players including my_player
         self.diplstates = diplstates
         self.others_diplstates = others_diplstates
         self.start_meeting = None
@@ -391,7 +394,7 @@ class AddClause(RemoveClause):
             return False
 
         ds = self.diplstates[self.counter_id]
-        if (ds == player_const.DS_PEACE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ARMISTICE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ALLIANCE and self.clause_type in [player_const.CLAUSE_ALLIANCE, player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.CLAUSE_CEASEFIRE and self.clause_type == player_const.CLAUSE_CEASEFIRE):
+        if (ds == player_const.DS_PEACE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ARMISTICE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ALLIANCE and self.clause_type in [player_const.CLAUSE_ALLIANCE, player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_CEASEFIRE and self.clause_type == player_const.CLAUSE_CEASEFIRE):
             fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
             return False
 

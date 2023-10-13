@@ -50,6 +50,9 @@ class DiplomacyCtrl(CivPropController):
             self, ws_client: CivConnection, clstate: ClientState, city_ctrl, rule_ctrl: RulesetCtrl, player_ctrl,
             dipl_evaluator=None):
         super().__init__(ws_client)
+
+        # diplstates contains diplomacy states of my_player
+        # others_diplstates contains diplomacy states of all players including my_player
         self.diplstates = dict()
         self.others_diplstates = dict()
         self.reason_to_cancel = dict()

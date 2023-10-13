@@ -59,6 +59,19 @@ def ray_logger_setup():
     return set_logging_file('parallel', os.getpid(), remove_old_suffix=False)
 
 
+def update_logger(original_name, new_name):
+    print('update logger')
+    log_dir = os.path.dirname(LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'])
+    if not os.path.exists(log_dir):
+        os.makedirs(log_dir)
+
+    log_file_name = LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename']
+    # Update log file name
+    LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'] = log_file_name.replace(original_name, new_name)
+    logging.config.dictConfig(LOGGING_CONFIG)
+    global fc_logger
+    fc_logger = logging.getLogger('civrealm')
+
 # class DummyLogger():
 #     def __init__(self) -> None:
 #         self.handlers = [DummyFolderName()]

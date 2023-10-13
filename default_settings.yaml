@@ -1,5 +1,5 @@
-username: testcontroller
-# username: myagent
+# username: testcontroller
+username: myagent
 # Max number of turns per game
 max_turns: 500
 # The host url
@@ -8,8 +8,6 @@ host: localhost
 client_port: 6001
 # Whether to start in multiplayer mode or single player mode
 multiplayer_game: True
-# Whether start multiple clients for self play. When it is true, the following clients will add increasing index to their username for login to the same game. Note that when running pytest, we should set this as False. By doing so, different tests connecting to the same port will raise exception and force one test to re-select a random new port.
-self_play: False
 # Whether to start hotseat game in single player mode
 hotseat_game: False
 # Whether to wait a observer join before start the game
@@ -28,6 +26,8 @@ score_window: 10
 aifill: 4
 # The maximum number of players
 maxplayers: 10
+# Whether start multiple clients for self play. When it is true, the following clients will add increasing index to their username for login to the same game. Note that when running pytest, we automatically set this as False. By doing so, different tests connecting to the same port will raise exception and force one test to re-select a random new port.
+self_play: True
 # The minimum number of players that allows the game to start
 minp: 1
 # The allowtake setting decides whether can take control/observe a player
@@ -65,8 +65,8 @@ debug:
   password: civrealm
   # load_game: "testcontroller_T230_2023-09-08-09_14"
   # load_game: "myagent_T1_2023-08-28-12_19"
-  load_game: "testcontroller_T200_2023-07-31-01_51"
-  # load_game: ""
+  # load_game: "testcontroller_T200_2023-07-31-01_51"
+  load_game: ""
   # game-reproducer
   # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
   randomly_generate_seeds: True

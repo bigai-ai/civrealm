@@ -24,6 +24,7 @@ fc_args['username'] = 'testcontroller'
 fc_args['ruleset'] = 'classic'
 fc_args['pytest'] = True
 fc_args['server_timeout'] = 5
+fc_args['self_play'] = False
 
 
 test_dir = os.path.dirname(__file__)

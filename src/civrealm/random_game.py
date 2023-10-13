@@ -25,10 +25,10 @@ import gymnasium
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
     # env = gymnasium.make('freeciv/FreecivMinitask-v0')
-    # agent = ControllerAgent()
+    agent = ControllerAgent()
 
-    env = LLMWrapper(env)
-    agent = RandomLLMAgent()
+    # env = LLMWrapper(env)
+    # agent = RandomLLMAgent()
 
     observations, info = env.reset(minitask_pattern=None)
     done = False

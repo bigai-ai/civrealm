@@ -31,7 +31,7 @@ from civrealm.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_
 from civrealm.freeciv.utils.base_action import NoActions
 from civrealm.freeciv.utils.base_state import EmptyState
 
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.freeciv.utils.freeciv_logging import fc_logger, update_logger
 from civrealm.configs import fc_args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
@@ -322,6 +322,10 @@ class ClientState(CivPropController):
 
             self.set_client_state(C_S_PREPARING)
             self.send_client_info()
+
+            if self.username != self.username_original:
+                fc_args['username'] = self.username
+                update_logger(self.username_original, self.username)
 
         elif 'already connected' in packet['message']:
             if fc_args['self_play']:

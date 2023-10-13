@@ -2,8 +2,8 @@ import pytest
 import time
 import random
 
-from freeciv_gym.envs.freeciv_wrapper import FilterObservation, get_keys
-from freeciv_gym.freeciv.utils.port_list import DEV_PORT_LIST
+from civrealm.envs.freeciv_wrapper import FilterObservation, get_keys
+from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
 import gymnasium
 
 import warnings

@@ -1,10 +1,10 @@
-# Freeciv Gym
+# CivRealm
 
-Freeciv Gym is a reinforcement learning environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/). The goal is to provide a simple interface for AI researchers to train agents on Freeciv. The interface is based on the [Gymnasium](https://gymnasium.farama.org/) and [Stable Baselines](https://stable-baselines.readthedocs.io/en/master/) framework.
+CivRealm is a reinforcement learning environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/). The goal is to provide a simple interface for AI researchers to train agents on Freeciv. The interface is based on the [Gymnasium](https://gymnasium.farama.org/) and [Stable Baselines](https://stable-baselines.readthedocs.io/en/master/) framework.
 
 ## About
 
-Freeciv Gym is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and is currently being developed by [BIGAI](https://www.bigai.ai/). Going forward, Freeciv Gym will be maintained in the long term.
+CivRealm is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and is currently being developed by [BIGAI](https://www.bigai.ai/). Going forward, CivRealm will be maintained in the long term.
 
 ## Motivation
 
@@ -22,7 +22,7 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 ## Prerequisites
 
-In order to test the freeciv-gym on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
+In order to test the civrealm on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
 
 > :warning:
 > Please make sure you have installed **the latest** docker engine and docker-compose.
@@ -30,10 +30,10 @@ In order to test the freeciv-gym on <http://localhost>, kindly follow the docker
 
 ## Installation
 
-Installation for freeciv-gym developers
+Installation for civrealm developers
 
 ```bash
-cd freeciv-gym
+cd civrealm
 pip install -e .
 ```
 
@@ -46,7 +46,7 @@ cd freeciv-web
 docker compose up -d
 ```
 
-Activate the freeciv-gym virtual environment, and update the freeciv-web image:
+Activate the civrealm virtual environment, and update the freeciv-web image:
 
 ```bash
 update_freeciv_web_docker
@@ -65,19 +65,19 @@ docker compose up -d
 To test if the installation is successful, run
 
 ```bash
-test_freeciv_gym 
+test_civrealm 
 ```
 
 To test with multiple players, run
 
 ```bash
-test_freeciv_gym --minp=2 --username=myagent
+test_civrealm --minp=2 --username=myagent
 ```
 
 Then in another terminal, run
 
 ```bash
-test_freeciv_gym --username=myagent1
+test_civrealm --username=myagent1
 ```
 
 <!-- ### Using a different freeciv version
@@ -122,7 +122,7 @@ The following are some common issues that you may encounter when running the cod
     ...
     ```
 
-* If you see the following error when running `test_freeciv_web_gym`,  please see [this solution](https://stackoverflow.com/questions/72405117/selenium-geckodriver-profile-missing-your-firefox-profile-cannot-be-loaded). If this does not solve the problem, please check `geckodriver.log` for more information.
+* If you see the following error when running `test_civrealm`,  please see [this solution](https://stackoverflow.com/questions/72405117/selenium-geckodriver-profile-missing-your-firefox-profile-cannot-be-loaded). If this does not solve the problem, please check `geckodriver.log` for more information.
 
     ```bash
     selenium.common.exceptions.WebDriverException: Message: Process unexpectedly closed with status 1

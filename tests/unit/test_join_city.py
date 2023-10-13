@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.utils.fc_types as fc_types
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
+import civrealm.freeciv.utils.fc_types as fc_types
 
 
 @pytest.fixture
@@ -63,11 +63,11 @@ def test_join_city(controller):
     valid_actions['plant'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
 
-    
     options = controller.turn_manager.turn_actions
     unit_focus = unit_opt.unit_data[unit_id]
     ptile = unit_focus.ptile
-    print(f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
+    print(
+        f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
     # The settler can join city now.
     assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)

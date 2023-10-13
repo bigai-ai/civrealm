@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_MINE
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+from civrealm.freeciv.utils.fc_types import EXTRA_MINE
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -69,13 +69,13 @@ def test_mine(controller):
     controller.get_info_and_observation()
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
-    
+
     # Perform irrigation activity first. This is to test whether mine action will cancel the irrigation activity first.
     print('Perform irrigation activity first')
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     valid_actions['irrigation'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
-    
+
     # The unit has move in new turn, the build should be valid
     assert (not (build_tile['extras'][EXTRA_MINE] == 1))
     assert (build_action.is_action_valid())
@@ -94,6 +94,7 @@ def test_mine(controller):
     print(
         f"Unit id: {worker_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     assert (build_tile['extras'][EXTRA_MINE] == 1)
+
 
 def main():
     controller = CivController(fc_args['username'])

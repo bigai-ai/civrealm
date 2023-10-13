@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.utils.fc_types as fc_types
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
+import civrealm.freeciv.utils.fc_types as fc_types
 
 
 @pytest.fixture
@@ -47,18 +47,18 @@ def test_load_deboard_unload(controller):
     #         print(
     #             f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
 
-        # if unit_id == 1912:
-        #     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
-        #         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
-        #             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-        # print(f'Unit {unit_id}')
-        # print(unit_focus.punit)
-        # # if unit_id == 1817:
-        # #     print(unit_focus.punit)
-        # #     print(f"({unit_focus.ptile['x']}, {unit_focus.ptile['y']})")
-        # #     print(unit_focus.ptype)
-        # valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        # print(f'valid actions: {valid_actions.keys()}')
+    # if unit_id == 1912:
+    #     for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
+    #         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
+    #             print(f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
+    # print(f'Unit {unit_id}')
+    # print(unit_focus.punit)
+    # # if unit_id == 1817:
+    # #     print(unit_focus.punit)
+    # #     print(f"({unit_focus.ptile['x']}, {unit_focus.ptile['y']})")
+    # #     print(unit_focus.ptype)
+    # valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    # print(f'valid actions: {valid_actions.keys()}')
 
     # Boats are in (45, 30) -- a tile with city
     boat_ids = [1549, 1099]
@@ -68,14 +68,14 @@ def test_load_deboard_unload(controller):
     old_homecity = None
 
     unit_focus = unit_opt.unit_data[886]
-    assert(unit_focus.punit['transported_by'] == 1549)
+    assert (unit_focus.punit['transported_by'] == 1549)
     valid_actions = unit_opt.get_actions(886, valid_only=True)
     print(f'Unit {886}, valid action keys: {valid_actions.keys()}')
     print(f'Unit {886} embark to 1099 from 1549')
     valid_actions['embark_4_1099'].trigger_action(controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
-    assert(unit_focus.punit['transported_by'] == 1099)
+    assert (unit_focus.punit['transported_by'] == 1099)
 
     for unit_id in boat_ids+unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
@@ -112,7 +112,7 @@ def test_load_deboard_unload(controller):
             print('Unit 886 changes homecity')
             valid_actions['set_homecity'].trigger_action(controller.ws_client)
             old_homecity = unit_focus.punit['homecity']
-    
+
     controller.get_info_and_observation()
 
     for unit_id in unit_ids:
@@ -120,7 +120,7 @@ def test_load_deboard_unload(controller):
         # Unit's homecity can be changed when it is on the boat.
         if unit_id == 886:
             print(f"Unit {unit_id}\'s homecity: {unit_focus.punit['homecity']}")
-            assert(old_homecity != unit_focus.punit['homecity'])
+            assert (old_homecity != unit_focus.punit['homecity'])
 
         # if unit_id == 1912 or unit_id == 1964:
         #     print(f'Unit: {unit_id}')
@@ -191,7 +191,7 @@ def test_load_deboard_unload(controller):
 
         if unit_id == 886 or unit_id == 1964:
             valid_actions['board'].trigger_action(controller.ws_client)
-    
+
     print('Units 886 and 1964 board again.')
     controller.get_info_and_observation()
 
@@ -206,24 +206,24 @@ def test_load_deboard_unload(controller):
         if unit_id == 1964:
             print('Unit 1964 fortify when on the boat')
             valid_actions['fortify'].trigger_action(controller.ws_client)
-    
+
     controller.get_info_and_observation()
-    assert(886 not in unit_opt.unit_data)
+    assert (886 not in unit_opt.unit_data)
     unit_id = 1964
     unit_focus = unit_opt.unit_data[unit_id]
     # Is fortifying
-    assert(unit_focus.punit['activity'] == 10)
+    assert (unit_focus.punit['activity'] == 10)
 
     controller.send_end_turn()
     controller.get_info_and_observation()
     # Fortified
-    assert(unit_focus.punit['activity'] == 4)
+    assert (unit_focus.punit['activity'] == 4)
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     print('Unit 1964 perform trade_route')
     valid_actions['trade_route_-1'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
-    assert(1964 not in unit_opt.unit_data)
+    assert (1964 not in unit_opt.unit_data)
 
     unit_id = 1912
     unit_focus = unit_opt.unit_data[unit_id]
@@ -273,7 +273,7 @@ def test_load_deboard_unload(controller):
     print('Unit 1912 do marketplace')
     valid_actions['marketplace_-1'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
-    assert(1912 not in unit_opt.unit_data)
+    assert (1912 not in unit_opt.unit_data)
 
 
 def main():

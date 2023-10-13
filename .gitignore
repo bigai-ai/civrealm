@@ -6,7 +6,7 @@
 # Generated files
 plot_game_scores/
 game_scores/
-freeciv_gym.egg-info/
+civrealm.egg-info/
 tests/logs/
 geckodriver
 geckodriver.log

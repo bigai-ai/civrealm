@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,12 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -53,10 +53,9 @@ def test_spy_steal_tech(controller):
     controller.get_info_and_observation()
     print(f"Participate in activity {punit['activity']}")
 
-
     valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
     test_action_list.append(valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
-        
+
     print('Steal technology from the city on the south tile')
     techs_researched_before = player_opt.players[0]['techs_researched']
     # Perform spy_steal_tech action of the diplomat
@@ -70,6 +69,7 @@ def test_spy_steal_tech(controller):
     player_opt = options['player']
     techs_researched_after = player_opt.players[0]['techs_researched']
     assert (techs_researched_after == techs_researched_before + 1)
+
 
 def main():
     controller = CivController('testcontroller')

@@ -1,0 +1,6 @@
+import gymnasium
+
+
+class Wrapper(gymnasium.Wrapper):
+    def reset(self, *, seed=None, options=None, **kwargs):
+        return self.env.reset(seed=seed, options=options, **kwargs)

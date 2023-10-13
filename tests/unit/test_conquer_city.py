@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,12 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -52,18 +52,17 @@ def test_conquer_city(controller):
     # The target tile does not belong to our player due to the enemy city.
     target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTH)
     assert (not unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)
-                    ['owner'] == unit_opt.player_ctrl.my_player_id)
+            ['owner'] == unit_opt.player_ctrl.my_player_id)
     previous_owner = unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)['owner']
-    
+
     print('Conquer the city on the north')
     # Perform conquer city action
     valid_actions[f'conquer_city_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    assert(punit['tile'] == 1473)
-    # The enemy city has been destroyed 
+    assert (punit['tile'] == 1473)
+    # The enemy city has been destroyed
     assert (unit_tile['owner'] != previous_owner)
-
 
 
 def main():

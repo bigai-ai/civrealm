@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_IRRIGATION
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+from civrealm.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_RAILROAD, EXTRA_IRRIGATION
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -49,11 +49,10 @@ def test_pillage(controller):
     #     # Get valid actions
     #     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
 
-
     valid_actions = unit_opt.get_actions(551, valid_only=True)
     valid_actions['plant'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
-    assert(unit_opt.unit_ctrl.units[551]['activity'] != 0)
+    assert (unit_opt.unit_ctrl.units[551]['activity'] != 0)
     print(f"Unit 551 participate in activity {unit_opt.unit_ctrl.units[551]['activity']}")
 
     for worker in worker_id:
@@ -63,7 +62,7 @@ def test_pillage(controller):
         if worker == 551:
             # Trigger pillage action for 138 worker
             valid_actions['pillage'].trigger_action(controller.ws_client)
-    
+
     # Update state
     controller.get_info_and_observation()
     worker_id = [843, 507]
@@ -109,7 +108,7 @@ def test_pillage(controller):
     print('Begin pillaging road, needs one turn to finish ...')
     controller.send_end_turn()
     controller.get_info_and_observation()
-     # Pillage remove road
+    # Pillage remove road
     assert (not (unit_tile['extras'][EXTRA_ROAD] == 1))
 
     # Move to a city
@@ -122,6 +121,7 @@ def test_pillage(controller):
     # In city, there is railroad extra. But we cannot pillage it
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
     assert (not 'pillage' in valid_actions)
+
 
 def main():
     controller = CivController(fc_args['username'])

@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,14 +15,14 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.utils.fc_types as fc_types
-from freeciv_gym.freeciv.utils.fc_types import EXTRA_HUT, ACTIVITY_GEN_ROAD
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
+import civrealm.freeciv.utils.fc_types as fc_types
+from civrealm.freeciv.utils.fc_types import EXTRA_HUT, ACTIVITY_GEN_ROAD
 
 
 @pytest.fixture
@@ -64,11 +64,11 @@ def test_hut_enter(controller):
             test_action_list.append(valid_actions['hut_enter_2'])
             target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTHEAST)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
-    
+
     # Perform goto action for each unit
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
-    
+
     # Update state. If Hut Enter action does not cancel activity, the hut_enter action would not take effect. Then the client will keep wait for packet 63.
     controller.get_info_and_observation()
     # After enter hut, the extra disappears.

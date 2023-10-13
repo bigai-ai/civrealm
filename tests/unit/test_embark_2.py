@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.utils.fc_types as fc_types
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
+import civrealm.freeciv.utils.fc_types as fc_types
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_embark_2(controller):
     # for unit_id in unit_opt.unit_data.keys():
     unit_focus = unit_opt.unit_data[unit_id]
     ptile = unit_focus.ptile
-    
+
     print(
         f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
 
@@ -53,7 +53,7 @@ def test_embark_2(controller):
     # Perform embark action
     valid_actions[f'embark_{map_const.DIR8_NORTHEAST}_637'].trigger_action(controller.ws_client)
     # The unit's original position is 431
-    assert(ptile['index'] == 431)
+    assert (ptile['index'] == 431)
 
     # Get updated state
     controller.get_info_and_observation()
@@ -63,9 +63,10 @@ def test_embark_2(controller):
 
     # Get unit's new position
     ptile = unit_focus.ptile
-    assert(ptile['index'] != 431)
+    assert (ptile['index'] != 431)
     # Unit is now on the boat
-    assert(ptile['index'] == boat_tile['index'])
+    assert (ptile['index'] == boat_tile['index'])
+
 
 def main():
     controller = CivController(fc_args['username'])

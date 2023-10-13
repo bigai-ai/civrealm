@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,12 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -55,7 +55,7 @@ def test_spy_bribe_unit(controller):
 
     valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
     test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
-    
+
     print('Bribe the enemy unit on southwest tile')
     newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
     if len(newtile['units']) > 0:
@@ -81,6 +81,7 @@ def test_spy_bribe_unit(controller):
         target_id = -1
     assert (target_id != diplomat_id)
     assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
+
 
 def main():
     controller = CivController('testcontroller')

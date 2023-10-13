@@ -3,17 +3,17 @@ import random
 import numpy as np
 import time
 
-from freeciv_gym.envs.freeciv_minitask_env import MinitaskType
-from freeciv_gym.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
-from freeciv_gym.envs.freeciv_wrapper.utils import *
-from freeciv_gym.freeciv.utils.port_list import DEV_PORT_LIST
+from civrealm.envs.freeciv_minitask_env import MinitaskType
+from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
+from civrealm.envs.freeciv_wrapper.utils import *
+from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
 
 import warnings
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
 
-import gymnasium as gym
+import gymnasium
 
 client_port = random.choice(DEV_PORT_LIST)
 
@@ -33,7 +33,7 @@ def get_client_port():
 
 @pytest.fixture
 def env():
-    env = gym.make("freeciv/FreecivTensorMinitask-v0", client_port=get_client_port())
+    env = gymnasium.make("freeciv/FreecivTensorMinitask-v0", client_port=get_client_port())
     yield env
     env.close()
 

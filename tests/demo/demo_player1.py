@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -18,21 +18,21 @@ import os
 import logging
 import filelock
 import time
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs.logging_config import LOGGING_CONFIG
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs.logging_config import LOGGING_CONFIG
 
 
 def configure_test_logger():
     # Close and remove all old handlers and add a new one with the test name
-    logger_filename = LOGGING_CONFIG['handlers']['freecivFileHandler']['filename']
+    logger_filename = LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename']
     log_dir = os.path.join(os.path.dirname(logger_filename), 'tests')
-    with filelock.FileLock('/tmp/freeciv-gym_test_logger_setup.lock'):
+    with filelock.FileLock('/tmp/civrealm_test_logger_setup.lock'):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 

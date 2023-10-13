@@ -1,7 +1,7 @@
 [project]
-name = "freeciv-gym"
+name = "civrealm"
 version = "0.1"
-description = "Freeciv Gym is a reinforcement learning environment for the open-source strategy game Freeciv-web."
+description = "CivRealm is a reinforcement learning environment for the open-source strategy game Freeciv with the Freeciv-web client."
 authors = [
     {name = "Chris1869", email = "chris1869@github.com"},
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
@@ -50,9 +50,9 @@ dependencies = [
 
 
 [project.scripts]
-update_freeciv_web_docker = "freeciv_gym.freeciv.build_server:update_docker_image"
-update_javascript_for_clean_screenshot = "freeciv_gym.freeciv.build_server:update_javascript_for_clean_screenshot"
-test_freeciv_gym = "freeciv_gym.random_game:main"
+update_freeciv_web_docker = "civrealm.freeciv.build_server:update_docker_image"
+update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
+test_civrealm = "civrealm.random_game:main"
 
 [tool.pytest.ini_options]
 addopts = [

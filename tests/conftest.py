@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -18,8 +18,8 @@ import subprocess
 import logging
 import pytest
 import filelock
-from freeciv_gym.freeciv.build_server import docker_image_name
-from freeciv_gym.configs import fc_args
+from civrealm.freeciv.build_server import docker_image_name
+from civrealm.configs import fc_args
 fc_args['username'] = 'testcontroller'
 fc_args['ruleset'] = 'classic'
 fc_args['pytest'] = True
@@ -49,7 +49,7 @@ def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name
 
     # NOTE: these imports are here to make sure fc_args is initialized and modified first
-    from freeciv_gym.freeciv.utils.freeciv_logging import set_logging_file
+    from civrealm.freeciv.utils.freeciv_logging import set_logging_file
     set_logging_file('tests', item.name)
 
 

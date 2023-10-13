@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,12 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -50,14 +50,13 @@ def test_attack(controller):
     controller.get_info_and_observation()
     print(f"Participate in activity {punit['activity']}")
 
-    assert(punit['activity'] != 0)
-
+    assert (punit['activity'] != 0)
 
     valid_actions = unit_opt.get_actions(horseman_id, valid_only=True)
     print(valid_actions.keys())
     print('Attack the southeast tile')
     valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'].trigger_action(controller.ws_client)
-    
+
     # Get unit new state
     controller.get_info_and_observation()
     unit_opt = controller.turn_manager.turn_actions['unit']

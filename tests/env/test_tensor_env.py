@@ -3,9 +3,9 @@ import random
 import numpy as np
 import time
 
-from freeciv_gym.envs.freeciv_tensor_env import FreecivTensorEnv
-from freeciv_gym.envs.freeciv_wrapper.utils import *
-from freeciv_gym.freeciv.utils.port_list import DEV_PORT_LIST
+from civrealm.envs.freeciv_tensor_env import FreecivTensorEnv
+from civrealm.envs.freeciv_wrapper.utils import *
+from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
 import gymnasium
 
 import warnings
@@ -13,7 +13,7 @@ import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
 
-from freeciv_gym.configs import fc_args
+from civrealm.configs import fc_args
 
 client_port = random.choice(DEV_PORT_LIST)
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,13 +15,13 @@
 
 
 import pytest
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.civ_controller import CivController
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.utils.fc_types as fc_types
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.civ_controller import CivController
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.utils.fc_types as fc_types
 
 
 @pytest.fixture
@@ -43,7 +43,7 @@ def test_homecity(controller):
     unit_focus = unit_opt.unit_data[unit_id]
     punit = unit_opt.unit_ctrl.units[unit_id]
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
-    
+
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('set_homecity' in valid_actions.keys())
     assert (len(valid_actions) > 0)

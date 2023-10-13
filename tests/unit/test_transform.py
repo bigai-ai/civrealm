@@ -1,4 +1,4 @@
-# Copyright (C) 2023  The Freeciv-gym project
+# Copyright (C) 2023  The CivRealm project
 #
 # This program is free software: you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the Free
@@ -15,12 +15,12 @@
 
 
 import pytest
-from freeciv_gym.freeciv.civ_controller import CivController
-import freeciv_gym.freeciv.map.map_const as map_const
-import freeciv_gym.freeciv.units.unit_helpers as unit_helpers
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-from freeciv_gym.configs import fc_args
-from freeciv_gym.freeciv.utils.test_utils import get_first_observation_option
+from civrealm.freeciv.civ_controller import CivController
+import civrealm.freeciv.map.map_const as map_const
+import civrealm.freeciv.units.unit_helpers as unit_helpers
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.test_utils import get_first_observation_option
 
 
 @pytest.fixture
@@ -57,12 +57,12 @@ def test_transform(controller):
             assert ('transform_terrain' in valid_actions)
             # Perform transform
             valid_actions['transform_terrain'].trigger_action(controller.ws_client)
-    
+
     boat_valid_actions = unit_opt.get_actions(boat_id, valid_only=True)
     # Boat goes to west
     print('Boat moves.')
     boat_valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(controller.ws_client)
-    
+
     old_terrain_name = ''
     # Get unit new state
     controller.get_info_and_observation()
@@ -80,7 +80,7 @@ def test_transform(controller):
         if unit_id == 920:
             old_terrain_name = terrain['name']
             # print(terrain)
-    
+
     print(f'Unit {920} is on a terrain: {old_terrain_name}')
     print('Start to transform...')
     # End turn for transform activity.
@@ -94,8 +94,8 @@ def test_transform(controller):
     new_terrain_name = terrain['name']
     print(f'Unit {920} now is on a terrain: {new_terrain_name}')
 
-    assert(old_terrain_name != new_terrain_name)
-    
+    assert (old_terrain_name != new_terrain_name)
+
 
 def main():
     controller = CivController('testcontroller')

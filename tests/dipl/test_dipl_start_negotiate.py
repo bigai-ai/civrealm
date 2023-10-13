@@ -43,7 +43,7 @@ def test_dipl_start_negotiate(controller):
     fc_logger.info("test_dipl_start_negotiate")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
     negotiate_act_set = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'start_negotiation')
 
     if len(negotiate_act_set) > 0:

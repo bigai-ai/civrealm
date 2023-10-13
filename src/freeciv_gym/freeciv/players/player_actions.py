@@ -14,19 +14,8 @@
 
 from freeciv_gym.freeciv.utils import base_action
 from freeciv_gym.freeciv.utils.base_action import ActionList
-from freeciv_gym.freeciv.utils.fc_types import packet_player_rates, \
-    packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req, \
-    packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact, \
-    packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
-import freeciv_gym.freeciv.players.player_const as player_const
+from freeciv_gym.freeciv.utils.fc_types import packet_player_rates
 import freeciv_gym.freeciv.players.player_helpers as player_helpers
-
-from freeciv_gym.freeciv.tech.tech_helpers import is_tech_known, player_invention_state
-import freeciv_gym.freeciv.tech.tech_const as tech_const
-from freeciv_gym.freeciv.players.player_const import BASE_CLAUSES, CONFLICTING_CLAUSES
-from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger
-
-GOLD_STEP = 1
 
 
 class PlayerOptions(ActionList):

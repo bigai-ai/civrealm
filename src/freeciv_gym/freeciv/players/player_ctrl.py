@@ -251,9 +251,10 @@ class PlayerCtrl(CivPropController):
         self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]] = packet['gives_shared_tiles']
 
     def handle_web_player_info_addition(self, packet):
-        # Currently there is only one additional field expected_income
-        del packet['pid']
-        self.players[packet['playerno']].update(packet)
+        # Currently there is only one additional field expected_income、
+        if packet['playerno'] in self.players:
+            del packet['pid']
+            self.players[packet['playerno']].update(packet)
 
     def handle_research_info(self, packet):
         old_inventions = None

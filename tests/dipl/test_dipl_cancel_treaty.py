@@ -44,7 +44,7 @@ def test_dipl_cancel_treaty(controller):
     fc_logger.info("test_dipl_cancel_treaty")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
     cancel_treaty_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'cancel_treaty')[0]
 
     assert (cancel_treaty_act.is_action_valid())

@@ -19,7 +19,7 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils import base_action
-from freeciv_gym.freeciv.utils.base_action import ActionList
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 from freeciv_gym.freeciv.utils.base_state import PlainState
 from freeciv_gym.freeciv.tech.req_info import ReqInfo
 
@@ -145,3 +145,24 @@ class SetSciLuxTax(base_action.Action):
                   "science": self.sci}
         self.wait_for_pid = (51, self.playerno)
         return packet
+
+# TODO: Check if necessary to add this action to action_dict of gov
+class GovDoNothing(Action):
+    action_key = 'gov_do_nothing'
+
+    def __init__(self, ws_client):
+        super().__init__()
+        self.ws_client = ws_client
+
+    def is_action_valid(self):
+        """ always valid """
+        return True
+
+    def _action_packet(self):
+        return 'do_nothing'
+
+    def trigger_action(self, ws_client):
+        self.ws_client.send_message("No change for gov.")
+
+
+

@@ -43,7 +43,7 @@ def test_dipl_add_clause(controller):
     fc_logger.info("test_dipl_add_clause")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
     add_clause_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'add_clause')[0]
 
     assert (add_clause_act.is_action_valid())

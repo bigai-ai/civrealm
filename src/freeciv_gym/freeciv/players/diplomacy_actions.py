@@ -13,7 +13,7 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from freeciv_gym.freeciv.utils import base_action
-from freeciv_gym.freeciv.utils.base_action import ActionList
+from freeciv_gym.freeciv.utils.base_action import Action, ActionList
 from freeciv_gym.freeciv.utils.fc_types import packet_diplomacy_init_meeting_req, packet_diplomacy_cancel_meeting_req, packet_diplomacy_accept_treaty_req, packet_diplomacy_cancel_pact, packet_diplomacy_create_clause_req, packet_diplomacy_remove_clause_req
 import freeciv_gym.freeciv.players.player_const as player_const
 
@@ -382,16 +382,27 @@ class AddClause(RemoveClause):
             for p in self.others_diplstates[self.cur_player['playerno']]:
                 if p == self.counter_id:
                     continue
-                if self.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_WAR and p in self.others_diplstates[self.counterpart['playerno']] and self.others_diplstates[self.counterpart['playerno']][p] == player_const.DS_ALLIANCE:
-                    return False
-
-            for p in self.others_diplstates[self.cur_player['playerno']]:
-                if p == self.counter_id:
-                    continue
-                if self.others_diplstates[self.cur_player['playerno']][p] == player_const.DS_ALLIANCE and p in self.others_diplstates[self.counterpart['playerno']] and self.others_diplstates[self.counterpart['playerno']][p] == player_const.DS_WAR:
+                if self.war_alliance_conflict_exist(self.cur_player['playerno'], self.counter_id, p):
                     return False
 
         return self.can_add_current_clause()
+
+    def war_alliance_conflict_exist(self, plr_1, plr_2, p):
+        if plr_1 in self.others_diplstates and plr_2 in self.others_diplstates and p in self.others_diplstates[plr_1] and p in self.others_diplstates[plr_2]:
+            if self.others_diplstates[plr_1][p] == player_const.DS_WAR and self.others_diplstates[plr_2][
+                p] == player_const.DS_ALLIANCE:
+                return True
+            if self.others_diplstates[plr_1][p] == player_const.DS_ALLIANCE and self.others_diplstates[plr_2][
+                p] == player_const.DS_WAR:
+                return True
+        if p in self.others_diplstates and plr_1 in self.others_diplstates[p] and plr_2 in self.others_diplstates[p]:
+            if self.others_diplstates[p][plr_1] == player_const.DS_WAR and self.others_diplstates[p][
+                plr_2] == player_const.DS_ALLIANCE:
+                return True
+            if self.others_diplstates[p][plr_2] == player_const.DS_ALLIANCE and self.others_diplstates[p][
+                plr_2] == player_const.DS_WAR:
+                return True
+        return False
 
     def remove_conflicting_clause(self):
         if self.clause_type in CONFLICTING_CLAUSES:
@@ -466,6 +477,26 @@ class AddTradeCityClause(AddClause):
             return False
 
         return self.can_add_current_clause()
+
+
+# TODO: Check if necessary to add this action to action_dict of diplomacy
+class IgnoreDiplomacy(Action):
+    action_key = 'ignore_diplomacy_request'
+
+    def __init__(self, counter_id, ws_client):
+        super().__init__()
+        self.counter_id = counter_id
+        self.ws_client = ws_client
+
+    def is_action_valid(self):
+        """ always valid """
+        return True
+
+    def _action_packet(self):
+        return 'ignore_diplomacy_request'
+
+    def trigger_action(self, ws_client):
+        self.ws_client.send_message(f"Ignore diplomacy request of player {self.counter_id}")
 
 
 def has_statue_of_liberty(cities, cur_player):

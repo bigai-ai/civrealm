@@ -43,8 +43,8 @@ def test_gov_increase_lux(controller):
     fc_logger.info("test_gov_set_sci_lux_tax")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
-    pplayer = player_opt.players[0]
+    player_opt = options['gov']
+    pplayer = options['player'].players[0]
 
     print('current sci_lux_tax:', (pplayer['science'], pplayer['luxury'], pplayer['tax']))
 

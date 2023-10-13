@@ -44,7 +44,7 @@ def test_dipl_trade_gold(controller):
     fc_logger.info("test_dipl_trade_gold")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
 
     trade_gold_actions = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_gold_clause')
     if len(trade_gold_actions) > 0:

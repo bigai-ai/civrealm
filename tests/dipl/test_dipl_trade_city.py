@@ -44,7 +44,7 @@ def test_dipl_trade_city(controller):
     fc_logger.info("test_dipl_trade_city")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
 
     trade_city_actions = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_city_clause')
     if len(trade_city_actions) > 0:

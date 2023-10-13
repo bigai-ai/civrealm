@@ -209,9 +209,11 @@ class CityWorkTile(Action):
         self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
         return packet
 
+    """
     def _refresh_state_packet(self):
         return {"pid": packet_city_refresh,
                 "city_id": self.pcity['id']}
+    """
 
 
 class CityUnworkTile(CityWorkTile):
@@ -254,10 +256,11 @@ class CityChangeSpecialist(Action):
         self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
+    """
     def _refresh_state_packet(self):
         return {"pid": packet_city_refresh,
                 "city_id": self.pcity['id']}
-
+    """
 
 class CityBuyProduction(Action):
     action_key = "city_buy_production"
@@ -356,9 +359,7 @@ class CityChangeProduction(Action):
                   "production_kind": self.prod_kind,
                   "production_value": self.prod_value}
 
-        """ include keep_production choice """
-        if self.pcity['production_kind'] != self.prod_kind or self.pcity['production_value'] != self.prod_value:
-            self.wait_for_pid = (31, self.pcity['tile'])
+        self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 
     def city_can_change_build(self):
@@ -366,10 +367,14 @@ class CityChangeProduction(Action):
             return False
         return True
 
+    def under_production(self):
+        return self.pcity['production_kind'] == self.prod_kind and self.pcity['production_value'] == self.prod_value
+
+    """
     def _refresh_state_packet(self):
         return {"pid": packet_city_refresh,
                 "city_id": self.pcity['id']}
-
+    """
 
 class CityChangeUnitProduction(CityChangeProduction):
 
@@ -380,6 +385,9 @@ class CityChangeUnitProduction(CityChangeProduction):
     def is_action_valid(self):
         if (not self.city_can_change_build() or self.punit_type['name'] == "Barbarian Leader"
                 or self.punit_type['name'] == "Leader"):
+            return False
+
+        if self.under_production():
             return False
 
         return self.can_city_build_unit_now(self.pcity, self.punit_type["id"])
@@ -409,7 +417,7 @@ class CityChangeImprovementProduction(CityChangeProduction):
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
-        if not self.city_can_change_build():
+        if not self.city_can_change_build() or self.under_production():
             return False
 
         """ may already be included in can_city_build_improvement_now """
@@ -440,9 +448,9 @@ class CityChangeImprovementProduction(CityChangeProduction):
         return infos
 
 
-""" included in CityChangeProduction """
+# TODO: Check if necessary to add this action to action_dict of city
 class CityKeepProduction(Action):
-    action_key = 'keep_production'
+    action_key = 'city_keep_production'
 
     def __init__(self, pcity, ws_client):
         super().__init__()
@@ -458,6 +466,5 @@ class CityKeepProduction(Action):
 
     def trigger_action(self, ws_client):
         self.ws_client.send_message(f"City {self.pcity['id']} keeps production.")
-
 
 

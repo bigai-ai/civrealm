@@ -22,7 +22,6 @@ from freeciv_gym.freeciv.game.ruleset import RulesetCtrl
 
 from freeciv_gym.freeciv.utils.base_controller import CivPropController
 from freeciv_gym.freeciv.utils.base_state import DictState
-from freeciv_gym.freeciv.utils.base_action import NoActions
 
 import freeciv_gym.freeciv.players.player_const as player_const
 from freeciv_gym.freeciv.utils.freeciv_logging import fc_logger

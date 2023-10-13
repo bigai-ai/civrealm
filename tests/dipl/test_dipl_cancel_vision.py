@@ -44,7 +44,7 @@ def test_dipl_cancel_vision(controller):
     fc_logger.info("test_dipl_cancel_vision")
     _, options = get_first_observation_option(controller)
 
-    player_opt = options['player']
+    player_opt = options['dipl']
     cancel_vision_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'cancel_vision')[0]
 
     assert (cancel_vision_act.is_action_valid())

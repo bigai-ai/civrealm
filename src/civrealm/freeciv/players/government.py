@@ -56,10 +56,10 @@ class GovActions(ActionList):
             for govt_id in self.rule_ctrl.governments:
                 self.add_action(player_id, ChangeGovernment(govt_id, self.rule_ctrl, self.dipl_ctrl, pplayer))
 
-            for sci in range(10, 101, 10):
-                for lux in range(10, 101, 10):
-                    for tax in range(10, 101, 10):
-                        self.add_action(player_id, SetSciLuxTax(pplayer, sci, lux, tax))
+            for sci in range(0, 101, 10):
+                for lux in range(0, (101 - sci), 10):
+                    tax = 100 - sci - lux
+                    self.add_action(player_id, SetSciLuxTax(pplayer, sci, lux, tax))
 
 
 class GovernmentCtrl(CivPropController):

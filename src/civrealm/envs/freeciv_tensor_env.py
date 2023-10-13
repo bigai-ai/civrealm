@@ -13,10 +13,10 @@
 from civrealm.configs import fc_args
 from civrealm.envs.freeciv_base_env import FreecivBaseEnv
 from civrealm.envs.freeciv_wrapper import (GameOverScoreInfo,
-                                           PenalizeTurnDoneReward,
-                                           TensorWrapper,
-                                           Wrapper)
-from civrealm.envs.freeciv_wrapper.utils import default_tensor_config
+                                              PenalizeTurnDoneReward,
+                                              TensorWrapper,
+                                              Wrapper)
+from civrealm.envs.freeciv_wrapper.config import default_tensor_config
 
 
 class FreecivTensorEnv(Wrapper):

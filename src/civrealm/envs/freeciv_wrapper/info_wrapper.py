@@ -1,6 +1,7 @@
 from .core import Wrapper
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
+
 class InfoWrapper(Wrapper):
     def __init__(self, env):
         Wrapper.__init__(self, env)
@@ -58,6 +59,7 @@ class GameOverScoreInfo(InfoWrapper):
         info["scores"] = last_scores
         return info
 
+
 class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
     def __init__(self, env):
         GameOverScoreInfo.__init__(self, env)
@@ -65,7 +67,7 @@ class MiniTaskGameOverScoreInfo(GameOverScoreInfo):
     def info(self, info, terminated, truncated, **kwargs):
         # TODO: Add other metrics
         last_scores = {}
-        last_scores['score'] = self.unwrapped.overall_mini_score         
-        info['scores'] = last_scores
-        info['scores']['success'] = info['minitask']['success']
+        last_scores["score"] = self.unwrapped.overall_mini_score
+        info["scores"] = last_scores
+        info["scores"]["success"] = info["minitask"]["success"]
         return info

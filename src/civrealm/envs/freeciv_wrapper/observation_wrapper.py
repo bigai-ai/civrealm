@@ -1,244 +1,208 @@
-from typing import (
-    Union,
-    Tuple,
-    Mapping,
-    MutableMapping,
-    Sequence,
-    Callable,
-    Hashable,
-)
-from collections.abc import Mapping, Sequence
+from collections import OrderedDict
+from copy import deepcopy
+from functools import reduce
 
 import numpy as np
-from gymnasium.core import Wrapper, ObservationWrapper, Env, spaces
-from civrealm.envs.freeciv_space import Onehot
-from .utils import *
+from gymnasium import spaces
 
-import warnings
-
-# FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
+from .core import ObservationWrapper, Wrapper
+from .utils import add_shape, resize_data, update
 
 
-class FilterObservation(ObservationWrapper):
-    def __init__(
-        self,
-        env: Env,
-        filter_keys: Union[Mapping, Sequence] = [],
-        filter_out=False,
-        cache_keys: Union[Mapping, Sequence] = [],
-    ):
+class TensorObservation(ObservationWrapper):
+    mutable_fields = ["city", "unit", "others_city", "others_unit", "others_player"]
+    immutable_fields = ["map", "rules", "player", "tech", "gov"]
+
+    def __init__(self, env, config):
+        self.obs_initialized = False
+        self.observation_config = config
+        self.obs_layout = {}
+        self.others_player_ids = []
         super().__init__(env)
 
-        self._env = env
-        self.__cache_args = (filter_keys, filter_out, cache_keys)
-        self._observation_space = None
+    def observation(self, observation):
+        # in case of gameover, return None as observation
+        if len(observation["player"]) == 0:
+            return None
 
-        wrapped_observation_space = env.observation_space
+        observation = deepcopy(observation)
+        obs_dict = self._handle_dict(observation)
+        obs = self._embed_immutable(deepcopy(obs_dict))
+        obs = self._embed_mutable(obs)
 
-        if not isinstance(wrapped_observation_space, spaces.Dict):
-            # HACK: hacky part to avoid dynamic observation space handling
-            if isinstance(wrapped_observation_space, spaces.Discrete):
-                self._initialized = False
-                return
-            raise ValueError(
-                f"FilterObservation is only usable with dict observations, "
-                f"environment observation space is {type(wrapped_observation_space)}"
-            )
+        if not self.obs_initialized:
+            self.observation_space = self._infer_obs_space(obs)
+            self.obs_initialized = True
+        self._check_obs_layout(obs)
+        return obs
 
-        # HACK: I am so soryy about this. Later transfer this into more elegant code.
-        self.init()
+    def _handle_dict(self, obs):
+        obs["city"] = obs.get("city", {})
+        obs["unit"] = obs.get("unit", {})
 
-    def init(self):
-        if self._initialized:
-            return
+        # TODO: This should be the base env's reponsibility
+        # Add info to city and unit from civcontroller
+        update(obs["city"], self.civ_controller.city_ctrl.cities)
+        update(obs["unit"], self.civ_controller.unit_ctrl.units)
+        # update player info with dipl
+        update(obs["player"], obs.get("dipl", {}))
 
-        (filter_keys, filter_out, cache_keys) = self.__cache_args
-        wrapped_observation_space = self._env.observation_space
+        # remove unused fields and keep mask if given
+        obs = {
+            k: v
+            for k, v in obs.items()
+            if k in self.observation_config["filter_observation"] or k.endswith("mask")
+        }
 
-        if not isinstance(wrapped_observation_space, spaces.Dict):
-            # HACK hacky part to avoid dynamic observation space handling
-            if isinstance(wrapped_observation_space, spaces.Discrete):
-                self.__cache_args = (filter_keys, filter_out, cache_keys)
-                self._initialized = False
-                return self
-            raise ValueError(
-                f"FilterDictObservation is only usable with dict observations, "
-                f"environment observation space is {type(wrapped_observation_space)}"
-            )
+        # Add others fields and initialize
+        my_player_id = self.get_wrapper_attr("my_player_id")
 
-        observation_keys = get_space_keys(wrapped_observation_space)
+        obs["others_unit"] = {}
+        obs["others_city"] = {}
 
-        if not filter_out:
-            filter_keys = filter_keys if filter_keys else observation_keys
-            missing_keys = get_missing_keys(observation_keys, filter_keys)
-            if missing_keys:
-                raise ValueError(
-                    "All the filter_keys must be included in the original observation space.\n"
-                    f"Filter keys: {filter_keys}\n"
-                    f"Observation keys: {observation_keys}\n"
-                    f"Missing keys: {missing_keys}"
+        for field in ["unit", "city"]:
+            for key, val in list(obs[field].items()):
+                if val["owner"] != my_player_id:
+                    # delete others' entity from unit and city
+                    obs["others_" + field][key] = obs[field].pop(key)
+
+        obs["others_player"] = {
+            key: obs["player"].pop(key)
+            for key in list(obs["player"].keys())
+            if key != my_player_id
+        }
+        obs["player"] = obs["player"][my_player_id]
+
+        # Initialize build_cost with 0 for now
+        obs["rules"]["build_cost"] = 0
+
+        mutable_fields = [field for field in obs.keys() if field in self.mutable_fields]
+        immutable_fields = [
+            field for field in obs.keys() if field in self.immutable_fields
+        ]
+
+        ops = self.observation_config["obs_ops"]
+
+        # Handle immutable
+        # delete unused keywords and transform useful keywords
+        def apply_ops(field):
+            for k, val in list(obs[field].items()):
+                if k in list(ops[field].keys()):
+                    obs[field][k] = ops[field][k](val)
+                else:
+                    obs[field].pop(k)
+
+        for field in immutable_fields:
+            apply_ops(field)
+
+        # Handle mutable
+        # delete unused keywords and transform useful keywords
+        def apply_ops_mutable(field):
+            for entity_id, entity in list(obs[field].items()):
+                for k, val in list(entity.items()):
+                    if k in list(ops[field].keys()):
+                        entity[k] = ops[field][k](val)
+                    else:
+                        entity.pop(k)
+
+        for field in mutable_fields:
+            apply_ops_mutable(field)
+
+        self.others_player_ids = sorted(obs["others_player"].keys())
+
+        return obs
+
+    def _embed_immutable(self, obs):
+        immutable = {
+            field: obs[field] for field in obs if field in self.immutable_fields
+        }
+
+        if not self.obs_initialized:
+            for field, field_dict in immutable.items():
+                self.obs_layout[field] = OrderedDict(
+                    [(k, field_dict[k].shape) for k in sorted(list(field_dict.keys()))]
                 )
 
-        full_filter_keys = complete_filter_keys(
-            observation_keys, filter_keys, filter_out
+        for field, field_dict in immutable.items():
+            # check field layout is correct
+            assert self.obs_layout[field] == {k: v.shape for k, v in field_dict.items()}
+
+            obs[field] = np.concatenate(
+                [field_dict[k] for k in sorted(list(field_dict.keys()))], axis=-1
+            )
+        return obs
+
+    def _embed_mutable(self, obs):
+        mutable = {field: obs[field] for field in obs if field in self.mutable_fields}
+        mutable_layout = self.observation_config["obs_mutable_layout"]
+
+        if not self.obs_initialized:
+            for field, entity_dict in mutable.items():
+                layout = mutable_layout[field]
+                self.obs_layout[field] = OrderedDict(
+                    [(key, layout[key]) for key in sorted(layout)]
+                )
+
+        for field, entity_dict in mutable.items():
+            # for empty field, fill with zero
+            if len(entity_dict) == 0:
+                mutable[field] = np.zeros(
+                    [
+                        self.observation_config["resize"][field],
+                        *reduce(add_shape, self.obs_layout[field].values()),
+                    ]
+                )
+                continue
+
+            # check entity layout is correct
+            assert all(
+                self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
+                for entity in entity_dict.values()
+            )
+            # combine every entity's properties into an array along the last axis
+            entity_dict = {
+                id: np.concatenate([entity[k] for k in sorted(entity.keys())], axis=-1)
+                for id, entity in entity_dict.items()
+            }
+            # combine all entities in a field into an array along the first axis
+            mutable[field] = np.stack(
+                [entity_dict[id] for id in getattr(self, field + "_ids")], axis=0
+            )
+
+        # resize to maximum entity shape
+        for field in mutable:
+            size = self.observation_config["resize"][field]
+            mutable[field] = resize_data(mutable[field], size)
+
+        update(obs, mutable)
+        return obs
+
+    def _infer_obs_space(self, observation) -> spaces.Dict:
+        return spaces.Dict(
+            [
+                (key, spaces.Box(low=0, high=1000, shape=space.shape, dtype=np.int32))
+                for key, space in observation.items()
+            ]
         )
-        self._observation_space = filter_space(
-            wrapped_observation_space, full_filter_keys
-        )
 
-        self.__filter_kwargs = (filter_keys, filter_out)
-        self.__full_filter_keys = full_filter_keys
-        self.__full_cache_keys = complete_filter_keys(observation_keys, cache_keys)
-        self.__cache = {}
-        self._initialized = True
-
-    def observation(self, observation):
-        if not self._initialized:
-            self.init()
-        if self.__full_cache_keys:
-            self.cache = filter_data(observation, self.__full_cache_keys)
-        return filter_data(observation, self.__full_filter_keys)
-
-    @property
-    def observation_space(self):
-        self.init()
-        return (
-            self._env.observation_space
-            if not self._observation_space
-            else self._observation_space
-        )
-
-    def pop_cache(self):
-        result = self.__cache
-        self.__cache = {}
-        return result
+    def _check_obs_layout(self, obs):
+        for field, val in self.obs_layout.items():
+            shape = reduce(add_shape, val.values())
+            assert shape[-1] == obs[field].shape[-1]
 
 
-class OnehotifyObservation(ObservationWrapper):
-    def __init__(
-        self,
-        env: Env,
-        categories: MutableMapping[Hashable, Union[int, Sequence]],
-    ):
+class CacheLastObs(Wrapper):
+    def __init__(self, env):
+        self.cached_last_obs = None
         super().__init__(env)
 
-        self._env = env
-        self.__cache_args = categories
-        self._observation_space = None
+    def step(self, action):
+        obs, reward, terminated, truncated, info = self.env.step(action)
 
-        wrapped_observation_space = env.observation_space
-        if not isinstance(wrapped_observation_space, spaces.Dict):
-            # HACK: hacky part to avoid dynamic observation space handling
-            if isinstance(wrapped_observation_space, spaces.Discrete):
-                self._initialized = False
-                return
-            raise ValueError(
-                f"OnehotifyObservation is only usable with dict observations, "
-                f"environment observation space is {type(wrapped_observation_space)}"
-            )
+        if terminated or truncated:
+            obs = self.cached_last_obs
+            info = {} if info is None else info
+            return obs, reward, terminated, truncated, info
 
-        # HACK: I am so soryy about this. Later transfer this into more elegant code.
-        self.init()
-
-    def init(self):
-        if self._initialized:
-            return
-
-        categories = self.__cache_args
-        wrapped_observation_space = self._env.observation_space
-        if not isinstance(wrapped_observation_space, spaces.Dict):
-            raise ValueError(
-                f"OnehotifyObservation is only usable with dict observations, "
-                f"environment observation space is {type(wrapped_observation_space)}"
-            )
-
-        observation_keys = get_space_keys(wrapped_observation_space)
-        cate_keys = get_keys(categories)
-
-        missing_keys = get_missing_keys(observation_keys, cate_keys)
-        if missing_keys:
-            raise ValueError(
-                "All the filter_keys must be included in the original observation space.\n"
-                f"Category keys: {cate_keys}\n"
-                f"Observation keys: {observation_keys}\n"
-                f"Missing keys: {missing_keys}"
-            )
-
-        self._observation_space = filter_apply_space_with_args(
-            wrapped_observation_space, self._make_onehot, categories
-        )
-
-        self.__cate_keys = cate_keys
-        self.__categories = categories
-
-        self.__onehotifiers = self._generate_onehotifers(
-            self._observation_space, self.__categories
-        )
-
-        self._initialized = True
-
-    def observation(self, observation):
-        return filter_apply(observation, self.__onehotifiers)
-
-    def _make_onehot(
-        self,
-        space: spaces.Space,
-        categories: Union[int, Sequence],
-    ):
-        assert isinstance(categories, int) or isinstance(categories, Sequence)
-        last_dim = len(categories) if isinstance(categories, Sequence) else categories
-        shape = (
-            *space.shape,
-            last_dim,
-        )
-        return Onehot(shape)
-
-    @property
-    def observation_space(self):
-        self.init()
-        return (
-            self._env.observation_space
-            if not self._observation_space
-            else self._observation_space
-        )
-
-    def _generate_onehotifers(self, space: spaces.Space, cate: dict) -> dict:
-        result = {}
-        for key, val in cate.items():
-            if isinstance(val, dict):
-                result[key] = self._generate_onehotifers(space.spaces[key], val)
-            else:
-                result[key] = self._onehotifier_maker(space.shape, val)
-        return result
-
-    def _onehotifier_maker(self, shape, category):
-        if isinstance(category, int):
-
-            def onehot(obs):
-                result = np.zeros([*shape, category])
-                assert obs.shape == result.shape[:-1]
-                with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
-                    for x in it:
-                        index = (
-                            *(it.multi_index),
-                            x,
-                        )
-                        result[index] = 1
-                return result
-
-        elif isinstance(category, list):
-            def onehot(obs):
-                result = np.zeros([*shape, category])
-                assert obs.shape == result.shape[:-1]
-                with np.nditer(obs, op_flags=["readonly"], flags=["multi_index"]) as it:
-                    for x in it:
-                        index = (
-                            *(it.multi_index),
-                            category.index(x),
-                        )
-                        result[index] = 1
-                return result
-
-        else:
-            raise NotImplementedError()
+        self.cached_last_obs = deepcopy(obs)
+        return obs, reward, terminated, truncated, info

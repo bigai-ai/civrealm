@@ -1,19 +1,19 @@
-import pytest
 import random
-import numpy as np
 import time
+import warnings
 
+import gymnasium
+import numpy as np
+import pytest
+
+from civrealm.configs import fc_args
 from civrealm.envs.freeciv_tensor_env import FreecivTensorEnv
 from civrealm.envs.freeciv_wrapper.utils import *
 from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
-import gymnasium
-
-import warnings
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
 
-from civrealm.configs import fc_args
 
 client_port = random.choice(DEV_PORT_LIST)
 
@@ -27,8 +27,7 @@ def get_client_port():
         client_port = result
         time.sleep(2)
         return client_port
-    else:
-        return get_client_port()
+    return get_client_port()
 
 
 @pytest.fixture
@@ -40,6 +39,7 @@ def env():
     yield env
     env.close()
 
+
 @pytest.fixture
 def zero_start_env():
     fc_args["debug.load_game"] = ""
@@ -48,11 +48,12 @@ def zero_start_env():
     yield env
     env.close()
 
+
 @pytest.fixture
 def make_env():
     fc_args["debug.load_game"] = "testcontroller_T200_2023-07-31-01_51"
     # fc_args['username']= 'testcontroller_T257_2023-08-07-14_04'
-    env = gymnasium.make('freeciv/FreecivTensor-v0', client_port=get_client_port())
+    env = gymnasium.make("freeciv/FreecivTensor-v0", client_port=get_client_port())
 
     yield env
     env.close()
@@ -85,6 +86,7 @@ def test_tensor_env(env):
         "gov_action_type": action_type,
     }
     obs, reward, terminated, truncated, info = env.step(act_gov)
+
 
 def test_tensor_make_env(make_env):
     env = make_env
@@ -124,6 +126,7 @@ def test_tensor_make_env(make_env):
     }
     obs, reward, terminated, truncated, info = env.step(act_gov)
 
+
 def test_tensor_zero_start_env(zero_start_env):
     env = zero_start_env
     obs, _ = env.reset()
@@ -157,5 +160,3 @@ def test_tensor_zero_start_env(zero_start_env):
         "actor_type": 3,
     }
     obs, reward, terminated, truncated, info = env.step(act_end_turn)
-
-    import pdb; pdb.set_trace()

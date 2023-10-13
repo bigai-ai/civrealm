@@ -2,6 +2,7 @@ from .core import Wrapper
 
 
 class RewardWrapper(Wrapper):
+    """A wrapper class for modifying rewards in an environment."""
     def __init__(self, env):
         Wrapper.__init__(self, env)
 
@@ -35,6 +36,7 @@ class RewardWrapper(Wrapper):
 
 
 class PenalizeTurnDoneReward(RewardWrapper):
+    """A reward wrapper that penalizes the 'turn done' action if the delta score is 0."""
     def __init__(self, env, penalty: float = -1):
         self._penalty_reward = penalty
         RewardWrapper.__init__(self, env)
@@ -49,6 +51,7 @@ class PenalizeTurnDoneReward(RewardWrapper):
 
 
 class MinitaskDenseReward(RewardWrapper):
+    """A reward wrapper that provides dense rewards based on the delta score in a minitask."""
     def __init__(self, env, replacement=True):
         self._replacement = replacement
         self._last_score = 0
@@ -66,6 +69,7 @@ class MinitaskDenseReward(RewardWrapper):
 
 
 class MinitaskDelayedReward(RewardWrapper):
+    """A reward wrapper that provides delayed rewards based on the success of a minitask."""
     def __init__(self, env, success_reward=1, replacement=True):
         self._replacement = replacement
         self._success_reward = success_reward

@@ -15,7 +15,7 @@ from civrealm.envs.freeciv_minitask_env import FreecivMinitaskEnv
 from civrealm.envs.freeciv_wrapper import (MinitaskDelayedReward,
                                            MiniTaskGameOverScoreInfo,
                                            TensorWrapper, Wrapper)
-from civrealm.envs.freeciv_wrapper.utils import default_tensor_config
+from civrealm.envs.freeciv_wrapper.config import default_tensor_config
 
 
 class FreecivTensorMinitaskEnv(Wrapper):

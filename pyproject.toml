@@ -62,9 +62,8 @@ addopts = [
     # specify which test file to run by setting test file name
 
     # # Env
-    # "tests/env/test_env_wrappers.py",
-    # "tests/env/test_tensor_env.py",
-    # "tests/env/test_tensor_minigame_env.py",
+    "tests/env/test_tensor_env.py",
+    "tests/env/test_tensor_minitask_env.py",
 
     # City
     "tests/city/test_city_change_unit_prod.py",

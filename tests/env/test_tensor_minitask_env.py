@@ -1,14 +1,14 @@
-import pytest
 import random
-import numpy as np
 import time
+import warnings
+
+import numpy as np
+import pytest
 
 from civrealm.envs.freeciv_minitask_env import MinitaskType
 from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
 from civrealm.envs.freeciv_wrapper.utils import *
 from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
-
-import warnings
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
@@ -31,10 +31,15 @@ def get_client_port():
         return get_client_port()
 
 
-@pytest.fixture
-def env():
-    env = gymnasium.make("freeciv/FreecivTensorMinitask-v0", client_port=get_client_port())
-    yield env
+@pytest.fixture(params=MinitaskType.list())
+def env_with_type(request):
+    minitask_pattern = request.param
+    env = gymnasium.make(
+        "freeciv/FreecivTensorMinitask-v0",
+        client_port=get_client_port(),
+        minitask_pattern=minitask_pattern,
+    )
+    yield env, minitask_pattern
     env.close()
 
 
@@ -43,13 +48,14 @@ def task_name(request):
     yield request.param
 
 
-def test_minitask_tensor_env(env, task_name):
+def test_minitask_tensor_env(env_with_type):
     # TODO: test other tasks, only buildcity and battle saves are supported now
     # if task_name not in ["buildcity", "battle"]:
     #     _, _ = env.reset()
     #     return
 
-    obs, _ = env.reset(minitask_pattern=task_name)
+    env, task_name = env_with_type
+    obs, _ = env.reset()
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)
     idx = np.random.randint(len(unit_action_pos[0]))
     act_unit = {

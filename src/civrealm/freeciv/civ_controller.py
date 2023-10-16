@@ -269,7 +269,7 @@ class CivController(CivPropController):
         """
         TODO: make sure the condition is correct, and incorporate this logic with the logic in the turn manager.
         - In a non-concurrent setting, the player should wait for the players with smaller player numbers to end their phase. 
-        - turn_active is set to True after receving PACKET_BEGIN_TURN. It is set to False after our player has completed its phase.
+        - turn_active is set to True after receving PACKET_START_PHASE. It is set to False after our player has completed its phase.
         - In our player's phase, it should also wait for responses of actions performed in the previous step from the server to be ready to act. 
         """
         return self.turn_manager.turn_active and not self.should_wait()
@@ -333,7 +333,7 @@ class CivController(CivPropController):
             fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
 
     def _get_info(self):
-        fc_logger.debug(f'get_info. Turn: {self.turn_manager.turn}')
+        fc_logger.debug(f'Player {self.player_ctrl.my_player_id} get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         # If there is exception during _on_message callback, we raise it.
         if self.ws_client.on_message_exception != None:
@@ -765,8 +765,11 @@ class CivController(CivPropController):
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""
-        fc_logger.info("Starting Phase")
-        self.clstate.update_client_state(C_S_RUNNING)
+        if packet['phase'] == self.player_ctrl.my_player_id:
+            fc_logger.info("Starting Phase")
+            self.clstate.update_client_state(C_S_RUNNING)
+            self.turn_manager.begin_phase()
+            
 
     def handle_end_phase(self, packet):
         # chatbox_clip_messages()

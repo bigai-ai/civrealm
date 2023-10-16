@@ -61,12 +61,12 @@ class TurnManager(object):
     def log_begin_turn(self):
         fc_logger.info('==============================================')
         fc_logger.info(
-            f'============== Begin turn: {self._turn:04d}. Port: {self.client_port} ==============')
+            f"============== Begin turn: {self._turn:04d}. Port: {self.client_port}. Player: {self._turn_ctrls['player'].my_player_id} ==============")
         fc_logger.info('==============================================')
         # print(f'\nBegin turn: {self._turn:04d}\n')
 
     def begin_turn(self, pplayer, info_controllers: Dict[str, CivPropController]):
-        self._turn_active = True
+        # self._turn_active = True
         self._turn_player = pplayer
         self._turn_ctrls: Dict[str, CivPropController] = info_controllers
         self._turn_state: Dict[str, Dict] = dict()
@@ -75,6 +75,9 @@ class TurnManager(object):
         if self._turn == 1 and fc_args['wait_for_observer']:
             import time
             time.sleep(8)
+
+    def begin_phase(self):
+        self._turn_active = True
 
     @property
     def action_space(self):

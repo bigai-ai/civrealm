@@ -312,8 +312,8 @@ class ClientState(CivPropController):
 
     def handle_server_join_reply(self, packet):
         """
-            After we send a join packet to the server we receive a reply.  This
-            function handles the reply.  100% Complete.
+            After we send a join packet to the server we receive a reply.
+            This function handles the reply.  100% Complete.
         """
         fc_logger.debug(f'Join response packet: {packet}')
         if packet['you_can_join']:

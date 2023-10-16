@@ -172,6 +172,7 @@ class UnitActions(ActionList):
                 self.add_unit_order_commands(unit_id)
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
+        
         self.clear_target_unit_actions()
         self.cancel_orders_before_query_pro()
         self.query_action_probablity()

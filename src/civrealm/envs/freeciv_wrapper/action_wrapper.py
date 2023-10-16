@@ -325,12 +325,12 @@ class TensorAction(Wrapper):
             return action_name
         dir8 = int(action_name.split("_")[-1])
 
-        if len(self._embarkable_units.get((unit_id, dir8), [])) == 0:
+        if len(self.embarkable_units.get((unit_id, dir8), [])) == 0:
             # the original representation is already embark_dir8
             return action_name
 
         assert dir8 <= 8
-        target_id = sorted(self._embarkable_units[(unit_id, dir8)])[0]
+        target_id = sorted(self.embarkable_units[(unit_id, dir8)])[0]
         embark_action_name = f"embark_{dir8}_{target_id}"
         return embark_action_name
 

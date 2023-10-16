@@ -11,14 +11,14 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
 from .core import Wrapper
 from .utils import update
 
-debug_print = fc_args["debug.tensor_debug"]
+tensor_debug = fc_args["debug.tensor_debug"]
 
 
 class TensorAction(Wrapper):
     def __init__(self, env, config):
         self.action_config = config
         self.actor_type_list = self.action_config["actor_type_list"]
-        self.action_list = []
+        self.available_actions = {}
         self.mask = {}
         self.turn = -1
         self.embarkable_units = {}
@@ -48,10 +48,10 @@ class TensorAction(Wrapper):
         }
 
         tensor_action = self.action(action)
-        if debug_print:
+        if tensor_debug:
             print(tensor_action)
         obs, reward, terminated, truncated, info = self.env.step(tensor_action)
-        if debug_print:
+        if tensor_debug:
             print(f"reward:{reward},done:{terminated or truncated}")
 
         obs = self.update_obs_with_mask(obs, info, action)
@@ -69,6 +69,9 @@ class TensorAction(Wrapper):
         return obs, info
 
     def action(self, action):
+        if tensor_debug:
+            self._check_action_layout()
+
         actor_type = action["actor_type"]
         actor_name = self.actor_type_list[actor_type]
 
@@ -87,13 +90,16 @@ class TensorAction(Wrapper):
                 action[actor_name + "_id"]
             ]
 
-        assert (
-            self.mask[actor_name + "_action_type_mask"][entity_pos, action_index] == 1
-        ), f"{actor_name} action of id pos {entity_pos}, action type index {action_index} is masked"
+        if tensor_debug:
+            assert (
+                self.mask[actor_name + "_action_type_mask"][entity_pos, action_index]
+                == 1
+            ), f"{actor_name} action of id pos {entity_pos}, \
+                    action type index {action_index} is masked"
 
-        action_name = sorted(list(self.action_list[actor_name][entity_id].keys()))[
-            action_index
-        ]
+        action_name = sorted(
+            list(self.available_actions[actor_name][entity_id].keys())
+        )[action_index]
 
         if actor_name == "unit":
             action_name = self._handle_embark_action_name(entity_id, action_name)
@@ -105,7 +111,7 @@ class TensorAction(Wrapper):
         info = self._handle_embark_info(info)
         if info["turn"] != self.turn:
             self.reset_mask()
-        self.action_list = info["available_actions"]
+        self.available_actions = info["available_actions"]
         self.turn = info["turn"]
         self._update_mask(observation, info, action)
         return update(observation, self.mask)
@@ -327,3 +333,12 @@ class TensorAction(Wrapper):
         target_id = sorted(self._embarkable_units[(unit_id, dir8)])[0]
         embark_action_name = f"embark_{dir8}_{target_id}"
         return embark_action_name
+
+    def _check_action_layout(self):
+        action_layout = self.action_config["action_layout"]
+        for field in ["city", "unit"]:
+            for id, entity in self.available_actions.get(field, {}).items():
+                assert len(entity) == sum(action_layout[field].values())
+        assert len(
+            self.available_actions["gov"][self.get_wrapper_attr("my_player_id")]
+        ) == sum(action_layout["gov"].values())

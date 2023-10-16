@@ -5,8 +5,12 @@ from functools import reduce
 import numpy as np
 from gymnasium import spaces
 
+from civrealm.configs import fc_args
+
 from .core import ObservationWrapper, Wrapper
 from .utils import add_shape, resize_data, update
+
+tensor_debug = fc_args["debug.tensor_debug"]
 
 
 class TensorObservation(ObservationWrapper):
@@ -33,7 +37,8 @@ class TensorObservation(ObservationWrapper):
         if not self.obs_initialized:
             self.observation_space = self._infer_obs_space(obs)
             self.obs_initialized = True
-        self._check_obs_layout(obs)
+        if tensor_debug:
+            self._check_obs_layout(obs)
         return obs
 
     def _handle_dict(self, obs):
@@ -125,7 +130,10 @@ class TensorObservation(ObservationWrapper):
 
         for field, field_dict in immutable.items():
             # check field layout is correct
-            assert self.obs_layout[field] == {k: v.shape for k, v in field_dict.items()}
+            if tensor_debug:
+                assert self.obs_layout[field] == {
+                    k: v.shape for k, v in field_dict.items()
+                }
 
             obs[field] = np.concatenate(
                 [field_dict[k] for k in sorted(list(field_dict.keys()))], axis=-1
@@ -153,12 +161,12 @@ class TensorObservation(ObservationWrapper):
                     ]
                 )
                 continue
-
-            # check entity layout is correct
-            assert all(
-                self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
-                for entity in entity_dict.values()
-            )
+            if tensor_debug:
+                # check entity layout is correct
+                assert all(
+                    self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
+                    for entity in entity_dict.values()
+                )
             # combine every entity's properties into an array along the last axis
             entity_dict = {
                 id: np.concatenate([entity[k] for k in sorted(entity.keys())], axis=-1)

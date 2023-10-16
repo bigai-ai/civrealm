@@ -57,5 +57,4 @@ class FreecivTensorMinitaskEnv(Wrapper):
             return obs, info
         if "minitask_pattern" in kwargs:
             return super().reset(**kwargs)
-        else:
-            return super().reset(minitask_pattern=self.minitask_pattern, **kwargs)
+        return super().reset(minitask_pattern=self.minitask_pattern, **kwargs)

@@ -277,6 +277,39 @@ obs_mutable_layout = {
     },
 }
 
+obs_immutalbe_layout = {
+    "rules": {
+        "build_cost": (120,),
+    },
+    "map": {
+        "status": (84, 56, 3),
+        "terrain": (84, 56, 14),
+        "extras": (84, 56, 34),
+        "output": (84, 56, 6),
+        "tile_owner": (84, 56, 1),
+        "city_owner": (84, 56, 1),
+        "unit": (84, 56, 52),
+        "unit_owner": (84, 56, 1),
+    },
+    "player": {
+        "score": (1,),
+        "is_alive": (1,),
+        "turns_alive": (1,),
+        "government": (6,),
+        "target_government": (7,),
+        "tax": (1,),
+        "science": (1,),
+        "luxury": (1,),
+        "gold": (1,),
+        "culture": (1,),
+        "revolution_finishes": (1,),
+        "science_cost": (1,),
+        "tech_upkeep": (1,),
+        "techs_researched": (1,),
+        "total_bulbs_prod": (1,),
+    },
+}
+
 action_layout = {
     "city": {
         "city_work_None_": 4,
@@ -498,8 +531,8 @@ default_tensor_config = {
         "others_unit": 128,
         "others_city": 64,
         "others_player": 10,
-        "gov": None,
     },
+    "obs_immutable_layout": obs_immutalbe_layout,
     "obs_mutable_layout": obs_mutable_layout,
     "obs_ops": ops,
     "actor_type_list": actor_type_list,

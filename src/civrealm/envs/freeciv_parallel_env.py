@@ -52,10 +52,16 @@ class FreecivParallelEnv():
         return self.env.unwrapped.get_port()
 
     def get_username(self):
-        return self.env.get_username()
+        return self.env.unwrapped.get_username()
 
     def getattr(self, attr):
         return getattr(self.env, attr)
 
     def get_final_score(self):
         return self.env.unwrapped.get_final_score()
+    
+    def plot_game_scores(self):
+        return self.env.unwrapped.plot_game_scores()
+    
+    def get_game_results(self):
+        return self.env.unwrapped.get_game_results()

@@ -23,6 +23,7 @@ from civrealm.freeciv.players.player_const import BASE_CLAUSES, CONFLICTING_CLAU
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 GOLD_STEP = 1
+GOLD_SET = [10, 20, 50, 100, 200, 500, 1000]
 
 
 class DiplOptions(ActionList):
@@ -51,7 +52,7 @@ class DiplOptions(ActionList):
 
     def update(self, pplayer):
         new_city_set = self.new_cities()
-        self.update_max_gold()
+        self.city_set = set(self.city_ctrl.cities.keys())
 
         for counter_id in self.players:
             counterpart = self.players[counter_id]
@@ -63,27 +64,20 @@ class DiplOptions(ActionList):
 
             if self.actor_exists(counter_id):
                 # ===================================================================
-                # ====================== Consider trade gold & cities ===============
+                # ====================== Consider trade cities ===============
                 # ===================================================================
-                """
+
                 if counterpart != pplayer:
                     if len(new_city_set) > 0 and self.rule_ctrl.game_info["trading_city"]:
                         self.update_trade_city_clauses(counter_id, pplayer, counterpart, new_city_set)
                         self.update_trade_city_clauses(counter_id, counterpart, pplayer, new_city_set)
 
-                    if self.current_max_gold > self.before_max_gold and self.rule_ctrl.game_info["trading_gold"]:
-                        self.update_trade_gold_clauses(counter_id, pplayer, counterpart)
-                        self.update_trade_gold_clauses(counter_id, counterpart, pplayer)
-                """
                 continue
 
             if counterpart == pplayer or self.is_barbarian_pirate(self.players[counter_id]['nation']):
                 continue
             self.add_actor(counter_id)
-            self.update_counterpart_options(counter_id, pplayer, counterpart, new_city_set)
-
-        self.city_set = set(self.city_ctrl.cities.keys())
-        self.before_max_gold = self.current_max_gold
+            self.update_counterpart_options(counter_id, pplayer, counterpart, self.city_set)
 
     def is_barbarian_pirate(self, nation_id):
         return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
@@ -115,11 +109,8 @@ class DiplOptions(ActionList):
     def update_clause_options(self, counter_id, cur_player, counterpart, new_city_set):
         for ctype in BASE_CLAUSES:
 
-            self.add_action(
-                counter_id,
-                AddClause(
-                    ctype, 1, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left,
-                    self.ws_client, self.diplstates, self.others_diplstates))
+            self.add_action(counter_id,
+                            AddClause(ctype, 1, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
 
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player,
                             counterpart, self.diplomacy_clause_map, self.contact_turns_left))
@@ -130,51 +121,54 @@ class DiplOptions(ActionList):
         if self.rule_ctrl.game_info["trading_tech"]:
             for tech_id in self.rule_ctrl.techs:
                 clause_type = player_const.CLAUSE_ADVANCE
-                self.add_action(counter_id, AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart,
-                                self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
+                self.add_action(counter_id,
+                                AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
 
-                self.add_action(counter_id, RemoveClause(clause_type, tech_id, counter_id, cur_player,
-                                counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+                self.add_action(counter_id,
+                                RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
         # ===================================================================
         # ====================== Consider trade gold & cities ===============
         # ===================================================================
-        """
+
+        if self.rule_ctrl.game_info["trading_gold"]:
+            for pgold in GOLD_SET:
+                self.add_action(
+                    counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.players))
+
+                self.add_action(counter_id,
+                    RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+
+
         if self.rule_ctrl.game_info["trading_city"]:
             self.update_trade_city_clauses(counter_id, cur_player, counterpart, new_city_set)
+
+    '''
         if self.rule_ctrl.game_info["trading_gold"]:
             self.update_trade_gold_clauses(counter_id, cur_player, counterpart)
-        """
 
     def update_max_gold(self):
         for player_id in self.players:
             if self.current_max_gold < self.players[player_id]['gold']:
                 self.current_max_gold = self.players[player_id]['gold']
-
+    
     def update_trade_gold_clauses(self, counter_id, cur_player, counterpart):
         for pgold in range(self.before_max_gold + 1, self.current_max_gold + 1, GOLD_STEP):
-            self.add_action(
-                counter_id,
-                AddTradeGoldClause(
-                    player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map,
-                    self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.players))
+            self.add_action(counter_id, 
+                            AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.players))
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id,
-                            cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+    '''
 
     def new_cities(self):
         return set(self.city_ctrl.cities.keys()) - self.city_set
 
     def update_trade_city_clauses(self, counter_id, cur_player, counterpart, new_city_set):
         for pcity in new_city_set:
-            self.add_action(
-                counter_id,
-                AddTradeCityClause(
-                    player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.diplomacy_clause_map,
-                    self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.city_ctrl))
+            self.add_action(counter_id,
+                AddTradeCityClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.city_ctrl))
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity, counter_id,
-                            cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
     def diplomacy_possible(self, cur_player, counterpart):
         if self.rule_ctrl.game_info['diplomacy'] == player_const.DIPLO_FOR_ALL:
@@ -400,7 +394,7 @@ class AddClause(RemoveClause):
 
         if (self.clause_type == player_const.CLAUSE_EMBASSY and
                 self.counterpart['real_embassy'][self.cur_player['playerno']]):
-            fc_logger.debug('already has embassy')
+            fc_logger.debug('Receiver already has embassy of the giver')
             return False
 
         if self.clause_type == player_const.CLAUSE_ALLIANCE:
@@ -431,19 +425,25 @@ class AddClause(RemoveClause):
         return False
 
     def remove_conflicting_clause(self):
-        if self.clause_type in CONFLICTING_CLAUSES:
+        """ consistent with handle_diplomacy_create_clause """
+
+        if self.clause_type in CONFLICTING_CLAUSES or self.clause_type == player_const.CLAUSE_GOLD:
             clauses = self.diplomacy_clause_map[self.counter_id]
+
+            rem_clause = None
             for clause in clauses:
-                if clause['type'] in CONFLICTING_CLAUSES:
+                if self.clause_type in CONFLICTING_CLAUSES and clause['type'] in CONFLICTING_CLAUSES:
                     if clause['giver'] == self.cur_player['playerno']:
-                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player,
-                                                  self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
                     else:
-                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.counterpart,
-                                                  self.cur_player, self.diplomacy_clause_map, self.contact_turns_left)
-                    if rem_clause.is_action_valid():
-                        rem_clause.trigger_action(self.ws_client)
-                        break
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.counterpart, self.cur_player, self.diplomacy_clause_map, self.contact_turns_left)
+
+                if self.clause_type == player_const.CLAUSE_GOLD and clause['type'] == player_const.CLAUSE_GOLD and clause['giver'] ==  self.cur_player['playerno']:
+                    rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
+
+                if rem_clause is not None and rem_clause.is_action_valid():
+                    rem_clause.trigger_action(self.ws_client)
+                    break
 
     def _action_packet(self):
         if self.already_on_meeting():

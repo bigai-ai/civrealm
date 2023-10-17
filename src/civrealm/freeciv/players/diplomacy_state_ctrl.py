@@ -192,11 +192,12 @@ class DiplomacyCtrl(CivPropController):
             self.active_diplomacy_meeting_id = None
 
     def handle_diplomacy_create_clause(self, packet):
+        """ consistent with remove_conflicting_clause """
 
         if packet not in self.diplomacy_clause_map[packet['counterpart']]:
-            if packet['type'] in CONFLICTING_CLAUSES:
+            if packet['type'] in CONFLICTING_CLAUSES or packet['type'] == player_const.CLAUSE_GOLD:
                 for clause_id, clause in enumerate(self.diplomacy_clause_map[packet['counterpart']]):
-                    if clause['type'] == packet['type']:
+                    if clause['type'] == packet['type'] and (packet['type'] in CONFLICTING_CLAUSES or (packet['type'] == player_const.CLAUSE_GOLD and packet['giver'] == clause['giver'])):
                         self.diplomacy_clause_map[packet['counterpart']][clause_id] = packet
                         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
                         return

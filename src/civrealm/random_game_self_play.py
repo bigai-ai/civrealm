@@ -48,7 +48,7 @@ def main():
     # reward_list = [0]*fc_args['minp']
     # terminated_list = [False]*fc_args['minp']
     # truncated_list = [False]*fc_args['minp']
-    done_list = [False]*fc_args['minp']
+    # done_list = [False]*fc_args['minp']
     step_list = [0]*fc_args['minp']
     # Whether it is the first step after reset()
     first_step = [True]*fc_args['minp']
@@ -87,10 +87,10 @@ def main():
                     f'Player: {username}, Step: {step_list[env_id]}, Turn: {info_list[env_id]["turn"]}, Reward: {reward}, Terminated: {terminated}, '
                     f'Truncated: {truncated}, action: {None}')
                 step_list[env_id] += 1
-                done_list[env_id] = terminated or truncated
+                done = terminated or truncated
             
             # Loop until the player ends turn
-            while True:
+            while not done:
                 try:
                     action = agent.act(observation_list[env_id], info_list[env_id])
                     # If action is None, will end the current turn.
@@ -99,7 +99,7 @@ def main():
                         result_ids[env_id] = envs[env_id].step.remote(action)
                         # Record the env_id corresponding to the result
                         id_env_map[result_ids[env_id]] = env_id
-                        print('End turn')
+                        print(f'{username} end turn')
                         break
                     else:
                         result = ray.get(envs[env_id].step.remote(action))
@@ -108,13 +108,15 @@ def main():
                             f'Player: {username}, Step: {step_list[env_id]}, Turn: {info_list[env_id]["turn"]}, Reward: {reward}, Terminated: {terminated}, '
                             f'Truncated: {truncated}, action: {action}')
                         step_list[env_id] += 1
-                        done_list[env_id] = terminated or truncated
+                        done = terminated or truncated
+                        if done:
+                            break
                 except Exception as e:
                     fc_logger.error(repr(e))
                     raise e
             
-            if done_list[env_id]:
-                done = True
+            if done:
+                ray.get(envs[env_id].close.remote())
 
             if not unready:
                 unfinished = False
@@ -123,13 +125,11 @@ def main():
             break
     
     for env_id in range(fc_args['minp']):
-        ray.get(envs[env_id].close.remote())
-
         '''
         players, tags, turns, evaluations = env.evaluate_game()
         '''
         ray.get(envs[env_id].plot_game_scores.remote())
-        game_results = envs[env_id].get_game_results.remote()
+        game_results = ray.get(envs[env_id].get_game_results.remote())
         print('game results:', game_results)
 
 

@@ -307,7 +307,12 @@ class CivController(CivPropController):
         if not self.should_wait() and self.my_player_is_defeated():
             self.ws_client.stop_ioloop()
             return
-
+        
+        # For certain reasons, the game is over. We just stop the ioloop.
+        if self.game_is_over:
+            self.ws_client.stop_ioloop()
+            return
+        
         return
 
     @property

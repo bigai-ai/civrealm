@@ -28,6 +28,8 @@ aifill: 4
 maxplayers: 10
 # Whether start multiple clients for self play. When it is true, the following clients will add increasing index to their username for login to the same game. Note that when running pytest, we automatically set this as False. By doing so, different tests connecting to the same port will raise exception and force one test to re-select a random new port.
 self_play: True
+# The number of players that are involved in the self-play
+self_play_number: 2
 # The minimum number of players that allows the game to start
 minp: 1
 # The allowtake setting decides whether can take control/observe a player

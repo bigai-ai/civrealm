@@ -28,6 +28,9 @@ os.environ['RAY_DEDUP_LOGS'] = '0'
 from civrealm.freeciv.utils.freeciv_logging import ray_logger_setup
 
 def main():
+    fc_args['minp'] = fc_args['self_play_number']
+    if fc_args['minp'] <= 1:
+        assert False, 'self_play_number should be larger than 1'
     ray.init(
             local_mode=False,
             runtime_env={"worker_process_setup_hook": ray_logger_setup},

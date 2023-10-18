@@ -91,17 +91,17 @@ class DiplOptions(ActionList):
             # automatically start a meeting when adding the 1st clause
             # self.add_action(counter_id, StartNegotiate(self.diplomacy_clause_map, self.contact_turns_left, cur_player, counterpart))
 
-            self.add_action(counter_id, StopNegotiate(self.diplomacy_clause_map,
-                            self.contact_turns_left, cur_player, counterpart))
+            self.add_action(counter_id, StopNegotiate(self.diplomacy_clause_map, self.contact_turns_left,
+                                                      cur_player, counterpart))
 
-            self.add_action(counter_id, AcceptTreaty(self.diplomacy_clause_map,
-                            self.contact_turns_left, cur_player, counterpart))
+            self.add_action(counter_id, AcceptTreaty(self.diplomacy_clause_map, self.contact_turns_left,
+                                                     cur_player, counterpart, self.ws_client, self.diplstates, self.others_diplstates, self.players, self.city_ctrl))
 
             self.add_action(counter_id, CancelTreaty(self.diplomacy_clause_map, self.contact_turns_left,
-                            cur_player, counterpart, self.city_ctrl, self.rule_ctrl, self.reason_to_cancel, self.diplstates))
+                                                     cur_player, counterpart, self.city_ctrl, self.rule_ctrl, self.reason_to_cancel, self.diplstates))
 
             self.add_action(counter_id, CancelVision(self.diplomacy_clause_map,
-                            self.contact_turns_left, cur_player, counterpart))
+                                                     self.contact_turns_left, cur_player, counterpart))
 
             self.update_clause_options(counter_id, cur_player, counterpart, new_city_set)
             self.update_clause_options(counter_id, counterpart, cur_player, new_city_set)
@@ -109,8 +109,8 @@ class DiplOptions(ActionList):
     def update_clause_options(self, counter_id, cur_player, counterpart, new_city_set):
         for ctype in BASE_CLAUSES:
 
-            self.add_action(counter_id,
-                            AddClause(ctype, 1, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
+            self.add_action(counter_id, AddClause(ctype, 1, counter_id, cur_player, counterpart,
+                                                  self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
 
             self.add_action(counter_id, RemoveClause(ctype, 1, counter_id, cur_player,
                             counterpart, self.diplomacy_clause_map, self.contact_turns_left))
@@ -121,11 +121,11 @@ class DiplOptions(ActionList):
         if self.rule_ctrl.game_info["trading_tech"]:
             for tech_id in self.rule_ctrl.techs:
                 clause_type = player_const.CLAUSE_ADVANCE
-                self.add_action(counter_id,
-                                AddTradeTechClause(clause_type, tech_id, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
+                self.add_action(counter_id, AddTradeTechClause(clause_type, tech_id, counter_id, cur_player,
+                                                               counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates))
 
-                self.add_action(counter_id,
-                                RemoveClause(clause_type, tech_id, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+                self.add_action(counter_id, RemoveClause(clause_type, tech_id, counter_id, cur_player,
+                                                         counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
         # ===================================================================
         # ====================== Consider trade gold & cities ===============
@@ -133,11 +133,11 @@ class DiplOptions(ActionList):
 
         if self.rule_ctrl.game_info["trading_gold"]:
             for pgold in GOLD_SET:
-                self.add_action(
-                    counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.players))
+                self.add_action(counter_id, AddTradeGoldClause(player_const.CLAUSE_GOLD, pgold, counter_id,
+                                                               cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.players))
 
-                self.add_action(counter_id,
-                    RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+                self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player,
+                                                         counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
 
         if self.rule_ctrl.game_info["trading_city"]:
@@ -165,10 +165,11 @@ class DiplOptions(ActionList):
 
     def update_trade_city_clauses(self, counter_id, cur_player, counterpart, new_city_set):
         for pcity in new_city_set:
-            self.add_action(counter_id,
-                AddTradeCityClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.city_ctrl))
+            self.add_action(counter_id, AddTradeCityClause(player_const.CLAUSE_CITY, pcity, counter_id,
+                                                           cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left, self.ws_client, self.diplstates, self.others_diplstates, self.city_ctrl))
 
-            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player, counterpart, self.diplomacy_clause_map, self.contact_turns_left))
+            self.add_action(counter_id, RemoveClause(player_const.CLAUSE_CITY, pcity, counter_id, cur_player,
+                                                     counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
     def diplomacy_possible(self, cur_player, counterpart):
         if self.rule_ctrl.game_info['diplomacy'] == player_const.DIPLO_FOR_ALL:
@@ -220,19 +221,6 @@ class StartNegotiate(base_action.Action):
                   "counterpart": self.counterpart["playerno"]}
 
         self.wait_for_pid = (96, self.counterpart["playerno"])
-        return packet
-
-
-class AcceptTreaty(StartNegotiate):
-    action_key = "accept_treaty"
-
-    def is_action_valid(self):
-        return self.counterpart['playerno'] in self.diplomacy_clause_map.keys()
-
-    def _action_packet(self):
-        packet = {"pid": packet_diplomacy_accept_treaty_req,
-                  "counterpart": self.counterpart["playerno"]}
-        self.wait_for_pid = (104, self.counterpart["playerno"])
         return packet
 
 
@@ -351,22 +339,6 @@ class RemoveClause(base_action.Action):
                 return True
         return False
 
-    def can_start_a_meeting(self):
-        if self.cur_player['playerno'] == self.counter_id:
-            self.start_meeting = StartNegotiate(self.diplomacy_clause_map,
-                                                self.contact_turns_left, self.counterpart, self.cur_player)
-        else:
-            self.start_meeting = StartNegotiate(self.diplomacy_clause_map,
-                                                self.contact_turns_left, self.cur_player, self.counterpart)
-
-        return self.start_meeting.is_action_valid()
-
-    def can_add_current_clause(self):
-        if self.already_on_meeting():
-            return not self.clause_exists()
-        else:
-            return self.can_start_a_meeting()
-
 
 class AddClause(RemoveClause):
     action_key = "add_clause"
@@ -382,7 +354,11 @@ class AddClause(RemoveClause):
         self.others_diplstates = others_diplstates
         self.start_meeting = None
 
-    def is_action_valid(self):
+    """
+    is_clause_valid may return True if the clause already exists in the clause map
+    it will be used in AcceptTreaty
+    """
+    def is_clause_valid(self):
 
         if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_CLAUSES:
             return False
@@ -405,7 +381,28 @@ class AddClause(RemoveClause):
                 if self.war_alliance_conflict_exist(self.cur_player['playerno'], self.counter_id, p):
                     return False
 
+        return True
+
+    def is_action_valid(self):
+        if not self.is_clause_valid():
+            return False
         return self.can_add_current_clause()
+
+    def can_start_a_meeting(self):
+        if self.cur_player['playerno'] == self.counter_id:
+            self.start_meeting = StartNegotiate(self.diplomacy_clause_map,
+                                                self.contact_turns_left, self.counterpart, self.cur_player)
+        else:
+            self.start_meeting = StartNegotiate(self.diplomacy_clause_map,
+                                                self.contact_turns_left, self.cur_player, self.counterpart)
+
+        return self.start_meeting.is_action_valid()
+
+    def can_add_current_clause(self):
+        if self.already_on_meeting():
+            return not self.clause_exists()
+        else:
+            return self.can_start_a_meeting()
 
     def war_alliance_conflict_exist(self, plr_1, plr_2, p):
         if plr_1 in self.others_diplstates and plr_2 in self.others_diplstates and p in self.others_diplstates[plr_1] and p in self.others_diplstates[plr_2]:
@@ -463,7 +460,7 @@ class AddClause(RemoveClause):
 class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
-    def is_action_valid(self):
+    def is_clause_valid(self):
         if not is_tech_known(self.cur_player, self.value):
             return False
 
@@ -471,7 +468,7 @@ class AddTradeTechClause(AddClause):
                                                                         tech_const.TECH_PREREQS_KNOWN]:
             return False
 
-        return self.can_add_current_clause()
+        return True
 
 
 class AddTradeGoldClause(AddClause):
@@ -484,11 +481,11 @@ class AddTradeGoldClause(AddClause):
 
         self.players = players
 
-    def is_action_valid(self):
+    def is_clause_valid(self):
         if self.value > self.players[self.giver]['gold']:
             return False
 
-        return self.can_add_current_clause()
+        return True
 
 
 class AddTradeCityClause(AddClause):
@@ -501,14 +498,77 @@ class AddTradeCityClause(AddClause):
 
         self.city_ctrl = city_ctrl
 
-    def is_action_valid(self):
+    def is_clause_valid(self):
         if self.value not in self.city_ctrl.cities:
             return False
 
         if self.city_ctrl.cities[self.value]['capital'] or self.city_ctrl.cities[self.value]['owner'] != self.giver:
             return False
 
-        return self.can_add_current_clause()
+        return True
+
+
+class AcceptTreaty(StartNegotiate):
+    action_key = "accept_treaty"
+
+    def __init__(self,diplomacy_clause_map, contact_turns_left, cur_player, counterpart, ws_client, diplstates, others_diplstates, players, city_ctrl):
+        super().__init__(diplomacy_clause_map, contact_turns_left, cur_player, counterpart)
+        self.ws_client = ws_client
+        self.diplstates = diplstates
+        self.others_diplstates = others_diplstates
+        self.players = players
+        self.city_ctrl = city_ctrl
+
+    """ 
+    we do not adopt action classes in _action_dict to call is_action_valid but initializing new ones
+    it is because we mask some actions in the env
+    thus for a loaded game or when playing with human players
+    actions in _action_dict cannot handle some clauses in a clause map 
+    which have not been masked for saved games or human players
+    """
+    def is_action_valid(self):
+        if not self.counterpart['playerno'] in self.diplomacy_clause_map.keys():
+            return False
+
+        clauses = self.diplomacy_clause_map[self.counterpart['playerno']]
+        for clause in clauses:
+            if clause['giver'] == self.cur_player['playerno']:
+                if not self.is_existing_clause_valid(self.counterpart['playerno'], self.cur_player, self.counterpart, clause):
+                    return False
+            else:
+                if not self.is_existing_clause_valid(self.counterpart['playerno'], self.counterpart, self.cur_player, clause):
+                    return False
+
+        return True
+
+    def is_existing_clause_valid(self, counter_id, cur_player, counterpart, clause):
+        if clause['type'] == player_const.CLAUSE_ADVANCE:
+            current_clause = AddTradeTechClause(clause['type'], clause['value'], counter_id,
+                                                cur_player, counterpart, self.diplomacy_clause_map,
+                                                self.contact_turns_left, self.ws_client, self.diplstates,
+                                                self.others_diplstates)
+        elif clause['type'] == player_const.CLAUSE_GOLD:
+            current_clause = AddTradeGoldClause(clause['type'], clause['value'], counter_id,
+                                                cur_player, counterpart, self.diplomacy_clause_map,
+                                                self.contact_turns_left, self.ws_client, self.diplstates,
+                                                self.others_diplstates, self.players)
+        elif clause['type'] == player_const.CLAUSE_CITY:
+            current_clause = AddTradeCityClause(clause['type'], clause['value'], counter_id,
+                                                cur_player, counterpart, self.diplomacy_clause_map,
+                                                self.contact_turns_left, self.ws_client, self.diplstates,
+                                                self.others_diplstates, self.city_ctrl)
+        else:
+            current_clause = AddClause(clause['type'], 1, counter_id, cur_player,
+                                       counterpart, self.diplomacy_clause_map, self.contact_turns_left,
+                                       self.ws_client, self.diplstates, self.others_diplstates)
+
+        return current_clause.is_clause_valid()
+
+    def _action_packet(self):
+        packet = {"pid": packet_diplomacy_accept_treaty_req,
+                  "counterpart": self.counterpart["playerno"]}
+        self.wait_for_pid = (104, self.counterpart["playerno"])
+        return packet
 
 
 # TODO: Check if necessary to add this action to action_dict of diplomacy
@@ -539,3 +599,5 @@ def has_statue_of_liberty(cities, cur_player):
             return True
 
     return False
+
+

@@ -8,27 +8,14 @@ import pytest
 from civrealm.envs.freeciv_minitask_env import MinitaskType
 from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
 from civrealm.envs.freeciv_wrapper.utils import *
-from civrealm.freeciv.utils.port_list import DEV_PORT_LIST
+from civrealm.freeciv.utils.port_utils import Ports
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
 
+import time
+
 import gymnasium
-
-client_port = random.choice(DEV_PORT_LIST)
-
-
-def get_client_port():
-    """
-    randomly sample from DEV_PORT_LIST to get a client port different from the last one
-    """
-    global client_port
-    if (result := random.choice(DEV_PORT_LIST)) != client_port:
-        client_port = result
-        time.sleep(2)
-        return client_port
-    else:
-        return get_client_port()
 
 
 @pytest.fixture(params=MinitaskType.list())
@@ -36,7 +23,7 @@ def env_with_type(request):
     minitask_pattern = request.param
     env = gymnasium.make(
         "freeciv/FreecivTensorMinitask-v0",
-        client_port=get_client_port(),
+        client_port=Ports.get(),
         minitask_pattern=minitask_pattern,
     )
     yield env, minitask_pattern
@@ -64,6 +51,9 @@ def test_minitask_tensor_env(env_with_type):
         "unit_action_type": unit_action_pos[1][idx],
     }
     obs, reward, terminated, truncated, info = env.step(act_unit)
+    if terminated or truncated:
+        print("Early Win!")
+        return
 
     city_action_pos = np.where(obs["city_action_type_mask"] == 1)
     if len(city_action_pos[0]) > 0:
@@ -74,6 +64,9 @@ def test_minitask_tensor_env(env_with_type):
             "city_action_type": city_action_pos[1][idx],
         }
         obs, reward, terminated, truncated, info = env.step(act_city)
+        if terminated or truncated:
+            print("Early Win!")
+            return
 
     gov_action_pos = np.where(obs["gov_action_type_mask"] == 1)
     action_type = np.random.choice(gov_action_pos[0])

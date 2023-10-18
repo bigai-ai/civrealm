@@ -1,8 +1,8 @@
 import time
 import random
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.freeciv.utils.port_list import PORT_LIST
 from civrealm.freeciv.civ_controller import CivController
+from civrealm.freeciv.utils.port_utils import Ports
 
 
 def get_first_observation_option(controller: CivController, client_port=None):
@@ -10,7 +10,7 @@ def get_first_observation_option(controller: CivController, client_port=None):
     if client_port is not None:
         controller.client_port = client_port
     else:
-        controller.client_port = random.choice(PORT_LIST)
+        controller.client_port = Ports.get()
     # Reset controller. Otherwise, the states (clstate, conn info, etc.) changed in the previous login will cause errors.
     controller.reset()
     # Handle port conflict if exist

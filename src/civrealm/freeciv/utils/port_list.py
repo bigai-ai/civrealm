@@ -34,5 +34,5 @@ PORT_LIST = [6001]
 dev_multi = int(multi * 3 / 4)
 eval_multi = multi - dev_multi
 DEV_PORT_LIST = [6300 + i for i in range(dev_multi)]
-EVAL_PORT_LIST = [6300 + dev_multi + i for i in range(eval_multi - 1)]
+EVAL_PORT_LIST = [6300 + dev_multi + i for i in range(eval_multi)]
 PORT_LIST = PORT_LIST + DEV_PORT_LIST + EVAL_PORT_LIST

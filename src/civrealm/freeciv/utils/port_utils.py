@@ -123,9 +123,10 @@ class PortStatus:
 
     def _check_release(self, occupied_ports):
         # delete from occupied if port birth time is updated.
+        status = self.status
         occupied_ports = list(
             filter(
-                lambda x: self.status.get(int(x[0]), {"birth": x[2] - 999})["birth"]
+                lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"]
                 - x[2]
                 < 3,
                 occupied_ports,
@@ -135,8 +136,8 @@ class PortStatus:
         occupied_ports = list(
             filter(
                 lambda x: not (
-                    self.status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1] > 30
-                    and self.status.get(int(x[0]), {"user": 1}) == 0
+                    status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1] > 30
+                    and status.get(int(x[0]), {"user": 1}) == 0
                 ),
                 occupied_ports,
             )
@@ -163,11 +164,12 @@ class PortStatus:
 
             result = empties[0]
 
+            status = self.status
             ports_data.append(
                 (
                     result,
-                    self.status[result]["uptime"],
-                    self.status[result]["birth"],
+                    status[result]["uptime"],
+                    status[result]["birth"],
                 )
             )
             occupied_ports_lines = [

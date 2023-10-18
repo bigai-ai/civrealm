@@ -15,9 +15,7 @@
 
 import os
 import subprocess
-import logging
 import pytest
-import filelock
 from civrealm.freeciv.build_server import docker_image_name
 from civrealm.configs import fc_args
 fc_args['username'] = 'testcontroller'
@@ -45,6 +43,13 @@ def pytest_configure(config):
     # This function will be called once by each worker
     worker_id = os.environ.get("PYTEST_XDIST_WORKER")
 
+
+@pytest.fixture(scope="module", autouse=True)
+def restore_fc_args_username():
+    # restore fc_args to 'testcontroller' after beeing overwritten by minitask
+    # useful in multi-process testing
+    if fc_args["username"] == "minitask":
+        fc_args["username"] = "testcontroller"
 
 def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name

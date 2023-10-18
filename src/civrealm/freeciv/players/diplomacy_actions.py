@@ -461,6 +461,11 @@ class AddTradeTechClause(AddClause):
     action_key = "trade_tech_clause"
 
     def is_clause_valid(self):
+        # cannot know what techs player counter_id has without an embassy
+        if self.cur_player['playerno'] == self.counter_id:
+            if not self.counterpart['real_embassy'][self.counter_id]:
+                return False
+
         if not is_tech_known(self.cur_player, self.value):
             return False
 

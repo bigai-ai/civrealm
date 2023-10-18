@@ -52,7 +52,7 @@ class PlayerState(DictState):
             self._state[player_id] = self._get_player_state(player)
 
     def _get_player_state(self, player):
-        # Initialize the fieds for player state
+        # Initialize the fields for player state
         player_state = dict([(key, None) for key in self.all_player_fields])
         player_state.update(dict([(f'tech_{tech_id}', None) for tech_id in self.rule_ctrl.techs]))
 
@@ -74,9 +74,7 @@ class PlayerState(DictState):
         return player_state
 
     def _get_my_player_state(self):
-        player_state = {}
-        player_state['love'] = None
-        player_state['embassy_txt'] = self.get_embassy_text(self.my_player_id)
+        player_state = {'love': None, 'embassy_txt': self.get_embassy_text(self.my_player_id)}
         return player_state
 
     def _get_other_player_state(self, opponent):

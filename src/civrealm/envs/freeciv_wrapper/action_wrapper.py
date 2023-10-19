@@ -9,6 +9,7 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                              ACTIVITY_IDLE, ACTIVITY_SENTRY)
 
 from .core import Wrapper
+from .embark_wrapper import EmbarkWrapper
 from .utils import update
 
 tensor_debug = fc_args["debug.tensor_debug"]
@@ -21,8 +22,7 @@ class TensorAction(Wrapper):
         self.available_actions = {}
         self.mask = {}
         self.turn = -1
-        self.embarkable_units = {}
-        super().__init__(env)
+        super().__init__(EmbarkWrapper(env))
         self.action_space = spaces.Dict(
             {
                 # actor_type_dim = 4; 0 for city, 1 for unit, 2 for gov, 3 for turn done
@@ -47,10 +47,10 @@ class TensorAction(Wrapper):
             k: (v.item() if isinstance(v, np.ndarray) else v) for k, v in action.items()
         }
 
-        tensor_action = self.action(action)
+        base_action = self.action(action)
         if tensor_debug:
-            print(tensor_action)
-        obs, reward, terminated, truncated, info = self.env.step(tensor_action)
+            print(base_action)
+        obs, reward, terminated, truncated, info = self.env.step(base_action)
         if tensor_debug:
             print(f"reward:{reward},done:{terminated or truncated}")
 
@@ -101,14 +101,10 @@ class TensorAction(Wrapper):
             list(self.available_actions[actor_name][entity_id].keys())
         )[action_index]
 
-        if actor_name == "unit":
-            action_name = self._handle_embark_action_name(entity_id, action_name)
-
         return (actor_name, entity_id, action_name)
 
     def update_obs_with_mask(self, observation, info, action=None):
         # Update mask and update obs with mask dict
-        info = self._handle_embark_info(info)
         if info["turn"] != self.turn:
             self.reset_mask()
         self.available_actions = info["available_actions"]
@@ -269,70 +265,6 @@ class TensorAction(Wrapper):
         self.mask["actor_type_mask"][actor_type_index] = int(
             any(self.mask["gov_action_type_mask"])
         )
-
-    def _handle_embark_info(self, info):
-        # Merge two possible embark actions:
-        # embark_dir8 and embark_dir8_target into a single embark_dir8 representation
-
-        self.embarkable_units = {}
-        unit_actions = info["available_actions"].get("unit", {})
-
-        if len(unit_actions) == 0:
-            return info
-
-        for unit_id, actions in unit_actions.items():
-            unavailable_embarks = ["embark_" + f"{i}" for i in range(8)]
-            for action in list(actions.keys()):
-                if action[:6] != "embark":
-                    continue
-
-                args = action.split("_")
-
-                if len(args) == 3:
-                    # action ==  embark_dir_id
-                    [dir8, target_id] = map(int, args[1::])
-                    if (unit_dir := (unit_id, dir8)) not in self.embarkable_units:
-                        self.embarkable_units[unit_dir] = [target_id]
-                    else:
-                        self.embarkable_units[unit_dir].append(target_id)
-                    actions.pop(action)
-                    embark_action = f"embark_{dir8}"
-                else:
-                    # action ==  embark_dir
-                    assert (
-                        len(args) == 2
-                    ), f"Expected embark_{{dir}}_{{target_id}},\
-                            but got unsupported embark action name {action}"
-                    dir8 = int(action.split("_")[-1])
-                    embark_action = f"embark_{dir8}"
-                actions[f"embark_{dir8}"] = True
-                if embark_action in unavailable_embarks:
-                    unavailable_embarks.remove(embark_action)
-
-            for embark_action in unavailable_embarks:
-                # set unavailable embark actions to False
-                actions[embark_action] = False
-
-        info["available_actions"]["unit"] = unit_actions
-
-        return info
-
-    def _handle_embark_action_name(self, unit_id, action_name):
-        # Transform embark_dir8 back to its original representation of two possibilities:
-        # embark_dir8 and embark_dir8_target
-
-        if action_name[:6] != "embark":
-            return action_name
-        dir8 = int(action_name.split("_")[-1])
-
-        if len(self.embarkable_units.get((unit_id, dir8), [])) == 0:
-            # the original representation is already embark_dir8
-            return action_name
-
-        assert dir8 <= 8
-        target_id = sorted(self.embarkable_units[(unit_id, dir8)])[0]
-        embark_action_name = f"embark_{dir8}_{target_id}"
-        return embark_action_name
 
     def _check_action_layout(self):
         action_layout = self.action_config["action_layout"]

@@ -38,6 +38,8 @@ allowtake: HAhadOo
 autotoggle: False
 # Whether end the game when some players succeed under victory conditions, option: enabled, disabled
 endvictory: enabled
+# Victory condition options: SPACERACE|ALLIED|CULTURE. If a certain victory condition is not set, the calculation logic for that victory condition will be skipped
+victories: "SPACERACE|ALLIED"
 
 # The type of runner
 runner_type: "parallel"

@@ -1,0 +1,1649 @@
+[scenario]
+game_version=3000800
+is_scenario=FALSE
+[savefile]
+options=" +version3"
+version=40
+reason="User request"
+revision="3.0.8"
+rulesetdir="classic"
+improvement_size=68
+improvement_vector="Airport","Aqueduct","Bank","Barracks","Barracks II","Barracks III","Cathedral","City Walls","Coastal Defense","Colosseum","Courthouse","Factory","Granary","Harbour","Hydro Plant","Library","Marketplace","Mass Transit","Mfg. Plant","Nuclear Plant","Offshore Platform","Palace","Police Station","Port Facility","Power Plant","Recycling Center","Research Lab","SAM Battery","SDI Defense","Sewer System","Solar Plant","Space Component","Space Module","Space Structural","Stock Exchange","Super Highways","Supermarket","Temple","University","Apollo Program","A.Smith's Trading Co.","Colossus","Copernicus' Observatory","Cure For Cancer","Darwin's Voyage","Eiffel Tower","Great Library","Great Wall","Hanging Gardens","Hoover Dam","Isaac Newton's College","J.S. Bach's Cathedral","King Richard's Crusade","Leonardo's Workshop","Lighthouse","Magellan's Expedition","Manhattan Project","Marco Polo's Embassy","Michelangelo's Chapel","Oracle","Pyramids","SETI Program","Shakespeare's Theatre","Statue of Liberty","Sun Tzu's War Academy","United Nations","Women's Suffrage","Coinage"
+technology_size=88
+technology_vector="A_NONE","Advanced Flight","Alphabet","Amphibious Warfare","Astronomy","Atomic Theory","Automobile","Banking","Bridge Building","Bronze Working","Ceremonial Burial","Chemistry","Chivalry","Code of Laws","Combined Arms","Combustion","Communism","Computers","Conscription","Construction","Currency","Democracy","Economics","Electricity","Electronics","Engineering","Environmentalism","Espionage","Explosives","Feudalism","Flight","Fusion Power","Genetic Engineering","Guerilla Warfare","Gunpowder","Horseback Riding","Industrialization","Invention","Iron Working","Labor Union","Laser","Leadership","Literacy","Machine Tools","Magnetism","Map Making","Masonry","Mass Production","Mathematics","Medicine","Metallurgy","Miniaturization","Mobile Warfare","Monarchy","Monotheism","Mysticism","Navigation","Nuclear Fission","Nuclear Power","Philosophy","Physics","Plastics","Polytheism","Pottery","Radio","Railroad","Recycling","Refining","Refrigeration","Robotics","Rocketry","Sanitation","Seafaring","Space Flight","Stealth","Steam Engine","Steel","Superconductors","Tactics","The Corporation","The Republic","The Wheel","Theology","Theory of Gravity","Trade","University","Warrior Code","Writing"
+activities_size=21
+activities_vector="Idle","Pollution","Unused Road","Mine","Irrigate","Fortified","Fortress","Sentry","Unused Railroad","Pillage","Goto","Explore","Transform","Unused","Unused Airbase","Fortifying","Fallout","Unused Patrol","Base","Road","Convert"
+specialists_size=3
+specialists_vector="elvis","scientist","taxman"
+trait_size=3
+trait_vector="Expansionist","Trader","Aggressive"
+extras_size=34
+extras_vector="Irrigation","Mine","Oil Well","Pollution","Hut","Farmland","Fallout","Fortress","Airbase","Buoy","Ruins","Road","Railroad","River","Gold","Iron","Game","Furs","Coal","Fish","Fruit","Gems","Buffalo","Wheat","Oasis","Peat","Pheasant","Resources","Ivory","Silk","Spice","Whales","Wine","Oil"
+multipliers_size=0
+diplstate_type_size=7
+diplstate_type_vector="Armistice","War","Cease-fire","Peace","Alliance","Never met","Team"
+city_options_size=3
+city_options_vector="Disband","Sci_Specialists","Tax_Specialists"
+action_size=44
+action_vector="Establish Embassy","Establish Embassy Stay","Investigate City","Investigate City Spend Unit","Poison City","Poison City Escape","Steal Gold","Steal Gold Escape","Sabotage City","Sabotage City Escape","Targeted Sabotage City","Targeted Sabotage City Escape","Steal Tech","Steal Tech Escape Expected","Targeted Steal Tech","Targeted Steal Tech Escape Expected","Incite City","Incite City Escape","Establish Trade Route","Enter Marketplace","Help Wonder","Bribe Unit","Sabotage Unit","Sabotage Unit Escape","Capture Units","Found City","Join City","Steal Maps","Steal Maps Escape","Bombard","Suitcase Nuke","Suitcase Nuke Escape","Explode Nuclear","Destroy City","Expel Unit","Recycle Unit","Disband Unit","Home City","Upgrade Unit","Paradrop Unit","Airlift Unit","Attack","Conquer City","Heal Unit"
+action_decision_size=3
+action_decision_vector="nothing","passive","active"
+terrident={"name","identifier"
+"Inaccessible","i"
+"Lake","+"
+"Ocean"," "
+"Deep Ocean",":"
+"Glacier","a"
+"Desert","d"
+"Forest","f"
+"Grassland","g"
+"Hills","h"
+"Jungle","j"
+"Mountains","m"
+"Plains","p"
+"Swamp","s"
+"Tundra","t"
+}
+[game]
+server_state="S_S_RUNNING"
+phase_seconds=1738
+meta_patches=""
+meta_server="https://meta.freeciv.org/metaserver.php"
+id="ndkSO_CF8zZVOyb1m7XVxKpZ7y894czt"
+serverid=""
+level="Easy"
+phase_mode="Concurrent"
+phase_mode_stored="Concurrent"
+phase=0
+scoreturn=53
+timeoutint=0
+timeoutintinc=0
+timeoutinc=0
+timeoutincmult=1
+timeoutcounter=1
+turn=1
+year=-2000
+year_0_hack=FALSE
+globalwarming=0
+heating=0
+warminglevel=1
+nuclearwinter=0
+cooling=0
+coolinglevel=1
+random_seed=458470562
+global_advances="1010100011101100000110000100010000010010001001101000010110000011000000001000000011001011"
+last_turn_change_time=0
+save_players=TRUE
+ai_types="classic"
+save_known=TRUE
+[random]
+saved=TRUE
+index_J=5
+index_K=36
+index_X=4
+table0="4595f580 bc2cc595 5ff16f13 9f36cf7c 8cb51e21 16c9fe08 528ab0e0"
+table1="2e95a8c0 b829caf8 acc3a0bc 41b638ec 5e2145bc 13a12b4a 23dce4b7"
+table2="35335c40 67934bbf 597d5149 239e7c6d 5c9a8c6a bb674913 e26d8039"
+table3="4961ce6a a5b6069d 27cb7f8c b4e46fc2   7af1a7 a57eaee6 7003dc17"
+table4="cdbac1c4 b5377e45 135c1e43 67887d95 6bbfb361 764aa4f2 6277d5db"
+table5="8fe30884  96aa136 58c5a56f c52b2d9d 1dc88209 f53a7a4f b6bd0a81"
+table6="449b42ec 82576987 1836602a b4e63fe8 7a3615d2 3afc1382  aa797f2"
+table7=" 23dbc3e 5d1c2984 f34644bf ac5efeb9 720a2cc2 d94f288d 55a1ed06"
+[script]
+
+code=$
+function concat(met, key, value, sep)
+  if sep then
+    return met .. '"' .. key .. '"' .. ':' .. value .. ','
+  end
+  return met .. '"' .. key .. '"' .. ':' .. value
+end
+
+function msg_success_or_failed()
+  if is_mini_success == 1 then
+    mini_goal = mini_score
+    msg = 'You scored ' .. mini_score .. '>=' .. mini_goal .. ', congratulations on the successful completion of this mission!'
+  else
+    msg = 'You scored ' .. mini_score .. '<' .. mini_goal .. ', unfortunately this mission failed!'
+  end
+  return msg
+end
+
+function start_msg()
+  msg = 'Welcome to the challenge of mini-task named "Trade Technology", the target value is ' .. 1 .. '. The specific task is to use existing technology to exchange new technology from other civilizations.'
+  notify.event(nil, nil, E.SCRIPT, _(msg))
+end
+
+function end_msg()
+    doc_msg = msg_success_or_failed()
+    notify.event(nil, nil, E.SCRIPT, _(doc_msg))
+end
+
+function metrics_handle()
+    metrics = '[{'
+    metrics = concat(metrics, 'mini_score', mini_score, true)
+    metrics = concat(metrics, 'mini_goal', mini_goal, true)
+    metrics = concat(metrics, 'max_turn', max_turn, true)
+    metrics = concat(metrics, 'is_mini_success', is_mini_success, false)
+    metrics = metrics .. '}]'
+    return metrics
+end
+
+function minitask_msg_handle(turn)
+  metrics = metrics_handle()
+  if is_mini_success > -1 then
+    status = 1
+  else
+    status = 0
+  end
+  msg = '{"task": "minitask", "name": "tradetech", "status": ' .. status .. ', "turn":' .. math.floor(turn) .. ', "metrics":' ..  metrics .. '}'
+  return msg
+end
+
+function metrics_msg()
+  json_msg = minitask_msg_handle(game.current_turn())
+  notify.event(nil, nil, E.SCRIPT, _(json_msg))
+end
+
+function turn_terminate_callback(turn, year)
+  if turn == max_turn then
+    is_mini_success = 0
+    metrics_msg()
+    end_msg()
+  end
+end
+
+function tech_researched_callback(type, player, source)
+  if player:is_human() and source == "traded" then
+    is_mini_success = 1
+    mini_score = 1
+    metrics_msg()
+    end_msg()
+  end
+end
+
+function pulse_start_msg()
+    metrics_msg()
+    start_msg()
+    signal.remove('pulse', 'pulse_start_msg')
+end
+
+function game_ended_udf_callback(player)
+  if is_mini_success > -1 then
+    return
+  end
+  is_mini_success = 0
+  metrics_msg()
+  end_msg()
+end
+
+
+is_mini_success = -1
+mini_score = 0
+mini_goal = 1
+max_turn = 3
+
+signal.connect('pulse', 'pulse_start_msg')
+signal.connect('turn_begin', 'turn_terminate_callback')
+signal.connect('tech_researched', 'tech_researched_callback')
+signal.connect('game_ended', 'game_ended_udf_callback')
+
+$
+
+[settings]
+set={"name","value","gamestart"
+"aifill",3,3
+"alltemperate",FALSE,FALSE
+"animals",20,20
+"aqueductloss",0,0
+"borders","ENABLED","ENABLED"
+"caravan_bonus_style","CLASSIC","CLASSIC"
+"citymindist",2,2
+"citynames","PLAYER_UNIQUE","PLAYER_UNIQUE"
+"conquercost",0,0
+"diplbulbcost",0,0
+"diplgoldcost",0,0
+"diplomacy","ALL","ALL"
+"dispersion",0,0
+"flatpoles",100,100
+"foggedborders",FALSE,FALSE
+"fogofwar",TRUE,TRUE
+"foodbox",100,100
+"freecost",0,0
+"fulltradesize",1,1
+"gameseed",0,0
+"generator","RANDOM","RANDOM"
+"globalwarming",TRUE,TRUE
+"globalwarming_percent",100,100
+"gold",50,50
+"happyborders","NATIONAL","NATIONAL"
+"huts",15,15
+"killcitizen",TRUE,TRUE
+"killstack",TRUE,TRUE
+"killunhomed",0,0
+"landmass",30,30
+"mapseed",0,0
+"mapsize","XYSIZE","XYSIZE"
+"minplayers",1,1
+"multiresearch",FALSE,FALSE
+"nationset","",""
+"notradesize",0,0
+"nuclearwinter",TRUE,TRUE
+"nuclearwinter_percent",100,100
+"occupychance",0,0
+"plrcolormode","PLR_ORDER","PLR_ORDER"
+"rapturedelay",1,1
+"razechance",20,20
+"revealmap","",""
+"revolentype","RANDOM","RANDOM"
+"sciencebox",100,100
+"scorelog",TRUE,TRUE
+"separatepoles",TRUE,TRUE
+"shieldbox",100,100
+"singlepole",FALSE,FALSE
+"size",0,0
+"specials",250,250
+"startcity",FALSE,FALSE
+"startpos","DEFAULT","DEFAULT"
+"startunits","ccwwx","ccwwx"
+"steepness",30,30
+"team_pooled_research",TRUE,TRUE
+"teamplacement","CLOSEST","CLOSEST"
+"techleak",100,100
+"techlevel",25,25
+"techlossforgiveness",-1,-1
+"techlossrestore",50,50
+"techlost_donor",0,0
+"techlost_recv",0,0
+"techpenalty",100,100
+"temperature",50,50
+"tilesperplayer",25,25
+"tinyisles",FALSE,FALSE
+"topology","WRAPX","WRAPX"
+"trade_revenue_style","CLASSIC","CLASSIC"
+"trademindist",9,9
+"tradeworldrelpct",50,50
+"trading_city",TRUE,TRUE
+"trading_gold",TRUE,TRUE
+"trading_tech",TRUE,TRUE
+"traitdistribution","FIXED","FIXED"
+"wetness",50,50
+"xsize",16,16
+"ysize",16,16
+}
+set_count=77
+gamestart_valid=TRUE
+[ruledata]
+government={"name","changes"
+"Anarchy",0
+"Despotism",0
+"Monarchy",2
+"Communism",0
+"Republic",0
+"Democracy",0
+}
+[map]
+have_huts=TRUE
+have_resources=TRUE
+t0000="::::::::::::::::"
+t0001=" :::::::::::    "
+t0002="  :::::::::     "
+t0003="   ::::::   gpp "
+t0004="   :::::  pmhhpp"
+t0005="p  ::::   phdhhd"
+t0006="p         phmmhp"
+t0007="          ghhgmj"
+t0008="      pf  pphhhg"
+t0009="    fp     dghgg"
+t0010="ffgdg      sgpps"
+t0011="pfhhp           "
+t0012="ghhppppgfs      "
+t0013=" fgsg ffhg  :   "
+t0014="            ::  "
+t0015="            ::: "
+label_14_0="Deep Trench"
+label_15_5="Scorched Spot"
+startpos_count=3
+startpos={"x","y","exclude","nations"
+1,11,FALSE,""
+13,5,FALSE,""
+12,9,FALSE,""
+}
+e00_0000="0000000000000000"
+e00_0001="0000000000000000"
+e00_0002="0000000000000000"
+e00_0003="0000000000001000"
+e00_0004="0000000000120001"
+e00_0005="0000000000100204"
+e00_0006="0000000000000000"
+e00_0007="0000000000120000"
+e00_0008="0000000000000001"
+e00_0009="0000000000000011"
+e00_0010="0000100000000100"
+e00_0011="1000000000000000"
+e00_0012="0000100000000000"
+e00_0013="0010000000000000"
+e00_0014="0000000000000000"
+e00_0015="0000000000000000"
+e01_0000="0000000000000000"
+e01_0001="0000000000000000"
+e01_0002="0000000000000000"
+e01_0003="0000000000000000"
+e01_0004="0000000000000000"
+e01_0005="0000000000000000"
+e01_0006="0000000000000000"
+e01_0007="0000000000000000"
+e01_0008="0000000000000000"
+e01_0009="0000000000000000"
+e01_0010="0000000000000000"
+e01_0011="0000000000000000"
+e01_0012="0000000000000000"
+e01_0013="0000000000000000"
+e01_0014="0000000000000000"
+e01_0015="0000000000000000"
+e02_0000="0000000000000000"
+e02_0001="0000000000000000"
+e02_0002="0000000000000000"
+e02_0003="0000000000008000"
+e02_0004="0000000000888088"
+e02_0005="0000000000800808"
+e02_0006="0000000000000000"
+e02_0007="0000000000880808"
+e02_0008="0000008000000808"
+e02_0009="0000000000008080"
+e02_0010="0080800000008800"
+e02_0011="8800000000000000"
+e02_0012="0800800000000000"
+e02_0013="0080800080000000"
+e02_0014="0000000000000000"
+e02_0015="0000000000000000"
+e03_0000="0000000000000000"
+e03_0001="0000000000000000"
+e03_0002="0000000000000000"
+e03_0003="0000000000000000"
+e03_0004="0000000000000000"
+e03_0005="0000000000000000"
+e03_0006="2000000000000002"
+e03_0007="0000000000000000"
+e03_0008="0000000000000000"
+e03_0009="0000000000000002"
+e03_0010="0020000000000000"
+e03_0011="2000000000000000"
+e03_0012="0000200000000000"
+e03_0013="0000200200000000"
+e03_0014="0000000000000000"
+e03_0015="0000000000000000"
+e04_0000="0000000000000000"
+e04_0001="0000000000000000"
+e04_0002="0000000000000000"
+e04_0003="0000000008000008"
+e04_0004="0800000000000000"
+e04_0005="0000000000000000"
+e04_0006="0000000000000000"
+e04_0007="0000008000000000"
+e04_0008="0000000000000000"
+e04_0009="0800000000000000"
+e04_0010="0000000000000000"
+e04_0011="0000000000000000"
+e04_0012="0000000000000000"
+e04_0013="0000000040800000"
+e04_0014="0000000000000000"
+e04_0015="0000000000000000"
+e05_0000="0000000000000000"
+e05_0001="0000000000000000"
+e05_0002="0000000000000000"
+e05_0003="0000000000000000"
+e05_0004="0000000000000000"
+e05_0005="0000000000000000"
+e05_0006="0000000000000000"
+e05_0007="0000000000000002"
+e05_0008="0000000000000000"
+e05_0009="0000000000000000"
+e05_0010="0000000000000400"
+e05_0011="0000000000000000"
+e05_0012="0000000000000000"
+e05_0013="0000000000000000"
+e05_0014="0000000000000000"
+e05_0015="0000000000000000"
+e06_0000="0000000000000000"
+e06_0001="0000000000000000"
+e06_0002="0000000000000000"
+e06_0003="0000000000000000"
+e06_0004="0000000000000000"
+e06_0005="0000000000000000"
+e06_0006="0000000000000000"
+e06_0007="0000000000000000"
+e06_0008="0000000000000000"
+e06_0009="0000000000000000"
+e06_0010="0000000000000002"
+e06_0011="0000000000000000"
+e06_0012="0000000000000000"
+e06_0013="0002004000000000"
+e06_0014="0000000000000000"
+e06_0015="0000000000000000"
+e07_0000="0000000000000000"
+e07_0001="0000000000000000"
+e07_0002="0000000000000000"
+e07_0003="0000000000000000"
+e07_0004="0000000000000000"
+e07_0005="0000000000000000"
+e07_0006="0000000000000000"
+e07_0007="0000000000000000"
+e07_0008="0000000000000000"
+e07_0009="0000000000000000"
+e07_0010="0000000000800000"
+e07_0011="0200008000000000"
+e07_0012="0000000000000000"
+e07_0013="0000000000000000"
+e07_0014="0800000000000000"
+e07_0015="0000000000000000"
+e08_0000="0000000000000000"
+e08_0001="0000000000000000"
+e08_0002="0000000000000000"
+e08_0003="0000000000000000"
+e08_0004="0000000000000000"
+e08_0005="0000000000000102"
+e08_0006="0000000000000000"
+e08_0007="0000000000010000"
+e08_0008="0000000000000100"
+e08_0009="0000000000000000"
+e08_0010="0000000000000000"
+e08_0011="0000000000000000"
+e08_0012="0000000000000000"
+e08_0013="0000000000000000"
+e08_0014="0000000000000000"
+e08_0015="0000000000000000"
+owner0000="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+owner0001="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+owner0002="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+owner0003="0,-,-,-,-,-,-,-,-,0,0,0,0,0,0,0"
+owner0004="0,-,-,-,-,-,-,-,-,0,0,0,0,0,0,0"
+owner0005="0,-,-,-,-,-,-,-,-,0,0,0,0,0,0,0"
+owner0006="0,-,-,-,-,-,-,-,-,-,0,0,2,2,2,0"
+owner0007="2,-,-,-,-,1,1,1,-,-,2,2,2,2,2,2"
+owner0008="2,-,-,-,-,1,1,1,-,-,2,2,2,2,2,2"
+owner0009="-,1,1,1,1,1,1,1,-,-,-,2,2,2,2,2"
+owner0010="1,1,1,1,1,-,-,-,-,-,-,2,2,2,2,1"
+owner0011="1,1,1,1,1,-,-,-,-,-,-,2,2,2,-,-"
+owner0012="1,1,1,1,1,1,1,1,1,1,-,-,-,-,-,-"
+owner0013="1,1,1,1,1,1,1,1,1,1,-,-,-,-,-,-"
+owner0014="-,-,-,1,1,1,-,1,1,1,-,-,-,-,-,-"
+owner0015="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+source0000="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+source0001="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+source0002="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+source0003="79,-,-,-,-,-,-,-,-,74,74,74,74,79,79,79"
+source0004="79,-,-,-,-,-,-,-,-,74,74,74,74,79,79,79"
+source0005="79,-,-,-,-,-,-,-,-,74,74,74,74,79,79,79"
+source0006="79,-,-,-,-,-,-,-,-,-,74,74,141,141,141,79"
+source0007="127,-,-,-,-,134,134,134,-,-,123,123,141,141,141,127"
+source0008="127,-,-,-,-,134,134,134,-,-,123,172,172,141,141,141"
+source0009="-,162,162,162,162,134,134,134,-,-,-,172,172,172,172,141"
+source0010="193,193,162,162,162,-,-,-,-,-,-,172,172,172,172,162"
+source0011="193,193,193,193,162,-,-,-,-,-,-,172,172,172,-,-"
+source0012="193,193,193,193,212,212,212,216,216,216,-,-,-,-,-,-"
+source0013="193,193,193,193,212,212,212,216,216,216,-,-,-,-,-,-"
+source0014="-,-,-,212,212,212,-,216,216,216,-,-,-,-,-,-"
+source0015="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0000="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0001="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0002="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0003="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0004="-,-,-,-,-,-,-,-,-,-,0,-,-,-,-,0"
+eowner0005="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0006="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0007="-,-,-,-,-,-,-,-,-,-,-,2,-,-,-,2"
+eowner0008="-,-,-,-,-,-,1,-,-,-,-,-,-,2,-,-"
+eowner0009="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0010="-,-,1,-,-,-,-,-,-,-,-,-,2,-,-,-"
+eowner0011="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0012="-,1,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0013="-,-,-,-,1,-,-,-,1,-,-,-,-,-,-,-"
+eowner0014="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+eowner0015="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-"
+worked0000="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0001="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0002="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0003="-,-,-,-,-,-,-,-,-,121,-,-,121,-,-,120,"
+worked0004="-,120,-,-,-,-,-,-,-,-,121,-,-,-,120,120,"
+worked0005="-,-,-,-,-,-,-,-,-,-,121,-,-,-,-,-,"
+worked0006="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0007="130,-,-,-,-,-,128,-,-,-,124,124,-,117,-,130,"
+worked0008="-,-,-,-,-,-,128,128,-,-,-,-,-,117,-,117,"
+worked0009="-,119,-,-,-,-,-,-,-,-,-,-,124,-,130,117,"
+worked0010="-,-,119,-,119,-,-,-,-,-,116,-,116,116,-,-,"
+worked0011="119,119,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0012="-,118,-,-,125,-,-,-,-,-,-,-,-,-,-,-,"
+worked0013="-,-,125,118,125,-,125,134,134,-,134,-,-,-,-,-,"
+worked0014="-,118,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+worked0015="-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,-,"
+k00_0000="0000000000000000"
+k00_0001="0000000000000000"
+k00_0002="1033300001157777"
+k00_0003="1333300015777777"
+k00_0004="7733300017777777"
+k00_0005="7733000017777777"
+k00_0006="7733333307777777"
+k00_0007="7733377777777777"
+k00_0008="7737777777777777"
+k00_0009="7777777777777777"
+k00_0010="7777777300777777"
+k00_0011="7777777777777777"
+k00_0012="7777777777744407"
+k00_0013="7777777777700007"
+k00_0014="7777777777700000"
+k00_0015="0003330333000000"
+[players]
+nplayers=3
+destroyed_wonders="00000000000000000000000000000000000000000000000000000000000000000000"
+identity_number_used=150
+shuffled_player_0=0
+shuffled_player_1=2
+shuffled_player_2=1
+[player0]
+ai_type="classic"
+name="Testminitask"
+username="testminitask"
+unassigned_user=FALSE
+color.r=255
+color.g=0
+color.b=0
+ranked_username="kongxiangyu"
+unassigned_ranked=FALSE
+orig_username=""
+delegation_username=""
+nation="Thai"
+team_no=0
+government_name="Despotism"
+style_by_name="Asian"
+idle_turns=0
+kind="male"
+is_alive=TRUE
+turns_alive=40
+last_war=40
+phase_done=FALSE
+diplstate={"current","closest","first_contact_turn","turns_left","has_reason_to_cancel","contact_turns_left","embassy","gives_shared_vision"
+"Never met","Never met",0,0,0,0,FALSE,FALSE
+"Alliance","Alliance",12,0,0,10,TRUE,FALSE
+"Cease-fire","Cease-fire",2,16,0,19,FALSE,FALSE
+}
+ai={"love","spam","countdown","war_reason","patience","warn_space","ask_peace","ask_alliance","ask_ceasefire"
+1,0,-1,5,0,0,0,0,0
+1,1,-1,5,0,0,0,0,0
+1,2,-1,5,0,0,0,0,0
+}
+ai.level="Easy"
+ai.barb_type="None"
+gold=168
+rates.tax=40
+rates.science=60
+rates.luxury=0
+research.bulbs_last_turn=6
+trait={"val","mod"
+50,0
+50,0
+50,0
+}
+achievement_count=0
+got_first_city=TRUE
+revolution_finishes=-1
+spaceship.state=0
+lost_wonders="00000000000000000000000000000000000000000000000000000000000000000000"
+history=0
+hut_count=0
+border_vision=FALSE
+ncities=2
+c={"y","x","id","original","size","nspe0","nspe1","nspe2","food_stock","shield_stock","history","airlift","was_happy","turn_plague","anarchy","rapture","steal","turn_founded","did_buy","did_sell","turn_last_built","name","currently_building_kind","currently_building_name","changed_from_kind","changed_from_name","before_change_shields","caravan_shields","disbanded_shields","last_turns_shield_surplus","style","city_radius_sq","improvements","wl_length","option0","option1","option2","ai.urgency","ai.building_turn","ai.building_wait","ai.founder_turn","ai.founder_want","ai.founder_boat","citizen0"
+4,10,121,0,3,0,0,0,14,9,0,0,FALSE,-1,0,0,0,4,FALSE,FALSE,36,"Chiang Mai","UnitType","Pikemen","UnitType","Pikemen",9,0,0,2,"Asian",5,"00000000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,0,0,1,0,0,FALSE,3
+4,15,120,0,3,0,0,0,13,30,0,0,FALSE,-1,0,0,0,3,FALSE,FALSE,34,"Nakhon Rachasima","Building","City Walls","Building","City Walls",30,0,0,5,"Asian",5,"00000000000000000000010000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,0,0,1,0,0,FALSE,3
+}
+nunits=8
+u={"id","x","y","facing","nationality","veteran","hp","homecity","type_by_name","activity","activity_count","activity_tgt","changed_from","changed_from_count","changed_from_tgt","done_moving","moves","fuel","born","battlegroup","go","goto_x","goto_y","ai","passenger","ferryboat","charge","bodyguard","ord_map","ord_city","moved","paradropped","transported_by","carrying","action_decision","action_decision_tile_x","action_decision_tile_y","stay","orders_length","orders_index","orders_repeat","orders_vigilant","orders_list","dir_list","activity_list","action_list","sub_tgt_vec"
+145,10,4,"6",0,0,10,121,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,36,-1,FALSE,0,0,FALSE,0,0,0,0,2,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+142,15,4,"6",0,0,10,120,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,34,-1,FALSE,0,0,FALSE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+137,15,4,"6",0,0,10,120,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,30,-1,FALSE,0,0,FALSE,0,0,0,0,1,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+133,10,4,"6",0,0,10,121,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,23,-1,FALSE,0,0,FALSE,0,0,0,0,3,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+131,15,4,"2",0,0,10,120,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,22,-1,FALSE,0,0,FALSE,0,0,0,0,2,2,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+111,12,3,"4",0,0,10,0,"Explorer",5,0,-1,5,0,-1,FALSE,3,0,1,-1,FALSE,0,0,FALSE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+110,10,4,"4",0,0,10,0,"Workers",7,0,-1,7,0,-1,FALSE,3,0,1,-1,FALSE,0,0,FALSE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+109,10,4,"8",0,0,1,0,"Workers",7,0,-1,7,0,-1,FALSE,3,0,1,-1,FALSE,0,0,FALSE,0,0,0,0,1,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+}
+attribute_v2_block_length=103
+attribute_v2_block_length_quoted=313
+attribute_v2_block_parts=1
+attribute_v2_block_data.part0="103:00 00 00 00 02 00 00 00 02 00 00 00 67 00 00 00 1d 05 f5 e1 01 00 00 00 79 ff ff ff ff 02 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 01 00 00 00 00 00 1d 05 f5 e1 01 00 00 00 78 ff ff ff ff 02 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 00 00 01 00 01 00 00 "
+map_t0000="uuuuuuuuuuuuuuuu"
+map_t0001="uuuuuuuuuuuuuuuu"
+map_t0002=" u:::uuuu::     "
+map_t0003="   ::uuu:   gpp "
+map_t0004="   ::uuu  pmhhpp"
+map_t0005="p  :uuuu  phdhhd"
+map_t0006="p       u phmmhp"
+map_t0007="          ghhgmj"
+map_t0008="      pf  pphhhg"
+map_t0009="    fp     dghgg"
+map_t0010="ffgdg   uu sgpps"
+map_t0011="pfhhp           "
+map_t0012="ghhppppgfs uuuu "
+map_t0013=" fgsg ffhg uuuu "
+map_t0014="           uuuuu"
+map_t0015="uuu   u   uuuuuu"
+map_e00_0000="0000000000000000"
+map_e00_0001="0000000000000000"
+map_e00_0002="0000000000000000"
+map_e00_0003="0000000000001000"
+map_e00_0004="0000000000120001"
+map_e00_0005="0000000000100204"
+map_e00_0006="0000000000000000"
+map_e00_0007="0000000000020000"
+map_e00_0008="0000000000000001"
+map_e00_0009="0000000000000011"
+map_e00_0010="0000100000000100"
+map_e00_0011="1000000000000000"
+map_e00_0012="0000100000000000"
+map_e00_0013="0010000000000000"
+map_e00_0014="0000000000000000"
+map_e00_0015="0000000000000000"
+map_e01_0000="0000000000000000"
+map_e01_0001="0000000000000000"
+map_e01_0002="0000000000000000"
+map_e01_0003="0000000000000000"
+map_e01_0004="0000000000000000"
+map_e01_0005="0000000000000000"
+map_e01_0006="0000000000000000"
+map_e01_0007="0000000000000000"
+map_e01_0008="0000000000000000"
+map_e01_0009="0000000000000000"
+map_e01_0010="0000000000000000"
+map_e01_0011="0000000000000000"
+map_e01_0012="0000000000000000"
+map_e01_0013="0000000000000000"
+map_e01_0014="0000000000000000"
+map_e01_0015="0000000000000000"
+map_e02_0000="0000000000000000"
+map_e02_0001="0000000000000000"
+map_e02_0002="0000000000000000"
+map_e02_0003="0000000000008000"
+map_e02_0004="0000000000888088"
+map_e02_0005="0000000000800808"
+map_e02_0006="0000000000000000"
+map_e02_0007="0000000000080808"
+map_e02_0008="0000008000000808"
+map_e02_0009="0000000000008080"
+map_e02_0010="0080800000008800"
+map_e02_0011="8800000000000000"
+map_e02_0012="0800800000000000"
+map_e02_0013="0080800080000000"
+map_e02_0014="0000000000000000"
+map_e02_0015="0000000000000000"
+map_e03_0000="0000000000000000"
+map_e03_0001="0000000000000000"
+map_e03_0002="0000000000000000"
+map_e03_0003="0000000000000000"
+map_e03_0004="0000000000000000"
+map_e03_0005="0000000000000000"
+map_e03_0006="2000000000000002"
+map_e03_0007="0000000000000000"
+map_e03_0008="0000000000000000"
+map_e03_0009="0000000000000002"
+map_e03_0010="0020000000000000"
+map_e03_0011="2000000000000000"
+map_e03_0012="0000200000000000"
+map_e03_0013="0000200200000000"
+map_e03_0014="0000000000000000"
+map_e03_0015="0000000000000000"
+map_e04_0000="0000000000000000"
+map_e04_0001="0000000000000000"
+map_e04_0002="0000000000000000"
+map_e04_0003="0000000008000008"
+map_e04_0004="0800000000000000"
+map_e04_0005="0000000000000000"
+map_e04_0006="0000000000000000"
+map_e04_0007="0000008000000000"
+map_e04_0008="0000000000000000"
+map_e04_0009="0800000000000000"
+map_e04_0010="0000000000000000"
+map_e04_0011="0000000000000000"
+map_e04_0012="0000000000000000"
+map_e04_0013="0000000040800000"
+map_e04_0014="0000000000000000"
+map_e04_0015="0000000000000000"
+map_e05_0000="0000000000000000"
+map_e05_0001="0000000000000000"
+map_e05_0002="0000000000000000"
+map_e05_0003="0000000000000000"
+map_e05_0004="0000000000000000"
+map_e05_0005="0000000000000000"
+map_e05_0006="0000000000000000"
+map_e05_0007="0000000000000002"
+map_e05_0008="0000000000000000"
+map_e05_0009="0000000000000000"
+map_e05_0010="0000000000000400"
+map_e05_0011="0000000000000000"
+map_e05_0012="0000000000000000"
+map_e05_0013="0000000000000000"
+map_e05_0014="0000000000000000"
+map_e05_0015="0000000000000000"
+map_e06_0000="0000000000000000"
+map_e06_0001="0000000000000000"
+map_e06_0002="0000000000000000"
+map_e06_0003="0000000000000000"
+map_e06_0004="0000000000000000"
+map_e06_0005="0000000000000000"
+map_e06_0006="0000000000000000"
+map_e06_0007="0000000000000000"
+map_e06_0008="0000000000000000"
+map_e06_0009="0000000000000000"
+map_e06_0010="0000000000000002"
+map_e06_0011="0000000000000000"
+map_e06_0012="0000000000000000"
+map_e06_0013="0002004000000000"
+map_e06_0014="0000000000000000"
+map_e06_0015="0000000000000000"
+map_e07_0000="0000000000000000"
+map_e07_0001="0000000000000000"
+map_e07_0002="0000000000000000"
+map_e07_0003="0000000000000000"
+map_e07_0004="0000000000000000"
+map_e07_0005="0000000000000000"
+map_e07_0006="0000000000000000"
+map_e07_0007="0000000000000000"
+map_e07_0008="0000000000000000"
+map_e07_0009="0000000000000000"
+map_e07_0010="0000000000800000"
+map_e07_0011="0200008000000000"
+map_e07_0012="0000000000000000"
+map_e07_0013="0000000000000000"
+map_e07_0014="0800000000000000"
+map_e07_0015="0000000000000000"
+map_e08_0000="0000000000000000"
+map_e08_0001="0000000000000000"
+map_e08_0002="0000000000000000"
+map_e08_0003="0000000000000000"
+map_e08_0004="0000000000000000"
+map_e08_0005="0000000000000102"
+map_e08_0006="0000000000000000"
+map_e08_0007="0000000000010000"
+map_e08_0008="0000000000000100"
+map_e08_0009="0000000000000000"
+map_e08_0010="0000000000000000"
+map_e08_0011="0000000000000000"
+map_e08_0012="0000000000000000"
+map_e08_0013="0000000000000000"
+map_e08_0014="0000000000000000"
+map_e08_0015="0000000000000000"
+map_u00_0000="1111111111111111"
+map_u00_0001="1111111111111111"
+map_u00_0002="1111111111111111"
+map_u00_0003="1111111112222211"
+map_u00_0004="1111111112211111"
+map_u00_0005="1199111113111111"
+map_u00_0006="1998711113340112"
+map_u00_0007="999811111ccf0111"
+map_u00_0008="111111111cc2e111"
+map_u00_0009="111111111c122113"
+map_u00_0010="1111111111122213"
+map_u00_0011="1111118111111231"
+map_u00_0012="1111111111111111"
+map_u00_0013="1111111111111111"
+map_u00_0014="1111111111111111"
+map_u00_0015="1111111111111111"
+map_u01_0000="0000000000000000"
+map_u01_0001="0000000000000000"
+map_u01_0002="0000000000000000"
+map_u01_0003="0000000000000000"
+map_u01_0004="0000000000000000"
+map_u01_0005="0022000000000000"
+map_u01_0006="0222200000002200"
+map_u01_0007="2222000000012222"
+map_u01_0008="2000000000011222"
+map_u01_0009="0000000000111222"
+map_u01_0010="0000000000111122"
+map_u01_0011="0000001000111110"
+map_u01_0012="0000000000000000"
+map_u01_0013="0000000000000000"
+map_u01_0014="0000000000000000"
+map_u01_0015="0000000000000000"
+map_u02_0000="0000000000000000"
+map_u02_0001="0000000000000000"
+map_u02_0002="0000000000000000"
+map_u02_0003="0000000000000000"
+map_u02_0004="0000000000000000"
+map_u02_0005="0000000000000000"
+map_u02_0006="0000000000000000"
+map_u02_0007="0000000000000000"
+map_u02_0008="0000000000000000"
+map_u02_0009="0000000000000000"
+map_u02_0010="0000000000000000"
+map_u02_0011="0000000000000000"
+map_u02_0012="0000000000000000"
+map_u02_0013="0000000000000000"
+map_u02_0014="0000000000000000"
+map_u02_0015="0000000000000000"
+map_u03_0000="0000000000000000"
+map_u03_0001="0000000000000000"
+map_u03_0002="0000000000000000"
+map_u03_0003="0000000000000000"
+map_u03_0004="0000000000000000"
+map_u03_0005="0000000000000000"
+map_u03_0006="0000000000000000"
+map_u03_0007="0000000000000000"
+map_u03_0008="0000000000000000"
+map_u03_0009="0000000000000000"
+map_u03_0010="0000000000000000"
+map_u03_0011="0000000000000000"
+map_u03_0012="0000000000000000"
+map_u03_0013="0000000000000000"
+map_u03_0014="0000000000000000"
+map_u03_0015="0000000000000000"
+dc={"y","x","id","owner","size","occupied","walls","happy","unhappy","style","city_image","improvements","name"
+7,11,124,2,2,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Chicago"
+7,15,130,2,1,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Washington"
+8,6,128,1,2,FALSE,FALSE,FALSE,FALSE,"Classical",0,"00000000000000000000000000000000000000000000000000000000000000000000","Porto"
+8,13,117,2,1,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Denver"
+10,2,119,1,4,TRUE,FALSE,TRUE,FALSE,"Classical",1,"00000000000000000000000000000000000000000000000000000000000000000000","Guimarães"
+10,12,116,2,1,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000010000000000000000000000000000000000000000000000","Los Angeles"
+12,1,118,1,2,TRUE,TRUE,FALSE,FALSE,"Classical",0,"00000001000000000000010000000000000000000000000000000000000000000000","Lisboa"
+13,4,125,1,3,FALSE,TRUE,TRUE,FALSE,"Classical",0,"00000001000000000000000000000000000000000000000000000000000000000000","Guarda"
+13,8,134,1,2,FALSE,FALSE,FALSE,FALSE,"Classical",0,"00000000000000000000000000000000000000000000000000000000000000000000","Vila Real"
+}
+dc_total=9
+[score0]
+happy=0
+content=6
+unhappy=0
+angry=0
+specialists0=0
+specialists1=0
+specialists2=0
+wonders=0
+techs=25
+techout=6
+landarea=28000
+settledarea=5000
+population=120
+cities=2
+units=5
+pollution=0
+literacy=0
+bnp=10
+mfg=7
+spaceship=0
+units_built=5
+units_killed=1
+units_lost=0
+culture=1000
+total=56
+[player1]
+flags="ai"
+ai_type="classic"
+name="Afonso Henriques"
+username="Unassigned"
+unassigned_user=TRUE
+color.r=255
+color.g=255
+color.b=0
+ranked_username="Unassigned"
+unassigned_ranked=TRUE
+orig_username=""
+delegation_username=""
+nation="Portuguese"
+team_no=1
+government_name="Anarchy"
+target_government_name="Republic"
+style_by_name="Classical"
+idle_turns=40
+kind="male"
+is_alive=TRUE
+turns_alive=40
+last_war=32
+phase_done=FALSE
+diplstate={"current","closest","first_contact_turn","turns_left","has_reason_to_cancel","contact_turns_left","embassy","gives_shared_vision"
+"Alliance","Alliance",12,0,0,10,TRUE,TRUE
+"Never met","Never met",0,0,0,0,FALSE,FALSE
+"War","War",8,16,0,17,FALSE,FALSE
+}
+ai={"love","spam","countdown","war_reason","patience","warn_space","ask_peace","ask_alliance","ask_ceasefire"
+273,2,-1,5,0,0,5,0,0
+0,2,-1,5,0,0,0,0,0
+-906,6,-11,3,0,0,0,0,0
+}
+ai.level="Normal"
+ai.barb_type="None"
+gold=28
+rates.tax=30
+rates.science=70
+rates.luxury=0
+research.bulbs_last_turn=0
+trait={"val","mod"
+50,0
+50,0
+50,0
+}
+achievement_count=0
+got_first_city=TRUE
+revolution_finishes=43
+spaceship.state=0
+lost_wonders="00000000000000000000000000000000000000000000000000000000000000000000"
+history=0
+hut_count=0
+border_vision=FALSE
+ncities=5
+c={"y","x","id","original","size","nspe0","nspe1","nspe2","food_stock","shield_stock","history","airlift","was_happy","turn_plague","anarchy","rapture","steal","turn_founded","did_buy","did_sell","turn_last_built","name","currently_building_kind","currently_building_name","changed_from_kind","changed_from_name","before_change_shields","caravan_shields","disbanded_shields","last_turns_shield_surplus","style","city_radius_sq","improvements","wl_length","option0","option1","option2","ai.urgency","ai.building_turn","ai.building_wait","ai.founder_turn","ai.founder_want","ai.founder_boat","citizen1"
+13,8,134,1,2,0,0,0,11,42,0,0,FALSE,-1,0,0,0,27,FALSE,FALSE,27,"Vila Real","Building","City Walls","Building","City Walls",42,0,0,4,"Classical",5,"00000000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,0,41,8,42,0,FALSE,2
+8,6,128,1,2,0,0,0,19,13,0,0,FALSE,-1,0,0,0,20,FALSE,FALSE,38,"Porto","Building","City Walls","Building","City Walls",13,0,0,3,"Classical",5,"00000000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,0,45,6,47,0,FALSE,2
+13,4,125,1,3,0,0,0,22,29,0,0,TRUE,-1,0,2,0,15,FALSE,FALSE,34,"Guarda","Building","Granary","Building","Granary",29,0,0,4,"Classical",5,"00000001000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,0,43,8,44,0,FALSE,3
+10,2,119,1,4,0,0,0,24,27,0,0,TRUE,-1,0,2,0,2,FALSE,FALSE,35,"Guimarães","Building","City Walls","Building","City Walls",27,0,0,4,"Classical",5,"00010000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,4,43,7,47,0,FALSE,4
+12,1,118,1,2,0,0,0,22,31,0,0,FALSE,-1,0,0,0,2,FALSE,FALSE,37,"Lisboa","UnitType","Caravan","UnitType","Caravan",31,0,0,5,"Classical",5,"00010001000000000000010000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,4,43,5,44,0,FALSE,2
+}
+nunits=8
+u={"id","x","y","facing","nationality","veteran","hp","homecity","type_by_name","activity","activity_count","activity_tgt","changed_from","changed_from_count","changed_from_tgt","done_moving","moves","fuel","born","battlegroup","go","goto_x","goto_y","ai","passenger","ferryboat","charge","bodyguard","ord_map","ord_city","moved","paradropped","transported_by","carrying","action_decision","action_decision_tile_x","action_decision_tile_y","stay","orders_length","orders_index","orders_repeat","orders_vigilant","orders_list","dir_list","activity_list","action_list","sub_tgt_vec"
+148,3,3,"9",1,0,10,128,"Caravel",0,0,-1,0,0,-1,TRUE,0,0,38,-1,TRUE,3,3,FALSE,-1,0,0,0,0,0,TRUE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+146,1,12,"3",1,1,10,118,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,37,-1,TRUE,1,12,FALSE,0,0,118,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+144,2,10,"4",1,1,10,119,"Pikemen",7,0,-1,7,0,-1,FALSE,3,0,35,-1,FALSE,0,0,FALSE,0,0,0,0,1,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+141,2,10,"9",1,1,10,118,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,33,-1,TRUE,2,10,FALSE,0,0,119,-1,0,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+140,2,10,"3",1,1,10,119,"Pikemen",7,0,-1,7,0,-1,FALSE,3,0,33,-1,FALSE,0,0,FALSE,0,0,0,0,3,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+115,2,10,"6",1,0,10,0,"Explorer",0,0,-1,0,0,-1,FALSE,3,0,1,-1,FALSE,0,0,FALSE,0,0,0,0,2,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+114,4,10,"1",1,0,10,0,"Workers",0,0,-1,0,0,-1,FALSE,3,0,1,-1,FALSE,0,0,TRUE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+113,2,12,"4",1,0,10,0,"Workers",3,20,1,3,20,1,FALSE,3,0,1,-1,FALSE,0,0,TRUE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+}
+map_t0000="uuuuuuuuuuuuuuuu"
+map_t0001="uuuuuuuuuuuuuuuu"
+map_t0002="uu:::uuuuuuu    "
+map_t0003="u  ::uuuuu  gpp "
+map_t0004="   ::uuuu pmhhpp"
+map_t0005="p  :uuuuu phdhhd"
+map_t0006="p       u phmmhp"
+map_t0007="          ghhgmj"
+map_t0008="      pf  pphhhg"
+map_t0009="    fp     dghgg"
+map_t0010="ffgdg   uu sgpps"
+map_t0011="pfhhp           "
+map_t0012="ghhppppgfs uuuu "
+map_t0013=" fgsg ffhg uuuu "
+map_t0014="           uuuuu"
+map_t0015="uuu   u   uuuuuu"
+map_e00_0000="0000000000000000"
+map_e00_0001="0000000000000000"
+map_e00_0002="0000000000000000"
+map_e00_0003="0000000000000000"
+map_e00_0004="0000000000120000"
+map_e00_0005="0000000000000200"
+map_e00_0006="0000000000000000"
+map_e00_0007="0000000000020000"
+map_e00_0008="0000000000000001"
+map_e00_0009="0000000000000011"
+map_e00_0010="0000100000000100"
+map_e00_0011="1000000000000000"
+map_e00_0012="0000100000000000"
+map_e00_0013="0010000000000000"
+map_e00_0014="0000000000000000"
+map_e00_0015="0000000000000000"
+map_e01_0000="0000000000000000"
+map_e01_0001="0000000000000000"
+map_e01_0002="0000000000000000"
+map_e01_0003="0000000000000000"
+map_e01_0004="0000000000000000"
+map_e01_0005="0000000000000000"
+map_e01_0006="0000000000000000"
+map_e01_0007="0000000000000000"
+map_e01_0008="0000000000000000"
+map_e01_0009="0000000000000000"
+map_e01_0010="0000000000000000"
+map_e01_0011="0000000000000000"
+map_e01_0012="0000000000000000"
+map_e01_0013="0000000000000000"
+map_e01_0014="0000000000000000"
+map_e01_0015="0000000000000000"
+map_e02_0000="0000000000000000"
+map_e02_0001="0000000000000000"
+map_e02_0002="0000000000000000"
+map_e02_0003="0000000000000000"
+map_e02_0004="0000000000888088"
+map_e02_0005="0000000000000808"
+map_e02_0006="0000000000000000"
+map_e02_0007="0000000000080808"
+map_e02_0008="0000008000000808"
+map_e02_0009="0000000000008080"
+map_e02_0010="0080800000008800"
+map_e02_0011="8800000000000000"
+map_e02_0012="0800800000000000"
+map_e02_0013="0080800080000000"
+map_e02_0014="0000000000000000"
+map_e02_0015="0000000000000000"
+map_e03_0000="0000000000000000"
+map_e03_0001="0000000000000000"
+map_e03_0002="0000000000000000"
+map_e03_0003="0000000000000000"
+map_e03_0004="0000000000000000"
+map_e03_0005="0000000000000000"
+map_e03_0006="2000000000000002"
+map_e03_0007="0000000000000000"
+map_e03_0008="0000000000000000"
+map_e03_0009="0000000000000002"
+map_e03_0010="0020000000000000"
+map_e03_0011="2000000000000000"
+map_e03_0012="0000200000000000"
+map_e03_0013="0000200200000000"
+map_e03_0014="0000000000000000"
+map_e03_0015="0000000000000000"
+map_e04_0000="0000000000000000"
+map_e04_0001="0000000000000000"
+map_e04_0002="0000000000000000"
+map_e04_0003="0000000000000008"
+map_e04_0004="0800000000000000"
+map_e04_0005="0000000000000000"
+map_e04_0006="0000000000000000"
+map_e04_0007="0000008000000000"
+map_e04_0008="0000000000000000"
+map_e04_0009="0800000000000000"
+map_e04_0010="0000000000000000"
+map_e04_0011="0000000000000000"
+map_e04_0012="0000000000000000"
+map_e04_0013="0000000040800000"
+map_e04_0014="0000000000000000"
+map_e04_0015="0000000000000000"
+map_e05_0000="0000000000000000"
+map_e05_0001="0000000000000000"
+map_e05_0002="0000000000000000"
+map_e05_0003="0000000000000000"
+map_e05_0004="0000000000000000"
+map_e05_0005="0000000000000000"
+map_e05_0006="0000000000000000"
+map_e05_0007="0000000000000002"
+map_e05_0008="0000000000000000"
+map_e05_0009="0000000000000000"
+map_e05_0010="0000000000000400"
+map_e05_0011="0000000000000000"
+map_e05_0012="0000000000000000"
+map_e05_0013="0000000000000000"
+map_e05_0014="0000000000000000"
+map_e05_0015="0000000000000000"
+map_e06_0000="0000000000000000"
+map_e06_0001="0000000000000000"
+map_e06_0002="0000000000000000"
+map_e06_0003="0000000000000000"
+map_e06_0004="0000000000000000"
+map_e06_0005="0000000000000000"
+map_e06_0006="0000000000000000"
+map_e06_0007="0000000000000000"
+map_e06_0008="0000000000000000"
+map_e06_0009="0000000000000000"
+map_e06_0010="0000000000000002"
+map_e06_0011="0000000000000000"
+map_e06_0012="0000000000000000"
+map_e06_0013="0002004000000000"
+map_e06_0014="0000000000000000"
+map_e06_0015="0000000000000000"
+map_e07_0000="0000000000000000"
+map_e07_0001="0000000000000000"
+map_e07_0002="0000000000000000"
+map_e07_0003="0000000000000000"
+map_e07_0004="0000000000000000"
+map_e07_0005="0000000000000000"
+map_e07_0006="0000000000000000"
+map_e07_0007="0000000000000000"
+map_e07_0008="0000000000000000"
+map_e07_0009="0000000000000000"
+map_e07_0010="0000000000800000"
+map_e07_0011="0200008000000000"
+map_e07_0012="0000000000000000"
+map_e07_0013="0000000000000000"
+map_e07_0014="0800000000000000"
+map_e07_0015="0000000000000000"
+map_e08_0000="0000000000000000"
+map_e08_0001="0000000000000000"
+map_e08_0002="0000000000000000"
+map_e08_0003="0000000000000000"
+map_e08_0004="0000000000000000"
+map_e08_0005="0000000000000102"
+map_e08_0006="0000000000000000"
+map_e08_0007="0000000000010000"
+map_e08_0008="0000000000000100"
+map_e08_0009="0000000000000000"
+map_e08_0010="0000000000000000"
+map_e08_0011="0000000000000000"
+map_e08_0012="0000000000000000"
+map_e08_0013="0000000000000000"
+map_e08_0014="0000000000000000"
+map_e08_0015="0000000000000000"
+map_u00_0000="1111111111111111"
+map_u00_0001="1111111111111111"
+map_u00_0002="111111111111eeee"
+map_u00_0003="1911111111fffeee"
+map_u00_0004="991111111df000ff"
+map_u00_0005="999911111df00000"
+map_u00_0006="999871111df00111"
+map_u00_0007="999818887ccf0111"
+map_u00_0008="111138887cc2e111"
+map_u00_0009="111110887c122113"
+map_u00_0010="1111133111122213"
+map_u00_0011="1111168344111231"
+map_u00_0012="1112866555411111"
+map_u00_0013="1112666555411111"
+map_u00_0014="1222255555411111"
+map_u00_0015="1111111111111111"
+map_u01_0000="0000000000000000"
+map_u01_0001="0000000000000000"
+map_u01_0002="0000000000000000"
+map_u01_0003="0200000000111000"
+map_u01_0004="2200000000122200"
+map_u01_0005="2222000000122221"
+map_u01_0006="2222200000122222"
+map_u01_0007="2222000000012222"
+map_u01_0008="2000100000011222"
+map_u01_0009="0000010000111222"
+map_u01_0010="0000011000111122"
+map_u01_0011="0000001000111110"
+map_u01_0012="0000000000000000"
+map_u01_0013="0000000000000000"
+map_u01_0014="0000000000000000"
+map_u01_0015="0000000000000000"
+map_u02_0000="0000000000000000"
+map_u02_0001="0000000000000000"
+map_u02_0002="0000000000000000"
+map_u02_0003="0000000000000000"
+map_u02_0004="0000000000000000"
+map_u02_0005="0000000000000000"
+map_u02_0006="0000000000000000"
+map_u02_0007="0000000000000000"
+map_u02_0008="0000000000000000"
+map_u02_0009="0000000000000000"
+map_u02_0010="0000000000000000"
+map_u02_0011="0000000000000000"
+map_u02_0012="0000000000000000"
+map_u02_0013="0000000000000000"
+map_u02_0014="0000000000000000"
+map_u02_0015="0000000000000000"
+map_u03_0000="0000000000000000"
+map_u03_0001="0000000000000000"
+map_u03_0002="0000000000000000"
+map_u03_0003="0000000000000000"
+map_u03_0004="0000000000000000"
+map_u03_0005="0000000000000000"
+map_u03_0006="0000000000000000"
+map_u03_0007="0000000000000000"
+map_u03_0008="0000000000000000"
+map_u03_0009="0000000000000000"
+map_u03_0010="0000000000000000"
+map_u03_0011="0000000000000000"
+map_u03_0012="0000000000000000"
+map_u03_0013="0000000000000000"
+map_u03_0014="0000000000000000"
+map_u03_0015="0000000000000000"
+dc={"y","x","id","owner","size","occupied","walls","happy","unhappy","style","city_image","improvements","name"
+4,10,121,0,3,TRUE,FALSE,FALSE,FALSE,"Asian",0,"00000000000000000000000000000000000000000000000000000000000000000000","Chiang Mai"
+4,15,120,0,2,FALSE,FALSE,FALSE,FALSE,"Asian",0,"00000000000000000000010000000000000000000000000000000000000000000000","Nakhon Rachasima"
+7,11,124,2,2,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Chicago"
+7,15,130,2,1,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Washington"
+8,13,117,2,3,TRUE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000000000000000000000000000000000000000000000000000","Denver"
+10,12,116,2,1,FALSE,FALSE,FALSE,FALSE,"Celtic",0,"00000000000000000000010000000000000000000000000000000000000000000000","Los Angeles"
+}
+dc_total=6
+[score1]
+happy=9
+content=4
+unhappy=0
+angry=0
+specialists0=0
+specialists1=0
+specialists2=0
+wonders=0
+techs=27
+techout=0
+landarea=50000
+settledarea=15000
+population=250
+cities=5
+units=5
+pollution=0
+literacy=0
+bnp=18
+mfg=20
+spaceship=0
+units_built=8
+units_killed=0
+units_lost=0
+culture=0
+total=67
+[player2]
+flags="ai"
+ai_type="classic"
+name="Dwight Eisenhower"
+username="Unassigned"
+unassigned_user=TRUE
+color.r=0
+color.g=255
+color.b=255
+ranked_username="Unassigned"
+unassigned_ranked=TRUE
+orig_username=""
+delegation_username=""
+nation="American"
+team_no=2
+government_name="Monarchy"
+style_by_name="Celtic"
+idle_turns=40
+kind="male"
+is_alive=TRUE
+turns_alive=40
+last_war=40
+phase_done=FALSE
+diplstate={"current","closest","first_contact_turn","turns_left","has_reason_to_cancel","contact_turns_left","embassy","gives_shared_vision"
+"Cease-fire","Cease-fire",2,16,0,19,FALSE,FALSE
+"War","War",8,16,0,17,FALSE,FALSE
+"Never met","Never met",0,0,0,0,FALSE,FALSE
+}
+ai={"love","spam","countdown","war_reason","patience","warn_space","ask_peace","ask_alliance","ask_ceasefire"
+103,1,-1,5,0,0,0,0,5
+-963,4,0,3,0,0,0,0,0
+0,4,-1,5,0,0,0,0,0
+}
+ai.level="Normal"
+ai.barb_type="None"
+gold=19
+rates.tax=30
+rates.science=70
+rates.luxury=0
+research.bulbs_last_turn=14
+trait={"val","mod"
+50,0
+50,0
+50,0
+}
+achievement_count=0
+got_first_city=TRUE
+revolution_finishes=-1
+spaceship.state=0
+lost_wonders="00000000000000000000000000000000000000000000000000000000000000000000"
+history=0
+hut_count=0
+border_vision=FALSE
+ncities=4
+c={"y","x","id","original","size","nspe0","nspe1","nspe2","food_stock","shield_stock","history","airlift","was_happy","turn_plague","anarchy","rapture","steal","turn_founded","did_buy","did_sell","turn_last_built","name","currently_building_kind","currently_building_name","changed_from_kind","changed_from_name","before_change_shields","caravan_shields","disbanded_shields","last_turns_shield_surplus","style","city_radius_sq","improvements","wl_length","option0","option1","option2","ai.urgency","ai.building_turn","ai.building_wait","ai.founder_turn","ai.founder_want","ai.founder_boat","citizen2"
+7,15,130,2,2,0,0,0,5,19,0,0,FALSE,-1,0,0,0,22,FALSE,FALSE,22,"Washington","UnitType","Pikemen","UnitType","Pikemen",19,0,0,1,"Celtic",5,"00000000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,20,42,7,40,0,FALSE,2
+7,11,124,2,2,0,0,0,11,7,0,0,FALSE,-1,0,0,0,14,FALSE,FALSE,39,"Chicago","Building","City Walls","Building","City Walls",7,0,0,3,"Celtic",5,"00010000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,5,46,6,40,0,FALSE,2
+8,13,117,2,3,0,0,0,36,25,0,0,FALSE,-1,0,0,0,2,FALSE,FALSE,19,"Denver","Building","Barracks","Building","Barracks",25,0,0,1,"Celtic",5,"00000000000000000000000000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,9,43,8,40,0,FALSE,3
+10,12,116,2,2,0,0,0,28,6,0,0,FALSE,-1,0,0,0,2,FALSE,FALSE,40,"Los Angeles","UnitType","Pikemen","UnitType","Pikemen",6,0,0,6,"Celtic",5,"00010000000000000000010000000000000000000000000000000000000000000000",0,FALSE,FALSE,FALSE,8,47,9,40,0,FALSE,2
+}
+nunits=11
+u={"id","x","y","facing","nationality","veteran","hp","homecity","type_by_name","activity","activity_count","activity_tgt","changed_from","changed_from_count","changed_from_tgt","done_moving","moves","fuel","born","battlegroup","go","goto_x","goto_y","ai","passenger","ferryboat","charge","bodyguard","ord_map","ord_city","moved","paradropped","transported_by","carrying","action_decision","action_decision_tile_x","action_decision_tile_y","stay","orders_length","orders_index","orders_repeat","orders_vigilant","orders_list","dir_list","activity_list","action_list","sub_tgt_vec"
+150,12,10,"9",2,1,10,116,"Pikemen",15,0,-1,0,0,-1,FALSE,3,0,40,-1,TRUE,12,10,FALSE,0,0,116,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+149,11,7,"6",2,1,10,124,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,39,-1,TRUE,11,7,FALSE,0,0,124,0,1,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+147,12,10,"9",2,1,10,116,"Pikemen",7,0,-1,5,0,-1,FALSE,3,0,37,-1,FALSE,0,0,FALSE,0,0,0,0,1,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+139,13,5,"7",2,1,10,116,"Pikemen",15,0,-1,0,0,-1,TRUE,0,0,32,-1,TRUE,12,3,FALSE,0,0,0,0,0,2,TRUE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+138,13,8,"9",2,1,10,124,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,32,-1,TRUE,13,8,FALSE,0,0,117,0,0,1,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+136,11,7,"3",2,1,10,116,"Pikemen",7,0,-1,0,0,-1,TRUE,0,0,30,-1,TRUE,11,7,FALSE,0,0,0,-1,0,3,TRUE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+135,15,7,"8",2,1,10,124,"Pikemen",5,0,-1,5,0,-1,FALSE,3,0,27,-1,TRUE,15,7,FALSE,0,0,130,0,0,2,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+129,3,11,"6",2,0,20,116,"Settlers",0,0,-1,0,0,-1,FALSE,3,0,21,-1,FALSE,0,0,TRUE,0,0,0,0,0,4,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+107,13,8,"7",2,0,10,0,"Explorer",0,0,-1,0,0,-1,FALSE,3,0,1,-1,FALSE,0,0,FALSE,0,0,0,0,1,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+106,10,7,"7",2,0,10,0,"Workers",0,0,-1,0,0,-1,FALSE,3,0,1,-1,FALSE,0,0,TRUE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+105,14,8,"1",2,0,10,0,"Workers",3,20,1,3,20,1,FALSE,3,0,1,-1,FALSE,0,0,TRUE,0,0,0,0,0,0,FALSE,FALSE,-1,"",0,-1,-1,FALSE,0,0,FALSE,FALSE,"-","-","-","-",-1
+}
+map_t0000="uuuuuuuuuuuuuuuu"
+map_t0001="uuuuuuuuuuuuuuuu"
+map_t0002="uuuuuuuuuuu     "
+map_t0003="uuuuuuuuu   gpp "
+map_t0004="  uuuuuuu pmhhpp"
+map_t0005="p uuuuuuu phdhhd"
+map_t0006="p uuuuuuu phmmhp"
+map_t0007="  uuu     ghhgmj"
+map_t0008="  u   ff  pphhhg"
+map_t0009="    fp     dghgg"
+map_t0010="ffgdg  uuu sgpps"
+map_t0011="pfhhp           "
+map_t0012="ghhppppgfs    u "
+map_t0013=" fgsg ffhg uuuu "
+map_t0014="           uuuuu"
+map_t0015="uuuuuuuuuuuuuuuu"
+map_e00_0000="0000000000000000"
+map_e00_0001="0000000000000000"
+map_e00_0002="0000000000000000"
+map_e00_0003="0000000000000000"
+map_e00_0004="0000000000000000"
+map_e00_0005="0000000000100204"
+map_e00_0006="0000000000000000"
+map_e00_0007="0000000000120000"
+map_e00_0008="0000000000000001"
+map_e00_0009="0000000000000011"
+map_e00_0010="0000100000000100"
+map_e00_0011="1000000000000000"
+map_e00_0012="0000100000000000"
+map_e00_0013="0000000000000000"
+map_e00_0014="0000000000000000"
+map_e00_0015="0000000000000000"
+map_e01_0000="0000000000000000"
+map_e01_0001="0000000000000000"
+map_e01_0002="0000000000000000"
+map_e01_0003="0000000000000000"
+map_e01_0004="0000000000000000"
+map_e01_0005="0000000000000000"
+map_e01_0006="0000000000000000"
+map_e01_0007="0000000000000000"
+map_e01_0008="0000000000000000"
+map_e01_0009="0000000000000000"
+map_e01_0010="0000000000000000"
+map_e01_0011="0000000000000000"
+map_e01_0012="0000000000000000"
+map_e01_0013="0000000000000000"
+map_e01_0014="0000000000000000"
+map_e01_0015="0000000000000000"
+map_e02_0000="0000000000000000"
+map_e02_0001="0000000000000000"
+map_e02_0002="0000000000000000"
+map_e02_0003="0000000000000000"
+map_e02_0004="0000000000008088"
+map_e02_0005="0000000000800808"
+map_e02_0006="0000000000000000"
+map_e02_0007="0000000000880808"
+map_e02_0008="0000000000000808"
+map_e02_0009="0000000000008080"
+map_e02_0010="0080800000008800"
+map_e02_0011="8800000000000000"
+map_e02_0012="0800800000000000"
+map_e02_0013="0000800000000000"
+map_e02_0014="0000000000000000"
+map_e02_0015="0000000000000000"
+map_e03_0000="0000000000000000"
+map_e03_0001="0000000000000000"
+map_e03_0002="0000000000000000"
+map_e03_0003="0000000000000000"
+map_e03_0004="0000000000000000"
+map_e03_0005="0000000000000000"
+map_e03_0006="2000000000000002"
+map_e03_0007="0000000000000000"
+map_e03_0008="0000000000000000"
+map_e03_0009="0000000000000002"
+map_e03_0010="0020000000000000"
+map_e03_0011="2000000000000000"
+map_e03_0012="0000200000000000"
+map_e03_0013="0000200200000000"
+map_e03_0014="0000000000000000"
+map_e03_0015="0000000000000000"
+map_e04_0000="0000000000000000"
+map_e04_0001="0000000000000000"
+map_e04_0002="0000000000000000"
+map_e04_0003="0000000008000008"
+map_e04_0004="0800000000000000"
+map_e04_0005="0000000000000000"
+map_e04_0006="0000000000000000"
+map_e04_0007="0000008000000000"
+map_e04_0008="0000000000000000"
+map_e04_0009="0800000000000000"
+map_e04_0010="0000000000000000"
+map_e04_0011="0000000000000000"
+map_e04_0012="0000000000000000"
+map_e04_0013="0000000040800000"
+map_e04_0014="0000000000000000"
+map_e04_0015="0000000000000000"
+map_e05_0000="0000000000000000"
+map_e05_0001="0000000000000000"
+map_e05_0002="0000000000000000"
+map_e05_0003="0000000000000000"
+map_e05_0004="0000000000000000"
+map_e05_0005="0000000000000000"
+map_e05_0006="0000000000000000"
+map_e05_0007="0000000000000002"
+map_e05_0008="0000000000000000"
+map_e05_0009="0000000000000000"
+map_e05_0010="0000000000000400"
+map_e05_0011="0000000000000000"
+map_e05_0012="0000000000000000"
+map_e05_0013="0000000000000000"
+map_e05_0014="0000000000000000"
+map_e05_0015="0000000000000000"
+map_e06_0000="0000000000000000"
+map_e06_0001="0000000000000000"
+map_e06_0002="0000000000000000"
+map_e06_0003="0000000000000000"
+map_e06_0004="0000000000000000"
+map_e06_0005="0000000000000000"
+map_e06_0006="0000000000000000"
+map_e06_0007="0000000000000000"
+map_e06_0008="0000000000000000"
+map_e06_0009="0000000000000000"
+map_e06_0010="0000000000000002"
+map_e06_0011="0000000000000000"
+map_e06_0012="0000000000000000"
+map_e06_0013="0002004000000000"
+map_e06_0014="0000000000000000"
+map_e06_0015="0000000000000000"
+map_e07_0000="0000000000000000"
+map_e07_0001="0000000000000000"
+map_e07_0002="0000000000000000"
+map_e07_0003="0000000000000000"
+map_e07_0004="0000000000000000"
+map_e07_0005="0000000000000000"
+map_e07_0006="0000000000000000"
+map_e07_0007="0000000000000000"
+map_e07_0008="0000000000000000"
+map_e07_0009="0000000000000000"
+map_e07_0010="0000000000800000"
+map_e07_0011="0200008000000000"
+map_e07_0012="0000000000000000"
+map_e07_0013="0000000000000000"
+map_e07_0014="0800000000000000"
+map_e07_0015="0000000000000000"
+map_e08_0000="0000000000000000"
+map_e08_0001="0000000000000000"
+map_e08_0002="0000000000000000"
+map_e08_0003="0000000000000000"
+map_e08_0004="0000000000000000"
+map_e08_0005="0000000000000102"
+map_e08_0006="0000000000000000"
+map_e08_0007="0000000000010000"
+map_e08_0008="0000000000000100"
+map_e08_0009="0000000000000000"
+map_e08_0010="0000000000000000"
+map_e08_0011="0000000000000000"
+map_e08_0012="0000000000000000"
+map_e08_0013="0000000000000000"
+map_e08_0014="0000000000000000"
+map_e08_0015="0000000000000000"
+map_u00_0000="1111111111111111"
+map_u00_0001="1111111111111111"
+map_u00_0002="1111111111144444"
+map_u00_0003="1111111113345554"
+map_u00_0004="6611111113345556"
+map_u00_0005="7611111119335577"
+map_u00_0006="7611111113332117"
+map_u00_0007="76111bbbb2221111"
+map_u00_0008="311cccbbb2211111"
+map_u00_0009="3aacccbbb2211111"
+map_u00_0010="762cccb111111118"
+map_u00_0011="7620000dee111117"
+map_u00_0012="6621000fffe11116"
+map_u00_0013="1111000fffe11111"
+map_u00_0014="11110fffffe11111"
+map_u00_0015="1111111111111111"
+map_u01_0000="0000000000000000"
+map_u01_0001="0000000000000000"
+map_u01_0002="0000000000000000"
+map_u01_0003="0000000000000000"
+map_u01_0004="0000000000000000"
+map_u01_0005="0000000002000200"
+map_u01_0006="0000000000000000"
+map_u01_0007="0000000000000000"
+map_u01_0008="1000000000000000"
+map_u01_0009="1110000000000000"
+map_u01_0010="2210000000000002"
+map_u01_0011="2211111000000002"
+map_u01_0012="2211111000000002"
+map_u01_0013="1111111000000001"
+map_u01_0014="1111100000000000"
+map_u01_0015="0000000000000000"
+map_u02_0000="0000000000000000"
+map_u02_0001="0000000000000000"
+map_u02_0002="0000000000000000"
+map_u02_0003="0000000000000000"
+map_u02_0004="0000000000000000"
+map_u02_0005="0000000000000000"
+map_u02_0006="0000000000000000"
+map_u02_0007="0000000000000000"
+map_u02_0008="0000000000000000"
+map_u02_0009="0000000000000000"
+map_u02_0010="0000000000000000"
+map_u02_0011="0000000000000000"
+map_u02_0012="0000000000000000"
+map_u02_0013="0000000000000000"
+map_u02_0014="0000000000000000"
+map_u02_0015="0000000000000000"
+map_u03_0000="0000000000000000"
+map_u03_0001="0000000000000000"
+map_u03_0002="0000000000000000"
+map_u03_0003="0000000000000000"
+map_u03_0004="0000000000000000"
+map_u03_0005="0000000000000000"
+map_u03_0006="0000000000000000"
+map_u03_0007="0000000000000000"
+map_u03_0008="0000000000000000"
+map_u03_0009="0000000000000000"
+map_u03_0010="0000000000000000"
+map_u03_0011="0000000000000000"
+map_u03_0012="0000000000000000"
+map_u03_0013="0000000000000000"
+map_u03_0014="0000000000000000"
+map_u03_0015="0000000000000000"
+dc={"y","x","id","owner","size","occupied","walls","happy","unhappy","style","city_image","improvements","name"
+4,15,120,0,1,FALSE,FALSE,FALSE,FALSE,"Asian",0,"00000000000000000000010000000000000000000000000000000000000000000000","Nakhon Rachasima"
+10,2,119,1,4,TRUE,FALSE,TRUE,FALSE,"Classical",1,"00000000000000000000000000000000000000000000000000000000000000000000","Guimarães"
+12,1,118,1,2,TRUE,TRUE,FALSE,FALSE,"Classical",0,"00000001000000000000010000000000000000000000000000000000000000000000","Lisboa"
+13,4,125,1,1,FALSE,FALSE,FALSE,FALSE,"Classical",0,"00000000000000000000000000000000000000000000000000000000000000000000","Guarda"
+}
+dc_total=4
+[score2]
+happy=0
+content=9
+unhappy=0
+angry=0
+specialists0=0
+specialists1=0
+specialists2=0
+wonders=0
+techs=26
+techout=14
+landarea=29000
+settledarea=14000
+population=150
+cities=4
+units=7
+pollution=0
+literacy=0
+bnp=21
+mfg=10
+spaceship=0
+units_built=11
+units_killed=0
+units_lost=1
+culture=0
+total=62
+[research]
+r={"number","goal_name","techs","futuretech","bulbs_before","saved_name","bulbs","now_name","got_tech","got_tech_multi","done"
+0,"A_UNSET",6,0,0,"",139,"Feudalism",False,False,"1010000000100100000000000000000000000000000000000000010000000000000000000000000000000010"
+1,"A_UNSET",12,0,0,"",8,"Invention",False,False,"1010000001000100000110000100000000010000001000100000000000000000000000000000000001000001"
+2,"A_UNSET",53,0,0,"",216,"Superconductors",False,False,"1010111111110101000110111100100000111110101011111110000111111001010100001001100111011111"
+}
+count=3
+[event_cache]
+events={"turn","phase","timestamp","x","y","server_state","event","target","message"
+41,1,1694411288,-1,-1,"S_S_RUNNING","E_NEXT_YEAR","All","Year: 2000 BCE"
+41,0,1694411304,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411306,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411307,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#8B0000\"]A treaty containing 4 clauses was agreed upon.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_DIPLOMACY","010","[c fg=\"#8B0000\"]A treaty containing 4 clauses was agreed upon.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* Yes, may we forever stand united, Minitask.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_EMBASSY","010","[c fg=\"#8B0000\"]You gave an embassy to Minitask.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_EMBASSY","100","[c fg=\"#8B0000\"]Afonso Henriques allowed you to create an embassy![/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_EMBASSY","100","[c fg=\"#8B0000\"]You gave an embassy to Afonso Henriques.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_EMBASSY","010","[c fg=\"#8B0000\"]Minitask allowed you to create an embassy![/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_SHARED_VISION","010","[c fg=\"#8B0000\"]You give shared vision to Minitask.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_SHARED_VISION","100","[c fg=\"#8B0000\"]Afonso Henriques gives you shared vision.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_ALLIANCE","100","[c fg=\"#8B0000\"]You agree on an alliance with Afonso Henriques.[/c]"
+41,0,1694411312,-1,-1,"S_S_RUNNING","E_TREATY_ALLIANCE","010","[c fg=\"#8B0000\"]You agree on an alliance with Minitask.[/c]"
+41,0,1694411320,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411323,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411327,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#8B0000\"]A treaty containing 1 clause was agreed upon.[/c]"
+41,0,1694411327,-1,-1,"S_S_RUNNING","E_DIPLOMACY","001","[c fg=\"#8B0000\"]A treaty containing 1 clause was agreed upon.[/c]"
+41,0,1694411327,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* Agreed. No more hostilities, Minitask.[/c]"
+41,0,1694411327,-1,-1,"S_S_RUNNING","E_TREATY_CEASEFIRE","100","[c fg=\"#8B0000\"]You agree on a cease-fire with Dwight Eisenhower.[/c]"
+41,0,1694411327,-1,-1,"S_S_RUNNING","E_TREATY_CEASEFIRE","001","[c fg=\"#8B0000\"]You agree on a cease-fire with Minitask.[/c]"
+41,0,1694411406,-1,-1,"S_S_RUNNING","E_DIPLOMACY","010","[c fg=\"#8B0000\"]Minitask canceled the meeting![/c]"
+41,0,1694411406,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#8B0000\"]Meeting with Afonso Henriques canceled.[/c]"
+41,0,1694411412,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411416,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* First break alliance with Afonso Henriques, Minitask.[/c]"
+41,0,1694411416,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411416,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#8B0000\"]You cannot form an alliance because Dwight Eisenhower is at war with an ally of yours.[/c]"
+41,0,1694411419,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* First break alliance with Afonso Henriques, Minitask.[/c]"
+41,0,1694411419,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411422,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* First break alliance with Afonso Henriques, Minitask.[/c]"
+41,0,1694411422,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411423,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* First break alliance with Afonso Henriques, Minitask.[/c]"
+41,0,1694411423,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Dwight Eisenhower (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694411424,-1,-1,"S_S_RUNNING","E_DIPLOMACY","001","[c fg=\"#8B0000\"]Minitask canceled the meeting![/c]"
+41,0,1694411424,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#8B0000\"]Meeting with Dwight Eisenhower canceled.[/c]"
+41,0,1694412148,-1,-1,"S_S_INITIAL","E_SETTING","All","kongxiangyu: 'set aifill 2'"
+41,0,1694412149,-1,-1,"S_S_INITIAL","E_SETTING","All","[c fg=\"#00FF00\" bg=\"#115511\"]All players are ready; starting game.[/c]"
+41,0,1694412149,-1,-1,"S_S_RUNNING","E_SETTING","All","[c fg=\"#8B0000\"]Player 'Afonso Henriques' now has AI skill level 'Easy'.[/c]"
+41,0,1694412149,-1,-1,"S_S_RUNNING","E_SETTING","All","[c fg=\"#8B0000\"]Player 'Dwight Eisenhower' now has AI skill level 'Easy'.[/c]"
+41,0,1694412167,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412171,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412171,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412171,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412172,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412172,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412172,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412172,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412172,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412173,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412173,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412173,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412173,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412173,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412174,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412175,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412175,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412175,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412175,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412175,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412176,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412176,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412176,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412176,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412176,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412177,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412177,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412177,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412177,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412177,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412178,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412185,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412192,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412199,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412199,-1,-1,"S_S_RUNNING","E_DIPLOMACY","100","[c fg=\"#A020F0\"]*Afonso Henriques (AI)* This deal was not very good for us, Minitask![/c]"
+41,0,1694412243,-1,-1,"S_S_INITIAL","E_SETTING","All","kongxiangyu: 'set aifill 2'"
+41,0,1694412243,-1,-1,"S_S_INITIAL","E_SETTING","All","[c fg=\"#00FF00\" bg=\"#115511\"]All players are ready; starting game.[/c]"
+41,0,1694412243,-1,-1,"S_S_RUNNING","E_SETTING","All","[c fg=\"#8B0000\"]Player 'Afonso Henriques' now has AI skill level 'Easy'.[/c]"
+41,0,1694412243,-1,-1,"S_S_RUNNING","E_SETTING","All","[c fg=\"#8B0000\"]Player 'Dwight Eisenhower' now has AI skill level 'Easy'.[/c]"
+
+}
+count=89
+[treaty0]
+plr0="Minitask"
+plr1="Afonso Henriques"
+accept0=FALSE
+accept1=TRUE
+[history]
+turn=-2
+[mapimg]
+count=0

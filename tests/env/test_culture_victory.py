@@ -18,31 +18,31 @@ from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.port_utils import Ports
 
 @pytest.fixture(params=[
+    ("enabled", "SPACERACE|ALLIED|CULTURE"), 
     ("enabled", "SPACERACE|ALLIED"), 
-    ("enabled", "ALLIED"), 
+    ("disabled", "SPACERACE|ALLIED|CULTURE"), 
     ("disabled", "SPACERACE|ALLIED"), 
-    ("disabled", "ALLIED"), 
 ])
-def tech_env(request):
+def cultrue_env(request):
     endvictory, victories = request.param
     fc_args["endvictory"] = endvictory
     fc_args["victories"] = victories
-    fc_args["debug.load_game"] = "testcontroller_T370_tech_victory"
-    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get())
+    fc_args["debug.load_game"] = "testminitask_T1_culture_victory"
+    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get(), username="testminitask")
     yield env, endvictory, victories
     env.close()
 
-def test_tech_victory(tech_env):
-    fc_logger.info("test_tech_victory")
-    env, endvictory, victories = tech_env
+def test_culture_victory(cultrue_env):
+    fc_logger.info("test_culture_victory")
+    env, endvictory, victories = cultrue_env
     _, info = env.reset()
     done = False
-    end_turn = 375
+    end_turn = 5
     while not done:
         _, reward, terminated, truncated, info = env.step(None)
         done = terminated or truncated or (info["turn"] == end_turn)
-    if endvictory == "enabled":
-        assert info["turn"] == 373
+    if endvictory == "enabled" and 'CULTURE' in victories:
+        assert info["turn"] == 2
     elif fc_web_args["tag"] >= "1.1":
         assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"
 

@@ -212,6 +212,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message("/set phasemode player")
         self.ws_client.send_message("/set minp 2")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
+        self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message("/set ec_chat=enabled")
         self.ws_client.send_message("/set ec_info=enabled")
         self.ws_client.send_message("/set ec_max_size=20000")
@@ -229,6 +230,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/rulesetdir {fc_args['ruleset']}")
         self.ws_client.send_message(f"/set aifill {fc_args['aifill']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
+        self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         # Based on https://github.com/freeciv/freeciv-web/blob/de87e9c62dc4f274d95b5c298372d3ce8d6d57c7/publite2/pubscript_multiplayer.serv
         self.ws_client.send_message("/set topology \"\"")
         self.ws_client.send_message("/set wrap WRAPX")

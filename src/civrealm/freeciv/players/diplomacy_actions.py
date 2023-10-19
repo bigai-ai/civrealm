@@ -21,9 +21,10 @@ from civrealm.freeciv.tech.tech_helpers import is_tech_known, player_invention_s
 import civrealm.freeciv.tech.tech_const as tech_const
 from civrealm.freeciv.players.player_const import BASE_CLAUSES, CONFLICTING_CLAUSES
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.freeciv.utils.utility import geometric_sequence
 
 GOLD_STEP = 1
-GOLD_SET = [10, 20, 50, 100, 200, 500, 1000]
+GOLD_SET = geometric_sequence(length=15,start=25,end=1500)
 
 
 class DiplOptions(ActionList):

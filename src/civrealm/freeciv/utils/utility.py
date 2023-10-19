@@ -90,3 +90,10 @@ def read_sub_arr_with_wrap(arr, start_x, end_x, start_y, end_y):
             return arr[start_x: end_x, start_y: end_y]
         else:
             return arr[start_x: end_x, start_y: end_y, :]
+
+
+
+def geometric_sequence(length: int, start: int, end: int):
+    start_end = np.log(np.array([start + 1e-4, end + 1e-4]))
+    log_array = np.linspace(*start_end, length)
+    return np.exp(log_array).astype(int).tolist()

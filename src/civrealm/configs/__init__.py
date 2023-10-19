@@ -12,11 +12,12 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import re
 import os
 import argparse
 import yaml
 
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def boolean_string(s):
     s = s.lower()
@@ -31,7 +32,7 @@ def parse_args():
     """
 
     default_config_file = os.path.normpath(
-        os.path.join(os.path.dirname(os.path.abspath(__file__)),
+        os.path.join(CURRENT_DIR,
                      '../../../default_settings.yaml'))
     parser = argparse.ArgumentParser()
     parser.add_argument('--config_file', help="configuration file *.yml", type=str,
@@ -61,5 +62,18 @@ def parse_args():
 
     return vars(args)
 
+def parse_fc_web_args(config_file='../../../docker-compose.yml'):
+
+    with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
+        fc_web_args = yaml.safe_load(file)
+
+    image = fc_web_args['services']['freeciv-web']['image']
+    fc_web_args['tag'] = 'latest'
+
+    if tag := re.search(r'\:(.*)', image):
+        fc_web_args['tag'] = tag[1]
+
+    return fc_web_args
 
 fc_args = parse_args()
+fc_web_args = parse_fc_web_args()

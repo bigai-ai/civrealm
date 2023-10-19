@@ -14,10 +14,10 @@
 import pytest
 import gymnasium
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.configs import fc_args
+from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.port_utils import Ports
 
-@pytest.fixture(params=["enabled", ])
+@pytest.fixture(params=["enabled", "disabled"])
 def tech_env(request):
     endvictory = request.param
     fc_args["endvictory"] = endvictory
@@ -37,6 +37,6 @@ def test_tech_victory(tech_env):
         done = terminated or truncated or (info["turn"] == end_turn)
     if endvictory == "enabled":
         assert info["turn"] == 373
-    else:
-        assert info["turn"] == end_turn
+    elif fc_web_args["tag"] >= '1.1':
+        assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"
 

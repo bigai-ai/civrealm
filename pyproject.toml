@@ -27,7 +27,7 @@ dependencies = [
     "BitVector", 
     "numpy", 
     "tornado==6.3.2", 
-    "gymnasium", 
+    "gymnasium==0.29.1", 
     "selenium", 
     "websocket-client",
     "pytest",
@@ -55,6 +55,7 @@ update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_j
 test_civrealm = "civrealm.random_game:main"
 
 [tool.pytest.ini_options]
+filterwarnings = ["ignore::DeprecationWarning", "ignore:.*obs returned by the.*method.*", "ignore:.*Casting input x to numpy array.*"]
 addopts = [
     "--import-mode=importlib",
     "-s", # show print statements in console 
@@ -64,6 +65,7 @@ addopts = [
     # # Env
     "tests/env/test_tensor_env.py",
     "tests/env/test_tensor_minitask_env.py",
+    "tests/env/test_tech_victory.py",
 
     # City
     "tests/city/test_city_change_unit_prod.py",

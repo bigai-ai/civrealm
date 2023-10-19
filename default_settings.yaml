@@ -36,6 +36,8 @@ minp: 1
 allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
 autotoggle: False
+# Whether end the game when some players succeed under victory conditions, option: enabled, disabled
+endvictory: enabled
 
 # The type of runner
 runner_type: "parallel"

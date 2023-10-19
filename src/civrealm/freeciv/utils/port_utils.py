@@ -46,6 +46,12 @@ class PortStatus:
                 with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
                     pass  # Do nothing, just create an empty file
 
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return self.get()
+
     @property
     def status(self) -> dict:
         """
@@ -126,8 +132,7 @@ class PortStatus:
         status = self.status
         occupied_ports = list(
             filter(
-                lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"]
-                - x[2]
+                lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"] - x[2]
                 < 3,
                 occupied_ports,
             )
@@ -136,8 +141,8 @@ class PortStatus:
         occupied_ports = list(
             filter(
                 lambda x: not (
-                    status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1] > 30
-                    and status.get(int(x[0]), {"user": 1}) == 0
+                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 10)
+                    and status.get(int(x[0]), {"user": 1})["user"] == 0
                 ),
                 occupied_ports,
             )

@@ -18,25 +18,25 @@ from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.port_utils import Ports
 
 @pytest.fixture(params=["enabled", "disabled"])
-def tech_env(request):
+def allied_env(request):
     endvictory = request.param
     fc_args["endvictory"] = endvictory
-    fc_args["debug.load_game"] = "testcontroller_T370_tech_victory"
-    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get())
+    fc_args["debug.load_game"] = "testminitask_T39_allied_victory"
+    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get(), username="testminitask")
     yield env, endvictory
     env.close()
 
-def test_tech_victory(tech_env):
-    fc_logger.info("test_tech_victory")
-    env, endvictory = tech_env
+def test_allied_victory(allied_env):
+    fc_logger.info("test_allied_victory")
+    env, endvictory = allied_env
     _, info = env.reset()
     done = False
-    end_turn = 375
+    end_turn = 45
     while not done:
         _, reward, terminated, truncated, info = env.step(None)
         done = terminated or truncated or (info["turn"] == end_turn)
     if endvictory == "enabled":
-        assert info["turn"] == 373
+        assert info["turn"] == 40
     elif fc_web_args["tag"] >= "1.1":
         assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"
 

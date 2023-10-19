@@ -51,10 +51,10 @@ class RandomLLMAgent(BaseAgent):
 
         for ctrl_type in info['available_actions']:
 
-            """
+
             if ctrl_type in ['city', 'unit']:
                 continue
-            """
+
 
             for actor_id, action_dict in info['available_actions'][ctrl_type].items():
                 if actor_id in self.planned_actor_ids:

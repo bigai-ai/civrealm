@@ -430,11 +430,18 @@ class AddClause(RemoveClause):
 
             rem_clause = None
             for clause in clauses:
-                if (self.clause_type in CONFLICTING_CLAUSES and clause['type'] in CONFLICTING_CLAUSES) or (self.clause_type == player_const.CLAUSE_GOLD and clause['type'] == player_const.CLAUSE_GOLD):
+
+                """ clause in CONFLICTING_CLAUSES does not have direction thus there can only be one clause of this kind """
+                if self.clause_type in CONFLICTING_CLAUSES and clause['type'] in CONFLICTING_CLAUSES:
                     if clause['giver'] == self.cur_player['playerno']:
                         rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
                     else:
                         rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.counterpart, self.cur_player, self.diplomacy_clause_map, self.contact_turns_left)
+
+                """ clause of CLAUSE_GOLD has direction thus there can be two clauses of this kind respectively corresponding to cur_player --> counterpart and counterpart --> cur_player"""
+
+                if self.clause_type == player_const.CLAUSE_GOLD and clause['type'] == player_const.CLAUSE_GOLD and clause['giver'] ==  self.cur_player['playerno']:
+                    rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
 
                 if rem_clause is not None and rem_clause.is_action_valid():
                     rem_clause.trigger_action(self.ws_client)

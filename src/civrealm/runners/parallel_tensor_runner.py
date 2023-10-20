@@ -15,7 +15,7 @@ class ParallelTensorRunner:
         )
         self.logger = ray_logger_setup()
 
-        self.tensor_env = ParallelTensorEnv(env_name, 4, 6300)
+        self.tensor_env = ParallelTensorEnv(env_name, 4)
         self.agent = agent
         self.steps = 0
         self.batch_size_run = fc_args["batch_size_run"]

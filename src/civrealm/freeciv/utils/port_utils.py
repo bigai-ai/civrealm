@@ -149,9 +149,9 @@ class PortStatus:
         )
         return occupied_ports
 
-    def get(self):
+    def get(self, port=None):
         """
-        get the next empty port in a thread-safe way.
+        get the specified port or the next empty port (port=None) in a thread-safe way.
         """
         with FileLock(self.lock_file):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
@@ -159,15 +159,17 @@ class PortStatus:
                 ports_data = [tuple(map(float, line.strip().split())) for line in lines]
 
             empties = []
-            while len(empties) == 0:
+            while True:
                 time.sleep(0.05)
                 ports_data = self._check_release(ports_data)
                 occupied_ports = [int(data[0]) for data in ports_data]
-                empties = [
-                    port for port in sorted(self._idles) if port not in occupied_ports
-                ]
-
-            result = empties[0]
+                empties = [p for p in sorted(self._idles) if p not in occupied_ports]
+                if port is not None and port in empties:
+                    result = port
+                    break
+                if len(empties) > 0:
+                    result = empties[0]
+                    break
 
             status = self.status
             ports_data.append(
@@ -178,7 +180,7 @@ class PortStatus:
                 )
             )
             occupied_ports_lines = [
-                f"{int(port)} {uptime} {birth}\n" for port, uptime, birth in ports_data
+                f"{int(p)} {uptime} {birth}\n" for p, uptime, birth in ports_data
             ]
             with open(self.occupied_ports_file, "w", encoding="utf-8") as file:
                 file.writelines(occupied_ports_lines)

@@ -141,7 +141,7 @@ class PortStatus:
         occupied_ports = list(
             filter(
                 lambda x: not (
-                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 10)
+                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 30)
                     and status.get(int(x[0]), {"user": 1})["user"] == 0
                 ),
                 occupied_ports,

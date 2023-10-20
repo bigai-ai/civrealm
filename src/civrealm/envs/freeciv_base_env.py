@@ -28,7 +28,7 @@ from civrealm.freeciv.civ_controller import CivController
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.freeciv.utils.eval_tags import EVALUATION_TAGS
 from civrealm.configs import fc_args
-
+from civrealm.freeciv.utils.port_utils import Ports
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic CivRealm environment """
@@ -36,23 +36,28 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def __init__(
             self, username: str = fc_args['username'],
-            client_port: int = fc_args['client_port'],
+            client_port=None,
             is_minitask=False):
-        self.civ_controller = CivController(username=username, client_port=client_port,
+        self.username = username
+        self.is_minitask = is_minitask
+        # Record whether the env is currently running.
+        self.running = False
+
+        # Create dummy controller to retrieve action_space and observation_space.
+        self.civ_controller = CivController(username=self.username,
                                             visualize=fc_args['debug.take_screenshot'],
-                                            is_minitask=is_minitask)
+                                            is_minitask=self.is_minitask)
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
-        self.set_up_screenshots()
-        utils.EzPickle.__init__(self, client_port)
+        utils.EzPickle.__init__(self, self.username, client_port, self.is_minitask)
 
     def set_up_screenshots(self):
         self._screenshot_step_count = 0
         curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time())
         self.screenshot_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
-            'screenshots', fc_args['username'] + "_" + str(fc_args['client_port']) + "_" + curr_date_time)
+            'screenshots', self.username + "_" + str(self.get_port()) + "_" + curr_date_time)
         os.makedirs(self.screenshot_dir, exist_ok=True)
 
     def set_up_recording(self):
@@ -117,8 +122,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.game_has_truncated()
 
     def step(self, action):
-        import time
-        start_time = time.time()
         self.civ_controller.perform_action(action)
         try:
             info, observation = self._get_info_and_observation()
@@ -136,15 +139,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             observation = None
             terminated = False
             truncated = True
-
-        # TODO: check if we still need this logic
-        end_time = time.time()
-        elapsed_time = end_time - start_time
-        # If running is too slow, we stop the program.
-        if elapsed_time > 15:
-            fc_logger.debug('Running too slow.')
-            # assert (False)
-        # fc_logger.info(f'terminated: {terminated}, truncated: {truncated}')
+        
         return observation, reward, terminated, truncated, info
 
     def get_port(self):
@@ -154,12 +149,27 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self.civ_controller.clstate.username
 
     def reset(self, seed=None, options=None, **kwargs):
+        # If call reset when the env is still running, we close it first.
+        if self.running:
+            print('Close running environment before reset.')
+            self.close()
+
+        client_port = Ports.get()
+        print(f'Reset with port: {client_port}')
+        self.civ_controller = CivController(username=self.username, client_port=client_port,
+                                            visualize=fc_args['debug.take_screenshot'],
+                                            is_minitask=self.is_minitask)
+        self.set_up_screenshots()
+
         if seed is not None:
             fc_args['debug.randomly_generate_seeds'] = False
             fc_args['debug.mapseed'] = seed
             fc_args['debug.agentseed'] = seed
+        # Log in and get the first info and observation
         self.civ_controller.init_network()
         info, observation = self._get_info_and_observation()
+        # Log in success, set running as True
+        self.running = True
         return observation, info
 
     def get_game_results(self):
@@ -211,6 +221,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def close(self):
         # fc_logger.info(f'Env port: {self.get_port()} closes ....')
         self.civ_controller.close()
+        self.running = False
 
 
 # Only for testing purpose

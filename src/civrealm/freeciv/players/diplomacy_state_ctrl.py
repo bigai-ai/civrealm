@@ -30,19 +30,32 @@ from civrealm.freeciv.players.diplomacy_actions import DiplOptions
 
 
 class DiplomacyState(DictState):
-    def __init__(self, diplomatic_state: dict):
+    def __init__(self, diplomatic_state: dict, diplomacy_clause_map: dict, players: dict):
         super().__init__()
         self.diplomatic_state = diplomatic_state
+        self.diplomacy_clause_map = diplomacy_clause_map
+        self.players = players
 
     def _update_state(self, pplayer):
-        self._state = {player_id: {'diplomatic_state': diplomatic_state}
-                       for player_id, diplomatic_state in self.diplomatic_state.items()}
+        for player_id in self.players:
+            self._state[player_id] = dict()
+            if player_id in self.diplomatic_state:
+                self._state[player_id]['diplomatic_state'] = self.diplomatic_state[player_id]
+            else:
+                self._state[player_id]['diplomatic_state'] = -1
+
+            if player_id in self.diplomacy_clause_map:
+                self._state[player_id]['diplomacy_clause_map'] = self.diplomacy_clause_map[player_id]
+            else:
+                self._state[player_id]['diplomacy_clause_map'] = dict()
 
     def get_observation_space(self):
-        diplomatic_space = gymnasium.spaces.Dict({
-            'diplomatic_state': gymnasium.spaces.Discrete(player_const.DS_LAST)
+        diplomacy_space = gymnasium.spaces.Dict({
+            'diplomatic_state': gymnasium.spaces.Discrete(player_const.DS_LAST),
+            # TODO: to be specified
+            'diplomacy_clause_map': gymnasium.spaces.Dict()
         })
-        return gymnasium.spaces.Dict({player_id: diplomatic_space for player_id in self.diplomatic_state.keys()})
+        return gymnasium.spaces.Dict({player_id: diplomacy_space for player_id in self.diplomatic_state.keys()})
 
 
 class DiplomacyCtrl(CivPropController):
@@ -65,7 +78,7 @@ class DiplomacyCtrl(CivPropController):
         self.player_ctrl = player_ctrl
 
         self.clstate = clstate
-        self.prop_state = DiplomacyState(self.diplstates)
+        self.prop_state = DiplomacyState(self.diplstates, self.diplomacy_clause_map, self.player_ctrl.players)
         self.prop_actions = DiplOptions(ws_client, rule_ctrl, city_ctrl, self.player_ctrl, self.diplomacy_clause_map,
                                         self.contact_turns_left, self.reason_to_cancel, self.diplstates, self.others_diplstates)
         # TODO: dipl_evaluator is not implemented yet

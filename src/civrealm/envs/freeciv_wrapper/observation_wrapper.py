@@ -30,6 +30,7 @@ class TensorObservation(ObservationWrapper):
             return None
 
         observation = deepcopy(observation)
+        observation = self._merge_player_techs(observation)
         obs_dict = self._handle_dict(observation)
         obs = self._embed_immutable(deepcopy(obs_dict))
         obs = self._embed_mutable(obs)
@@ -197,6 +198,14 @@ class TensorObservation(ObservationWrapper):
         for field, val in self.obs_layout.items():
             shape = reduce(add_shape, val.values())
             assert shape[-1] == obs[field].shape[-1]
+
+    def _merge_player_techs(self, obs):
+        for player in obs["player"].values():
+            player["techs"] = []
+            for tech in sorted(obs["tech"]):
+                player_tech = player.pop(f"tech_{tech}")
+                player["techs"].append(player_tech if player_tech is not None else 255)
+        return obs
 
 
 class CacheLastObs(Wrapper):

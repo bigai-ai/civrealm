@@ -13,6 +13,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import ray
+import os
+# Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
+os.environ['RAY_DEDUP_LOGS'] = '0'
 
 import gymnasium
 from civrealm.envs.freeciv_parallel_env import FreecivParallelEnv

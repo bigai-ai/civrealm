@@ -28,8 +28,6 @@ aifill: 4
 maxplayers: 10
 # Whether start multiple clients for self play. When it is true, the following clients will add increasing index to their username for login to the same game. Note that when running pytest, we automatically set this as False. By doing so, different tests connecting to the same port will raise exception and force one test to re-select a random new port.
 self_play: True
-# The number of players that are involved in the self-play
-self_play_number: 2
 # The minimum number of players that allows the game to start
 minp: 1
 # The allowtake setting decides whether can take control/observe a player
@@ -71,8 +69,8 @@ debug:
   password: civrealm
   # load_game: "testcontroller_T230_2023-09-08-09_14"
   # load_game: "myagent_T1_2023-08-28-12_19"
-  load_game: "testcontroller_T200_2023-07-31-01_51"
-  # load_game: ""
+  # load_game: "testcontroller_T200_2023-07-31-01_51"
+  load_game: ""
   # game-reproducer
   # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
   randomly_generate_seeds: True

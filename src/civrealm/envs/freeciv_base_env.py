@@ -148,13 +148,13 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def get_username(self):
         return self.civ_controller.clstate.username
 
-    def reset(self, seed=None, options=None, **kwargs):
+    def reset(self, seed=None, options=None, client_port=None, **kwargs):
         # If call reset when the env is still running, we close it first.
         if self.running:
             print('Close running environment before reset.')
             self.close()
-
-        client_port = Ports.get()
+        if client_port is None:
+            client_port = Ports.get()
         print(f'Reset with port: {client_port}')
         self.civ_controller = CivController(username=self.username, client_port=client_port,
                                             visualize=fc_args['debug.take_screenshot'],

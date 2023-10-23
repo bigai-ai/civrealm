@@ -26,9 +26,9 @@ import os
 # Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
 os.environ['RAY_DEDUP_LOGS'] = '0'
 from civrealm.freeciv.utils.freeciv_logging import ray_logger_setup
+from civrealm.freeciv.utils.port_utils import Ports
 
 def main():
-    fc_args['minp'] = fc_args['self_play_number']
     if fc_args['minp'] <= 1:
         assert False, 'self_play_number should be larger than 1'
     ray.init(
@@ -37,6 +37,7 @@ def main():
         )
     logger = ray_logger_setup()
     
+    client_port = Ports.get()
     envs = []
     envs.append(FreecivParallelEnv.remote('freeciv/FreecivBase-v0'))
     for i in range(1, fc_args['minp']):
@@ -61,7 +62,7 @@ def main():
     # Perform the reset step
     for i in range(fc_args['minp']):
         # Both perform reset() to login. But the results (observations and infos) of reset() are returned sequentially due to turn-based game.
-        id = envs[i].reset.remote(minitask_pattern=None)
+        id = envs[i].reset.remote(client_port=client_port, minitask_pattern=None)
         result_ids.append(id)
         id_env_map[id] = i
 
@@ -112,8 +113,6 @@ def main():
                             f'Truncated: {truncated}, action: {action}')
                         step_list[env_id] += 1
                         done = terminated or truncated
-                        if done:
-                            break
                 except Exception as e:
                     fc_logger.error(repr(e))
                     raise e

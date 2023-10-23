@@ -10,6 +10,7 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
 
 from .core import Wrapper
 from .embark_wrapper import EmbarkWrapper
+from .tech_wrapper import CombineTechResearchGoal
 from .utils import update
 
 tensor_debug = fc_args["debug.tensor_debug"]
@@ -22,10 +23,9 @@ class TensorAction(Wrapper):
         self.available_actions = {}
         self.mask = {}
         self.turn = -1
-        super().__init__(EmbarkWrapper(env))
+        super().__init__(CombineTechResearchGoal(EmbarkWrapper(env)))
         self.action_space = spaces.Dict(
             {
-                # actor_type_dim = 4; 0 for city, 1 for unit, 2 for gov, 3 for turn done
                 "actor_type": spaces.Discrete(len(self.actor_type_list)),
                 "city_id": spaces.Discrete(self.action_config["resize"]["city"]),
                 "city_action_type": spaces.Discrete(
@@ -37,6 +37,9 @@ class TensorAction(Wrapper):
                 ),
                 "gov_action_type": spaces.Discrete(
                     sum(self.action_config["action_layout"]["gov"].values())
+                ),
+                "tech_action_type": spaces.Discrete(
+                    sum(self.action_config["action_layout"]["tech"].values())
                 ),
             }
         )
@@ -77,10 +80,10 @@ class TensorAction(Wrapper):
 
         if actor_name == "turn done":
             return None
-        if actor_name == "gov":
+        if actor_name in ["gov", "tech"]:
             entity_pos = None
             entity_id = self.get_wrapper_attr("my_player_id")
-            action_index = action["gov_action_type"]
+            action_index = action[actor_name + "_action_type"]
         else:
             entity_pos, action_index = (
                 action[actor_name + "_id"],
@@ -138,10 +141,11 @@ class TensorAction(Wrapper):
                 ),
                 dtype=np.int32,
             )
-        self.mask["gov_action_type_mask"] = np.ones(
-            (sum(self.action_config["action_layout"]["gov"].values()),),
-            dtype=np.int32,
-        )
+        for field in ["gov", "tech"]:
+            self.mask[field + "_action_type_mask"] = np.ones(
+                (sum(self.action_config["action_layout"][field].values()),),
+                dtype=np.int32,
+            )
 
     def _update_mask(self, observation, info, action):
         # update self.mask using action, observation and info
@@ -249,22 +253,24 @@ class TensorAction(Wrapper):
                 any(self.mask[mutable + "_id_mask"])
             )
 
-        # Mask Gov
-        gov = info["available_actions"].get("gov", {})
-        if len(gov) > 0:
+        # Mask Gov and Tech
+        for immutable in ["gov", "tech"]:
+            options = info["available_actions"].get(immutable, {})
+            if len(options) == 0:
+                self.mask[immutable + "_action_type_mask"] *= 0
+                continue
             my_player_id = self.get_wrapper_attr("my_player_id")
             for action_id, act_name in enumerate(
-                sorted(list(gov[my_player_id].keys()))
+                sorted(list(options[my_player_id].keys()))
             ):
-                self.mask["gov_action_type_mask"][action_id] *= int(
-                    gov[my_player_id][act_name]
+                self.mask[immutable + "_action_type_mask"][action_id] *= int(
+                    options[my_player_id][act_name]
                 )
-        else:
-            self.mask["gov_action_type_mask"] *= 0
-        actor_type_index = self.actor_type_list.index("gov")
-        self.mask["actor_type_mask"][actor_type_index] = int(
-            any(self.mask["gov_action_type_mask"])
-        )
+        for immutable in ["gov", "tech"]:
+            actor_type_index = self.actor_type_list.index(immutable)
+            self.mask["actor_type_mask"][actor_type_index] = int(
+                any(self.mask[immutable + "_action_type_mask"])
+            )
 
     def _check_action_layout(self):
         action_layout = self.action_config["action_layout"]

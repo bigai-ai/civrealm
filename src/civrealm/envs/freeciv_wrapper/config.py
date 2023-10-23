@@ -132,6 +132,7 @@ others_player_ops = {
     "score": noop,
     "is_alive": onehotifier_maker(2),
     "diplomatic_state": onehotifier_maker(8),
+    "techs": noop,
 }
 player_ops = {
     "turn": noop,
@@ -159,6 +160,7 @@ player_ops = {
     "no_ais": noop,
     "research_progress": noop,
     "team_no": noop,
+    "techs": noop,
 }
 
 rules_ops = {
@@ -274,6 +276,7 @@ obs_mutable_layout = {
         "is_alive": (2,),
         "love": (11,),
         "diplomatic_state": (8,),
+        "techs": (87,),
     },
 }
 
@@ -307,6 +310,7 @@ obs_immutalbe_layout = {
         "tech_upkeep": (1,),
         "techs_researched": (1,),
         "total_bulbs_prod": (1,),
+        "techs": (87,),
     },
 }
 
@@ -504,6 +508,28 @@ action_layout = {
         "embassy_stay_": 8,
         "investigate_spend_": 8,
     },
+    "dipl": {
+        "stop_negotiation_": 1,
+        "accept_treaty_": 1,
+        "cancel_treaty_": 1,
+        "cancel_vision_": 1,
+        "add_clause_ShareMap_": 2,
+        "remove_clause_ShareMap_": 2,
+        "add_clause_ShareSeaMap_": 2,
+        "remove_clause_ShareSeaMap_": 2,
+        "add_clause_Vision_": 2,
+        "remove_clause_Vision_": 2,
+        "add_clause_Embassy_": 2,
+        "remove_clause_Embassy_": 2,
+        "add_clause_Ceasefire_": 2,
+        "remove_clause_Ceasefire_": 2,
+        "add_clause_Peace_": 2,
+        "remove_clause_Peace_": 2,
+        "add_clause_Alliance_": 2,
+        "remove_clause_Alliance_": 2,
+        "trade_tech_clause_Advance_": 174,
+        "remove_clause_Advance_": 174,
+    },
     "gov": {
         "change_gov_Anarchy": 1,
         "change_gov_Despotism": 1,
@@ -513,9 +539,21 @@ action_layout = {
         "change_gov_Democracy": 1,
         "set_sci_luax_tax": 66,
     },
+    "tech": {
+        "research": 87,
+    },
 }
 
-actor_type_list = ["city", "unit", "gov", "turn done"]
+actor_type_list = ["city", "unit", "gov", "tech", "turn done"]
+
+mutables_others_have = ["unit", "city"]
+immutables_others_have = ["player", "tech"]
+mutable_fields = mutables_others_have + [
+    "others" + field for field in mutables_others_have + immutables_others_have
+]
+
+immutables_only_i_have = ["map", "rules", "gov"]
+immutable_fields = immutables_others_have + immutables_only_i_have
 
 default_tensor_config = {
     "filter_observation": [
@@ -537,4 +575,8 @@ default_tensor_config = {
     "obs_ops": ops,
     "actor_type_list": actor_type_list,
     "action_layout": action_layout,
+    "mutables_others_have": mutables_others_have,
+    "immutables_others_have": immutables_others_have,
+    "mutable_fields": mutable_fields,
+    "immutable_fields": immutable_fields,
 }

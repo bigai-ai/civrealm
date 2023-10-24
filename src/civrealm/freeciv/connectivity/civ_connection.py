@@ -85,7 +85,7 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         self.wait_for_packs = []
         self.read_packs = []
-        fc_logger.warning('Connection to server is closed!')
+        fc_logger.warning('Connection to server is closed!\n***************************########********************************')
 
     @override
     def _on_connection_error(self, exception):

@@ -16,8 +16,8 @@ class ParallelTensorRunner:
         )
         self.logger = ray_logger_setup()
 
-        # self.tensor_env = ParallelTensorEnv(env_name, 4)
-        self.tensor_env = ParallelSelfPlayEnv(env_name, 4)
+        # self.tensor_env = ParallelTensorEnv(env_name, fc_args["batch_size_run"])
+        self.tensor_env = ParallelSelfPlayEnv(env_name, fc_args["batch_size_run"])
         self.agent = agent
         self.steps = 0
         self.batch_size_run = fc_args["batch_size_run"]
@@ -35,8 +35,8 @@ class ParallelTensorRunner:
             observations, rewards, terminated, truncated, infos = self.tensor_env.step(
                 actions
             )
-
             self.steps += self.batch_size_run
-            if self.steps > 20:
-                print(self.tensor_env.get_recent_scores())
+            # print(f'Steps: {self.steps}')
+            if self.steps%20 == 0:
+                print(f'Recent score: {self.tensor_env.get_recent_scores()}')
         self.close()

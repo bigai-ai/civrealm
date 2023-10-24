@@ -120,8 +120,14 @@ class SelfPlayEnv():
 
 
     def close(self):
-        for env_id in range(fc_args['minp']):
-            ray.get(self.env[env_id].close.remote())
+        # The current player closes first because other players are in the loop.
+        ray.get(self.env[self.env_id].close.remote())
+        results = []
+        for id in range(fc_args['minp']):
+            if id != self.env_id:
+                results.append(self.env[id].close.remote())
+                # ray.get(self.env[id].close.remote())
+        ray.get(results)
 
     def get_port(self):
         return ray.get(self.env[0].get_port.remote())
@@ -133,10 +139,11 @@ class SelfPlayEnv():
         return ray.get(self.env[0].getattr.remote(attr))
 
     def get_final_score(self):
-        results = []
+        results = {}
         for i in range(fc_args['minp']):
-            results.append(self.env[i].get_final_score.remote())
-        return ray.get(results)
+            playerid = ray.get(self.env[i].get_playerid.remote())
+            results[playerid] = ray.get(self.env[i].get_final_score.remote())
+        return results
     
     def plot_game_scores(self):
         results = []

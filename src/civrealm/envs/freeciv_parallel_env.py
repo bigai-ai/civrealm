@@ -42,9 +42,6 @@ class FreecivParallelEnv():
         # print('FreecivParallelEnv.reset...')
         return self.env.reset(**kwargs)
 
-        observation, info = self.env.reset()
-        return self.env.civ_controller.get_turn(), self.env.civ_controller.get_turn()
-
     def close(self):
         self.env.close()
 
@@ -53,6 +50,9 @@ class FreecivParallelEnv():
 
     def get_username(self):
         return self.env.unwrapped.get_username()
+    
+    def get_playerid(self):
+        return self.env.unwrapped.get_playerid()
 
     def getattr(self, attr):
         return getattr(self.env, attr)

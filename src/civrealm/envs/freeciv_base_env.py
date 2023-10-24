@@ -147,6 +147,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def get_username(self):
         return self.civ_controller.clstate.username
+    
+    def get_playerid(self):
+        return self.civ_controller.player_ctrl.my_player_id
 
     def reset(self, seed=None, options=None, client_port=None, **kwargs):
         # If call reset when the env is still running, we close it first.

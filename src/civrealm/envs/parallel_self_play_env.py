@@ -89,13 +89,15 @@ class ParallelSelfPlayEnv:
                 ray.get(self.envs[env_id].close.remote())
                 # Get the final score
                 final_score = ray.get(self.envs[env_id].get_final_score.remote())
-                # Append the new final score to recent_scores
-                for tag in final_score.keys():
-                    # Some keys are new and we need to add them
-                    if tag not in self.recent_scores:
-                        self.recent_scores[tag] = deque(maxlen=fc_args['score_window'])
-                    self.recent_scores[tag].append(final_score[tag])
-
+                for playerid in final_score.keys():
+                    if playerid not in self.recent_scores:
+                        self.recent_scores[playerid] = {}
+                    # Append the new final score to recent_scores
+                    for tag in final_score[playerid].keys():
+                        # Some keys are new and we need to add them
+                        if tag not in self.recent_scores[playerid]:
+                            self.recent_scores[playerid][tag] = deque(maxlen=fc_args['score_window'])
+                        self.recent_scores[playerid][tag].append(final_score[playerid][tag])
                 while True:
                     try:
                         print("Reinitialze env....")
@@ -105,9 +107,12 @@ class ParallelSelfPlayEnv:
                         fc_logger.error(repr(e))
 
                 observations[env_id] = observation
-                last_score = copy.deepcopy(infos[env_id]['scores'])
+                last_score = None
+                if 'scores' in infos[env_id]:
+                    last_score = copy.deepcopy(infos[env_id]['scores'])
                 infos[env_id] = info
-                infos[env_id]['scores'] = last_score
+                if last_score != None:
+                    infos[env_id]['scores'] = last_score
 
             if not unready:
                 unfinished = False
@@ -115,4 +120,4 @@ class ParallelSelfPlayEnv:
         return observations, rewards, terminated, truncated, infos
     
     def get_recent_scores(self):
-        return {tag: list(self.recent_scores[tag]) for tag in self.recent_scores.keys()}
+        return {playerid: {tag: list(self.recent_scores[playerid][tag]) for tag in self.recent_scores[playerid].keys()} for playerid in self.recent_scores.keys()}

@@ -107,6 +107,8 @@ class CivController(CivPropController):
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
+        # Store the number of received game_over messages. Will receive two before the game fully ends.
+        self.game_over_msg_num = 0
         self.game_score = None
         self.is_minitask = is_minitask
         # Store the wait_for_pid timeout handle
@@ -257,8 +259,9 @@ class CivController(CivPropController):
         return self.turn_manager.turn
 
     def should_wait(self):
-        if not self.player_ctrl.previous_players_finished():
-            return True
+        # Now we set turn_active as True after get PACKET_START_PHASE related to own player id, so we don't need to check whether other players finish or not.
+        # if not self.player_ctrl.previous_players_finished():
+        #     return True
 
         if self.ws_client.is_waiting_for_responses():
             return True
@@ -280,14 +283,19 @@ class CivController(CivPropController):
             have_settlers = self.unit_ctrl.my_units_have_type('Settlers')
             if self.is_minitask:
                 if len(my_cities) == 0 and not have_settlers and not self.unit_ctrl.have_units():
+                    fc_logger.debug(f'In minitask, have no cities, settlers, and units.')
                     return True
             else:
                 # NOTE: maybe we should return False if the player still has attack units, or allow for a short time of survival (e.g., 10 turns).
                 if len(my_cities) == 0 and not have_settlers:
+                    fc_logger.debug(f'Have no cities and settlers.')
+                    # fc_logger.debug(f'Cities: {self.city_ctrl.cities.values()}')
+                    # fc_logger.debug(f'Units: {self.unit_ctrl.units.values()}')
                     return True
 
         if self.player_ctrl.my_player_id in self.player_ctrl.players:
             if not self.player_ctrl.my_player['is_alive']:
+                fc_logger.debug(f'Player is not alive.')
                 return True
 
         return False
@@ -304,11 +312,11 @@ class CivController(CivPropController):
             self.ws_client.stop_ioloop()
             return
 
-        if not self.should_wait() and self.my_player_is_defeated():
-            self.ws_client.stop_ioloop()
-            return
+        # if not self.should_wait() and self.my_player_is_defeated():
+        #     self.ws_client.stop_ioloop()
+        #     return
         
-        # For certain reasons, the game is over. We just stop the ioloop.
+        # For certain reasons, the game is over. We just stop the ioloop. Otherwise, clients may keep waiting for some packets while the server will not respond due to game over.
         if self.game_is_over:
             self.ws_client.stop_ioloop()
             return
@@ -350,6 +358,9 @@ class CivController(CivPropController):
             self.turn_manager.get_available_actions()
             # Wait for and process probabilities of actions from server.
             self.lock_control()
+            # if self.my_player_is_defeated() or self.game_is_over:
+            #     info['available_actions'] = {}
+            # else:
             info['available_actions'] = self.turn_manager.get_info()
 
         return info
@@ -485,6 +496,13 @@ class CivController(CivPropController):
         # fc_logger.info(f'game_is_over: {self.game_is_over}')
         if not self.game_is_over:
             self.end_game()
+
+        assert(self.game_over_msg_num > 0)
+        if self.game_over_msg_num < 2:
+            # Make clients wait for the last "game is over" message. Change game_is_over to False to avoid maybe_grant_control_to_player() directly returns True and stop the waiting. The last "game is over" message will set game_is_over as True again.
+            self.game_is_over = False
+            self.ws_client.start_ioloop()
+        
         if self.visualize:
             self.monitor.stop_monitor()
         if fc_args['debug.autosave'] and self.delete_save:
@@ -741,6 +759,7 @@ class CivController(CivPropController):
             self.parse_script_message(message)
         elif (event == E_GAME_END) and ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
+            self.game_over_msg_num += 1
 
         if 'connected to no player' in message:
             raise RuntimeError(

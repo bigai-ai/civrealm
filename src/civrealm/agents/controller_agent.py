@@ -22,8 +22,8 @@ from civrealm.configs import fc_args
 
 
 class ControllerAgent(BaseAgent):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, batch_size=1):
+        super().__init__(batch_size)
         if fc_args["debug.randomly_generate_seeds"]:
             agentseed = random.randint(0, 999999)
             self.set_agent_seed(agentseed)
@@ -38,7 +38,7 @@ class ControllerAgent(BaseAgent):
             for i in range(len(observations)):
                 available_actions = info[i]['available_actions']
                 for ctrl_type in available_actions.keys():
-                    valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations[i], info[i], ctrl_type)
+                    valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations[i], info[i], ctrl_type, env_id=i)
                     if valid_actor_id is None:
                         continue
 

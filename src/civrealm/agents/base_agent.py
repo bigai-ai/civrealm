@@ -20,9 +20,9 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 
 class BaseAgent(ABC):
-    def __init__(self):
-        self.turn = None
-        self.planned_actor_ids = []
+    def __init__(self, batch_size=1):
+        self.turn = [None]*batch_size
+        self.planned_actor_ids = [[]]*batch_size
 
     def set_agent_seed(self, seed: int):
         """
@@ -38,14 +38,15 @@ class BaseAgent(ABC):
     def act(self, observation, info):
         return None
 
-    def get_next_valid_actor(self, observations, info, desired_ctrl_type=None):
+    def get_next_valid_actor(self, observations, info, desired_ctrl_type=None, env_id=0):
         """
         Return the first actable actor_id and its valid_action_dict that has not been planned in this turn.
         """
+
         # TODO: Do we need the turn variable for Agent class?
-        if info['turn'] != self.turn:
-            self.planned_actor_ids = []
-            self.turn = info['turn']
+        if info['turn'] != self.turn[env_id]:
+            self.planned_actor_ids[env_id] = []
+            self.turn[env_id] = info['turn']
 
         available_actions = info['available_actions']
         for ctrl_type in available_actions.keys():
@@ -53,7 +54,7 @@ class BaseAgent(ABC):
                 continue
 
             for actor_id, action_dict in available_actions[ctrl_type].items():
-                if actor_id in self.planned_actor_ids:
+                if actor_id in self.planned_actor_ids[env_id]:
                     # We have planned an action for this actor in this turn.
                     continue
                 fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl, actions: {action_dict}')
@@ -62,7 +63,7 @@ class BaseAgent(ABC):
                     if not action_dict[action_name]:
                         del action_dict[action_name]
 
-                self.planned_actor_ids.append(actor_id)
+                self.planned_actor_ids[env_id].append(actor_id)
                 return actor_id, action_dict
 
         return None, None

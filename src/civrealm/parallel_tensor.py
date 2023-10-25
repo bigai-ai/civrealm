@@ -39,7 +39,7 @@ def main():
     for i in range(epoch_num):
         # agent = Agent()
         # agent = None
-        agent = ControllerAgent()
+        agent = ControllerAgent(batch_size=fc_args['batch_size_run'])
         # env = gymnasium.make('freeciv/FreecivTensor-v0', client_port=6301)
         # runner = ParallelTensorRunner('freeciv/FreecivTensor-v0', agent, None, i)
         runner = ParallelTensorRunner('freeciv/FreecivBase-v0', agent, None, i)

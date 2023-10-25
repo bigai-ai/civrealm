@@ -293,11 +293,16 @@ class CityBuyProduction(Action):
             return False
 
         """
-        TODO: get anarchy of pcity
         if self.kind == VUT_UTYPE and self.pcity['anarchy'] != 0:
             return False
+        
+        we use city_unhappiness to double check if the city is in disorder as 
+        packet = 31 defined here: freeciv/common/networking/packets.def does not have 'anarchy' key
+        while 'anarchy' has been added to packet = 31 in our updated docker image
         """
         if self.pcity['production_kind'] == VUT_UTYPE:
+            if 'anarchy' in self.pcity and self.pcity['anarchy'] != 0:
+                return False
             if self.pcity['id'] in self.city_unhappiness and self.city_unhappiness[self.pcity['id']]:
                 return False
 

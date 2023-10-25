@@ -1,6 +1,7 @@
+import traceback
 from functools import wraps
 from inspect import signature
-from typing import Sequence
+from typing import Literal, Sequence
 
 import gymnasium
 
@@ -20,13 +21,23 @@ class wrapper_override:
     ]
     method_args = result_names + ["action", "wrapped_action"]
 
-    def __init__(self, methods: Sequence[str]):
-        assert len(set(methods) - set(self.method_args)) == 0
-        self.override_action = "action" in methods
+    def __init__(
+        self,
+        methods: Sequence[
+            Literal[
+                "observation", "reward", "terminated", "truncated", "info", "action"
+            ]
+        ],
+    ):
+        if len(set(methods) - set(self.method_args)) != 0:
+            raise ValueError(
+                f"`methods\' should be a list of strings within {self.method_args+['action']}, but got {methods}."
+            )
+        self.override_action = 'action' in methods
         self.overrides = set(methods)
         self.func_signatures = {}
 
-    def step_wrapper(self, wrapped_step):
+    def _step_wrapper(self, wrapped_step):
         override_action = self.override_action
         overrides = self.overrides
         result_names = self.result_names
@@ -38,31 +49,15 @@ class wrapper_override:
             result = dict(list(zip(result_names, wrapped_step(self, wrapped_action))))
             result["wrapped_action"] = wrapped_action
             result["action"] = action
-            if "observation" in overrides:
-                result["observation"] = self.observation(
-                    **{arg: result[arg] for arg in func_signatures["observation"]}
-                )
-            if "reward" in overrides:
-                result["reward"] = self.reward(
-                    **{arg: result[arg] for arg in func_signatures["reward"]}
-                )
-            if "terminated" in overrides:
-                result["terminated"] = self.terminated(
-                    **{arg: result[arg] for arg in func_signatures["terminated"]}
-                )
-            if "truncated" in overrides:
-                result["truncated"] = self.truncated(
-                    **{arg: result[arg] for arg in func_signatures["truncated"]}
-                )
-            if "info" in overrides:
-                result["info"] = self.info(
-                    **{arg: result[arg] for arg in func_signatures["info"]}
+            for method_name in overrides:
+                result[method_name] = getattr(self, method_name)(
+                    **{arg: result[arg] for arg in func_signatures[method_name]}
                 )
             return tuple(result[name] for name in result_names)
 
         return step
 
-    def reset_wrapper(self, wrapped_reset):
+    def _reset_wrapper(self, wrapped_reset):
         overrides = self.overrides
         func_signatures = self.func_signatures
 
@@ -90,17 +85,29 @@ class wrapper_override:
 
         return reset
 
-    def __call__(self, cls):
-        assert issubclass(cls, gymnasium.Wrapper)
+    def __call__(self, cls: gymnasium.Wrapper):
+        if not issubclass(cls, gymnasium.Wrapper):
+            raise TypeError(f"`{cls}' must be a subclass of `gymnasium.Wrapper'")
         for func_name in self.overrides:
-            assert hasattr(cls, func_name)
+            if not hasattr(cls, func_name):
+                raise NotImplementedError(
+                    f"{cls} hasn't implemented `{func_name}' yet!"
+                )
             sigs = list(signature(getattr(cls, func_name)).parameters.keys())
             sigs.remove("self")
-            assert len(set() - set(self.method_args)) == 0
+            if len(set(sigs) - set(self.method_args)) != 0:
+                raise ValueError(
+                    f"{cls} method `{func_name}' should only use\
+argument names within {self.method_args}, but got {sigs}"
+                )
+
             if "wrapped_action" in sigs:
-                assert self.override_action
+                raise ValueError(
+                    f"{cls} method `{func_name}' uses 'wrapped_action'\
+, but `action' is not overriden!"
+                )
 
             self.func_signatures[func_name] = sigs
-        cls.step = self.step_wrapper(cls.step)
-        cls.reset = self.reset_wrapper(cls.reset)
+        cls.step = self._step_wrapper(cls.step)
+        cls.reset = self._reset_wrapper(cls.reset)
         return cls

@@ -7,13 +7,14 @@ from gymnasium import spaces
 
 from civrealm.configs import fc_args
 
-from .core import ObservationWrapper, Wrapper
+from .core import Wrapper, wrapper_override
 from .utils import add_shape, resize_data, update
 
 tensor_debug = fc_args["debug.tensor_debug"]
 
 
-class TensorObservation(ObservationWrapper):
+@wrapper_override(['observation'])
+class TensorObservation(Wrapper):
     mutable_fields = ["city", "unit", "others_city", "others_unit", "others_player"]
     immutable_fields = ["map", "rules", "player", "tech", "gov"]
 

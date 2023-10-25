@@ -1,28 +1,11 @@
-from typing import Any, Optional
-
-from .core import Wrapper
+from .core import Wrapper, wrapper_override
 
 
+@wrapper_override(["action", "info"])
 class EmbarkWrapper(Wrapper):
     def __init__(self, env):
         self.embarkable_units = {}
         super().__init__(env)
-
-    def step(self, action):
-        action = self.action(action)
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        info = self.info(info)
-        return obs, reward, terminated, truncated, info
-
-    def reset(
-        self,
-        *,
-        seed: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None,
-        **kwargs,
-    ):
-        obs, info = self.env.reset(seed=seed, options=options, **kwargs)
-        return obs, self.info(info)
 
     def action(self, action):
         if action is None:

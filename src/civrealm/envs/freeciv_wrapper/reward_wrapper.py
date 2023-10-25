@@ -1,84 +1,53 @@
-from .core import Wrapper
+from .core import Wrapper, wrapper_override
 
 
-class RewardWrapper(Wrapper):
-    """A wrapper class for modifying rewards in an environment."""
-    def __init__(self, env):
-        Wrapper.__init__(self, env)
-
-    def step(self, action):
-        observation, reward, terminated, truncated, info = super().step(action)
-        return (
-            observation,
-            self.reward(
-                observation=observation,
-                reward=reward,
-                terminated=terminated,
-                truncated=truncated,
-                info=info,
-                action=action,
-            ),
-            terminated,
-            truncated,
-            info,
-        )
-
-    def reward(
-        self,
-        observation=None,
-        reward=None,
-        terminated=None,
-        truncated=None,
-        info=None,
-        action=None,
-    ):
-        raise NotImplementedError
-
-
-class PenalizeTurnDoneReward(RewardWrapper):
+@wrapper_override(["reward"])
+class PenalizeTurnDoneReward(Wrapper):
     """A reward wrapper that penalizes the 'turn done' action if the delta score is 0."""
+
     def __init__(self, env, penalty: float = -1):
         self._penalty_reward = penalty
-        RewardWrapper.__init__(self, env)
+        super().__init__(env)
 
-    def reward(self, reward, action, **kwargs):
-        if action == None and reward == 0:
+    def reward(self, reward, action):
+        if action is None and reward == 0:
             # if last action is `turn done' and delta score is 0
             # use penalty reward
             return self._penalty_reward
-        else:
-            return reward
+        return reward
 
 
-class MinitaskDenseReward(RewardWrapper):
+@wrapper_override(["reward"])
+class MinitaskDenseReward(Wrapper):
     """A reward wrapper that provides dense rewards based on the delta score in a minitask."""
+
     def __init__(self, env, replacement=True):
         self._replacement = replacement
         self._last_score = 0
-        RewardWrapper.__init__(self, env)
+        super().__init__(env)
 
-    def reward(self, reward, info, **kwargs):
+    def reward(self, reward, info):
         score = info["minitask"]["mini_score"]
         delta_score = score - self._last_score
         self._last_score = score
-        assert isinstance(score, int) or isinstance(score, float)
+        assert isinstance(score, (int, float))
         if self._replacement:
             return delta_score
-        else:
-            return reward + delta_score
+        return reward + delta_score
 
 
-class MinitaskDelayedReward(RewardWrapper):
+@wrapper_override(["reward"])
+class MinitaskDelayedReward(Wrapper):
     """A reward wrapper that provides delayed rewards based on the success of a minitask."""
+
     def __init__(self, env, success_reward=1, replacement=True):
         self._replacement = replacement
         self._success_reward = success_reward
-        RewardWrapper.__init__(self, env)
+        super().__init__(env)
 
-    def reward(self, reward, info, **kwargs):
-        success = info["minitask"]["success"]>0
+    def reward(self, reward, info):
+        success = info["minitask"]["success"] > 0
         score = int(success) * self._success_reward
         if self._replacement:
             return score
-        else:
-            return reward + score
+        return reward + score

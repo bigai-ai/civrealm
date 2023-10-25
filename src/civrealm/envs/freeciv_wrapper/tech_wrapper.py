@@ -1,25 +1,17 @@
+from .core import wrapper_override
 from .info_wrapper import Wrapper
 
 
+@wrapper_override(["info", "action"])
 class CombineTechResearchGoal(Wrapper):
     def __init__(self, env):
         self.tech_actions = {}
         super().__init__(env)
 
-    def reset(self, *, seed=None, options=None, **kwargs):
-        obs, info = self.env.reset(seed=seed, options=options, **kwargs)
-        return obs, self.info(info, obs)
-
-    def step(self, action):
-        action = self.action(action)
-        obs, reward, terminated, truncated, info = self.env.step(action)
-        info = self.info(info, obs)
-        return obs, reward, terminated, truncated, info
-
-    def info(self, info, obs):
+    def info(self, info, observation):
         self.tech_actions = {}
         info_tech = info["available_actions"]["tech"]["cur_player"]
-        for tech_id, tech in obs["tech"].items():
+        for tech_id, tech in observation["tech"].items():
             tech_arg = f"{tech['name']}_{tech_id}"
             goal = info_tech.pop(f"set_tech_goal_{tech_arg}", False)
             tech_aciton = "research " + tech_arg
@@ -41,4 +33,4 @@ class CombineTechResearchGoal(Wrapper):
             return action
         if action[0] != "tech":
             return action
-        return (action[0], 'cur_player', self.tech_actions[action[2]])
+        return (action[0], "cur_player", self.tech_actions[action[2]])

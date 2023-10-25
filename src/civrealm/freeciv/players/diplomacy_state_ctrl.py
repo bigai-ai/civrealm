@@ -15,6 +15,7 @@
 
 
 import gymnasium
+import numpy as np
 
 from civrealm.freeciv.connectivity.civ_connection import CivConnection
 from civrealm.freeciv.connectivity.client_state import ClientState
@@ -30,10 +31,11 @@ from civrealm.freeciv.players.diplomacy_actions import DiplOptions
 
 
 class DiplomacyState(DictState):
-    def __init__(self, diplomatic_state: dict, diplomacy_clause_map: dict, players: dict):
+    def __init__(self, diplomatic_state, diplomacy_clause_map, meeting_initializers, players):
         super().__init__()
         self.diplomatic_state = diplomatic_state
         self.diplomacy_clause_map = diplomacy_clause_map
+        self.meeting_initializers = meeting_initializers
         self.players = players
 
     def _update_state(self, pplayer):
@@ -49,11 +51,17 @@ class DiplomacyState(DictState):
             else:
                 self._state[player_id]['diplomacy_clause_map'] = dict()
 
+            if player_id in self.meeting_initializers:
+                self._state[player_id]['meeting_initializers'] = self.meeting_initializers[player_id]
+            else:
+                self._state[player_id]['meeting_initializers'] = -1
+
     def get_observation_space(self):
         diplomacy_space = gymnasium.spaces.Dict({
             'diplomatic_state': gymnasium.spaces.Discrete(player_const.DS_LAST),
             # TODO: to be specified
-            'diplomacy_clause_map': gymnasium.spaces.Dict()
+            'diplomacy_clause_map': gymnasium.spaces.Dict(),
+            'meeting_initializers': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
         })
         return gymnasium.spaces.Dict({player_id: diplomacy_space for player_id in self.diplomatic_state.keys()})
 
@@ -72,13 +80,14 @@ class DiplomacyCtrl(CivPropController):
         self.contact_turns_left = dict()
         self.diplomacy_request_queue = []
         self.diplomacy_clause_map = dict()
+        self.meeting_initializers = dict()
         self.active_diplomacy_meeting_id = None
         self.rule_ctrl = rule_ctrl
         self.city_ctrl = city_ctrl
         self.player_ctrl = player_ctrl
 
         self.clstate = clstate
-        self.prop_state = DiplomacyState(self.diplstates, self.diplomacy_clause_map, self.player_ctrl.players)
+        self.prop_state = DiplomacyState(self.diplstates, self.diplomacy_clause_map, self.meeting_initializers, self.player_ctrl.players)
         self.prop_actions = DiplOptions(ws_client, rule_ctrl, city_ctrl, self.player_ctrl, self.diplomacy_clause_map,
                                         self.contact_turns_left, self.reason_to_cancel, self.diplstates, self.others_diplstates)
         # TODO: dipl_evaluator is not implemented yet
@@ -179,6 +188,7 @@ class DiplomacyCtrl(CivPropController):
             self.diplomacy_request_queue.append(packet['counterpart'])
 
         self.diplomacy_clause_map[packet['counterpart']] = []
+        self.meeting_initializers[packet['counterpart']] = packet['initiated_from']
         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
         self.refresh_diplomacy_request_queue()
 
@@ -195,6 +205,9 @@ class DiplomacyCtrl(CivPropController):
         if counterpart in self.diplomacy_clause_map:
             del self.diplomacy_clause_map[counterpart]
         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+
+        if counterpart in self.meeting_initializers:
+            del self.meeting_initializers[counterpart]
 
     def refresh_diplomacy_request_queue(self):
         if self.diplomacy_request_queue:
@@ -243,6 +256,9 @@ class DiplomacyCtrl(CivPropController):
             if counterpart in self.diplomacy_clause_map:
                 del self.diplomacy_clause_map[counterpart]
             fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+
+            if counterpart in self.meeting_initializers:
+                del self.meeting_initializers[counterpart]
 
         '''
         if not self.active_diplomacy_meeting_id == counterpart and myself_accepted and other_accepted:

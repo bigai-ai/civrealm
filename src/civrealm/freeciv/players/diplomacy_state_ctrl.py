@@ -49,7 +49,7 @@ class DiplomacyState(DictState):
             if player_id in self.diplomacy_clause_map:
                 self._state[player_id]['diplomacy_clause_map'] = self.diplomacy_clause_map[player_id]
             else:
-                self._state[player_id]['diplomacy_clause_map'] = dict()
+                self._state[player_id]['diplomacy_clause_map'] = []
 
             if player_id in self.meeting_initializers:
                 self._state[player_id]['meeting_initializers'] = self.meeting_initializers[player_id]
@@ -60,8 +60,8 @@ class DiplomacyState(DictState):
         diplomacy_space = gymnasium.spaces.Dict({
             'diplomatic_state': gymnasium.spaces.Discrete(player_const.DS_LAST),
             # TODO: to be specified
-            'diplomacy_clause_map': gymnasium.spaces.Dict(),
-            'meeting_initializers': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'diplomacy_clause_map': gymnasium.spaces.Sequence(gymnasium.spaces.Dict()),
+            'meeting_initializers': gymnasium.spaces.Discrete(255),
         })
         return gymnasium.spaces.Dict({player_id: diplomacy_space for player_id in self.diplomatic_state.keys()})
 

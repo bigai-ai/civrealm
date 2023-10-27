@@ -38,7 +38,7 @@ def find_keys_with_keyword(dictionary, keyword):
 
 
 def test_city_buy_prod(controller):
-    fc_logger.info("test_city_buy_prod")
+    fc_logger.info("test_city_buy_prod_if_anarchy")
     _, options = get_first_observation_option(controller)
 
     city_opt = options['city']
@@ -49,22 +49,28 @@ def test_city_buy_prod(controller):
     """ pcity is not in disorder at this turn """
     assert not controller.city_ctrl.city_unhappy(pcity)
 
-    valid_city_buy_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
-                                                    'city_buy_production')
-    assert len(valid_city_buy_actions) > 0
-    city_buy_action = random.choice(valid_city_buy_actions)
-    assert (city_buy_action.is_action_valid())
+    """ city cannot buy at this turn """
+    if 'anarchy' in pcity:
+        pass
+    else:
+        """ city_unhappiness cannot prune some invalid 'buy' actions """
+        valid_city_buy_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
+                                                        'city_buy_production')
+        assert len(valid_city_buy_actions) > 0
+        city_buy_action = random.choice(valid_city_buy_actions)
+        assert (city_buy_action.is_action_valid())
 
-    did_buy_1 = pcity['did_buy']
-    city_buy_action.trigger_action(controller.ws_client)
-    controller.get_info_and_observation()
-    did_buy_2 = pcity['did_buy']
-    """ pcity cannot buy at this turn """
-    assert did_buy_1 == 0 and did_buy_2 == 0
+        did_buy_1 = pcity['did_buy']
+        city_buy_action.trigger_action(controller.ws_client)
+        controller.get_info_and_observation()
+        did_buy_2 = pcity['did_buy']
+        """ however this invalid 'buy' action does not work """
+        assert did_buy_1 == 0 and did_buy_2 == 0
 
     controller.send_end_turn()
     controller.get_info_and_observation()
 
+    """ city can buy at the next turn """
     valid_city_buy_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True),
                                                     'city_buy_production')
     assert len(valid_city_buy_actions) > 0
@@ -78,5 +84,5 @@ def test_city_buy_prod(controller):
     controller.get_info_and_observation()
 
     did_buy_2 = pcity['did_buy']
-    """ pcity can buy at the next turn """
+    """ 'buy' action works at this turn """
     assert did_buy_1 == 0 and did_buy_2 == 1

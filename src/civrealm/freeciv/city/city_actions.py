@@ -313,8 +313,7 @@ class CityBuyProduction(Action):
         packet = {"pid": packet_city_buy,
                   "city_id": self.pcity['id']}
 
-        """ server issue: cannot get anarchy of each city if a savegame is loaded """
-        if self.city_unhappiness:
+        if 'anarchy' in self.pcity or self.city_unhappiness:
             self.wait_for_pid = (31, self.pcity['tile'])
         return packet
 

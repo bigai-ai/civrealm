@@ -66,13 +66,13 @@ class CivWSClient(WebSocketClient):
             self.clear_send_queue()
         except Exception as e:
             # self.close()
-            fc_logger.error(f"{str(e)}")
+            fc_logger.error(f"{repr(e)}")
             # Store the exception raised in callback to the main process, and then stop the ioloop to handle the exception.
             self.on_message_exception = e
             try:
                 self.stop_ioloop()
             except Exception as e:
-                fc_logger.error(f"{str(e)}")
+                fc_logger.error(f"{repr(e)}")
             # raise Exception("Exception occurred in on_message_callback")
 
     @override

@@ -107,8 +107,8 @@ class CivController(CivPropController):
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
-        # Store the number of received game_over messages. Will receive two before the game fully ends.
-        self.game_over_msg_num = 0
+        # Store whether the final game_over message is received
+        self.game_over_msg_final = False
         self.game_score = None
         self.is_minitask = is_minitask
         # Store the wait_for_pid timeout handle
@@ -234,7 +234,7 @@ class CivController(CivPropController):
             self.ws_client.stop_ioloop()
             fc_logger.debug('Server Timeout. Stop ioloop...')
         except Exception as e:
-            fc_logger.error(f"{str(e)}")
+            fc_logger.error(f"{repr(e)}")
         self.ws_client.on_message_exception = Exception('Timeout: No response received from server.')
 
     # Set a begin_turn timeout callback
@@ -244,7 +244,7 @@ class CivController(CivPropController):
             self.ws_client.stop_ioloop()
             fc_logger.debug('Begin_turn Timeout. Stop ioloop...')
         except Exception as e:
-            fc_logger.error(f"{str(e)}")
+            fc_logger.error(f"{repr(e)}")
         self.ws_client.on_message_exception = Exception('Timeout: No begin_turn packet received from server.')
 
     # Set a wait_for_timeout callback
@@ -497,9 +497,8 @@ class CivController(CivPropController):
         if not self.game_is_over:
             self.end_game()
 
-        assert(self.game_over_msg_num > 0)
-        if self.game_over_msg_num < 2:
-            # Make clients wait for the last "game is over" message. Change game_is_over to False to avoid maybe_grant_control_to_player() directly returns True and stop the waiting. The last "game is over" message will set game_is_over as True again.
+        while not self.game_over_msg_final:
+            # Make clients wait for the final "game is over" message. Change game_is_over to False to avoid maybe_grant_control_to_player() directly returns True and stop the waiting. The last "game is over" message will set game_is_over as True again.
             self.game_is_over = False
             self.ws_client.start_ioloop()
         
@@ -757,9 +756,11 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        elif (event == E_GAME_END) and ('game is over' in message.lower() or 'game ended' in message.lower()):
+        elif (event == E_GAME_END) or ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
-            self.game_over_msg_num += 1
+        
+        if 'The game is over...' in message:
+            self.game_over_msg_final = True
 
         if 'connected to no player' in message:
             raise RuntimeError(
@@ -895,14 +896,25 @@ class CivController(CivPropController):
                 assert (pconn == None)
                 # Assume the first packet-115 (conn_info) comes after the packet-51 (player_info)
                 assert (pplayer != None)
-                # The client is a host. Specify the game setting below.
-                # Assume the connection id of a host is 1.
-                if packet['id'] == 1 and packet['username'] == self.clstate.username:
-                    self.clstate.init_game_setting()
+                if fc_args['debug.load_game'] == '':
+                    # The client is a host. Specify the game setting below.
+                    # Assume the connection id of a host is 1.
+                    if packet['id'] == 1 and packet['username'] == self.clstate.username:
+                        self.clstate.init_game_setting()
+                    else:
+                        # Set the follower property in clstate
+                        self.clstate.set_follower_property()
                 else:
-                    # Set the follower property in clstate
-                    self.clstate.set_follower_property()
+                    # If has load_game config, this config decides which player should be the host.
+                    host_name = fc_args['debug.load_game'].split('_')[0]
+                    if self.clstate.username == host_name:
+                        self.clstate.init_game_setting()
+                    else:
+                        # Set the follower property in clstate
+                        self.clstate.set_follower_property()
+
                 self.clstate.first_conn_info_received = True
+                
             # This connection is not attached to any players, just return.
             if pplayer == None:
                 return

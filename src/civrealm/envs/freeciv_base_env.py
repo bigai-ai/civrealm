@@ -54,7 +54,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def set_up_screenshots(self):
         self._screenshot_step_count = 0
-        curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time())
+        curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time().strftime('%H-%M-%S.%f'))
         self.screenshot_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
             'screenshots', self.username + "_" + str(self.get_port()) + "_" + curr_date_time)
@@ -188,7 +188,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         if evaluations is None:
             return
 
-        plot_game_scores_folder = (f"plot_game_scores/{time.strftime('%Y-%m-%d-%H:%M:%S')}-"
+        plot_game_scores_folder = (f"plot_game_scores/{time.strftime('%Y-%m-%d-%H-%M-%S')}-"
                                    f"{self.civ_controller.client_port}")
         if not os.path.exists(plot_game_scores_folder):
             os.makedirs(plot_game_scores_folder)

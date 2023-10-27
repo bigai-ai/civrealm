@@ -43,7 +43,7 @@ from civrealm.freeciv.utils.civ_monitor import CivMonitor
 
 from civrealm.freeciv.turn_manager import TurnManager
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.freeciv.utils.port_list import PORT_LIST
+# from civrealm.freeciv.utils.port_list import PORT_LIST
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.fc_types import packet_chat_msg_req
 
@@ -84,8 +84,8 @@ class CivController(CivPropController):
         self.ai_skill_level = 3
         self.nation_select_id = -1
 
-        if fc_args['multiplayer_game']:
-            assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
+        # if fc_args['multiplayer_game']:
+            # assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
 
         self.visualize = visualize
         self.monitor = None
@@ -94,8 +94,8 @@ class CivController(CivPropController):
 
         # Host address
         self.host = host
-        if fc_args['multiplayer_game']:
-            assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
+        # if fc_args['multiplayer_game']:
+        #     assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
         self.client_port = client_port
         self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
 

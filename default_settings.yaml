@@ -33,7 +33,7 @@ minp: 1
 # The allowtake setting decides whether can take control/observe a player
 allowtake: HAhadOo
 # Whether allow an AI to control a player when the previous controller disconnects
-autotoggle: False
+autotoggle: disabled
 # Whether end the game when some players succeed under victory conditions, option: enabled, disabled
 endvictory: enabled
 # Victory condition options: SPACERACE|ALLIED|CULTURE. If a certain victory condition is not set, the calculation logic for that victory condition will be skipped

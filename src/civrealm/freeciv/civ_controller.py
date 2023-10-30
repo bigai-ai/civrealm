@@ -766,7 +766,7 @@ class CivController(CivPropController):
             raise RuntimeError(
                 f"{message}. There is no room for new players. You may increase the maximum player number or change the username to match an existing player if you are loading a game.")
 
-        if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING:
+        if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING and not self.clstate.get_follower_property():
             self.handle_load_game(message)
 
         if self.clstate.should_prepare_game_base_on_message(message):

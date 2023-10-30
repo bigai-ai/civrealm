@@ -87,6 +87,7 @@ class ClientState(CivPropController):
         # Used when load a game. When saving in a loaded game, the turn number in the savename given by the server will start from 1 while the turn number is actually not.
         self.load_game_tried = False
         self.load_complete = False
+        self.follower_take = False
         self.begin_logged = False
 
         # Use this to determine whether a packet 115 is the first one and then decide whether the client is a follower
@@ -152,7 +153,8 @@ class ClientState(CivPropController):
                     return True
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
-                    if 'has connected from' in message:
+                    if 'has connected from' in message or 'Load complete' in message:
+                    # if 'has connected from' in message:
                         self.ws_client.send_message('Please be ready to start')
                     # If it is multiplayer game, check if all players are ready
                     if 'alive players are ready to start' in message:
@@ -302,6 +304,9 @@ class ClientState(CivPropController):
         self.client_frozen = True
 
     def handle_thaw_client(self, packet):
+        # if self.follower and not self.follower_take:
+        #     self.ws_client.send_message(f'/take {self.username}')
+        #     self.follower_take = True
         self.client_frozen = False
 
     def send_client_info(self):

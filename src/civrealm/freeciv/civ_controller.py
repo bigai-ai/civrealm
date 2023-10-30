@@ -194,6 +194,12 @@ class CivController(CivPropController):
         """
         Called when Env calls reset() method.
         """
+
+        if fc_args['debug.load_game'] != '':
+            host_name = fc_args['debug.load_game'].split('_')[0]
+            if self.username != host_name:
+                time.sleep(3)
+
         self.ws_client.network_init()
 
     # Set the parameter with para_name as the given value.
@@ -624,8 +630,8 @@ class CivController(CivPropController):
         if load_username != self.clstate.username:
             raise RuntimeError(
                 f'The loaded game is saved by another user: {load_username}. Your username is {self.clstate.username}.')
-        self.ws_client.send_message(f"/load {save_name}")
-        self.ws_client.send_message("/set pingtimeout 720")
+        self.ws_client.send_message(f'/load {save_name}')
+        self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
 
@@ -704,7 +710,7 @@ class CivController(CivPropController):
 
     def handle_load_game(self, message):
         # To observe a load game, you can first sign in and then send /observe PLAYER_NAME message by console or chatbox. If there is a space in the PLAYER_NAME, use "" to specify.
-        if 'You are logged in as' in message and not self.clstate.load_game_tried:
+        if 'You are logged in as' in message and not self.clstate.load_game_tried and not self.clstate.get_follower_property():
             self.load_game(fc_args['debug.load_game'])
             self.clstate.load_game_tried = True
 
@@ -766,7 +772,7 @@ class CivController(CivPropController):
             raise RuntimeError(
                 f"{message}. There is no room for new players. You may increase the maximum player number or change the username to match an existing player if you are loading a game.")
 
-        if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING and not self.clstate.get_follower_property():
+        if fc_args['debug.load_game'] != "" and self.clstate.civclient_state == C_S_PREPARING:
             self.handle_load_game(message)
 
         if self.clstate.should_prepare_game_base_on_message(message):

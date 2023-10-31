@@ -165,19 +165,10 @@ class TensorObservation(Wrapper):
                 continue
             if tensor_debug:
                 # check entity layout is correct
-                if not all(
+                assert all(
                     self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
                     for entity in entity_dict.values()
-                ):
-                    for entity in entity_dict.values():
-                        if self.obs_layout[field] != {
-                            k: v.shape for k, v in entity.items()
-                        }:
-                            print(
-                                set(self.obs_layout[field].items())
-                                - set({k:v.shape for k,v in entity.items()})
-                            )
-                            breakpoint()
+                )
             # combine every entity's properties into an array along the last axis
             entity_dict = {
                 id: np.concatenate([entity[k] for k in sorted(entity.keys())], axis=-1)

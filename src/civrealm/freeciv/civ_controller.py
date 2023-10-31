@@ -769,8 +769,7 @@ class CivController(CivPropController):
         elif (event == E_GAME_END)  or ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
         elif event == E_DESTROYED and self.my_player_is_defeated():
-            self.game_is_over = True
-        
+            self.ws_client.stop_ioloop()
         # WARN: test if ai destroyed trigger game over
         if 'The game is over...' in message:
             self.game_over_msg_final = True

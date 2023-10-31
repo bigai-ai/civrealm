@@ -81,7 +81,7 @@ debug:
   # set agentseed to fix the action sequence when game/map are fixed
   agentseed: 1729
   # print debug information for tensor env
-  tensor_debug: True
+  tensor_debug: False
 
 # The ruleset to be used
 ruleset: classic

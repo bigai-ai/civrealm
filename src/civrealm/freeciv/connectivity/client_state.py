@@ -154,6 +154,7 @@ class ClientState(CivPropController):
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
                     if 'has connected from' in message or 'Load complete' in message:
+                    # if 'has connected from' in message or 'now controls' in message:
                     # if 'has connected from' in message:
                         self.ws_client.send_message('Please be ready to start')
                     # If it is multiplayer game, check if all players are ready

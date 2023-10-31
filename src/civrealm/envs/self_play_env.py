@@ -84,9 +84,10 @@ class SelfPlayEnv():
         # If action is None, the play will end the current turn. Need to get the observation and info from next player.
         if action == None:
             result_id = self.env[self.env_id].step.remote(action)
-            self.id_env_map[result_id] = self.env_id
             print(f'{self.username} end turn. Port: {self.client_port}')
             pre_result_ids = list(self.id_env_map.keys())
+            # Store result_id after obtaining pre_result_ids to ensure that the env which just ends turn will not return earlier (e.g., caused by defeated) than other envs. 
+            self.id_env_map[result_id] = self.env_id
             # Get result from the next player
             ready, unready = ray.wait(pre_result_ids, num_returns=1)
             env_id = self.id_env_map[ready[0]]

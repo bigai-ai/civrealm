@@ -504,6 +504,7 @@ class CivController(CivPropController):
             self.end_game()
 
         while not self.game_over_msg_final:
+            fc_logger.debug('Wait for final \'game is over...\' message.')
             # Make clients wait for the final "game is over" message. Change game_is_over to False to avoid maybe_grant_control_to_player() directly returns True and stop the waiting. The last "game is over" message will set game_is_over as True again.
             self.game_is_over = False
             self.ws_client.start_ioloop()
@@ -720,6 +721,8 @@ class CivController(CivPropController):
 
         if 'Load complete' in message:
             self.clstate.load_complete = True
+            # if self.clstate.get_follower_property():
+            #     self.ws_client.send_message(f"/take {fc_args['followername']}")
 
     def parse_script_message(self, message):
         try:
@@ -763,11 +766,13 @@ class CivController(CivPropController):
         elif event == E_SCRIPT:
             self.parse_script_message(message)
         # WARN: test if ai destroyed trigger game over
-        elif (event in [E_GAME_END, E_DESTROYED])  or ('game is over' in message.lower() or 'game ended' in message.lower()):
+        elif (event == E_GAME_END)  or ('game is over' in message.lower() or 'game ended' in message.lower()):
+            self.game_is_over = True
+        elif event == E_DESTROYED and self.my_player_is_defeated():
             self.game_is_over = True
         
         # WARN: test if ai destroyed trigger game over
-        if 'The game is over...' in message or event == E_DESTROYED:
+        if 'The game is over...' in message:
             self.game_over_msg_final = True
 
         if 'connected to no player' in message:

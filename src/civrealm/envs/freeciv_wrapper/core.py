@@ -1,7 +1,6 @@
-import traceback
 from functools import wraps
 from inspect import signature
-from typing import Literal, Sequence
+from typing import Literal, Sequence, Type
 
 import gymnasium
 
@@ -31,10 +30,10 @@ class wrapper_override:
     ):
         if len(set(methods) - set(self.method_args)) != 0:
             raise ValueError(
-                f"`methods\' should be a list of strings within {self.method_args+['action']}, but got {methods}."
+                f"`methods' should be a list of strings within {self.method_args+['action']}, but got {methods}."
             )
-        self.override_action = 'action' in methods
-        self.overrides = set(methods)
+        self.override_action = "action" in methods
+        self.overrides = methods
         self.func_signatures = {}
 
     def _step_wrapper(self, wrapped_step):
@@ -85,7 +84,7 @@ class wrapper_override:
 
         return reset
 
-    def __call__(self, cls: gymnasium.Wrapper):
+    def __call__(self, cls: Type[gymnasium.Wrapper]):
         if not issubclass(cls, gymnasium.Wrapper):
             raise TypeError(f"`{cls}' must be a subclass of `gymnasium.Wrapper'")
         for func_name in self.overrides:

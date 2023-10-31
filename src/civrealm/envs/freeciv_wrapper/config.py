@@ -127,6 +127,7 @@ others_player_ops = {
             "Enthusiastic",
             "Admiring",
             "Worshipful",
+            "-"
         ]
     ),
     "score": noop,
@@ -274,7 +275,7 @@ obs_mutable_layout = {
     "others_player": {
         "score": (1,),
         "is_alive": (2,),
-        "love": (11,),
+        "love": (12,),
         "diplomatic_state": (8,),
         "techs": (87,),
     },

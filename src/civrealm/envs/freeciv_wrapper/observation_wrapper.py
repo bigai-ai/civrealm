@@ -13,7 +13,7 @@ from .utils import add_shape, resize_data, update
 tensor_debug = fc_args["debug.tensor_debug"]
 
 
-@wrapper_override(['observation'])
+@wrapper_override(["observation"])
 class TensorObservation(Wrapper):
     mutable_fields = ["city", "unit", "others_city", "others_unit", "others_player"]
     immutable_fields = ["map", "rules", "player", "tech", "gov"]
@@ -27,7 +27,7 @@ class TensorObservation(Wrapper):
 
     def observation(self, observation):
         # in case of gameover, return None as observation
-        if len(observation["player"]) == 0:
+        if len(observation.get("player",{})) == 0:
             return None
 
         observation = deepcopy(observation)
@@ -165,10 +165,19 @@ class TensorObservation(Wrapper):
                 continue
             if tensor_debug:
                 # check entity layout is correct
-                assert all(
+                if not all(
                     self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
                     for entity in entity_dict.values()
-                )
+                ):
+                    for entity in entity_dict.values():
+                        if self.obs_layout[field] != {
+                            k: v.shape for k, v in entity.items()
+                        }:
+                            print(
+                                set(self.obs_layout[field].items())
+                                - set({k:v.shape for k,v in entity.items()})
+                            )
+                            breakpoint()
             # combine every entity's properties into an array along the last axis
             entity_dict = {
                 id: np.concatenate([entity[k] for k in sorted(entity.keys())], axis=-1)

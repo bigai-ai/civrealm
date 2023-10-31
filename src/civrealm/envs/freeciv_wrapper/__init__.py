@@ -1,7 +1,9 @@
-from .core import Wrapper
-from .observation_wrapper import TensorObservation, CacheLastObs
 from .action_wrapper import TensorAction
-from .reward_wrapper import PenalizeTurnDoneReward, MinitaskDelayedReward, MinitaskDenseReward
+from .core import Wrapper, wrapper_override
 from .info_wrapper import GameOverScoreInfo, MiniTaskGameOverScoreInfo
-from .tensor_wrapper import TensorWrapper
 from .llm_wrapper import LLMWrapper
+from .observation_wrapper import CacheLastObs, TensorObservation
+from .reward_wrapper import (MinitaskDelayedReward, MinitaskDenseReward,
+                             PenalizeTurnDoneReward)
+from .tech_wrapper import CombineTechResearchGoal
+from .tensor_wrapper import TensorWrapper

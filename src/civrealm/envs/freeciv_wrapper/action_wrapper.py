@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 import numpy as np
 from gymnasium import spaces
+from copy import deepcopy
 
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
@@ -22,7 +23,7 @@ class TensorAction(Wrapper):
         self.actor_type_list = self.action_config["actor_type_list"]
         self.available_actions = {}
         self.mask = {}
-        self.turn = -1
+        self.__turn = -1
         super().__init__(CombineTechResearchGoal(EmbarkWrapper(env)))
         self.action_space = spaces.Dict(
             {
@@ -108,12 +109,12 @@ class TensorAction(Wrapper):
 
     def update_obs_with_mask(self, observation, info, action=None):
         # Update mask and update obs with mask dict
-        if info["turn"] != self.turn:
+        if info["turn"] != self.__turn:
             self.reset_mask()
-        self.available_actions = info["available_actions"]
-        self.turn = info["turn"]
+        self.available_actions = deepcopy(info["available_actions"])
+        self.__turn = info["turn"]
         self._update_mask(observation, info, action)
-        return update(observation, self.mask)
+        return update(observation, deepcopy(self.mask))
 
     def reset_mask(self):
         # Reset mask
@@ -171,8 +172,11 @@ class TensorAction(Wrapper):
         # Mask mutable entities using observation
 
         # Mask out trailing spaces for unit and city
-        self.mask["unit_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] *= 0
-        self.mask["city_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] *= 0
+        self.mask["unit_id_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] *= 0
+        self.mask["city_id_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] *= 0
+        self.mask["unit_mask"] = self.mask["unit_id_mask"].copy()
+        self.mask["city_mask"] = self.mask["city_id_mask"].copy()
+
         self.mask["unit_action_type_mask"][
             len(self.get_wrapper_attr("unit_ids")) : :, :
         ] *= 0
@@ -190,9 +194,9 @@ class TensorAction(Wrapper):
             # 2. the city has just built a unit or an improvement last turn and
             #    there are some production points left in stock.
             if (city["prod_process"] != 0) and (
-                self.turn != city["turn_last_built"] + 1
+                self.__turn != city["turn_last_built"] + 1
             ):
-                self.mask["city_mask"][pos] *= 0
+                self.mask["city_id_mask"][pos] *= 0
                 self.mask["city_action_type_mask"][pos] *= 0
 
         # Mask Unit
@@ -208,11 +212,9 @@ class TensorAction(Wrapper):
                 ACTIVITY_SENTRY,
                 ACTIVITY_FORTIFYING,
             ]:  # agent busy or fortified
-                self.mask["unit_mask"][pos] *= 0
+                self.mask["unit_id_mask"][pos] *= 0
                 self.mask["unit_action_type_mask"][pos] *= 0
 
-        self.mask["unit_id_mask"] = self.mask["unit_mask"]
-        self.mask["city_id_mask"] = self.mask["city_mask"]
         self.mask["others_unit_mask"][
             len(self.get_wrapper_attr("others_unit_ids")) : :, :
         ] *= 0
@@ -239,12 +241,13 @@ class TensorAction(Wrapper):
                 actions = entities.get(entity_id, {})
                 if len(actions) == 0:
                     self.mask[mutable + "_action_type_mask"][i] *= 0
+                    self.mask[mutable + "_id_mask"][i] *= 0
                     continue
                 for action_id, act_name in enumerate(sorted(list(actions.keys()))):
                     self.mask[mutable + "_action_type_mask"][i, action_id] *= int(
                         actions[act_name]
                     )
-                self.mask[mutable + "_id_mask"][i] = int(
+                self.mask[mutable + "_id_mask"][i] *= int(
                     any(self.mask[mutable + "_action_type_mask"][i])
                 )
         for mutable in ["city", "unit"]:

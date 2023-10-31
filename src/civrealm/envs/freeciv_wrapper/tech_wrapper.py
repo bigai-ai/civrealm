@@ -10,7 +10,11 @@ class CombineTechResearchGoal(Wrapper):
 
     def info(self, info, observation):
         self.tech_actions = {}
-        info_tech = info["available_actions"]["tech"]["cur_player"]
+        info_tech = info["available_actions"].get("tech", {"cur_player": {}})[
+            "cur_player"
+        ]
+        if len(info_tech) == 0:
+            return info
         for tech_id, tech in observation["tech"].items():
             tech_arg = f"{tech['name']}_{tech_id}"
             goal = info_tech.pop(f"set_tech_goal_{tech_arg}", False)

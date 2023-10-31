@@ -37,7 +37,7 @@ from civrealm.freeciv.map.map_ctrl import MapCtrl
 from civrealm.freeciv.city.city_ctrl import CityCtrl
 from civrealm.freeciv.tech.tech_ctrl import TechCtrl
 
-from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END
+from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END, E_DESTROYED
 from civrealm.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from civrealm.freeciv.utils.civ_monitor import CivMonitor
 
@@ -762,10 +762,12 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        elif (event == E_GAME_END) or ('game is over' in message.lower() or 'game ended' in message.lower()):
+        # WARN: test if ai destroyed trigger game over
+        elif (event in [E_GAME_END, E_DESTROYED])  or ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
         
-        if 'The game is over...' in message:
+        # WARN: test if ai destroyed trigger game over
+        if 'The game is over...' in message or event == E_DESTROYED:
             self.game_over_msg_final = True
 
         if 'connected to no player' in message:

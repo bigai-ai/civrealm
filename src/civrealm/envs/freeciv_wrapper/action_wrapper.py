@@ -11,6 +11,7 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
 
 from .core import Wrapper
 from .embark_wrapper import EmbarkWrapper
+from .dipl_wrapper import DiplomacyLoop
 from .tech_wrapper import CombineTechResearchGoal
 from .utils import update
 
@@ -24,7 +25,7 @@ class TensorAction(Wrapper):
         self.available_actions = {}
         self.mask = {}
         self.__turn = -1
-        super().__init__(CombineTechResearchGoal(EmbarkWrapper(env)))
+        super().__init__(DiplomacyLoop(CombineTechResearchGoal(EmbarkWrapper(env))))
         self.action_space = spaces.Dict(
             {
                 "actor_type": spaces.Discrete(len(self.actor_type_list)),

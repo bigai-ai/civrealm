@@ -137,16 +137,6 @@ class PortStatus:
                 occupied_ports,
             )
         )
-        # delete from occupied if port stay for idle more than 30s.
-        occupied_ports = list(
-            filter(
-                lambda x: not (
-                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 30)
-                    and status.get(int(x[0]), {"user": 1})["user"] == 0
-                ),
-                occupied_ports,
-            )
-        )
         return occupied_ports
 
     def get(self, port=None):

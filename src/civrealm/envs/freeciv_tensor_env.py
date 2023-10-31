@@ -34,7 +34,7 @@ class FreecivTensorEnv(Wrapper):
             TensorWrapper(
                 env=PenalizeTurnDoneReward(
                     FreecivBaseEnv(username=username, client_port=client_port),
-                    penalty=-0.1,
+                    penalty=-0.01,
                 ),
                 config=config,
             )

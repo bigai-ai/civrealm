@@ -8,7 +8,7 @@ class GameOverScoreInfo(Wrapper):
     def info(self, info, terminated=False, truncated=False):
         last_scores = {}
         if terminated or truncated:
-            game_scores = self.evaluate_game()[-1]
+            game_scores = self.unwrapped.evaluate_game()[-1]
             last_scores = {k: v[0][-1] for k, v in game_scores.items()}
         info["scores"] = last_scores
         return info

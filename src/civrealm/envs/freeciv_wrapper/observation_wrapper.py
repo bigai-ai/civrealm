@@ -30,7 +30,7 @@ class TensorObservation(Wrapper):
     def __init__(self, env, config):
         self.obs_initialized = False
         self.observation_config = config
-        self.observation_config['resize']['dipl'] = config['resize']['others_player']
+        self.observation_config["resize"]["dipl"] = config["resize"]["others_player"]
         self.obs_layout = {}
         self.others_player_ids = []
         super().__init__(env)
@@ -59,8 +59,8 @@ class TensorObservation(Wrapper):
 
         # TODO: This should be the base env's reponsibility
         # Add info to city and unit from civcontroller
-        update(obs["city"], self.civ_controller.city_ctrl.cities)
-        update(obs["unit"], self.civ_controller.unit_ctrl.units)
+        update(obs["city"], self.unwrapped.civ_controller.city_ctrl.cities)
+        update(obs["unit"], self.unwrapped.civ_controller.unit_ctrl.units)
         # update player info with dipl_state
         update(obs["player"], obs.get("dipl", {}))
 
@@ -158,7 +158,7 @@ class TensorObservation(Wrapper):
 
             obs[field] = np.concatenate(
                 [field_dict[k] for k in sorted(list(field_dict.keys()))], axis=-1
-            )
+            ).astype(np.int32)
         return obs
 
     def _embed_mutable(self, obs):
@@ -179,7 +179,8 @@ class TensorObservation(Wrapper):
                     [
                         self.observation_config["resize"][field],
                         *reduce(add_shape, self.obs_layout[field].values()),
-                    ]
+                    ],
+                    dtype=np.int32,
                 )
                 continue
             if tensor_debug:
@@ -195,13 +196,14 @@ class TensorObservation(Wrapper):
             }
             # combine all entities in a field into an array along the first axis
             mutable[field] = np.stack(
-                [entity_dict[id] for id in self.get_wrapper_attr(field + "_ids")], axis=0
-            )
+                [entity_dict[id] for id in self.get_wrapper_attr(field + "_ids")],
+                axis=0,
+            ).astype(np.int32)
 
         # resize to maximum entity shape
         for field in mutable:
             size = self.observation_config["resize"][field]
-            mutable[field] = resize_data(mutable[field], size)
+            mutable[field] = resize_data(mutable[field], size).astype(np.int32)
 
         update(obs, mutable)
         return obs
@@ -229,9 +231,9 @@ class TensorObservation(Wrapper):
 
     def _encode_treaty(self, treaty, player):
         encoded = {
-            "type": np.zeros(10 * 2),
-            "give_city": np.zeros(self.observation_config["resize"]["city"]),
-            "ask_city": np.zeros(self.observation_config["resize"]["others_city"]),
+            "type": np.zeros(10 * 2, dtype=np.int32),
+            "give_city": np.zeros(self.observation_config["resize"]["city"],dtype=np.int32),
+            "ask_city": np.zeros(self.observation_config["resize"]["others_city"],dtype=np.int32),
             "give_gold": 255,
             "ask_gold": 255,
         }

@@ -187,27 +187,27 @@ class TensorAction(Wrapper):
         if actor_name == "unit":
             self.mask["unit_action_type_mask"][
                 action["unit_id"], action["unit_action_type"]
-            ] *= 0
+            ] = 0
         elif actor_name == "city":
-            self.mask["city_action_type_mask"][action["city_id"]] *= 0
+            self.mask["city_action_type_mask"][action["city_id"], :] = 0
         elif actor_name == "gov":
-            self.mask["gov_action_type_mask"] *= 0
+            self.mask["gov_action_type_mask"][:] = 0
 
     def _mask_from_obs(self, observation):
         # Mask mutable entities using observation
 
         # Mask out trailing spaces for unit and city
-        self.mask["unit_id_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] *= 0
-        self.mask["city_id_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] *= 0
+        self.mask["unit_id_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] = 0
+        self.mask["city_id_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] = 0
         self.mask["unit_mask"] = self.mask["unit_id_mask"].copy()
         self.mask["city_mask"] = self.mask["city_id_mask"].copy()
 
         self.mask["unit_action_type_mask"][
             len(self.get_wrapper_attr("unit_ids")) : :, :
-        ] *= 0
+        ] = 0
         self.mask["city_action_type_mask"][
             len(self.get_wrapper_attr("city_ids")) : :, :
-        ] *= 0
+        ] = 0
 
         # Mask city
         for pos, unit_id in enumerate(
@@ -221,31 +221,31 @@ class TensorAction(Wrapper):
             if (city["prod_process"] != 0) and (
                 self.__turn != city["turn_last_built"] + 1
             ):
-                self.mask["city_id_mask"][pos] *= 0
-                self.mask["city_action_type_mask"][pos] *= 0
+                self.mask["city_id_mask"][pos] = 0
+                self.mask["city_action_type_mask"][pos] = 0
 
         # Mask Unit
         for pos, unit_id in enumerate(
             self.get_wrapper_attr("unit_ids")[: self.action_config["resize"]["unit"]]
         ):
             unit = observation["unit"][unit_id]
-            if unit["moves_left"] == 0 or self.civ_controller.unit_ctrl.units[unit_id][
-                "activity"
-            ] not in [
+            if unit["moves_left"] == 0 or self.unwrapped.civ_controller.unit_ctrl.units[
+                unit_id
+            ]["activity"] not in [
                 ACTIVITY_IDLE,
                 ACTIVITY_FORTIFIED,
                 ACTIVITY_SENTRY,
                 ACTIVITY_FORTIFYING,
             ]:  # agent busy or fortified
-                self.mask["unit_id_mask"][pos] *= 0
-                self.mask["unit_action_type_mask"][pos] *= 0
+                self.mask["unit_id_mask"][pos] = 0
+                self.mask["unit_action_type_mask"][pos, :] = 0
 
         self.mask["others_unit_mask"][
             len(self.get_wrapper_attr("others_unit_ids")) : :, :
-        ] *= 0
+        ] = 0
         self.mask["others_city_mask"][
             len(self.get_wrapper_attr("others_city_ids")) : :, :
-        ] *= 0
+        ] = 0
 
     def _mask_from_info(self, info):
         others_player_num = len(info["available_actions"].get("player", {}).keys())
@@ -255,8 +255,8 @@ class TensorAction(Wrapper):
         for mutable in ["city", "unit", "dipl"]:
             entities = info["available_actions"].get(mutable, {})
             if len(entities) == 0:
-                self.mask[mutable + "_action_type_mask"] *= 0
-                self.mask[mutable + "_id_mask"] *= 0
+                self.mask[mutable + "_action_type_mask"][:, :] = 0
+                self.mask[mutable + "_id_mask"][:] = 0
                 continue
             for i, entity_id in enumerate(
                 self.env.get_wrapper_attr(mutable + "_ids")[
@@ -265,14 +265,14 @@ class TensorAction(Wrapper):
             ):
                 actions = entities.get(entity_id, {})
                 if len(actions) == 0:
-                    self.mask[mutable + "_action_type_mask"][i] *= 0
-                    self.mask[mutable + "_id_mask"][i] *= 0
+                    self.mask[mutable + "_action_type_mask"][i, :] = 0
+                    self.mask[mutable + "_id_mask"][i] = 0
                     continue
                 for action_id, act_name in enumerate(sorted(list(actions.keys()))):
-                    self.mask[mutable + "_action_type_mask"][i, action_id] *= int(
+                    self.mask[mutable + "_action_type_mask"][i, action_id] = int(
                         actions[act_name]
                     )
-                self.mask[mutable + "_id_mask"][i] *= int(
+                self.mask[mutable + "_id_mask"][i] = int(
                     any(self.mask[mutable + "_action_type_mask"][i])
                 )
         for mutable in ["city", "unit", "dipl"]:
@@ -285,13 +285,13 @@ class TensorAction(Wrapper):
         for immutable in ["gov", "tech"]:
             options = info["available_actions"].get(immutable, {})
             if len(options) == 0:
-                self.mask[immutable + "_action_type_mask"] *= 0
+                self.mask[immutable + "_action_type_mask"][:] = 0
                 continue
             my_player_id = self.get_wrapper_attr("my_player_id")
             for action_id, act_name in enumerate(
                 sorted(list(options[my_player_id].keys()))
             ):
-                self.mask[immutable + "_action_type_mask"][action_id] *= int(
+                self.mask[immutable + "_action_type_mask"][action_id] = int(
                     options[my_player_id][act_name]
                 )
         for immutable in ["gov", "tech"]:

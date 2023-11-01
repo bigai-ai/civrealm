@@ -84,19 +84,19 @@ class TruncateDiplCity(Wrapper):
         super().__init__(env)
 
     def info(self, observation, info):
-        self.__my_player_id = list(info["available_actions"]["gov"].keys())[0]
+        self.__my_player_id = self.unwrapped.civ_controller.player_ctrl.my_player_id
         self.__city_ids = sorted(
             list(
                 k
                 for k in observation.get("city", {}).keys()
-                if observation["city"][k]["owner"] == self.my_player_id
+                if observation["city"][k]["owner"] == self.__my_player_id
             )
         )[: self.city_size]
         self.__others_city_ids = sorted(
             list(
                 k
                 for k in observation.get("city", {}).keys()
-                if observation["city"][k]["owner"] != self.my_player_id
+                if observation["city"][k]["owner"] != self.__my_player_id
             )
         )[: self.others_city_size]
 

@@ -48,13 +48,13 @@ class TensorBase(Wrapper):
         )
         self.dipl_ids = [
             player
-            for player in sorted(observation["dipl"].keys())
+            for player in sorted(observation.get("dipl",{}).keys())
             if player != self.my_player_id
         ]
 
     def reset(self, *args, **kwargs):
         obs, info = self.env.reset(*args, **kwargs)
-        self.my_player_id = self.civ_controller.player_ctrl.my_player_id
+        self.my_player_id = self.unwrapped.civ_controller.player_ctrl.my_player_id
         self.update_sequence_ids(obs)
         return obs, info
 

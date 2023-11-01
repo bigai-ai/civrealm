@@ -46,6 +46,11 @@ class TensorBase(Wrapper):
                 if observation["city"][k]["owner"] != self.my_player_id
             )
         )
+        self.dipl_ids = [
+            player
+            for player in sorted(observation["dipl"].keys())
+            if player != self.my_player_id
+        ]
 
     def reset(self, *args, **kwargs):
         obs, info = self.env.reset(*args, **kwargs)

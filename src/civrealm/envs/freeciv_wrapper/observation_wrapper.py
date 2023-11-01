@@ -5,7 +5,9 @@ from functools import reduce
 import numpy as np
 from gymnasium import spaces
 
+import civrealm.freeciv.players.player_const as player_const
 from civrealm.configs import fc_args
+from civrealm.freeciv.players.diplomacy_actions import GOLD_SET
 
 from .core import Wrapper, wrapper_override
 from .utils import add_shape, resize_data, update
@@ -15,19 +17,27 @@ tensor_debug = fc_args["debug.tensor_debug"]
 
 @wrapper_override(["observation"])
 class TensorObservation(Wrapper):
-    mutable_fields = ["city", "unit", "others_city", "others_unit", "others_player"]
-    immutable_fields = ["map", "rules", "player", "tech", "gov"]
+    mutable_fields = [
+        "city",
+        "unit",
+        "others_city",
+        "others_unit",
+        "others_player",
+        "dipl",
+    ]
+    immutable_fields = ["map", "rules", "player", "gov"]
 
     def __init__(self, env, config):
         self.obs_initialized = False
         self.observation_config = config
+        self.observation_config['resize']['dipl'] = config['resize']['others_player']
         self.obs_layout = {}
         self.others_player_ids = []
         super().__init__(env)
 
     def observation(self, observation):
         # in case of gameover, return None as observation
-        if len(observation.get("player",{})) == 0:
+        if len(observation.get("player", {})) == 0:
             return None
 
         observation = deepcopy(observation)
@@ -51,8 +61,18 @@ class TensorObservation(Wrapper):
         # Add info to city and unit from civcontroller
         update(obs["city"], self.civ_controller.city_ctrl.cities)
         update(obs["unit"], self.civ_controller.unit_ctrl.units)
-        # update player info with dipl
+        # update player info with dipl_state
         update(obs["player"], obs.get("dipl", {}))
+
+        my_player_id = self.get_wrapper_attr("my_player_id")
+
+        obs["dipl"] = {
+            player: state["diplomacy_clause_map"]
+            for player, state in obs.get("dipl", {}).items()
+            if player != my_player_id
+        }
+        for player, treaty in obs["dipl"].items():
+            obs["dipl"][player] = self._encode_treaty(treaty, player)
 
         # remove unused fields and keep mask if given
         obs = {
@@ -62,7 +82,6 @@ class TensorObservation(Wrapper):
         }
 
         # Add others fields and initialize
-        my_player_id = self.get_wrapper_attr("my_player_id")
 
         obs["others_unit"] = {}
         obs["others_city"] = {}
@@ -176,7 +195,7 @@ class TensorObservation(Wrapper):
             }
             # combine all entities in a field into an array along the first axis
             mutable[field] = np.stack(
-                [entity_dict[id] for id in getattr(self, field + "_ids")], axis=0
+                [entity_dict[id] for id in self.get_wrapper_attr(field + "_ids")], axis=0
             )
 
         # resize to maximum entity shape
@@ -207,6 +226,42 @@ class TensorObservation(Wrapper):
                 player_tech = player.pop(f"tech_{tech}")
                 player["techs"].append(player_tech if player_tech is not None else 255)
         return obs
+
+    def _encode_treaty(self, treaty, player):
+        encoded = {
+            "type": np.zeros(10 * 2),
+            "give_city": np.zeros(self.observation_config["resize"]["city"]),
+            "ask_city": np.zeros(self.observation_config["resize"]["others_city"]),
+            "give_gold": 255,
+            "ask_gold": 255,
+        }
+
+        for clause in treaty:
+            value = clause["value"]
+
+            if clause["type"] == player_const.CLAUSE_GOLD:
+                gold = sum(int(value >= level) for level in GOLD_SET)
+                if clause["giver"] == player:
+                    encoded["ask_gold"] = gold
+                else:
+                    encoded["give_gold"] = gold
+            elif clause["type"] == player_const.CLAUSE_CITY:
+                if clause["giver"] == player:
+                    city_list = self.get_wrapper_attr("others_city_ids")
+                    field = "ask_city"
+                else:
+                    city_list = self.get_wrapper_attr("city_ids")
+                    field = "give_city"
+                if value in city_list:
+                    city_idx = city_list.index(value)
+                    encoded[field][city_idx] = 1
+
+            if clause["giver"] == player:
+                encoded["type"][clause["type"]] = 1
+            else:
+                encoded["type"][clause["type"] + 10] = 1
+
+        return encoded
 
 
 class CacheLastObs(Wrapper):

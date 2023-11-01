@@ -1,8 +1,8 @@
+from copy import deepcopy
 from typing import Any, Optional
 
 import numpy as np
 from gymnasium import spaces
-from copy import deepcopy
 
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
@@ -10,8 +10,8 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                              ACTIVITY_IDLE, ACTIVITY_SENTRY)
 
 from .core import Wrapper
+from .dipl_wrapper import DiplomacyLoop, TruncateDiplCity
 from .embark_wrapper import EmbarkWrapper
-from .dipl_wrapper import DiplomacyLoop
 from .tech_wrapper import CombineTechResearchGoal
 from .utils import update
 
@@ -21,11 +21,20 @@ tensor_debug = fc_args["debug.tensor_debug"]
 class TensorAction(Wrapper):
     def __init__(self, env, config):
         self.action_config = config
+        self.action_config["resize"]["dipl"] = config["resize"]["others_player"]
         self.actor_type_list = self.action_config["actor_type_list"]
         self.available_actions = {}
         self.mask = {}
         self.__turn = -1
-        super().__init__(DiplomacyLoop(CombineTechResearchGoal(EmbarkWrapper(env))))
+        self.__is_negotiating = False
+
+        super().__init__(
+            TruncateDiplCity(
+                DiplomacyLoop(CombineTechResearchGoal(EmbarkWrapper(env))),
+                config=config,
+            )
+        )
+
         self.action_space = spaces.Dict(
             {
                 "actor_type": spaces.Discrete(len(self.actor_type_list)),
@@ -36,6 +45,10 @@ class TensorAction(Wrapper):
                 "unit_id": spaces.Discrete(self.action_config["resize"]["unit"]),
                 "unit_action_type": spaces.Discrete(
                     sum(self.action_config["action_layout"]["unit"].values())
+                ),
+                "dipl_id": spaces.Discrete(self.action_config["resize"]["dipl"]),
+                "dipl_action_type": spaces.Discrete(
+                    sum(self.action_config["action_layout"]["dipl"].values())
                 ),
                 "gov_action_type": spaces.Discrete(
                     sum(self.action_config["action_layout"]["gov"].values())
@@ -110,11 +123,17 @@ class TensorAction(Wrapper):
 
     def update_obs_with_mask(self, observation, info, action=None):
         # Update mask and update obs with mask dict
-        if info["turn"] != self.__turn:
+        if info[
+            "turn"
+        ] != self.__turn or self.__is_negotiating != self.get_wrapper_attr(
+            "is_negotiating"
+        ):
             self.reset_mask()
         self.available_actions = deepcopy(info["available_actions"])
         self.__turn = info["turn"]
+        self.__is_negotiating = self.get_wrapper_attr("is_negotiating")
         self._update_mask(observation, info, action)
+
         return update(observation, deepcopy(self.mask))
 
     def reset_mask(self):
@@ -134,8 +153,13 @@ class TensorAction(Wrapper):
         self.mask["unit_id_mask"] = self.mask["unit_mask"]
         self.mask["city_id_mask"] = self.mask["city_mask"]
 
+        # Dipl id mask
+        self.mask["dipl_id_mask"] = np.ones(sizes["dipl"], dtype=np.int32)[
+            ..., np.newaxis
+        ]
+
         # Action type mask
-        for field in ["city", "unit"]:
+        for field in ["city", "unit", "dipl"]:
             self.mask[field + "_action_type_mask"] = np.ones(
                 (
                     sizes[field],
@@ -228,7 +252,7 @@ class TensorAction(Wrapper):
         self.mask["others_player_mask"][others_player_num::, :] = 0
 
         # Mask City and Unit
-        for mutable in ["city", "unit"]:
+        for mutable in ["city", "unit", "dipl"]:
             entities = info["available_actions"].get(mutable, {})
             if len(entities) == 0:
                 self.mask[mutable + "_action_type_mask"] *= 0
@@ -251,7 +275,7 @@ class TensorAction(Wrapper):
                 self.mask[mutable + "_id_mask"][i] *= int(
                     any(self.mask[mutable + "_action_type_mask"][i])
                 )
-        for mutable in ["city", "unit"]:
+        for mutable in ["city", "unit", "dipl"]:
             actor_type_index = self.actor_type_list.index(mutable)
             self.mask["actor_type_mask"][actor_type_index] = int(
                 any(self.mask[mutable + "_id_mask"])

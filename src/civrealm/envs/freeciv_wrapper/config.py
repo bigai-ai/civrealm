@@ -1,10 +1,19 @@
 import numpy as np
 
+from civrealm.freeciv.players.diplomacy_actions import GOLD_SET
 from civrealm.freeciv.utils.unit_improvement_const import (IMPR_COSTS,
                                                            UNIT_COSTS,
                                                            UNIT_TYPES)
 
 from .utils import expand_dim, noop, onehotifier_maker
+
+resize = {
+    "unit": 128,
+    "city": 32,
+    "others_unit": 128,
+    "others_city": 64,
+    "others_player": 10,
+}
 
 map_ops = {
     "status": onehotifier_maker(3),
@@ -127,7 +136,7 @@ others_player_ops = {
             "Enthusiastic",
             "Admiring",
             "Worshipful",
-            "-"
+            "-",
         ]
     ),
     "score": noop,
@@ -169,6 +178,14 @@ rules_ops = {
     "build_cost": lambda _: np.array(UNIT_COSTS + IMPR_COSTS)
 }
 
+dipl_ops = {
+    "type": noop,
+    "give_city": noop,
+    "ask_city": noop,
+    "give_gold": onehotifier_maker(len(GOLD_SET) + 1),
+    "ask_gold": onehotifier_maker(len(GOLD_SET) + 1),
+}
+
 ops = {
     "rules": rules_ops,
     "player": player_ops,
@@ -178,6 +195,7 @@ ops = {
     "others_unit": others_unit_ops,
     "others_city": others_city_ops,
     "others_player": others_player_ops,
+    "dipl": dipl_ops,
 }
 
 obs_mutable_layout = {
@@ -279,6 +297,7 @@ obs_mutable_layout = {
         "diplomatic_state": (8,),
         "techs": (87,),
     },
+    "dipl": {"clause": (20,)},
 }
 
 obs_immutalbe_layout = {
@@ -530,6 +549,10 @@ action_layout = {
         "remove_clause_Alliance_": 2,
         "trade_tech_clause_Advance_": 174,
         "remove_clause_Advance_": 174,
+        "trade_gold_clause_TradeGold_": len(GOLD_SET)*2,
+        "remove_clause_TradeGold_": len(GOLD_SET)*2,
+        "trunc_trade_city_clause_TradeCity_": resize["city"] + resize["others_city"],
+        "trunc_remove_clause_TradeCity_": resize["city"] + resize["others_city"],
     },
     "gov": {
         "change_gov_Anarchy": 1,
@@ -545,8 +568,7 @@ action_layout = {
     },
 }
 
-actor_type_list = ["city", "unit", "gov", "tech", "turn done"]
-
+actor_type_list = ["city", "unit", "gov", "tech", "dipl", "turn done"]
 mutables_others_have = ["unit", "city"]
 immutables_others_have = ["player", "tech"]
 mutable_fields = mutables_others_have + [
@@ -563,14 +585,9 @@ default_tensor_config = {
         "player",
         "rules",
         "city",
+        "dipl",
     ],
-    "resize": {
-        "unit": 128,
-        "city": 32,
-        "others_unit": 128,
-        "others_city": 64,
-        "others_player": 10,
-    },
+    "resize": resize,
     "obs_immutable_layout": obs_immutalbe_layout,
     "obs_mutable_layout": obs_mutable_layout,
     "obs_ops": ops,

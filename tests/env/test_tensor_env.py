@@ -44,8 +44,13 @@ def make_env():
 
 def test_tensor_env(env):
     obs, info = env.reset()
-    obs, _, _, _, info= env.unwrapped.step(('dipl', 3, 'stop_negotiation_3'))
-    obs, _, _, _, info = env.step({'actor_type':4})
+
+    stop_nego_act = {
+            "actor_type" : 4,
+            "dipl_id": 2,
+            "dipl_action_type": 235,
+            }
+    obs, _, _, _, info = env.step(stop_nego_act)
 
         
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)
@@ -119,7 +124,7 @@ def test_tensor_make_env(make_env):
     city_action_pos = np.where(obs["city_action_type_mask"] == 1)
     idx = np.random.randint(len(city_action_pos[0]))
     act_end_turn = {
-        "actor_type": 4,
+        "actor_type": 5,
     }
     obs, reward, terminated, truncated, info = env.step(act_end_turn)
     if terminated or truncated:
@@ -179,7 +184,7 @@ def test_tensor_zero_start_env(zero_start_env):
         return
 
     act_end_turn = {
-        "actor_type": 4,
+        "actor_type": 5,
     }
     obs, reward, terminated, truncated, info = env.step(act_end_turn)
 

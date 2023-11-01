@@ -44,6 +44,10 @@ def make_env():
 
 def test_tensor_env(env):
     obs, info = env.reset()
+    obs, _, _, _, info= env.unwrapped.step(('dipl', 3, 'stop_negotiation_3'))
+    obs, _, _, _, info = env.step({'actor_type':4})
+
+        
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)
     idx = np.random.randint(len(unit_action_pos[0]))
     act_unit = {

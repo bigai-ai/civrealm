@@ -16,6 +16,7 @@
 
 import os
 import filelock
+import tempfile
 
 import logging
 import logging.config
@@ -33,7 +34,7 @@ fc_logger = logging.getLogger('civrealm')
 def set_logging_file(log_dir_name, log_file_suffix, remove_old_suffix=True):
     logger_filename = LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename']
     log_dir = os.path.join(os.path.dirname(logger_filename), log_dir_name)
-    with filelock.FileLock(f'/tmp/civrealm_{log_dir_name}_logger_setup.lock'):
+    with filelock.FileLock(os.path.join(tempfile.gettempdir(), f"civrealm_{log_dir_name}_logger_setup.lock")):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 

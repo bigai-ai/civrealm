@@ -1,5 +1,6 @@
 import os
 import re
+import tempfile
 import time
 import urllib.request
 from copy import copy
@@ -7,6 +8,8 @@ from html.parser import HTMLParser
 from urllib.parse import urljoin
 
 from filelock import FileLock
+
+TEMP_DIR = tempfile.gettempdir()
 
 
 class PortStatus:
@@ -31,8 +34,8 @@ class PortStatus:
         host_url="http://localhost:8080",
         status_url="pubstatus",
         dev_ports=[6001],
-        lock_file="/tmp/civrealm.lock",
-        occupied_ports_file="/tmp/civrealm_occupied_ports.txt",
+        lock_file=os.path.join(TEMP_DIR, "civrealm.lock"),
+        occupied_ports_file=os.path.join(TEMP_DIR, "civrealm_occupied_ports.txt"),
     ):
         self.status_parser = PortStatusParser(host_url, status_url)
         self.status_parser.update()

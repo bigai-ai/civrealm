@@ -38,7 +38,8 @@ autotoggle: disabled
 endvictory: enabled
 # Victory condition options: SPACERACE|ALLIED|CULTURE. If a certain victory condition is not set, the calculation logic for that victory condition will be skipped
 victories: "SPACERACE|ALLIED"
-
+# whether to open chatbox in the web interface, option: enabled, disabled
+openchatbox: enabled
 # The type of runner
 runner_type: "parallel"
 

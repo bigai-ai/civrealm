@@ -227,6 +227,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/ai {self.user_name}2")
 
         self.ws_client.send_message("/metamessage hotseat game")
+        requests.post(f"http://{fc_args['host']}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def set_multiplayer_game(self):
         # Set AI player to 0. Based on HACKING file
@@ -260,6 +261,7 @@ class ClientState(CivPropController):
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message(
             f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
+        requests.post(f"http://{fc_args['host']}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def update_state(self, packet):
         self.client["conn"] = packet

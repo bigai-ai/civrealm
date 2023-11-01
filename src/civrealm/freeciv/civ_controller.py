@@ -635,7 +635,7 @@ class CivController(CivPropController):
         self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
-
+        requests.post(f"http://{self.host}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):

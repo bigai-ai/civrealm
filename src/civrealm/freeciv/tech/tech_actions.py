@@ -50,7 +50,7 @@ class ActChooseResearchTech(Action):
         super().__init__()
         self.pplayer = pplayer
         self.new_tech_id = new_tech_id
-        self.action_key += "_%s_%i" % (new_tech_name, new_tech_id)
+        self.action_key += "_%i" % new_tech_id
 
     def is_action_valid(self):
         return is_tech_prereq_known(self.pplayer, self.new_tech_id)

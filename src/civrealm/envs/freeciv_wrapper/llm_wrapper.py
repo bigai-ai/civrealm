@@ -19,7 +19,7 @@ from civrealm.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, A
 from civrealm.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from civrealm.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from civrealm.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE, BLOCK_INFO_TEMPLATE,
-                                                           DIR, action_mask, get_valid_actions)
+                                                           DIR, action_mask, get_valid_actions, make_action_list_readable, get_action_from_readable_name)
 from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
@@ -29,20 +29,23 @@ class LLMWrapper(Wrapper):
 
     def __init__(self, env):
         super().__init__(env)
-        self.__env = env
 
     def reset(self, seed=None, options=None, **kwargs):
         if 'minitask_pattern' in kwargs:
-            observation, info = self.__env.reset(minitask_pattern=kwargs['minitask_pattern'])
+            observation, info = self.env.reset(minitask_pattern=kwargs['minitask_pattern'])
         else:
-            observation, info = self.__env.reset()
+            observation, info = self.env.reset()
 
         info['llm_info'] = self.get_llm_info(observation, info)
         info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
         return observation, info
 
     def step(self, action):
-        observation, reward, terminated, truncated, info = self.__env.step(action)
+        if action is not None:
+            action_name = action[2]
+            action = (action[0], action[1], get_action_from_readable_name(action_name))
+
+        observation, reward, terminated, truncated, info = self.env.step(action)
         info['llm_info'] = self.get_llm_info(observation, info)
         info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
         return observation, reward, terminated, truncated, info
@@ -104,9 +107,9 @@ class LLMWrapper(Wrapper):
             return dict()
         else:
             if ctrl_type == 'unit':
-                actor_info['available_actions'] = available_actions
+                actor_info['available_actions'] = make_action_list_readable(available_actions)
             elif ctrl_type == 'city':
-                actor_info['available_actions'] = action_mask(available_actions)
+                actor_info['available_actions'] = make_action_list_readable(action_mask(available_actions))
 
         actor_info['observations'] = dict()
         actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, 0, 0, TILE_INFO_TEMPLATE)

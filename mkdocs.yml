@@ -1,0 +1,78 @@
+site_name: Civrealm
+repo_url: https://gitlab.mybigai.ac.cn/civilization/freeciv-gym
+repo_name: civilization/freeciv-gym
+copyright: Copyright &copy; 2023 BIGAI
+site_dir: public
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.indexes
+    - content.tabs.link
+  logo: assets/logo-h48.png
+  favicon: assets/logo-64.png
+  palette:
+    scheme: bigai
+  icon:
+    repo: fontawesome/brands/gitlab
+
+extra_css:
+  - css/extra.css
+
+plugins:
+  - search
+  - autorefs
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src/civrealm]
+          options:
+            show_source: true
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - admonition
+  - pymdownx.details
+
+nav:
+  - Getting Started:
+      - Introduction: getting_started/introduction.md
+      - Install and Setup:
+          - System requirements: getting_started/system_requirements.md
+          - Install from Conda or Pip: getting_started/install_from_conda_or_pip.md
+          - Install from source: getting_started/install_from_source.md
+      - Quick Start: getting_started/quickstart.md
+  - Advanced Materials:
+      - Game:
+          - Game Setting: advanced_materials/game_setting.md
+          - Full Game: advanced_materials/fullgame.md
+          - Mini Game: advanced_materials/minigame.md
+      - Agent:
+          - Tensor Agent: advanced_materials/tensor_agent.md
+          - LLM Agent: advanced_materials/llm_agent.md
+      - Train Scheme:
+          - Parallel Training: advanced_materials/parallel_training.md
+      - Extra:
+          - Self Play: advanced_materials/selfplay.md
+  - Api Reference: api_reference/api.md
+  - Releases: releases/releases.md
+  - Notes:
+      - Contribute To Freeciv-Sav:
+          - General Development Process: notes/general_dev_process.md
+          - Git Setup(for developers): notes/git_setup.md
+          - Coding Styles: notes/coding_styles.md
+      - Performance Benchmarks: notes/benchmarks.md
+  - Misc: 
+      - FAQ: misc/faq.md
+      - Resources: misc/resources.md

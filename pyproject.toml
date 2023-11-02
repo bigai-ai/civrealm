@@ -144,3 +144,12 @@ addopts = [
     # "tests/unit/test_disband.py",
 
 ]
+
+[project.optional-dependencies]
+doc = [
+    "mkdocs",
+    "mkdocs-autorefs",
+    "mkdocs-material",
+    "mkdocstrings[python]"
+]
+

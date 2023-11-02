@@ -38,13 +38,13 @@ class LLMWrapper(Wrapper):
             observation, info = self.__env.reset()
 
         info['llm_info'] = self.get_llm_info(observation, info)
-        info['my_player_id'] = self.civ_controller.player_ctrl.my_player_id
+        info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
         return observation, info
 
     def step(self, action):
         observation, reward, terminated, truncated, info = self.__env.step(action)
         info['llm_info'] = self.get_llm_info(observation, info)
-        info['my_player_id'] = self.civ_controller.player_ctrl.my_player_id
+        info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
@@ -55,7 +55,7 @@ class LLMWrapper(Wrapper):
             llm_info[ctrl_type] = dict()
 
             if ctrl_type == 'unit':
-                units = self.civ_controller.unit_ctrl.units
+                units = self.unwrapped.civ_controller.unit_ctrl.units
                 for unit_id in actors_can_act:
                     if (units[unit_id]['type'] == 1 and units[unit_id]['activity'] not in
                             [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]):
@@ -120,14 +120,14 @@ class LLMWrapper(Wrapper):
         mini_map_info = dict()
 
         tile_id = 0
-        map_state = self.civ_controller.map_ctrl.prop_state.get_state()
+        map_state = self.unwrapped.civ_controller.map_ctrl.prop_state.get_state()
         for ptile in template:
             mini_map_info[ptile] = []
             pdir = DIR[tile_id]
             center_x = x + pdir[0] * (length_r * 2 + 1)
             center_y = y + pdir[1] * (width_r * 2 + 1)
 
-            if not self.civ_controller.map_ctrl.is_out_of_map(center_x, center_y):
+            if not self.unwrapped.civ_controller.map_ctrl.is_out_of_map(center_x, center_y):
                 """ consider map_const.TF_WRAPX == 1 """
                 start_x = center_x - length_r
                 end_x = center_x + length_r + 1
@@ -174,24 +174,24 @@ class LLMWrapper(Wrapper):
                         if unit_owner in owner_set:
                             continue
 
-                        if unit_owner == self.civ_controller.player_ctrl.my_player_id:
+                        if unit_owner == self.unwrapped.civ_controller.player_ctrl.my_player_id:
                             unit_owner_str += ' myself player_' + str(int(unit_owner))
                         else:
-                            ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[unit_owner]
+                            ds_of_owner = self.unwrapped.civ_controller.dipl_ctrl.diplstates[unit_owner]
                             unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
                         owner_set.append(unit_owner)
                     mini_map_info[ptile].append(unit_owner_str)
 
                 city_owners = list(city_owner_arr[city_owner_arr != 255])
-                for city_owner in self.civ_controller.player_ctrl.players:
+                for city_owner in self.unwrapped.civ_controller.player_ctrl.players:
                     owner_num = city_owners.count(city_owner)
                     if owner_num == 0:
                         continue
 
-                    if city_owner == self.civ_controller.player_ctrl.my_player_id:
+                    if city_owner == self.unwrapped.civ_controller.player_ctrl.my_player_id:
                         city_owner_str = str(owner_num) + ' cities of myself player_' + str(int(city_owner))
                     else:
-                        ds_of_owner = self.civ_controller.dipl_ctrl.diplstates[city_owner]
+                        ds_of_owner = self.unwrapped.civ_controller.dipl_ctrl.diplstates[city_owner]
                         city_owner_str = (str(owner_num) + ' cities of a ' + DS_TXT[ds_of_owner] +
                                           ' player_' + str(int(city_owner)))
                     mini_map_info[ptile].append(city_owner_str)

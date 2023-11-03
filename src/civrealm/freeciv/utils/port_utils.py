@@ -160,7 +160,7 @@ class PortStatus:
                 if port is not None and port in empties:
                     result = port
                     break
-                if len(empties) > 0:
+                if port is None and len(empties) > 0:
                     result = empties[0]
                     break
 

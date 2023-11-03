@@ -50,7 +50,7 @@ class ActChooseResearchTech(Action):
         super().__init__()
         self.pplayer = pplayer
         self.new_tech_id = new_tech_id
-        self.action_key += "_%i" % new_tech_id
+        self.action_key += "_%s_%i" % (new_tech_name, new_tech_id)
 
     def is_action_valid(self):
         return is_tech_prereq_known(self.pplayer, self.new_tech_id)
@@ -58,7 +58,7 @@ class ActChooseResearchTech(Action):
     def _action_packet(self):
         packet = {"pid": packet_player_research, "tech": self.new_tech_id}
         self.wait_for_pid = (60, self.pplayer['playerno'])
-        # self.wait_for_pid = 60
+
         return packet
 
 
@@ -71,5 +71,6 @@ class ActChooseResearchGoal(ActChooseResearchTech):
     def _action_packet(self):
         packet = {"pid": packet_player_tech_goal, "tech": self.new_tech_id}
         self.wait_for_pid = (60, self.pplayer['playerno'])
-        # self.wait_for_pid = 60
+
         return packet
+

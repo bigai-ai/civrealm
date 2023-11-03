@@ -37,7 +37,6 @@ class RandomLLMAgent(BaseAgent):
             self.planned_actor_ids = []
             self.turn = info['turn']
 
-        """
         for ctrl_type, actors_dict in info['llm_info'].items():
             for actor_id in actors_dict.keys():
                 if actor_id in self.planned_actor_ids:
@@ -47,26 +46,3 @@ class RandomLLMAgent(BaseAgent):
                     action_name = random.choice(available_actions)
                     self.planned_actor_ids.append(actor_id)
                     return (ctrl_type, actor_id, action_name)
-        """
-
-        for ctrl_type in info['available_actions']:
-
-
-            if ctrl_type in ['city', 'unit']:
-                continue
-
-
-            for actor_id, action_dict in info['available_actions'][ctrl_type].items():
-                if actor_id in self.planned_actor_ids:
-                    continue
-
-                for action in list(action_dict.keys()):
-                    if not action_dict[action]:
-                        del action_dict[action]
-
-                if not action_dict:
-                    continue
-
-                action_name = random.choice(list(action_dict.keys()))
-                self.planned_actor_ids.append(actor_id)
-                return (ctrl_type, actor_id, action_name)

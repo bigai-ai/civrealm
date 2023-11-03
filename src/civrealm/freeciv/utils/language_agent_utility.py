@@ -58,13 +58,11 @@ BLOCK_INFO_TEMPLATE = {
     'block_south_1_west_1': []
 }
 
-DIR = [(0, 0), (0, -1), (0, 1), (1, 0), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1),
-       (0, -2), (1, -2), (-1, -2), (2, -2), (-2, -2), (0, 2), (1, 2), (-1, 2), (2, 2),
-       (-2, 2), (2, 0), (2, -1), (2, 1), (-2, 0), (-2, -1), (-2, 1)]
+DIR = [
+(0, 0), (0, -1), (0, 1), (1, 0), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1), (0, -2), (1, -2), (-1, -2), (2, -2), (-2, -2), (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (2, 0), (2, -1), (2, 1), (-2, 0), (-2, -1), (-2, 1)
+]
 
-MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'move_NorthEast',
-              'goto_3': 'move_West', 'goto_4': 'move_East', 'goto_5': 'move_SouthWest',
-              'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
+MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'move_NorthEast', 'goto_3': 'move_West', 'goto_4': 'move_East', 'goto_5': 'move_SouthWest', 'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
 INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 
 KEYWORDS = ['produce']
@@ -113,14 +111,33 @@ def make_action_list_readable(action_list):
             readable_action_list.append(action)
 
     for i, action in enumerate(readable_action_list):
-        readable_action_list[i] = action.replace('_', ' ')
+        readable_action = ''
+        for j, char in enumerate(action):
+            if char == '_':
+                readable_action += ' '
+            elif char == ' ':
+                readable_action += '_'
+            else:
+                readable_action += char
+
+        readable_action_list[i] = readable_action
     return readable_action_list
 
 
 # TODO: consider moving this to the agent side.
 def get_action_from_readable_name(readable_action):
-    action = readable_action.replace(' ', '_')
+
+    action = ''
+    for j, char in enumerate(readable_action):
+        if char == '_':
+            action += ' '
+        elif char == ' ':
+            action += '_'
+        else:
+            action += char
     if action in INVERSE_MOVE_NAMES.keys():
         action = INVERSE_MOVE_NAMES[action]
 
     return action
+
+

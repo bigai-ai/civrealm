@@ -9,6 +9,7 @@ from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                              ACTIVITY_FORTIFYING,
                                              ACTIVITY_IDLE, ACTIVITY_SENTRY)
 
+from .city_wrapper import PersistentCityProduction
 from .core import Wrapper
 from .dipl_wrapper import DiplomacyLoop, TruncateDiplCity
 from .embark_wrapper import EmbarkWrapper
@@ -30,7 +31,11 @@ class TensorAction(Wrapper):
 
         super().__init__(
             TruncateDiplCity(
-                DiplomacyLoop(CombineTechResearchGoal(EmbarkWrapper(env))),
+                DiplomacyLoop(
+                    CombineTechResearchGoal(
+                        PersistentCityProduction(EmbarkWrapper(env))
+                    )
+                ),
                 config=config,
             )
         )
@@ -208,21 +213,6 @@ class TensorAction(Wrapper):
         self.mask["city_action_type_mask"][
             len(self.get_wrapper_attr("city_ids")) : :, :
         ] = 0
-
-        # Mask city
-        for pos, unit_id in enumerate(
-            self.get_wrapper_attr("city_ids")[: self.action_config["resize"]["city"]]
-        ):
-            city = observation["city"][unit_id]
-            # The following two conditions are used to check if
-            # 1.  the city is just built or is building coinage, and
-            # 2. the city has just built a unit or an improvement last turn and
-            #    there are some production points left in stock.
-            if (city["prod_process"] != 0) and (
-                self.__turn != city["turn_last_built"] + 1
-            ):
-                self.mask["city_id_mask"][pos] = 0
-                self.mask["city_action_type_mask"][pos] = 0
 
         # Mask Unit
         for pos, unit_id in enumerate(

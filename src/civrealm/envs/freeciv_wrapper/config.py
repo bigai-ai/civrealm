@@ -297,8 +297,15 @@ obs_mutable_layout = {
         "diplomatic_state": (8,),
         "techs": (87,),
     },
-    "dipl": {"clause": (20,)},
+    "dipl": {
+        "type": (20,),
+        "give_city": (32,),
+        "ask_city": (64,),
+        "give_gold": (16,),
+        "ask_gold": (16,),
+    },
 }
+
 
 obs_immutalbe_layout = {
     "rules": {
@@ -549,8 +556,8 @@ action_layout = {
         "remove_clause_Alliance_": 2,
         "trade_tech_clause_Advance_": 174,
         "remove_clause_Advance_": 174,
-        "trade_gold_clause_TradeGold_": len(GOLD_SET)*2,
-        "remove_clause_TradeGold_": len(GOLD_SET)*2,
+        "trade_gold_clause_TradeGold_": len(GOLD_SET) * 2,
+        "remove_clause_TradeGold_": len(GOLD_SET) * 2,
         "trunc_trade_city_clause_TradeCity_": resize["city"] + resize["others_city"],
         "trunc_remove_clause_TradeCity_": resize["city"] + resize["others_city"],
     },

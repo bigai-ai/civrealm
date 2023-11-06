@@ -73,20 +73,3 @@ def update_logger(original_name, new_name):
     global fc_logger
     fc_logger = logging.getLogger('civrealm')
 
-# class DummyLogger():
-#     def __init__(self) -> None:
-#         self.handlers = [DummyFolderName()]
-#     def info(self, msg):
-#         pass
-#     def debug(self, msg):
-#         pass
-#     def warning(self, msg):
-#         pass
-#     def error(self, msg):
-#         pass
-
-# class DummyFolderName():
-#     def __init__(self) -> None:
-#         self.baseFilename = 'logs'
-
-# fc_logger = DummyLogger()

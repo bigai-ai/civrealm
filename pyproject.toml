@@ -28,7 +28,7 @@ dependencies = [
     "numpy", 
     "tornado==6.3.2", 
     "gymnasium==0.29.1", 
-    "selenium", 
+    "selenium==4.9.1", 
     "websocket-client",
     "pytest",
     "pytest-xdist",

@@ -1,5 +1,5 @@
 from copy import deepcopy
-from typing import Any, Optional
+from typing import Any, Optional, Dict
 
 import numpy as np
 from gymnasium import spaces
@@ -85,7 +85,7 @@ class TensorAction(Wrapper):
         self,
         *,
         seed: Optional[int] = None,
-        options: Optional[dict[str, Any]] = None,
+        options: Optional[Dict[str, Any]] = None,
         **kwargs,
     ):
         obs, info = self.env.reset(seed=seed, options=options, **kwargs)

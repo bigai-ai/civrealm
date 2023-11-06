@@ -4,6 +4,7 @@ import tempfile
 import time
 import urllib.request
 from copy import copy
+from datetime import datetime
 from html.parser import HTMLParser
 from urllib.parse import urljoin
 
@@ -64,9 +65,13 @@ class PortStatus:
         data = self.status_parser.data
         if self._cache != {}:
             for port, subdict in data.items():
+                # if (
+                #     abs(subdict["birth"] - self._cache.get(port, {"birth": 0})["birth"])
+                #     < 3
+                # ):
                 if (
-                    abs(subdict["birth"] - self._cache.get(port, {"birth": 0})["birth"])
-                    < 3
+                    subdict["restart"]
+                    == self._cache.get(port, {"restart": -1})["restart"]
                 ):
                     subdict["user"] = max(self._cache[port]["user"], subdict["user"])
         self._cache = copy(data)
@@ -133,10 +138,27 @@ class PortStatus:
     def _check_release(self, occupied_ports):
         # delete from occupied if port birth time is updated.
         status = self.status
+        for id, [port, _, restart, user] in enumerate(occupied_ports):
+            if port not in status:
+                continue
+            if user != status[port]["user"] and restart == status[port]["restart"]:
+                occupied_ports[id][3] = max(user, status[port]["user"])
+
         occupied_ports = list(
             filter(
-                lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"] - x[2]
-                < 3,
+                # lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"] - x[2]
+                # < 3,
+                lambda x: status.get(int(x[0]), {"restart": x[2]})["restart"] == x[2],
+                occupied_ports,
+            )
+        )
+        # delete from occupied if port stay for idle more than 30s.
+        occupied_ports = list(
+            filter(
+                lambda x: not (
+                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 30)
+                    and x[3] == 0
+                ),
                 occupied_ports,
             )
         )
@@ -149,7 +171,7 @@ class PortStatus:
         with FileLock(self.lock_file):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
                 lines = file.readlines()
-                ports_data = [tuple(map(float, line.strip().split())) for line in lines]
+                ports_data = [list(map(int, line.strip().split())) for line in lines]
 
             empties = []
             while True:
@@ -166,14 +188,11 @@ class PortStatus:
 
             status = self.status
             ports_data.append(
-                (
-                    result,
-                    status[result]["uptime"],
-                    status[result]["birth"],
-                )
+                (result, status[result]["uptime"], status[result]["restart"], 0)
             )
             occupied_ports_lines = [
-                f"{int(p)} {uptime} {birth}\n" for p, uptime, birth in ports_data
+                f"{int(p)} {int(uptime)} {int(restart)} {int(user)}\n"
+                for [p, uptime, restart, user] in ports_data
             ]
             with open(self.occupied_ports_file, "w", encoding="utf-8") as file:
                 file.writelines(occupied_ports_lines)
@@ -198,6 +217,7 @@ class PortStatusParser(HTMLParser):
         self.current_port = None
         self.current_link = ""
         self.within_tag = []
+        self.after_date = False
         self.port_parser = re.compile(
             r".*Process status: (?P<status>[a-zA-Z]+).*Process Uptime: (?P<uptime>\d+).*count (?P<user>\d+).*"
         )
@@ -225,6 +245,16 @@ class PortStatusParser(HTMLParser):
             self.current_port = int(data)
         elif self.current_port and data in ["singleplayer", "multiplayer"]:
             self.data[self.current_port]["type"] = data
+        if self.after_date:
+            self.after_date = False
+            if self.current_port:
+                self.data[self.current_port]["restart"] = int(data)
+        if ":" in data:
+            try:
+                _ = datetime.strptime(data, "%Y-%m-%d %H:%M:%S")
+                self.after_date = True
+            except ValueError:
+                pass
 
     def handle_endtag(self, tag):
         if tag == "a":

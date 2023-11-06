@@ -1,4 +1,5 @@
 from .action_wrapper import TensorAction
+from .city_wrapper import PersistentCityProduction
 from .core import Wrapper, wrapper_override
 from .dipl_wrapper import (CancelReturnedTreaties, DiplomacyLoop,
                            TruncateDiplCity)

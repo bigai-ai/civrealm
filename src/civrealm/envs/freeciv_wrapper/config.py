@@ -1,9 +1,6 @@
 import numpy as np
 
 from civrealm.freeciv.players.diplomacy_actions import GOLD_SET
-from civrealm.freeciv.utils.unit_improvement_const import (IMPR_COSTS,
-                                                           UNIT_COSTS,
-                                                           UNIT_TYPES)
 
 from .utils import expand_dim, noop, onehotifier_maker
 
@@ -27,7 +24,6 @@ map_ops = {
 }
 
 unit_ops = {
-    "type_rule_name": onehotifier_maker(UNIT_TYPES),
     "x": noop,
     "y": noop,
     "owner": noop,
@@ -174,8 +170,6 @@ player_ops = {
 }
 
 rules_ops = {
-    # TODO: get build_cost from info?
-    "build_cost": lambda _: np.array(UNIT_COSTS + IMPR_COSTS)
 }
 
 dipl_ops = {

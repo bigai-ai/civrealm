@@ -27,10 +27,12 @@ class TensorObservation(Wrapper):
     ]
     immutable_fields = ["map", "rules", "player", "gov"]
 
-    def __init__(self, env, config):
+    def __init__(self, env):
         self.obs_initialized = False
-        self.observation_config = config
-        self.observation_config["resize"]["dipl"] = config["resize"]["others_player"]
+        self.observation_config = env.get_wrapper_attr("config")
+        self.observation_config["resize"]["dipl"] = self.observation_config["resize"][
+            "others_player"
+        ]
         self.obs_layout = {}
         self.others_player_ids = []
         super().__init__(env)
@@ -232,8 +234,12 @@ class TensorObservation(Wrapper):
     def _encode_treaty(self, treaty, player):
         encoded = {
             "type": np.zeros(10 * 2, dtype=np.int32),
-            "give_city": np.zeros(self.observation_config["resize"]["city"],dtype=np.int32),
-            "ask_city": np.zeros(self.observation_config["resize"]["others_city"],dtype=np.int32),
+            "give_city": np.zeros(
+                self.observation_config["resize"]["city"], dtype=np.int32
+            ),
+            "ask_city": np.zeros(
+                self.observation_config["resize"]["others_city"], dtype=np.int32
+            ),
             "give_gold": 255,
             "ask_gold": 255,
         }

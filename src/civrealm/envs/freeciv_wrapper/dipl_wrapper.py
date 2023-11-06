@@ -78,60 +78,49 @@ class DiplomacyLoop(Wrapper):
 
 @wrapper_override(["info", "action"])
 class TruncateDiplCity(Wrapper):
-    def __init__(self, env, config):
+    def __init__(self, env):
+        config = env.get_wrapper_attr("config")
         self.city_size = config["resize"]["city"]
         self.others_city_size = config["resize"]["others_city"]
         super().__init__(env)
 
-    def info(self, observation, info):
-        self.__my_player_id = self.unwrapped.civ_controller.player_ctrl.my_player_id
-        self.__city_ids = sorted(
-            list(
-                k
-                for k in observation.get("city", {}).keys()
-                if observation["city"][k]["owner"] == self.__my_player_id
-            )
-        )[: self.city_size]
-        self.__others_city_ids = sorted(
-            list(
-                k
-                for k in observation.get("city", {}).keys()
-                if observation["city"][k]["owner"] != self.__my_player_id
-            )
-        )[: self.others_city_size]
+    def info(self, info):
+        my_player_id = self.get_wrapper_attr("my_player_id")
+        city_ids = self.get_wrapper_attr("city_ids")[: self.city_size]
+        others_city_ids = self.get_wrapper_attr("others_city_ids")[
+            : self.others_city_size
+        ]
 
         for player, actions in info["available_actions"].get("dipl", {}).items():
             for act_name in list(actions.keys()):
                 args = act_name.split("TradeCity")
                 if len(args) > 1:
-                    post_args = args[1].split('_')
+                    post_args = args[1].split("_")
                     city = int(post_args[-3])
-                    if int(post_args[-2]) == player and city in self.__others_city_ids:
-                        city_index = self.__others_city_ids.index(city)
+                    if int(post_args[-2]) == player and city in others_city_ids:
+                        city_index = others_city_ids.index(city)
                         actions[
                             f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
                         ] = True
-                    elif city in self.__city_ids:
-                        city_index = self.__city_ids.index(city)
+                    elif city in city_ids:
+                        city_index = city_ids.index(city)
                         actions[
                             f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
                         ] = True
                     del actions[act_name]
-            for no_city_index in range(len(self.__city_ids), self.city_size):
+            for no_city_index in range(len(city_ids), self.city_size):
                 actions[
-                    f"trunc_trade_city_clause_TradeCity_{no_city_index}_{self.__my_player_id}_{player}"
+                    f"trunc_trade_city_clause_TradeCity_{no_city_index}_{my_player_id}_{player}"
                 ] = False
                 actions[
-                    f"trunc_remove_clause_TradeCity_{no_city_index}_{self.__my_player_id}_{player}"
+                    f"trunc_remove_clause_TradeCity_{no_city_index}_{my_player_id}_{player}"
                 ] = False
-            for no_city_index in range(
-                len(self.__others_city_ids), self.others_city_size
-            ):
+            for no_city_index in range(len(others_city_ids), self.others_city_size):
                 actions[
-                    f"trunc_trade_city_clause_TradeCity_{no_city_index}_{player}_{self.__my_player_id}"
+                    f"trunc_trade_city_clause_TradeCity_{no_city_index}_{player}_{my_player_id}"
                 ] = False
                 actions[
-                    f"trunc_remove_clause_TradeCity_{no_city_index}_{player}_{self.__my_player_id}"
+                    f"trunc_remove_clause_TradeCity_{no_city_index}_{player}_{my_player_id}"
                 ] = False
             info[player] = actions
         return info
@@ -142,10 +131,12 @@ class TruncateDiplCity(Wrapper):
         if action[-1].startswith("trunc"):
             args = action[-1].split("TradeCity")
             post_args = args[1]
-            if int(post_args[-1]) == self.__my_player_id:
-                city_index = self.__others_city_ids[int(post_args[-3])]
+            if int(post_args[-1]) == self.get_wrapper_attr("my_player_id"):
+                city_index = self.get_wrapper_attr("others_city_ids")[
+                    int(post_args[-3])
+                ]
             else:
-                city_index = self.__city_ids[int(post_args[-3])]
+                city_index = self.get_wrapper_attr("city_ids")[int(post_args[-3])]
             action_name = (
                 f"{args[0][5:]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
             )

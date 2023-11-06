@@ -20,9 +20,11 @@ tensor_debug = fc_args["debug.tensor_debug"]
 
 
 class TensorAction(Wrapper):
-    def __init__(self, env, config):
-        self.action_config = config
-        self.action_config["resize"]["dipl"] = config["resize"]["others_player"]
+    def __init__(self, env):
+        self.action_config = env.get_wrapper_attr("config")
+        self.action_config["resize"]["dipl"] = self.action_config["resize"][
+            "others_player"
+        ]
         self.actor_type_list = self.action_config["actor_type_list"]
         self.available_actions = {}
         self.mask = {}
@@ -35,8 +37,7 @@ class TensorAction(Wrapper):
                     CombineTechResearchGoal(
                         PersistentCityProduction(EmbarkWrapper(env))
                     )
-                ),
-                config=config,
+                )
             )
         )
 

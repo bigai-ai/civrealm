@@ -13,8 +13,6 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import numpy as np
-from civrealm.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 RADIUS = 2
 MAP_SIZE = RADIUS * 2 + 1
@@ -77,20 +75,6 @@ def action_mask(avail_action_set):
     return action_names
 
 
-def get_units_on_tile(units):
-    units_on_tile = []
-    units_on_tile_count = [0] * len(UNIT_TYPES)
-    for punit in units:
-        punit_type = punit['type']
-        units_on_tile_count[punit_type] += 1
-
-    for unit_id, unit_name in enumerate(UNIT_TYPES):
-        units_num = units_on_tile_count[unit_id]
-        if units_num > 0:
-            units_on_tile.append(str(int(units_num)) + ' ' + unit_name)
-    return units_on_tile
-
-
 def get_valid_actions(info, ctrl_type, actor_id):
     action_dict = info['available_actions'][ctrl_type]
     avail_action_list = []
@@ -101,7 +85,6 @@ def get_valid_actions(info, ctrl_type, actor_id):
     return avail_action_list
 
 
-# TODO: consider moving this to the agent side.
 def make_action_list_readable(action_list):
     readable_action_list = []
     for action in action_list:
@@ -124,7 +107,6 @@ def make_action_list_readable(action_list):
     return readable_action_list
 
 
-# TODO: consider moving this to the agent side.
 def get_action_from_readable_name(readable_action):
 
     action = ''
@@ -139,5 +121,6 @@ def get_action_from_readable_name(readable_action):
         action = INVERSE_MOVE_NAMES[action]
 
     return action
+
 
 

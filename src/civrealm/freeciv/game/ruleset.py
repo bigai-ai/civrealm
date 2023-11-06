@@ -43,6 +43,10 @@ class RulesetCtrl(CivPropController):
         self.terrain_flag = {}
         self.resources = {}
         self.unit_types = {}
+
+        self.unit_types_list = []
+        self.unit_costs_list = []
+
         self.unit_classes = {}
 
         self.specialists = {}
@@ -58,6 +62,10 @@ class RulesetCtrl(CivPropController):
         self.terrain_control = None
         self.city_rules = {}
         self.improvements = {}
+
+        self.improvement_types_list = []
+        self.improvement_costs_list = []
+
         self.nation_groups = None
         self.nations = OrderedDict()
         self.effects = {}
@@ -188,6 +196,11 @@ class RulesetCtrl(CivPropController):
             # if packet['transport_capacity'] > 0:
             # print(packet)
             # print('\n')
+            if packet['id'] >= len(self.unit_types_list):
+                self.unit_types_list += [None] * (packet['id'] - len(self.unit_types_list) + 1)
+                self.unit_costs_list += [None] * (packet['id'] - len(self.unit_costs_list) + 1)
+            self.unit_types_list[packet['id']] = packet['name']
+            self.unit_costs_list[packet['id']] = packet['build_cost']
 
     def handle_ruleset_game(self, packet):
         self.game_rules = packet
@@ -233,6 +246,12 @@ class RulesetCtrl(CivPropController):
 
     def handle_ruleset_building(self, packet):
         self.improvements[packet['id']] = packet
+
+        if packet['id'] >= len(self.improvement_types_list):
+            self.improvement_types_list += [None] * (packet['id'] - len(self.improvement_types_list) + 1)
+            self.improvement_costs_list += [None] * (packet['id'] - len(self.improvement_costs_list) + 1)
+        self.improvement_types_list[packet['id']] = packet['name']
+        self.improvement_costs_list[packet['id']] = packet['build_cost']
 
     def handle_ruleset_unit_class(self, packet):
         self.unit_classes[packet['id']] = packet

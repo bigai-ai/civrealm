@@ -16,7 +16,6 @@
 import numpy as np
 from gymnasium.core import Wrapper
 from civrealm.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
-from civrealm.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from civrealm.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from civrealm.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE, BLOCK_INFO_TEMPLATE,
                                                            DIR, action_mask, get_valid_actions, make_action_list_readable, get_action_from_readable_name)
@@ -162,7 +161,9 @@ class LLMWrapper(Wrapper):
                         extra_str = str(extras_num) + ' ' + extra
                         mini_map_info[ptile].append(extra_str)
 
-                for unit_id, unit in enumerate(UNIT_TYPES):
+
+
+                for unit_id, unit in enumerate(self.unwrapped.civ_controller.rule_ctrl.unit_types_list):
                     units_of_id = unit_arr[:, :, unit_id]
                     units_num = np.sum(units_of_id)
                     if units_num > 0:

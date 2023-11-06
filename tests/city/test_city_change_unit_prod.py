@@ -14,13 +14,10 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
-import random
 from civrealm.freeciv.civ_controller import CivController
-import civrealm.freeciv.map.map_const as map_const
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.test_utils import get_first_observation_option
-from civrealm.freeciv.utils.unit_improvement_const import UNIT_TYPES
 
 
 @pytest.fixture
@@ -57,7 +54,7 @@ def test_city_change_unit_prod(controller):
         unit_prod_action = None
         for act in valid_unit_prod_actions:
             unit_name = act.action_key.split('_')[-1]
-            if unit_name in UNIT_TYPES:
+            if unit_name in controller.rule_ctrl.unit_types_list:
                 unit_prod_action = act
                 break
         if unit_prod_action is None:

@@ -17,7 +17,6 @@ import gymnasium
 import numpy as np
 from BitVector import BitVector
 
-from civrealm.freeciv.utils.unit_improvement_const import UNIT_TYPES
 from civrealm.freeciv.utils.base_state import PlainState
 from civrealm.freeciv.utils.utility import byte_to_bit_array
 from civrealm.freeciv.game.ruleset import RulesetCtrl

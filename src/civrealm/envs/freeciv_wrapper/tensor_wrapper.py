@@ -1,5 +1,6 @@
 import numpy as np
 
+from civrealm.envs import FreecivBaseEnv
 from civrealm.envs.freeciv_wrapper.config import default_tensor_config
 
 from .action_wrapper import TensorAction
@@ -9,7 +10,23 @@ from .utils import onehotifier_maker
 
 
 class TensorWrapper(Wrapper):
-    def __init__(self, env, config=default_tensor_config):
+    """
+    Tensor wrapper that composes `TensorBase`, `TensorAction`, `TensorObservation` and `CacheLastObs`.
+
+    Parameters
+    ----------
+    env
+    config:
+        tensor env configuration
+
+    Attributes
+    ----------
+    config: dict
+        tensor wrapper configuration
+
+    """
+
+    def __init__(self, env: FreecivBaseEnv, config: dict = default_tensor_config):
         env = CacheLastObs(
             TensorObservation(TensorAction(TensorBase(env, config=config)))
         )
@@ -18,7 +35,46 @@ class TensorWrapper(Wrapper):
 
 
 class TensorBase(Wrapper):
-    def __init__(self, env, config=default_tensor_config):
+    """
+    A basic tensor wrapper that deals with config loading and entity id recording.
+
+
+    Parameters
+    ----------
+    env: FreecivBaseEnv
+    config: dict
+        tensor env configuration
+
+    Attributes
+    ---------
+    config: dict
+        A dict that specifies all configurations related to tensor wrapper.
+    my_player_id: int
+        My player id.
+    unit_ids: list
+        A sorted list of my unit ids.
+    city_ids: list
+        A sorted list of my city ids.
+    others_unit_ids: list
+        A sorted list of others unit ids.
+    others_city_ids: list
+        A sorted list of others city ids.
+    dipl_ids : list
+        A list of others player ids.
+    units : dict
+        ruleset information about units.
+    unit_types :list
+        A list of all unit types.
+    unit_costs : list
+        A list of int indicating unit costs.
+    improvements : dict
+        Ruleset information about city improvements.
+    impr_costs :list
+        A list of int indicating city improvements costs.
+
+    """
+
+    def __init__(self, env: FreecivBaseEnv, config: dict = default_tensor_config):
         self.config = config
         self.my_player_id = -1
 
@@ -39,6 +95,9 @@ class TensorBase(Wrapper):
         super().__init__(env)
 
     def update_sequence_ids(self, observation):
+        """
+        Use city, unit and dipl information in observation to update ids.
+        """
         self.unit_ids = sorted(
             list(
                 k
@@ -74,6 +133,9 @@ class TensorBase(Wrapper):
         ]
 
     def update_config(self):
+        """
+        Update config using ruleset information at the start of the turn.
+        """
         self.units = self.unwrapped.civ_controller.rule_ctrl.unit_types
         self.unit_types = [self.units[i]["name"] for i in range(len(self.units))]
         self.unit_costs = [self.units[i]["build_cost"] for i in range(len(self.units))]

@@ -3,11 +3,27 @@ from .core import Wrapper, wrapper_override
 
 @wrapper_override(["action", "info"])
 class EmbarkWrapper(Wrapper):
+    """
+    Unify embark actions of all units to 'embark_{dir8}' where dir8 in `[0,...7]`
+    indicating 8 directions.
+
+    Sometimes a unit can embark multiple carrier on the same direction. In that
+    case, the wrapper automatically choose the carrier with the smallest unit id.
+
+    Attributes
+    ----------
+    embarkable_units : dict
+        a dict of embarkable units with key=(embarking_unit_id, dir8) and value=[carrier_ids]
+    """
+
     def __init__(self, env):
         self.embarkable_units = {}
         super().__init__(env)
 
     def action(self, action):
+        """
+        Translate `embark_{dir8}` action into embark actions that can be handled by FreecivBaseEnv.
+        """
         if action is None:
             return action
         (actor_name, entity_id, action_name) = action
@@ -27,6 +43,17 @@ class EmbarkWrapper(Wrapper):
         return (action_name, entity_id, action_name)
 
     def info(self, info):
+        """
+        Complete or modify embark actions in info['availble_actions']['unit']
+
+        If a unit has no `embark_.*` action, then set all `embark_{dir8}` action to False
+
+        If a unit has `embark_{dir}=True`, set all `embark_{other_dirs}` action to False
+
+        If a unit has `embark_{carrier_id}_{dir}=True`, store that carrier_id
+        and set its `embark_{dir8}` accordingly.
+        """
+
         self.embarkable_units = {}
         unit_actions = info["available_actions"].get("unit", {})
 

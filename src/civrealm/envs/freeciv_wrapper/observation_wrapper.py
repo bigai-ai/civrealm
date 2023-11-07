@@ -7,6 +7,7 @@ from gymnasium import spaces
 
 import civrealm.freeciv.players.player_const as player_const
 from civrealm.configs import fc_args
+from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorBase
 from civrealm.freeciv.players.diplomacy_actions import GOLD_SET
 
 from .core import Wrapper, wrapper_override
@@ -17,6 +18,28 @@ tensor_debug = fc_args["debug.tensor_debug"]
 
 @wrapper_override(["observation"])
 class TensorObservation(Wrapper):
+    """
+    A wrapper that defines tensor observation space, transforms observations got from
+    FreecivBaseEnv into tensor observations.
+
+    Parameters
+    ----------
+    env:
+        A FreecivBaseEnv wrapped by TensorBase wrapper
+
+    Attributes
+    ---------
+    observation_config: dict
+        tensor observation configuration
+    observation_space: gymnasium.spaces.Dict
+        a gymnasium.spaces.Dict with keys speficified in configuration;
+        observation with keywords `mask` would not be removed.
+    obs_initialized: bool
+        whether observation spaces has been initialized
+    obs_layout: dict
+        a dict that specify shapes of flattened numpy arrays in observation
+    """
+
     mutable_fields = [
         "city",
         "unit",
@@ -27,7 +50,7 @@ class TensorObservation(Wrapper):
     ]
     immutable_fields = ["map", "rules", "player", "gov"]
 
-    def __init__(self, env):
+    def __init__(self, env: TensorBase):
         self.obs_initialized = False
         self.observation_config = env.get_wrapper_attr("config")
         self.observation_config["resize"]["dipl"] = self.observation_config["resize"][
@@ -38,6 +61,9 @@ class TensorObservation(Wrapper):
         super().__init__(env)
 
     def observation(self, observation):
+        """
+        convert observations obtained from `FreecivBaseEnv` into a dict of flattend numpy arrays.
+        """
         # in case of gameover, return None as observation
         if len(observation.get("player", {})) == 0:
             return None
@@ -273,6 +299,16 @@ class TensorObservation(Wrapper):
 
 
 class CacheLastObs(Wrapper):
+    """
+    Cache last observation, and override observation with cached observation
+    if terminated or truncated.
+
+    Attributes
+    -------------
+    cached_last_obs: dict
+        observation cached from the last call of step() or reset()
+    """
+
     def __init__(self, env):
         self.cached_last_obs = None
         super().__init__(env)

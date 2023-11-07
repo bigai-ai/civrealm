@@ -5,6 +5,7 @@ import numpy as np
 from gymnasium import spaces
 
 from civrealm.configs import fc_args
+from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorBase
 from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                              ACTIVITY_FORTIFYING,
                                              ACTIVITY_IDLE, ACTIVITY_SENTRY)
@@ -20,7 +21,36 @@ tensor_debug = fc_args["debug.tensor_debug"]
 
 
 class TensorAction(Wrapper):
-    def __init__(self, env):
+    """
+    A wrapper that defines tensor action spaces,  transforms tensor actions into
+    actions that could be handeled by FreecivBaseEnv instance, and adds masks to
+    observations.
+
+    TensorAction wrapper is composed of five wrappers, including `TruncateDiplCity`,
+    `DiplomacyLoop`, `CombineTechResearchGoal`, `PersistentCityProduction`, and `EmbarkWrapper`.
+
+
+
+    Parameters
+    ----------
+    env: TensorBase
+        A FreecivBaseEnv instance that has been wrapped by TensorBase.
+
+    Attributes
+    ----------
+    aciton_config: dict
+        a dict that configs that specify sizes of mutable entities and action layout.
+    mask: dict
+        a dict of masks of type numpy ndarray indicating available actions and entities. 0-> unavilalbe, 1->availble.
+    available_actions: dict
+        cached info['available_actions'], a dict that indicates available actions.
+    action_space: gymnasium.spaces.Dict
+        a gymnasium.spaces.Dict with keys `['actor_type','city_id','unit_id',
+        'dipl_id','city_action_type','unit_action_type','dipl_action_type',
+        'gov_action_type','tech_action_type']`
+    """
+
+    def __init__(self, env: TensorBase):
         self.action_config = env.get_wrapper_attr("config")
         self.action_config["resize"]["dipl"] = self.action_config["resize"][
             "others_player"
@@ -93,6 +123,13 @@ class TensorAction(Wrapper):
         return obs, info
 
     def action(self, action):
+        """
+        Translate tensor action, a dict of keys `['actor_type','city_id','unit_id',
+        'dipl_id','city_action_type','unit_action_type','dipl_action_type',
+        'gov_action_type','tech_action_type']` to `FreecivBaseEnv` action,
+        a tuple `(actor_type, entity_id, action_name)`.
+
+        """
         if tensor_debug:
             self._check_action_layout()
 
@@ -128,7 +165,10 @@ class TensorAction(Wrapper):
         return (actor_name, entity_id, action_name)
 
     def update_obs_with_mask(self, observation, info, action=None):
-        # Update mask and update obs with mask dict
+        """
+        Update self.mask using observation, info and action from the unwrapped env,
+        and add self.mask to the observation of the wrapped env.
+        """
         if info[
             "turn"
         ] != self.__turn or self.__is_negotiating != self.get_wrapper_attr(
@@ -143,6 +183,11 @@ class TensorAction(Wrapper):
         return update(observation, deepcopy(self.mask))
 
     def reset_mask(self):
+        """
+        Reset self.mask
+
+        This is usually called at the start of a new turn to reset masks.
+        """
         # Reset mask
         sizes = self.action_config["resize"]
         self.mask["actor_type_mask"] = np.ones(

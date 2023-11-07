@@ -30,7 +30,10 @@ plugins:
         python:
           paths: [src/civrealm]
           options:
+            show_root_heading: True
             show_source: true
+            docstring_style: numpy
+            heading_level: 3
 
 markdown_extensions:
   - pymdownx.highlight:

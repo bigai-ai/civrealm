@@ -7,7 +7,7 @@ from gymnasium import spaces
 
 import civrealm.freeciv.players.player_const as player_const
 from civrealm.configs import fc_args
-from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorBase
+from civrealm.envs.freeciv_wrapper.tensor_base_wrapper import TensorBase
 from civrealm.freeciv.players.diplomacy_actions import GOLD_SET
 
 from .core import Wrapper, wrapper_override

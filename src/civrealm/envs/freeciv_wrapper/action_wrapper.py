@@ -1,11 +1,11 @@
 from copy import deepcopy
-from typing import Any, Optional, Dict
+from typing import Any, Dict, Optional
 
 import numpy as np
 from gymnasium import spaces
 
 from civrealm.configs import fc_args
-from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorBase
+from civrealm.envs.freeciv_wrapper.tensor_base_wrapper import TensorBase
 from civrealm.freeciv.utils.fc_types import (ACTIVITY_FORTIFIED,
                                              ACTIVITY_FORTIFYING,
                                              ACTIVITY_IDLE, ACTIVITY_SENTRY)

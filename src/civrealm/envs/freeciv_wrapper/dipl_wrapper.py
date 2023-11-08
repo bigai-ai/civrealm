@@ -99,14 +99,13 @@ class TruncateDiplCity(Wrapper):
                     city = int(post_args[-3])
                     if int(post_args[-2]) == player and city in others_city_ids:
                         city_index = others_city_ids.index(city)
-                        actions[
-                            f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
-                        ] = True
                     elif city in city_ids:
                         city_index = city_ids.index(city)
-                        actions[
-                            f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
-                        ] = True
+                    else:
+                        del actions[act_name]
+                        continue
+                    trunc_name = f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
+                    actions[trunc_name] = actions[act_name]
                     del actions[act_name]
             for no_city_index in range(len(city_ids), self.city_size):
                 actions[
@@ -130,7 +129,7 @@ class TruncateDiplCity(Wrapper):
             return action
         if action[-1].startswith("trunc"):
             args = action[-1].split("TradeCity")
-            post_args = args[1]
+            post_args = args[1].split("_")
             if int(post_args[-1]) == self.get_wrapper_attr("my_player_id"):
                 city_index = self.get_wrapper_attr("others_city_ids")[
                     int(post_args[-3])
@@ -138,7 +137,7 @@ class TruncateDiplCity(Wrapper):
             else:
                 city_index = self.get_wrapper_attr("city_ids")[int(post_args[-3])]
             action_name = (
-                f"{args[0][5:]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
+                f"{args[0][6:]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
             )
             return action[0], action[1], action_name
         return action

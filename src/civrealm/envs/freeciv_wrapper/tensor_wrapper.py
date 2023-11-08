@@ -11,7 +11,11 @@ from .tensor_base_wrapper import TensorBase
 
 class TensorWrapper(Wrapper):
     """
-    Tensor wrapper that composes `TensorBase`, `TensorAction`, `TensorObservation`
+    TensorWrapper is used to make Civrealm environment tensorized by converting
+    observations from FreecivBaseEnv into tensors and tensor actions back to actions compatible with
+    FreecivBaseEnv.
+
+    TensorWrapper is composed `TensorBase`, `TensorAction`, `TensorObservation`
     and `CacheLastObs`.
 
     Parameters

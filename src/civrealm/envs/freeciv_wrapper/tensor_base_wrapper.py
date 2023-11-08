@@ -9,7 +9,8 @@ from .utils import onehotifier_maker
 
 class TensorBase(Wrapper):
     """
-    A basic tensor wrapper that deals with config loading and entity id recording.
+    A basic wrapper that deals with config loading and entity id recording, 
+    required by all tensor-related wrappers.
 
 
     Parameters

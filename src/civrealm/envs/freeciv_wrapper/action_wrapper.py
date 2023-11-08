@@ -250,6 +250,7 @@ class TensorAction(Wrapper):
         # Mask out trailing spaces for unit and city
         self.mask["unit_id_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] = 0
         self.mask["city_id_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] = 0
+        self.mask["dipl_id_mask"][len(self.get_wrapper_attr("dipl_ids")) : :, :] = 0
         self.mask["unit_mask"] = self.mask["unit_id_mask"].copy()
         self.mask["city_mask"] = self.mask["city_id_mask"].copy()
 

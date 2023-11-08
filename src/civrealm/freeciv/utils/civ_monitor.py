@@ -15,16 +15,16 @@
 
 import time
 import threading
+from time import sleep
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
-from time import sleep
 
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 
 class CivMonitor():
-    def __init__(self, host, user_name, client_port, poll_interval=4):
+    def __init__(self, host, user_name, client_port, global_view=False, poll_interval=2):
         self._driver = None
         self._poll_interval = poll_interval
         self._initiated = False
@@ -34,6 +34,7 @@ class CivMonitor():
         self.state = "input_observer_name"
         self.start_observe = False
         self.client_port = client_port
+        self.global_view = global_view
 
     def _observe_game(self, user_name):
         if not self._initiated:
@@ -42,7 +43,7 @@ class CivMonitor():
 
             self._driver.get(f'http://{self._host}:8080/webclient/?action=multi&civserverport='
                              f'{self.client_port}&civserverhost=unknown&multi=true&type=multiplayer')
-            sleep(10)
+            sleep(2)
             self._initiated = True
 
         if self._initiated:
@@ -89,7 +90,10 @@ class CivMonitor():
                     try:
                         bt_single_game = self._driver.find_element(By.ID, "pregame_text_input")  # console
                         bt_single_game.clear()
-                        bt_single_game.send_keys(f'/observe {self._user_name}')
+                        if self.global_view:
+                            bt_single_game.send_keys(f'/observe')
+                        else:
+                            bt_single_game.send_keys(f'/observe {self._user_name}')
                         sleep(self._poll_interval)
                         bt_single_game.send_keys(Keys.ENTER)
                         self.state = "view_game"
@@ -97,13 +101,31 @@ class CivMonitor():
                         fc_logger.info("viewing err! %s" % err)
                     sleep(self._poll_interval)
 
-                if (self.state == "view_game") and (self.start_observe == False):
-                    self._driver.execute_script("center_tile_mapcanvas(tiles[Object.entries(units)[0][1].tile])")
+                if (self.state == "view_game") and (not self.start_observe):
+                    if self.global_view:
+                        self.init_global_view()
+                    else:
+                        self.init_local_view()
                     self.start_observe = True
                     break
-        #
-        # if self._initiated:
-        #     self._driver.close()
+
+    def init_global_view(self):
+        self._driver.execute_script(
+            'center_tile_mapcanvas(tiles[map.xsize*Math.floor(map.ysize/2)+Math.floor(map.xsize/2)])')
+        # For 3D version (FCIV-NET)
+        self._driver.execute_script('camera.position.y = 2000')
+        self._driver.execute_script('camera.position.z -= 150')
+
+    def init_local_view(self):
+        self._driver.execute_script(
+            'center_tile_mapcanvas(tiles[Object.entries(units)[0][1].tile])')
+        # For 3D version (FCIV-NET)
+        self._driver.execute_script('camera.position.y = 500')
+        self._driver.execute_script('camera.position.x += 20')
+        self._driver.execute_script('camera.position.z += 20')
+        # OrbitControl with autoRotateSpeed 
+        self._driver.execute_script('controls.autoRotateSpeed = 0.2; controls.autoRotate = TRUE')
+
 
     def start_monitor(self):
         self.monitor_thread = threading.Thread(target=self._observe_game, args=[self._user_name])

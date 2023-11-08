@@ -218,7 +218,6 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     def render(self):
         """Render the environment based on freeciv-web.
         """
-        # TODO: To be implemented. Consider using CivMonitor in CivController.
         pass
 
     def close(self):
@@ -227,6 +226,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self.running = False
 
 
+# TODO: maybe clean up this dummy env
 # Only for testing purpose
 # @ray.remote
 # class FreecivDummyEnv(FreecivBaseEnv):

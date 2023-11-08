@@ -90,7 +90,7 @@ class CivController(CivPropController):
         self.visualize = visualize
         self.monitor = None
         if self.visualize:
-            self.monitor = CivMonitor(host, username, client_port)
+            self.monitor = CivMonitor(host, username, client_port, global_view=fc_args['debug.global_view_screenshot'])
 
         # Host address
         self.host = host

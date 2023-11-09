@@ -1,0 +1,66 @@
+readable_action_names:
+  # Please use '_' instead of ' ' between words as some units or improvement names also have ' ', thus llm_wrapper can correctly translate between action_keys used by base_env and the corresponding readable action_names used by LLM
+  goto_1: "move_North"
+  goto_2: "move_NorthEast"
+  goto_3: "move_West"
+  goto_4: "move_East"
+  goto_5: "move_SouthWest"
+  goto_6: "move_South"
+  goto_7: "move_SouthEast"
+
+# Consider a 5 * 5 minimap
+tile_length_radius: 0
+tile_width_radius: 0
+
+tile_info_template:
+  'current_tile': ""
+  'tile_north_1': ""
+  'tile_south_1': ""
+  'tile_east_1': ""
+  'tile_west_1': ""
+  'tile_north_1_east_1': ""
+  'tile_north_1_west_1': ""
+  'tile_south_1_east_1': ""
+  'tile_south_1_west_1': ""
+  'tile_north_2': ""
+  'tile_north_2_east_1': ""
+  'tile_north_2_west_1': ""
+  'tile_north_2_east_2': ""
+  'tile_north_2_west_2': ""
+  'tile_south_2': ""
+  'tile_south_2_east_1': ""
+  'tile_south_2_west_1': ""
+  'tile_south_2_east_2': ""
+  'tile_south_2_west_2': ""
+  'tile_east_2': ""
+  'tile_north_1_east_2': ""
+  'tile_south_1_east_2': ""
+  'tile_west_2': ""
+  'tile_north_1_west_2': ""
+  'tile_south_1_west_2': ""
+
+# Consider a 15 * 15 minimap while each block consists of 5 * 5 tiles
+block_length_radius: 2
+block_width_radius: 2
+
+block_info_template:
+  'current_block': ""
+  'block_north_1': ""
+  'block_south_1': ""
+  'block_east_1': ""
+  'block_west_1': ""
+  'block_north_1_east_1': ""
+  'block_north_1_west_1': ""
+  'block_south_1_east_1': ""
+  'block_south_1_west_1': ""
+
+# LLM controls the following components in the game, i.e., all my units and cities
+ctrl_types: ['unit', 'city']
+
+ctrl_action_categories:
+  # action categories that the model considers, if a ctrl_type is not in this dict, it means all possible actions of this ctrl are considered, otherwise, only the categories in action_categories[ctrl_type] are considered. This is used to mask out some actions that the model does not consider currently. In this example, all possible actions of units are considered while only production actions of cities are considered
+  city: ['produce']
+
+
+
+

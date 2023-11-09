@@ -13,21 +13,34 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import os
+import yaml
 import numpy as np
 from gymnasium.core import Wrapper
 from civrealm.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from civrealm.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
-from civrealm.freeciv.utils.language_agent_utility import (TILE_INFO_TEMPLATE, BLOCK_INFO_TEMPLATE,
-                                                           DIR, action_mask, get_valid_actions, make_action_list_readable, get_action_from_readable_name)
+from civrealm.freeciv.utils.language_agent_utility import (DIR, action_mask,
+                                                           get_valid_actions, make_action_list_readable,
+                                                           get_action_from_readable_name)
 from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
+
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class LLMWrapper(Wrapper):
 
     def __init__(self, env):
         super().__init__(env)
+        self.llm_default_settings = parse_llm_default_settings()
+
+        (self.action_names, self.tile_length_radius, self.tile_width_radius, self.tile_info_template,
+         self.block_length_radius, self.block_width_radius, self.block_info_template, self.ctrl_types,
+         self.ctrl_action_categories) = self.llm_default_settings.values()
+
+        self.action_keys = {val: key for key, val in self.action_names.items()}
 
     def reset(self, seed=None, options=None, **kwargs):
         if 'minitask_pattern' in kwargs:
@@ -42,7 +55,7 @@ class LLMWrapper(Wrapper):
     def step(self, action):
         if action is not None:
             action_name = action[2]
-            action = (action[0], action[1], get_action_from_readable_name(action_name))
+            action = (action[0], action[1], get_action_from_readable_name(action_name, self.action_keys))
 
         observation, reward, terminated, truncated, info = self.env.step(action)
         info['llm_info'] = self.get_llm_info(observation, info)
@@ -105,14 +118,21 @@ class LLMWrapper(Wrapper):
         if not available_actions or (len(available_actions) == 1 and available_actions[0] == 'keep_activity'):
             return dict()
         else:
+            if ctrl_type not in self.ctrl_action_categories:
+                actor_info['available_actions'] = make_action_list_readable(available_actions, self.action_names)
+            else:
+                actor_info['available_actions'] = make_action_list_readable(action_mask(self.ctrl_action_categories[ctrl_type], available_actions), self.action_names)
+
+            """
             if ctrl_type == 'unit':
-                actor_info['available_actions'] = make_action_list_readable(available_actions)
+                actor_info['available_actions'] = make_action_list_readable(available_actions, self.action_names)
             elif ctrl_type == 'city':
-                actor_info['available_actions'] = make_action_list_readable(action_mask(available_actions))
+                actor_info['available_actions'] = make_action_list_readable(action_mask(available_actions, self.action_categories), self.action_names)
+            """
 
         actor_info['observations'] = dict()
-        actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, 0, 0, TILE_INFO_TEMPLATE)
-        actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, 2, 2, BLOCK_INFO_TEMPLATE)
+        actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, self.tile_length_radius, self.tile_width_radius, self.tile_info_template)
+        actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, self.block_length_radius, self.block_width_radius, self.block_info_template)
 
         fc_logger.debug(f'actor observations: {actor_info}')
 
@@ -161,8 +181,6 @@ class LLMWrapper(Wrapper):
                         extra_str = str(extras_num) + ' ' + extra
                         mini_map_info[ptile].append(extra_str)
 
-
-
                 for unit_id, unit in enumerate(self.unwrapped.civ_controller.rule_ctrl.unit_types_list):
                     units_of_id = unit_arr[:, :, unit_id]
                     units_num = np.sum(units_of_id)
@@ -202,3 +220,13 @@ class LLMWrapper(Wrapper):
 
             tile_id += 1
         return mini_map_info
+
+
+def parse_llm_default_settings(config_file='../../../../llm_wrapper_settings.yml'):
+
+    with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
+        llm_default_settings = yaml.safe_load(file)
+
+    return llm_default_settings
+
+

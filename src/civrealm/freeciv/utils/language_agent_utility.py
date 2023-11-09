@@ -14,62 +14,17 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-RADIUS = 2
-MAP_SIZE = RADIUS * 2 + 1
-TILE_INFO_TEMPLATE = {
-    'current_tile': [],
-    'tile_north_1': [],
-    'tile_south_1': [],
-    'tile_east_1': [],
-    'tile_west_1': [],
-    'tile_north_1_east_1': [],
-    'tile_north_1_west_1': [],
-    'tile_south_1_east_1': [],
-    'tile_south_1_west_1': [],
-    'tile_north_2': [],
-    'tile_north_2_east_1': [],
-    'tile_north_2_west_1': [],
-    'tile_north_2_east_2': [],
-    'tile_north_2_west_2': [],
-    'tile_south_2': [],
-    'tile_south_2_east_1': [],
-    'tile_south_2_west_1': [],
-    'tile_south_2_east_2': [],
-    'tile_south_2_west_2': [],
-    'tile_east_2': [],
-    'tile_north_1_east_2': [],
-    'tile_south_1_east_2': [],
-    'tile_west_2': [],
-    'tile_north_1_west_2': [],
-    'tile_south_1_west_2': []
-}
-
-BLOCK_INFO_TEMPLATE = {
-    'current_block': [],
-    'block_north_1': [],
-    'block_south_1': [],
-    'block_east_1': [],
-    'block_west_1': [],
-    'block_north_1_east_1': [],
-    'block_north_1_west_1': [],
-    'block_south_1_east_1': [],
-    'block_south_1_west_1': []
-}
-
 DIR = [
-(0, 0), (0, -1), (0, 1), (1, 0), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1), (0, -2), (1, -2), (-1, -2), (2, -2), (-2, -2), (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (2, 0), (2, -1), (2, 1), (-2, 0), (-2, -1), (-2, 1)
+    (0, 0), (0, -1), (0, 1), (1, 0), (-1, 0), (1, -1), (-1, -1), (1, 1), (-1, 1), (0, -2), (1, -2), (-1, -2),
+    (2, -2), (-2, -2), (0, 2), (1, 2), (-1, 2), (2, 2), (-2, 2), (2, 0), (2, -1), (2, 1), (-2, 0), (-2, -1),
+    (-2, 1)
 ]
 
-MOVE_NAMES = {'goto_0': 'move_NorthWest', 'goto_1': 'move_North', 'goto_2': 'move_NorthEast', 'goto_3': 'move_West', 'goto_4': 'move_East', 'goto_5': 'move_SouthWest', 'goto_6': 'move_South', 'goto_7': 'move_SouthEast'}
-INVERSE_MOVE_NAMES = {val: key for key, val in MOVE_NAMES.items()}
 
-KEYWORDS = ['produce']
-
-
-def action_mask(avail_action_set):
+def action_mask(keywords, avail_action_set):
     action_names = []
     for act in avail_action_set:
-        for keyword in KEYWORDS:
+        for keyword in keywords:
             if keyword in act:
                 action_names.append(act)
     return action_names
@@ -85,11 +40,11 @@ def get_valid_actions(info, ctrl_type, actor_id):
     return avail_action_list
 
 
-def make_action_list_readable(action_list):
+def make_action_list_readable(action_list, action_names):
     readable_action_list = []
     for action in action_list:
-        if action in MOVE_NAMES.keys():
-            readable_action_list.append(MOVE_NAMES[action])
+        if action in action_names.keys():
+            readable_action_list.append(action_names[action])
         else:
             readable_action_list.append(action)
 
@@ -107,7 +62,7 @@ def make_action_list_readable(action_list):
     return readable_action_list
 
 
-def get_action_from_readable_name(readable_action):
+def get_action_from_readable_name(readable_action, action_keys):
 
     action = ''
     for j, char in enumerate(readable_action):
@@ -117,8 +72,8 @@ def get_action_from_readable_name(readable_action):
             action += '_'
         else:
             action += char
-    if action in INVERSE_MOVE_NAMES.keys():
-        action = INVERSE_MOVE_NAMES[action]
+    if action in action_keys.keys():
+        action = action_keys[action]
 
     return action
 

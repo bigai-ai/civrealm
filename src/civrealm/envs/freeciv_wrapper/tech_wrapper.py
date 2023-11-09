@@ -6,9 +6,12 @@ from .info_wrapper import Wrapper
 class CombineTechResearchGoal(Wrapper):
     def __init__(self, env):
         self.tech_actions = {}
+        self.techs_researched = -1
+        self.finish_research_last_turn = False
         super().__init__(env)
 
     def info(self, info, observation):
+        self.finish_research_last_turn = False
         self.tech_actions = {}
         info_tech = info["available_actions"].get("tech", {"cur_player": {}})[
             "cur_player"
@@ -30,6 +33,13 @@ class CombineTechResearchGoal(Wrapper):
             self.get_wrapper_attr("my_player_id")
         ] = info_tech
         info["available_actions"]["tech"].pop("cur_player")
+
+        techs_researched = observation["player"][
+            self.unwrapped.civ_controller.player_ctrl.my_player_id
+        ]["techs_researched"]
+        self.finish_research_last_turn = techs_researched > self.techs_researched
+        self.techs_researched = techs_researched
+
         return info
 
     def action(self, action):

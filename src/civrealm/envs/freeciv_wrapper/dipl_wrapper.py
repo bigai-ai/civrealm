@@ -35,7 +35,8 @@ class DiplomacyLoop(Wrapper):
 
         if self.is_negotiating:
             # continue negotiation: mask out all actions abut diplomacy
-            return self._mask_all_but_dipl(info)
+            # return self._mask_all_but_dipl(info)
+            pass
 
         return info
 
@@ -99,7 +100,7 @@ class TruncateDiplCity(Wrapper):
                     city = int(post_args[-3])
                     if int(post_args[-2]) == player and city in others_city_ids:
                         city_index = others_city_ids.index(city)
-                    elif city in city_ids:
+                    elif city in city_ids and len(city_ids) > 1:
                         city_index = city_ids.index(city)
                     else:
                         del actions[act_name]
@@ -107,7 +108,9 @@ class TruncateDiplCity(Wrapper):
                     trunc_name = f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
                     actions[trunc_name] = actions[act_name]
                     del actions[act_name]
-            for no_city_index in range(len(city_ids), self.city_size):
+            for no_city_index in range(
+                len(city_ids) if len(city_ids) > 1 else 0, self.city_size
+            ):
                 actions[
                     f"trunc_trade_city_clause_TradeCity_{no_city_index}_{my_player_id}_{player}"
                 ] = False

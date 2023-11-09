@@ -59,7 +59,7 @@ class TensorAction(Wrapper):
         self.available_actions = {}
         self.mask = {}
         self.__turn = -1
-        self.__is_negotiating = False
+        self.__dealing_with_incoming = False
 
         super().__init__(
             TruncateDiplCity(
@@ -171,13 +171,13 @@ class TensorAction(Wrapper):
         """
         if info[
             "turn"
-        ] != self.__turn or self.__is_negotiating != self.get_wrapper_attr(
-            "is_negotiating"
+        ] != self.__turn or self.__dealing_with_incoming != self.get_wrapper_attr(
+            "dealing_with_incoming"
         ):
             self.reset_mask()
         self.available_actions = deepcopy(info["available_actions"])
         self.__turn = info["turn"]
-        self.__is_negotiating = self.get_wrapper_attr("is_negotiating")
+        self.__dealing_with_incoming = self.get_wrapper_attr("dealing_with_incoming")
         self._update_mask(observation, info, action)
 
         return update(observation, deepcopy(self.mask))
@@ -236,13 +236,17 @@ class TensorAction(Wrapper):
         actor_type = action["actor_type"]
         actor_name = self.actor_type_list[actor_type]
         if actor_name == "unit":
-            self.mask["unit_action_type_mask"][
-                action["unit_id"], action["unit_action_type"]
-            ] = 0
+            # self.mask["unit_action_type_mask"][
+            #     action["unit_id"], action["unit_action_type"]
+            # ] = 0
+            pass
         elif actor_name == "city":
-            self.mask["city_action_type_mask"][action["city_id"], :] = 0
+            # self.mask["city_action_type_mask"][action["city_id"], :] = 0
+            pass
         elif actor_name == "gov":
-            self.mask["gov_action_type_mask"][:] = 0
+            self.mask["gov_action_type_mask"][:] &= 0
+        elif actor_name == "tech":
+            self.mask["tech_action_type_mask"][:] &= 0
 
     def _mask_from_obs(self, observation):
         # Mask mutable entities using observation
@@ -274,26 +278,31 @@ class TensorAction(Wrapper):
                 ACTIVITY_SENTRY,
                 ACTIVITY_FORTIFYING,
             ]:  # agent busy or fortified
-                self.mask["unit_id_mask"][pos] = 0
-                self.mask["unit_action_type_mask"][pos, :] = 0
+                self.mask["unit_id_mask"][pos] &= 0
+                self.mask["unit_action_type_mask"][pos, :] &= 0
 
         self.mask["others_unit_mask"][
             len(self.get_wrapper_attr("others_unit_ids")) : :, :
-        ] = 0
+        ] &= 0
         self.mask["others_city_mask"][
             len(self.get_wrapper_attr("others_city_ids")) : :, :
-        ] = 0
+        ] &= 0
+
+        if not self.get_wrapper_attr("finish_research_last_turn"):
+            self.mask["tech_action_type_mask"][:] &= 0
+        if self.get_wrapper_attr("finish_research_last_turn"):
+            print(f"techs_researched: {self.get_wrapper_attr('techs_researched')}")
 
     def _mask_from_info(self, info):
         others_player_num = len(info["available_actions"].get("player", {}).keys())
-        self.mask["others_player_mask"][others_player_num::, :] = 0
+        self.mask["others_player_mask"][others_player_num::, :] &= 0
 
         # Mask City and Unit
         for mutable in ["city", "unit", "dipl"]:
             entities = info["available_actions"].get(mutable, {})
             if len(entities) == 0:
-                self.mask[mutable + "_action_type_mask"][:, :] = 0
-                self.mask[mutable + "_id_mask"][:] = 0
+                self.mask[mutable + "_action_type_mask"][:, :] &= 0
+                self.mask[mutable + "_id_mask"][:] &= 0
                 continue
             for i, entity_id in enumerate(
                 self.env.get_wrapper_attr(mutable + "_ids")[
@@ -302,19 +311,19 @@ class TensorAction(Wrapper):
             ):
                 actions = entities.get(entity_id, {})
                 if len(actions) == 0:
-                    self.mask[mutable + "_action_type_mask"][i, :] = 0
-                    self.mask[mutable + "_id_mask"][i] = 0
+                    self.mask[mutable + "_action_type_mask"][i, :] &= 0
+                    self.mask[mutable + "_id_mask"][i] &= 0
                     continue
                 for action_id, act_name in enumerate(sorted(list(actions.keys()))):
-                    self.mask[mutable + "_action_type_mask"][i, action_id] = int(
+                    self.mask[mutable + "_action_type_mask"][i, action_id] &= int(
                         actions[act_name]
                     )
-                self.mask[mutable + "_id_mask"][i] = int(
+                self.mask[mutable + "_id_mask"][i] &= int(
                     any(self.mask[mutable + "_action_type_mask"][i])
                 )
         for mutable in ["city", "unit", "dipl"]:
             actor_type_index = self.actor_type_list.index(mutable)
-            self.mask["actor_type_mask"][actor_type_index] = int(
+            self.mask["actor_type_mask"][actor_type_index] &= int(
                 any(self.mask[mutable + "_id_mask"])
             )
 
@@ -322,18 +331,18 @@ class TensorAction(Wrapper):
         for immutable in ["gov", "tech"]:
             options = info["available_actions"].get(immutable, {})
             if len(options) == 0:
-                self.mask[immutable + "_action_type_mask"][:] = 0
+                self.mask[immutable + "_action_type_mask"][:] &= 0
                 continue
             my_player_id = self.get_wrapper_attr("my_player_id")
             for action_id, act_name in enumerate(
                 sorted(list(options[my_player_id].keys()))
             ):
-                self.mask[immutable + "_action_type_mask"][action_id] = int(
+                self.mask[immutable + "_action_type_mask"][action_id] &= int(
                     options[my_player_id][act_name]
                 )
         for immutable in ["gov", "tech"]:
             actor_type_index = self.actor_type_list.index(immutable)
-            self.mask["actor_type_mask"][actor_type_index] = int(
+            self.mask["actor_type_mask"][actor_type_index] &= int(
                 any(self.mask[immutable + "_action_type_mask"])
             )
 

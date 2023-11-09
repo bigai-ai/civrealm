@@ -1,6 +1,6 @@
 site_name: Civrealm
-repo_url: https://gitlab.mybigai.ac.cn/civilization/freeciv-gym
-repo_name: civilization/freeciv-gym
+repo_url: https://gitlab.mybigai.ac.cn/civilization/civrealm
+repo_name: civilization/civrealm
 copyright: Copyright &copy; 2023 BIGAI
 site_dir: public
 
@@ -62,7 +62,7 @@ nav:
       - Game:
           - Game Setting: advanced_materials/game_setting.md
           - Full Game: advanced_materials/fullgame.md
-          - Mini Game: advanced_materials/minigame.md
+          - Mini-Game: advanced_materials/minigame.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md

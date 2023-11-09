@@ -17,8 +17,6 @@
 import random
 import os
 from civrealm.agents.base_agent import BaseAgent
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.freeciv.utils.language_agent_utility import MOVE_NAMES, INVERSE_MOVE_NAMES
 from civrealm.configs import fc_args
 
 

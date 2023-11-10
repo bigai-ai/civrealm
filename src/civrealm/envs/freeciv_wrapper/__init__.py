@@ -7,7 +7,7 @@ from .info_wrapper import GameOverScoreInfo, MiniTaskGameOverScoreInfo
 from .llm_wrapper import LLMWrapper
 from .observation_wrapper import CacheLastObs, TensorObservation
 from .reward_wrapper import (MinitaskDelayedReward, MinitaskDenseReward,
-                             PenalizeTurnDoneReward)
+                             PenalizeConsecutiveTurnDoneReward)
 from .tech_wrapper import CombineTechResearchGoal
 from .tensor_base_wrapper import TensorBase
 from .tensor_wrapper import TensorWrapper

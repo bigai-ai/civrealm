@@ -25,9 +25,7 @@ from civrealm.freeciv.utils.language_agent_utility import (DIR, action_mask,
 from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-"""
-settings for llm_wrapper, including: action_names corresponding to action_keys in FreecivBaseEnv; tile_length_radius, tile_width_radius and tile_info_template that define the size of the zoomed-in minimaps of each unit and city, which describes their detailed surrounding observations; block_length_radius, block_width_radius, and block_info_template that define the size of the upper-maps; ctrl_types describes what components we consider in this wrapper; ctrl_action_categories includes information of action-mask
-"""
+
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -63,7 +61,6 @@ class LLMWrapper(Wrapper):
         llm_wrapper
     ctrl_action_categories: dict
         a dict describes which categories of actions llm can take; it can be seen as an action mask
-
     """
 
     def __init__(self, env):
@@ -156,13 +153,6 @@ class LLMWrapper(Wrapper):
                 actor_info['available_actions'] = make_action_list_readable(available_actions, self.action_names)
             else:
                 actor_info['available_actions'] = make_action_list_readable(action_mask(self.ctrl_action_categories[ctrl_type], available_actions), self.action_names)
-
-            """
-            if ctrl_type == 'unit':
-                actor_info['available_actions'] = make_action_list_readable(available_actions, self.action_names)
-            elif ctrl_type == 'city':
-                actor_info['available_actions'] = make_action_list_readable(action_mask(available_actions, self.action_categories), self.action_names)
-            """
 
         actor_info['observations'] = dict()
         actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, self.tile_length_radius, self.tile_width_radius, self.tile_info_template)

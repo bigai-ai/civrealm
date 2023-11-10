@@ -25,12 +25,46 @@ from civrealm.freeciv.utils.language_agent_utility import (DIR, action_mask,
 from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-
+"""
+settings for llm_wrapper, including: action_names corresponding to action_keys in FreecivBaseEnv; tile_length_radius, tile_width_radius and tile_info_template that define the size of the zoomed-in minimaps of each unit and city, which describes their detailed surrounding observations; block_length_radius, block_width_radius, and block_info_template that define the size of the upper-maps; ctrl_types describes what components we consider in this wrapper; ctrl_action_categories includes information of action-mask
+"""
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class LLMWrapper(Wrapper):
+    """
+    A wrapper for llm. It tells the surrounding observations of each unit and city extracted from FreecivBaseEnv, based
+    on which llm can generate actions for units and cities. It transforms action_keys of actions from FreecivBaseEnv to
+    readable action_names such that llm can understand. After llm have chosen an action and return the action_name to
+    env, this wrapper transforms the action_name to an action_key, and then execute the corresponding action.
+
+    Parameters
+    ----------
+    env:
+        A FreecivBaseEnv
+
+    Attributes
+    ---------
+    llm_default_settings: dict
+        settings for llm_wrapper.
+    action_names: dict
+        a dict matches action_keys from FreecivBaseEnv to readable action_names
+    tile_length_radius: int
+    tile_width_radius: int
+    tile_info_template: dict
+        a dict describes detailed surrounding observations of a unit or a city
+    block_length_radius: int
+    block_width_radius: int
+    block_info_template: dict
+        a dict describes zoomed-out surrounding observations of a unit or a city
+    ctrl_types: list
+        a list describes which components of the game to control by llm; we temporarily only consider unit and city in
+        llm_wrapper
+    ctrl_action_categories: dict
+        a dict describes which categories of actions llm can take; it can be seen as an action mask
+
+    """
 
     def __init__(self, env):
         super().__init__(env)

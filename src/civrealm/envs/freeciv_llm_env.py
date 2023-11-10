@@ -20,8 +20,8 @@ from civrealm.envs.freeciv_base_env import FreecivBaseEnv
 from civrealm.envs.freeciv_wrapper.llm_wrapper import LLMWrapper
 
 
-class FreecivLLMWrapperEnv(Wrapper):
-    """ CivRealm environment with llm actions"""
+class FreecivLLMEnv(Wrapper):
+    """CivRealm environment with llm actions"""
 
     metadata = FreecivBaseEnv.metadata
 

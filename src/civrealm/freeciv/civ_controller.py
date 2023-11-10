@@ -107,6 +107,7 @@ class CivController(CivPropController):
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
+        self.game_is_end = False
         # Store whether the final game_over message is received
         self.game_over_msg_final = False
         self.game_score = None
@@ -323,7 +324,7 @@ class CivController(CivPropController):
         #     return
         
         # For certain reasons, the game is over. We just stop the ioloop. Otherwise, clients may keep waiting for some packets while the server will not respond due to game over.
-        if self.game_is_over:
+        if self.game_is_over or self.game_is_end:
             self.ws_client.stop_ioloop()
             return
         
@@ -358,7 +359,7 @@ class CivController(CivPropController):
         if self.ws_client.on_message_exception != None:
             raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
-        if self.my_player_is_defeated() or self.game_is_over:
+        if self.my_player_is_defeated() or self.game_is_over or self.game_is_end:
             info['available_actions'] = {}
         else:
             self.turn_manager.get_available_actions()
@@ -373,7 +374,7 @@ class CivController(CivPropController):
 
     def _get_observation(self):
         fc_logger.debug(f'get_observation. Turn: {self.turn_manager.turn}')
-        if self.game_is_over:
+        if self.game_is_over or self.game_is_end:
             return {}
         # TODO: change function name and return value
         if self.my_player_is_defeated():
@@ -422,7 +423,7 @@ class CivController(CivPropController):
     def game_has_terminated(self) -> bool:
         """Returns True if the game has ended.       
         """
-        if self.game_is_over:
+        if self.game_is_over or self.game_is_end:
             return True
         # FIXME: check victory conditions.
         _terminated = self.my_player_is_defeated()
@@ -766,8 +767,11 @@ class CivController(CivPropController):
         elif event == E_SCRIPT:
             self.parse_script_message(message)
         # WARN: test if ai destroyed trigger game over
-        elif (event == E_GAME_END)  or ('game is over' in message.lower() or 'game ended' in message.lower()):
+        elif ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
+        elif event == E_GAME_END:
+            self.game_is_end = True
+        # When AI is destroyed, we also receive E_DESTROYED event. So we need to check whether we are defeated.
         elif event == E_DESTROYED and self.my_player_is_defeated():
             self.ws_client.stop_ioloop()
         # WARN: test if ai destroyed trigger game over

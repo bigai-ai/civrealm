@@ -2,19 +2,35 @@ from .core import Wrapper, wrapper_override
 
 
 @wrapper_override(["reward"])
-class PenalizeTurnDoneReward(Wrapper):
+class PenalizeConsecutiveTurnDoneReward(Wrapper):
     """A reward wrapper that penalizes the 'turn done' action if the delta score is 0."""
 
     def __init__(self, env, penalty: float = -1):
         self._penalty_reward = penalty
+        self.last_action = None
         super().__init__(env)
 
     def reward(self, reward, action):
-        if action is None and reward == 0:
+        if self.last_action is None and action is None and reward == 0:
             # if last action is `turn done' and delta score is 0
             # use penalty reward
             return self._penalty_reward
+        self.last_action = action
         return reward
+
+
+@wrapper_override(["reward"])
+class PenalizeStep(Wrapper):
+    def __init__(self, env):
+        self.actions_in_turn = 0
+        super().__init__(env)
+
+    def reward(self, reward, action):
+        if action is None:
+            self.actions_in_turn = 0
+            return reward
+        self.actions_in_turn += 1
+        return reward-1*int(self.actions_in_turn>20)
 
 
 @wrapper_override(["reward"])

@@ -1,11 +1,13 @@
 from .core import Wrapper, wrapper_override
 
 
-@wrapper_override(["observation", "info"])
+@wrapper_override(["observation", "info", "action"])
 class DiplomacyLoop(Wrapper):
     def __init__(self, env):
         self.is_negotiating = False
         self.dealing_with_incoming = False
+        self.max_dipl_actions = 10
+        self.dipl_action_left = 10
         self.__turn = -1
         super().__init__(CancelReturnedTreaties(env))
 
@@ -20,6 +22,7 @@ class DiplomacyLoop(Wrapper):
         if self.__turn != info["turn"] and self.is_negotiating:
             # start dealing with incoming at the start of turn
             self.dealing_with_incoming = True
+            self.dipl_action_left = self.max_dipl_actions
 
         # if agent stop negotiating then it must stop dealing with incoming
         self.dealing_with_incoming = self.dealing_with_incoming and self.is_negotiating
@@ -28,15 +31,20 @@ class DiplomacyLoop(Wrapper):
 
         return observation
 
+    def action(self, action):
+        if action is None:
+            return None
+        if action[0] == "dipl":
+            self.dipl_action_left -= 1
+        return action
+
     def info(self, info):
         if self.dealing_with_incoming:
             # deal with incoming with only accepting or cancelling treaty
             return self._accept_or_cancel(info)
 
-        if self.is_negotiating:
-            # continue negotiation: mask out all actions abut diplomacy
-            # return self._mask_all_but_dipl(info)
-            pass
+        if self.is_negotiating and self.dipl_action_left <= 0:
+            return self._mask_dipl(info)
 
         return info
 
@@ -55,6 +63,23 @@ class DiplomacyLoop(Wrapper):
             dipl_actions[f"accept_treaty_{player}"] = accept_treaty
             dipl_actions[f"stop_negotiation_{player}"] = stop_negotiation
 
+        return info
+
+    def _mask_dipl(self, info):
+        actions = info["available_actions"]
+
+        def recursive_mask(actions):
+            for name, action in actions.items():
+                if isinstance(action, dict):
+                    actions[name] = recursive_mask(action)
+                else:
+                    assert action in [True, False]
+                    actions[name] = False
+            return actions
+
+        actions["dipl"] = recursive_mask(actions["dipl"])
+
+        info["available_actions"] = actions
         return info
 
     def _mask_all_but_dipl(self, info):
@@ -85,7 +110,7 @@ class TruncateDiplCity(Wrapper):
         self.others_city_size = config["resize"]["others_city"]
         super().__init__(env)
 
-    def info(self, info):
+    def info(self, info, observation):
         my_player_id = self.get_wrapper_attr("my_player_id")
         city_ids = self.get_wrapper_attr("city_ids")[: self.city_size]
         others_city_ids = self.get_wrapper_attr("others_city_ids")[
@@ -100,17 +125,21 @@ class TruncateDiplCity(Wrapper):
                     city = int(post_args[-3])
                     if int(post_args[-2]) == player and city in others_city_ids:
                         city_index = others_city_ids.index(city)
-                    elif city in city_ids and len(city_ids) > 1:
+                    elif city in city_ids:
                         city_index = city_ids.index(city)
                     else:
                         del actions[act_name]
                         continue
                     trunc_name = f"trunc_{args[0]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
-                    actions[trunc_name] = actions[act_name]
+                    actions[trunc_name] = (
+                        actions[act_name]
+                        if not self.unwrapped.civ_controller.city_ctrl.cities[city][
+                            "capital"
+                        ]
+                        else False
+                    )
                     del actions[act_name]
-            for no_city_index in range(
-                len(city_ids) if len(city_ids) > 1 else 0, self.city_size
-            ):
+            for no_city_index in range(len(city_ids), self.city_size):
                 actions[
                     f"trunc_trade_city_clause_TradeCity_{no_city_index}_{my_player_id}_{player}"
                 ] = False

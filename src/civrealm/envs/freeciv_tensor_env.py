@@ -13,9 +13,8 @@
 from civrealm.configs import fc_args
 from civrealm.envs.freeciv_base_env import FreecivBaseEnv
 from civrealm.envs.freeciv_wrapper import (GameOverScoreInfo,
-                                              PenalizeTurnDoneReward,
-                                              TensorWrapper,
-                                              Wrapper)
+                                           PenalizeConsecutiveTurnDoneReward,
+                                           TensorWrapper, Wrapper)
 from civrealm.envs.freeciv_wrapper.config import default_tensor_config
 
 
@@ -32,9 +31,9 @@ class FreecivTensorEnv(Wrapper):
     ):
         tensor_env = GameOverScoreInfo(
             TensorWrapper(
-                env=PenalizeTurnDoneReward(
+                env=PenalizeConsecutiveTurnDoneReward(
                     FreecivBaseEnv(username=username, client_port=client_port),
-                    penalty=-0.01,
+                    penalty=-1,
                 ),
                 config=config,
             )

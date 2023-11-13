@@ -781,7 +781,7 @@ class CivController(CivPropController):
                 if player['name'] in message:
                     pid_info = (104, player_id)
                     self.ws_client.stop_waiting(pid_info)
-                break
+                    break
 
         # WARN: test if ai destroyed trigger game over
         if 'The game is over...' in message:

@@ -19,6 +19,7 @@ import ray
 import os
 # Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
 os.environ['RAY_DEDUP_LOGS'] = '0'
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 
 @ray.remote
@@ -40,7 +41,10 @@ class FreecivParallelEnv():
 
     def reset(self, **kwargs):
         # print('FreecivParallelEnv.reset...')
-        return self.env.reset(**kwargs)
+        try:
+            return self.env.reset(**kwargs)
+        except Exception as e:
+            fc_logger.error(repr(e))
 
     def close(self):
         self.env.close()

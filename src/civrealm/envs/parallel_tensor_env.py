@@ -1,5 +1,6 @@
 import copy
 from collections import deque
+import time
 
 import ray
 
@@ -103,6 +104,8 @@ class ParallelTensorEnv:
                         break
                     except Exception as e:
                         fc_logger.error(repr(e))
+                        print("Sleep 5s for error")
+                        time.sleep(5)
 
                 observations[env_id] = observation
                 last_score = copy.deepcopy(infos[env_id]['scores'])

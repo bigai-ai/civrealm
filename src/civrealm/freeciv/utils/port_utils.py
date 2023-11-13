@@ -146,8 +146,7 @@ class PortStatus:
 
         occupied_ports = list(
             filter(
-                # lambda x: status.get(int(x[0]), {"birth": x[2] - 999})["birth"] - x[2]
-                # < 3,
+                # delete ports that has been restarted
                 lambda x: status.get(int(x[0]), {"restart": x[2]})["restart"] == x[2],
                 occupied_ports,
             )
@@ -183,7 +182,8 @@ class PortStatus:
                     result = port
                     break
                 if port is None and len(empties) > 0:
-                    result = empties[0]
+                    # choose the port with minimal restart number
+                    result = min(empties, key=lambda port: self.status[port]["restart"])
                     break
 
             status = self.status

@@ -33,14 +33,13 @@ class EmbarkWrapper(Wrapper):
             return action
 
         dir8 = int(action_name.split("_")[-1])
-        if len(self.embarkable_units.get((entity_id, dir8), [])) == 0:
-            # the original representation is already embark_dir8
-            return action_name
 
-        assert dir8 <= 8
-        target_id = sorted(self.embarkable_units[(entity_id, dir8)])[0]
-        action_name = f"embark_{dir8}_{target_id}"
-        return (action_name, entity_id, action_name)
+        if len(self.embarkable_units.get((entity_id, dir8), [])) > 0:
+            assert dir8 <= 8
+            target_id = sorted(self.embarkable_units[(entity_id, dir8)])[0]
+            action_name = f"embark_{dir8}_{target_id}"
+
+        return (actor_name, entity_id, action_name)
 
     def info(self, info):
         """

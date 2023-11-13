@@ -120,7 +120,7 @@ class PortStatus:
                 (val.get("type", None) == "multiplayer")
                 and (val["user"] == 0)
                 and (val["status"] == "OK")
-                and (val["uptime"] > 1)
+                and (val["uptime"] > 20)
             )
         ]
 

@@ -183,7 +183,8 @@ class PortStatus:
                     break
                 if port is None and len(empties) > 0:
                     # choose the port with minimal restart number
-                    result = min(empties, key=lambda port: self.status[port]["restart"])
+                    status = self.status
+                    result = min(empties, key=lambda port: status[port]["restart"])
                     break
 
             status = self.status

@@ -5,7 +5,7 @@ Due to the multifaceted aspects of a full game, including economic expansion, mi
 By the end of this tutorial, you will be able to
 
 * Understand the basic setting of mini-game
-* Play games using API for random initialization or manual specification
+* Initialize mini-game by using API for random initialization or manual specification
 
 ## Prepare Dataset
 **Step 1: ** find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`

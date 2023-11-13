@@ -72,10 +72,7 @@ nav:
   - Api Reference: api_reference/api.md
   - Releases: releases/releases.md
   - Notes:
-      - Contribute To Freeciv-Sav:
-          - General Development Process: notes/general_dev_process.md
-          - Git Setup(for developers): notes/git_setup.md
-          - Coding Styles: notes/coding_styles.md
+      - Contribute To CivRealm: notes/contribute.md
       - Performance Benchmarks: notes/benchmarks.md
   - Misc: 
       - FAQ: misc/faq.md

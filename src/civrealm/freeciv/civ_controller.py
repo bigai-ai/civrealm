@@ -37,7 +37,7 @@ from civrealm.freeciv.map.map_ctrl import MapCtrl
 from civrealm.freeciv.city.city_ctrl import CityCtrl
 from civrealm.freeciv.tech.tech_ctrl import TechCtrl
 
-from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END, E_DESTROYED
+from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END, E_DESTROYED, E_DIPLOMACY
 from civrealm.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
 from civrealm.freeciv.utils.civ_monitor import CivMonitor
 
@@ -774,6 +774,15 @@ class CivController(CivPropController):
         # When AI is destroyed, we also receive E_DESTROYED event. So we need to check whether we are defeated.
         elif event == E_DESTROYED and self.my_player_is_defeated():
             self.ws_client.stop_ioloop()
+
+        # diplomacy actions can be done out of player's own phase, thus the tracked diplomacy states may be out of date, making invalid 'accept negotiation' actions cannot be detected in time
+        elif event == E_DIPLOMACY and 'You cannot form an alliance because' in message:
+            for player_id, player in self.player_ctrl.players.items():
+                if player['name'] in message:
+                    pid_info = (104, player_id)
+                    self.ws_client.stop_waiting(pid_info)
+                break
+
         # WARN: test if ai destroyed trigger game over
         if 'The game is over...' in message:
             self.game_over_msg_final = True

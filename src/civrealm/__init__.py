@@ -36,10 +36,10 @@ register(
     id='freeciv/FreecivLLM-v0',
     entry_point='civrealm.envs:FreecivLLMEnv',
 )
-register(
-    id='freeciv/FreecivLLMWrapper-v0',
-    entry_point='civrealm.envs:FreecivLLMWrapperEnv',
-)
+# register(
+#     id='freeciv/FreecivLLMWrapper-v0',
+#     entry_point='civrealm.envs:FreecivLLMWrapperEnv',
+# )
 register(
     id='freeciv/FreecivMinitask-v0',
     entry_point='civrealm.envs:FreecivMinitaskEnv',

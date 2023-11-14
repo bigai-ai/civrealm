@@ -159,15 +159,20 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         if client_port is None:
             client_port = Ports.get()
         print(f'Reset with port: {client_port}')
-        self.civ_controller = CivController(username=self.username, client_port=client_port,
-                                            visualize=fc_args['debug.take_screenshot'],
-                                            is_minitask=self.is_minitask)
+        fc_logger.debug(f'Reset with port: {client_port}')
+        # self.civ_controller = CivController(username=self.username, client_port=client_port, visualize=fc_args['debug.take_screenshot'], is_minitask=self.is_minitask)
+        # self._action_space = self.civ_controller.action_space
+        # self._observation_space = self.civ_controller.observation_space
+        self.civ_controller.reset_civ_controller(client_port)
+
         self.set_up_screenshots()
 
         if seed is not None:
             fc_args['debug.randomly_generate_seeds'] = False
             fc_args['debug.mapseed'] = seed
             fc_args['debug.agentseed'] = seed
+        
+        # fc_logger.debug(f'begin_logged: {self.civ_controller.clstate.begin_logged}, turn_active: {self.civ_controller.turn_manager.turn_active}')
         # Log in and get the first info and observation
         self.civ_controller.init_network()
         info, observation = self._get_info_and_observation()

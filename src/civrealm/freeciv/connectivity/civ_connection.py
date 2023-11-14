@@ -97,6 +97,12 @@ class CivWSClient(WebSocketClient):
         '''
         Sends a request to the server, with a JSON packet.
         '''
+        if not self._ws_connection:
+            fc_logger.debug(f'CivWSClient::send_request: Web socket connection has not been established.')
+            # raise RuntimeError('Web socket connection is closed.')
+            # Sometimes the connection with server has not been established, we should not send data. So we simply return.
+            return
+        
         self.send_queue.append(packet_payload)
         if wait_for_pid is not None:
             if isinstance(wait_for_pid, list):

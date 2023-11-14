@@ -119,8 +119,23 @@ class CivController(CivPropController):
 
         self.init_controllers()
 
-    def reset(self):
-        # This function is not used in regular running. It is used in pytest.
+    def reset_civ_controller(self, port = None):
+        if port != None:
+            self.client_port = port
+
+        self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
+        self.delete_save = True
+        self.game_saving_time_range = []
+        self.game_is_over = False
+        self.game_is_end = False
+        # Store whether the final game_over message is received
+        self.game_over_msg_final = False
+        self.game_score = None
+        # Store the wait_for_pid timeout handle
+        self.wait_for_time_out_handle = None
+        # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
+        self.begin_turn_time_out_handle = None
+        
         self.ws_client = CivConnection(self.host, self.client_port)
         self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -128,9 +143,6 @@ class CivController(CivPropController):
         # Register key in hdict
         self.register_all_handlers()
         self.turn_manager = TurnManager(self.client_port)
-        self.delete_save = True
-        self.game_saving_time_range = []
-        self.game_score = None
         self.init_controllers()
 
     def register_all_handlers(self):
@@ -317,6 +329,7 @@ class CivController(CivPropController):
                 self.turn_manager.log_begin_turn()
                 self.clstate.begin_logged = True
             self.ws_client.stop_ioloop()
+            # fc_logger.debug(f'maybe_grant_control_to_player: stop_ioloop after ready_to_act.')
             return
 
         # if not self.should_wait() and self.my_player_is_defeated():
@@ -326,8 +339,10 @@ class CivController(CivPropController):
         # For certain reasons, the game is over. We just stop the ioloop. Otherwise, clients may keep waiting for some packets while the server will not respond due to game over.
         if self.game_is_over or self.game_is_end:
             self.ws_client.stop_ioloop()
+            # fc_logger.debug(f'maybe_grant_control_to_player: stop_ioloop after game ends.')
             return
         
+        # fc_logger.debug(f'maybe_grant_control_to_player: keep ioloop.')
         return
 
     @property
@@ -360,6 +375,7 @@ class CivController(CivPropController):
             raise self.ws_client.on_message_exception
         info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated() or self.game_is_over or self.game_is_end:
+            # fc_logger.debug(f'_get_info: Game already ends.')
             info['available_actions'] = {}
         else:
             self.turn_manager.get_available_actions()
@@ -508,6 +524,7 @@ class CivController(CivPropController):
             fc_logger.debug('Wait for final \'game is over...\' message.')
             # Make clients wait for the final "game is over" message. Change game_is_over to False to avoid maybe_grant_control_to_player() directly returns True and stop the waiting. The last "game is over" message will set game_is_over as True again.
             self.game_is_over = False
+            self.game_is_end = False
             self.ws_client.start_ioloop()
         
         if self.visualize:
@@ -766,14 +783,15 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        # WARN: test if ai destroyed trigger game over
         elif ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
-        elif event == E_GAME_END:
-            self.game_is_end = True
+        
         # When AI is destroyed, we also receive E_DESTROYED event. So we need to check whether we are defeated.
-        elif event == E_DESTROYED and self.my_player_is_defeated():
-            self.ws_client.stop_ioloop()
+        elif (event == E_GAME_END) or (event == E_DESTROYED and self.my_player_is_defeated()):
+            self.game_is_end = True
+        
+        # elif event == E_DESTROYED and self.my_player_is_defeated():
+        #     self.ws_client.stop_ioloop()
 
         # diplomacy actions can be done out of player's own phase, thus the tracked diplomacy states may be out of date, making invalid 'accept negotiation' actions cannot be detected in time
         elif event == E_DIPLOMACY and 'You cannot form an alliance because' in message:
@@ -783,7 +801,6 @@ class CivController(CivPropController):
                     self.ws_client.stop_waiting(pid_info)
                     break
 
-        # WARN: test if ai destroyed trigger game over
         if 'The game is over...' in message:
             self.game_over_msg_final = True
 

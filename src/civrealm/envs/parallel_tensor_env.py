@@ -103,9 +103,8 @@ class ParallelTensorEnv:
                         (observation, info) = ray.get(self.envs[env_id].reset.remote())
                         break
                     except Exception as e:
-                        fc_logger.error(repr(e))
-                        print("Sleep 5s for error")
-                        time.sleep(5)
+                        # print(repr(e))
+                        fc_logger.error(f'ParallelTensorEnv: {repr(e)}')
 
                 observations[env_id] = observation
                 last_score = copy.deepcopy(infos[env_id]['scores'])

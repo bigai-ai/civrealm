@@ -12,7 +12,7 @@ def get_first_observation_option(controller: CivController, client_port=None):
     else:
         controller.client_port = Ports.get()
     # Reset controller. Otherwise, the states (clstate, conn info, etc.) changed in the previous login will cause errors.
-    controller.reset()
+    controller.reset_civ_controller()
     # Handle port conflict if exist
     try:
         controller.init_network()

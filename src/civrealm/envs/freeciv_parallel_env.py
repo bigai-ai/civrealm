@@ -21,6 +21,7 @@ import os
 os.environ['RAY_DEDUP_LOGS'] = '0'
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 @ray.remote
 class FreecivParallelEnv():
@@ -36,15 +37,14 @@ class FreecivParallelEnv():
         # action = None
         return self.env.step(action)
 
-        observation, reward, terminated, truncated, info = self.env.step(action)
-        return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
 
     def reset(self, **kwargs):
         # print('FreecivParallelEnv.reset...')
         try:
             return self.env.reset(**kwargs)
         except Exception as e:
-            fc_logger.error(repr(e))
+            # print(repr(e))
+            fc_logger.error(f'FreecivParallelEnv: {repr(e)}')
 
     def close(self):
         self.env.close()

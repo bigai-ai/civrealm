@@ -24,7 +24,7 @@ from civrealm.freeciv.utils.base_action import Action, ActionList, NoActions
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 
-
+# import watchpoints
 class TurnManager(object):
     def __init__(self, port) -> None:
         # NOTE: The server counts the turn number from 1.
@@ -33,6 +33,7 @@ class TurnManager(object):
         self._sleep_time_after_turn = fc_args['debug.sleep_time_after_turn']
 
         self._turn_active = False
+        # watchpoints.watch(self._turn_active)
         self._turn_player = None
         self._turn_ctrls = None
         self._turn_state = None

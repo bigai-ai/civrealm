@@ -84,8 +84,8 @@ class WebSocketClient(object):
         :param str data: message.
         """
         if not self._ws_connection:
-            fc_logger.debug(f'web_socket_client::send: Web socket connection is closed.')
-            raise RuntimeError('Web socket connection is closed.')
+            fc_logger.debug(f'web_socket_client::send: Web socket connection has not been established.')
+            return
         # TODO: check if we need to clear empty spaces
         msg = json.dumps(data)
         ret_future = self._ws_connection.write_message(msg)

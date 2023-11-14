@@ -134,6 +134,5 @@ class TensorBase(Wrapper):
 
     def step(self, *args, **kwargs):
         obs, reward, terminated, truncated, info = self.env.step(*args, **kwargs)
-        if not (terminated or truncated):
-            self.update_sequence_ids(obs)
+        self.update_sequence_ids(obs)
         return obs, reward, terminated, truncated, info

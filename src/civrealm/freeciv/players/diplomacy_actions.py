@@ -53,7 +53,7 @@ class DiplOptions(ActionList):
 
     def update(self, pplayer):
         new_city_set = self.new_cities()
-        self.city_set = set(self.city_ctrl.cities.keys())
+        self.city_set = self.city_set.union(set(self.city_ctrl.cities.keys()))
 
         for counter_id in self.players:
             counterpart = self.players[counter_id]

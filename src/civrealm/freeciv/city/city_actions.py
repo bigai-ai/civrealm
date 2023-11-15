@@ -180,7 +180,13 @@ class CityWorkTile(Action):
 
         for unit in units_on_tile:
             owner_of_unit = unit['owner']
+
+            # diplomacy actions can be done out of player's own phase, thus the tracked diplomacy states may be out of date, making invalid actions cannot be detected in time, thus we assume that a tile with units of other players is not workable, although it is if the other player is not in war with my_player
+            """
             if owner_of_unit != self.cur_player['playerno'] and owner_of_unit != 255 and owner_of_unit in self.diplomacy_states and self.diplomacy_states[owner_of_unit] == player_const.DS_WAR:
+                return True
+            """
+            if owner_of_unit != self.cur_player['playerno'] and owner_of_unit != 255:
                 return True
 
         return False

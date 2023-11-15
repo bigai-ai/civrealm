@@ -12,7 +12,7 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+import copy
 
 import gymnasium
 import numpy as np
@@ -157,6 +157,7 @@ class DiplomacyCtrl(CivPropController):
             return
 
         self.diplstates[packet[opposite_player]] = packet['type']
+        self.city_ctrl.prop_actions.diplomacy_states = copy.deepcopy(self.diplstates)
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):

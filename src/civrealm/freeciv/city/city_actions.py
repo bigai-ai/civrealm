@@ -24,7 +24,7 @@ from civrealm.freeciv.utils.fc_types import (packet_city_make_specialist, packet
                                              packet_city_make_worker, packet_city_buy, packet_city_sell,
                                              packet_city_change, VUT_UTYPE, VUT_IMPROVEMENT, packet_city_refresh)
 from civrealm.freeciv.map.map_ctrl import CityTileMap
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
+import civrealm.freeciv.players.player_const as player_const
 
 MAX_LEN_WORKLIST = 64
 MAX_SPECIALISTS = 20
@@ -51,6 +51,7 @@ class CityActions(ActionList):
         self.tiles_shared = dict()
         self.turn = {'turn': 1}
         self.city_unhappiness = dict()
+        self.diplomacy_states = dict()
 
     def _can_actor_act(self, actor_id):
         return True
@@ -75,8 +76,8 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl))
+                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
+                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
 
             self.add_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
 
@@ -105,13 +106,15 @@ class CityActions(ActionList):
 class CityWorkTile(Action):
     action_key = "city_work"
 
-    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, rule_ctrl):
+    def __init__(self, pcity, dx, dy, city_map: CityTileMap, pplayer, rule_ctrl, diplomacy_states):
         super().__init__()
         self.dx = dx
         self.dy = dy
         self.pcity = pcity
         self.cur_player = pplayer
         self.rule_ctrl = rule_ctrl
+        self.diplomacy_states = diplomacy_states
+
         self.city_map = city_map
         self.city_map.update_map(pcity["city_radius_sq"])
 
@@ -175,9 +178,10 @@ class CityWorkTile(Action):
         if len(units_on_tile) == 0:
             return False
 
-        owner_of_units = units_on_tile[0]['owner']
-        if owner_of_units != self.cur_player['playerno'] and owner_of_units != 255:
-            return True
+        for unit in units_on_tile:
+            owner_of_unit = unit['owner']
+            if owner_of_unit != self.cur_player['playerno'] and owner_of_unit != 255 and owner_of_unit in self.diplomacy_states and self.diplomacy_states[owner_of_unit] == player_const.DS_WAR:
+                return True
 
         return False
 

@@ -1,5 +1,6 @@
 readable_action_names:
   # Please use '_' instead of ' ' between words as some units or improvement names also have ' ', thus llm_wrapper can correctly translate between action_keys used by base_env and the corresponding readable action_names used by LLM
+  goto_0: "move_NorthWest"
   goto_1: "move_North"
   goto_2: "move_NorthEast"
   goto_3: "move_West"

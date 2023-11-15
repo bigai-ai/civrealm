@@ -25,6 +25,7 @@ from civrealm.freeciv.utils.language_agent_utility import (DIR, action_mask,
 from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.freeciv.utils.fc_types import VUT_UTYPE, VUT_IMPROVEMENT
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -72,6 +73,7 @@ class LLMWrapper(Wrapper):
          self.ctrl_action_categories) = self.llm_default_settings.values()
 
         self.action_keys = {val: key for key, val in self.action_names.items()}
+        self.controller = self.unwrapped.civ_controller
 
     def reset(self, seed=None, options=None, **kwargs):
         if 'minitask_pattern' in kwargs:
@@ -80,7 +82,7 @@ class LLMWrapper(Wrapper):
             observation, info = self.env.reset()
 
         info['llm_info'] = self.get_llm_info(observation, info)
-        info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
+        info['my_player_id'] = self.controller.player_ctrl.my_player_id
         return observation, info
 
     def step(self, action):
@@ -90,7 +92,7 @@ class LLMWrapper(Wrapper):
 
         observation, reward, terminated, truncated, info = self.env.step(action)
         info['llm_info'] = self.get_llm_info(observation, info)
-        info['my_player_id'] = self.unwrapped.civ_controller.player_ctrl.my_player_id
+        info['my_player_id'] = self.controller.player_ctrl.my_player_id
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
@@ -101,7 +103,7 @@ class LLMWrapper(Wrapper):
             llm_info[ctrl_type] = dict()
 
             if ctrl_type == 'unit':
-                units = self.unwrapped.civ_controller.unit_ctrl.units
+                units = self.controller.unit_ctrl.units
                 for unit_id in actors_can_act:
                     if (units[unit_id]['type'] == 1 and units[unit_id]['activity'] not in
                             [ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING]):
@@ -111,7 +113,7 @@ class LLMWrapper(Wrapper):
                     y = obs[ctrl_type][unit_id]['y']
                     utype = obs[ctrl_type][unit_id]['type_rule_name']
 
-                    unit_dict = self.get_actor_info(x, y, info, ctrl_type, unit_id, utype)
+                    unit_dict = self.get_actor_info(x, y, obs, info, ctrl_type, unit_id, utype)
                     if unit_dict:
                         llm_info[ctrl_type][unit_id] = unit_dict
 
@@ -125,7 +127,7 @@ class LLMWrapper(Wrapper):
                         x = obs[ctrl_type][city_id]['x']
                         y = obs[ctrl_type][city_id]['y']
 
-                        city_dict = self.get_actor_info(x, y, info, ctrl_type, city_id)
+                        city_dict = self.get_actor_info(x, y, obs, info, ctrl_type, city_id)
                         if city_dict:
                             llm_info[ctrl_type][city_id] = city_dict
                     else:
@@ -135,7 +137,7 @@ class LLMWrapper(Wrapper):
 
         return llm_info
 
-    def get_actor_info(self, x, y, info, ctrl_type, actor_id, utype=None):
+    def get_actor_info(self, x, y, obs, info, ctrl_type, actor_id, utype=None):
         actor_info = dict()
 
         actor_name = None
@@ -158,6 +160,15 @@ class LLMWrapper(Wrapper):
         actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, self.tile_length_radius, self.tile_width_radius, self.tile_info_template)
         actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, self.block_length_radius, self.block_width_radius, self.block_info_template)
 
+        if ctrl_type == 'city':
+            producing = None
+            if obs[ctrl_type][actor_id]['production_kind'] == VUT_UTYPE:
+                producing = self.controller.rule_ctrl.unit_types_list[obs[ctrl_type][actor_id]['production_value']-self.controller.rule_ctrl.ruleset_control['num_impr_types']]
+            elif obs[ctrl_type][actor_id]['production_kind'] == VUT_IMPROVEMENT:
+                producing = self.controller.rule_ctrl.improvement_types_list[
+                    obs[ctrl_type][actor_id]['production_value']]
+            actor_info['observations']['producing'] = producing
+
         fc_logger.debug(f'actor observations: {actor_info}')
 
         return actor_info
@@ -166,14 +177,14 @@ class LLMWrapper(Wrapper):
         mini_map_info = dict()
 
         tile_id = 0
-        map_state = self.unwrapped.civ_controller.map_ctrl.prop_state.get_state()
+        map_state = self.controller.map_ctrl.prop_state.get_state()
         for ptile in template:
             mini_map_info[ptile] = []
             pdir = DIR[tile_id]
             center_x = x + pdir[0] * (length_r * 2 + 1)
             center_y = y + pdir[1] * (width_r * 2 + 1)
 
-            if not self.unwrapped.civ_controller.map_ctrl.is_out_of_map(center_x, center_y):
+            if not self.controller.map_ctrl.is_out_of_map(center_x, center_y):
                 """ consider map_const.TF_WRAPX == 1 """
                 start_x = center_x - length_r
                 end_x = center_x + length_r + 1
@@ -205,7 +216,7 @@ class LLMWrapper(Wrapper):
                         extra_str = str(extras_num) + ' ' + extra
                         mini_map_info[ptile].append(extra_str)
 
-                for unit_id, unit in enumerate(self.unwrapped.civ_controller.rule_ctrl.unit_types_list):
+                for unit_id, unit in enumerate(self.controller.rule_ctrl.unit_types_list):
                     units_of_id = unit_arr[:, :, unit_id]
                     units_num = np.sum(units_of_id)
                     if units_num > 0:
@@ -220,24 +231,24 @@ class LLMWrapper(Wrapper):
                         if unit_owner in owner_set:
                             continue
 
-                        if unit_owner == self.unwrapped.civ_controller.player_ctrl.my_player_id:
+                        if unit_owner == self.controller.player_ctrl.my_player_id:
                             unit_owner_str += ' myself player_' + str(int(unit_owner))
                         else:
-                            ds_of_owner = self.unwrapped.civ_controller.dipl_ctrl.diplstates[unit_owner]
+                            ds_of_owner = self.controller.dipl_ctrl.diplstates[unit_owner]
                             unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
                         owner_set.append(unit_owner)
                     mini_map_info[ptile].append(unit_owner_str)
 
                 city_owners = list(city_owner_arr[city_owner_arr != 255])
-                for city_owner in self.unwrapped.civ_controller.player_ctrl.players:
+                for city_owner in self.controller.player_ctrl.players:
                     owner_num = city_owners.count(city_owner)
                     if owner_num == 0:
                         continue
 
-                    if city_owner == self.unwrapped.civ_controller.player_ctrl.my_player_id:
+                    if city_owner == self.controller.player_ctrl.my_player_id:
                         city_owner_str = str(owner_num) + ' cities of myself player_' + str(int(city_owner))
                     else:
-                        ds_of_owner = self.unwrapped.civ_controller.dipl_ctrl.diplstates[city_owner]
+                        ds_of_owner = self.controller.dipl_ctrl.diplstates[city_owner]
                         city_owner_str = (str(owner_num) + ' cities of a ' + DS_TXT[ds_of_owner] +
                                           ' player_' + str(int(city_owner)))
                     mini_map_info[ptile].append(city_owner_str)

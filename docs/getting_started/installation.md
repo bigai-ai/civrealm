@@ -7,7 +7,7 @@ Installation through the source code in the civrealm folder:
 cd civrealm
 pip install -e .
 ```
-
+<!-- 
 ### Update the freeciv-web image
 
 Start the freeciv-web docker with the "docker-compose.yml" file in the civrealm folder:
@@ -28,3 +28,4 @@ Restart the freeciv-web container so that the change takes effect
 docker compose down
 docker compose up -d
 ```
+-->

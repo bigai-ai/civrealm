@@ -73,7 +73,7 @@ BATTLE_MINITASK_LIST = [_minitask for _minitask in MinitaskType.list() if _minit
 
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
-    """ CivRealm environment for minitasks. """
+    """ CivRealm environment for mini-game. """
 
     def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
         super().__init__(username=username, client_port=client_port, is_minitask=True)
@@ -87,7 +87,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
     @staticmethod
     def get_minitask(name, minitask_pattern, max_id):
-        """ Get Minitask Sav File Randomly. """
         if not isinstance(minitask_pattern, dict):
             minitask_pattern = dict()
 
@@ -109,7 +108,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
     def _get_info_and_observation(self):
         info, observation = super()._get_info_and_observation()
-        # Remove player action from available actions. This is to prevent the agent from making pacts (peace, alliance, etc.) with other players in battle minitasks.
         if 'player' in info['available_actions'] and self.task_type in BATTLE_MINITASK_LIST:
             del info['available_actions']['player']
         return info, observation
@@ -123,13 +121,31 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return
 
     def reset(self, seed=None, options=None, minitask_pattern=None, max_id=MAX_ID):
+        """
+        Reset the mini-game environment as fully random game or specific game.
+
+        Parameters
+        ----------
+        seed : int
+            Random seed for game.
+        options : dict
+            Env configuration.
+        minitask_pattern : dict
+            Assignment the following fields to return a specified game:\n
+            `type`: the type of mini-game, see the available options MinitaskType;\n
+            `level`: the difficulty of mini-game, see the available options MinitaskDifficulty;\n
+            `id`: the id of mini-game, the available range is 0 to MAX_ID.\n
+            If a field is not assigned a value, the field will be randomly selected within the feasible domain.
+        max_id : int
+            The max id of mini-game.
+        """
+
         self.set_minitask(seed, minitask_pattern, max_id)
         observations, info = super().reset(seed, options)
         self._set_minitask_info(info)
         return observations, info
 
     def set_minitask(self, seed, minitask_pattern, max_id):
-        """ Set Minitask. """
         random.seed(seed)
         minitask = self.get_minitask(fc_args['username'], minitask_pattern, max_id)
         self.filename = minitask
@@ -138,7 +154,10 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return
 
     def minitask_has_terminated(self):
-        """ Judge whether the minitask is terminated. """
+        """
+        In addition to the game termination judgment of the full game, 
+        the mini-game has additional conditions for the end of the game process.
+        """
         minitask_info = self.civ_controller.get_turn_message()
         if any([msg.get("status") == MinitaskGameStatus.MGS_END_GAME.value for msg in minitask_info]):
             return True
@@ -192,7 +211,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return observation, reward, terminated, truncated, info
 
     def get_game_results(self):
-        """ Merge game result and minitask. """
         game_results = self.civ_controller.game_ctrl.game_results
         minitask_results = self.civ_controller.get_turn_message()
         results = dict(sorted(game_results.items()))

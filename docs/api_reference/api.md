@@ -2,9 +2,8 @@
 
 ## Envs
 ::: envs.freeciv_base_env.FreecivBaseEnv
-
+::: envs.freeciv_minitask_env.FreecivMinitaskEnv
 ::: envs.freeciv_tensor_env.FreecivTensorEnv
-
 ::: envs.freeciv_llm_env.FreecivLLMEnv
 
 ## Wrappers

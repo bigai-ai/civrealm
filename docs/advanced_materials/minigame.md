@@ -8,28 +8,6 @@ By the end of this tutorial, you will be able to
 * Initialize mini-game by using API for random initialization or manual specification
 * Create a new mini-game by several methods
 
-## Prepare Dataset
-<b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
-
-<b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
-```bash
-#!/bin/bash
-image="freeciv-web"
-tomcat_version="tomcat10"
-local_path="/tmp/minigame/"
-
-mkdir $local_path
-cd $local_path
-docker exec -it $image rm -r /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-docker exec -it $image mkdir -p /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-for minitask_zip in `ls`
-do
-    docker cp $minitask_zip $image:/var/lib/$tomcat_version/webapps/data/savegames/minitask/
-    docker exec -it $image unzip -o /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip -d /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-    docker exec -it $image rm /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip
-done
-```
-
 ## 🎮 Setting
 ### 🏁 Game Status
 
@@ -157,7 +135,38 @@ class MinitaskType(ExtendedEnum):
     MT_DIPLOMACY_TRADE_TECH = "diplomacy_trade_tech"
 ```
 
+
+## Prepare Dataset
+
+<b>Before you start the mini-game</b>, you need to load the mini-game designed archives into the server’s laoding archive path.
+
+The steps are as follows:
+
+<b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
+
+<b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
+```bash
+#!/bin/bash
+image="freeciv-web"
+tomcat_version="tomcat10"
+local_path="/tmp/minigame/"
+
+mkdir $local_path
+cd $local_path
+docker exec -it $image rm -r /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+docker exec -it $image mkdir -p /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+for minitask_zip in `ls`
+do
+    docker cp $minitask_zip $image:/var/lib/$tomcat_version/webapps/data/savegames/minitask/
+    docker exec -it $image unzip -o /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip -d /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+    docker exec -it $image rm /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip
+done
+```
+
 ## Initialize Random Mini-Game
+
+`freeciv/FreecivMinitask-v0` is the environment of mini-game. When the mini game is launched, its internal design will randomly select a game of any type and any difficulty.
+
 ```python
 from civrealm.agents import ControllerAgent
 import gymnasium
@@ -169,6 +178,15 @@ observations, info = env.reset()
 
 ## Choose Specific Mini-Game
 
+Inside `reset` method of environment, you can use the parameter `minitask_pattern` to choose specific mini-game.
+
+`type`: the type of mini-game, see the available options MinitaskType
+
+`level`: the difficulty of mini-game, see the available options MinitaskDifficulty
+
+`id`: the id of mini-game, the available range is 0 to MAX_ID
+
+For example, if you want to set the type as `development_build_city` and the difficulty as `easy`, then the code is as follows:
 ```python
 from civrealm.agents import ControllerAgent
 import gymnasium
@@ -176,13 +194,13 @@ import gymnasium
 env = gymnasium.make("freeciv/FreecivMinitask-v0")
 observations, info = env.reset(minitask_pattern={
     "type": "development_build_city", 
-    "level": "easy", 
-    "id": 10})
+    "level": "easy"})
 ```
 
 ## Create a new Mini-Game
-### Use gtk
 
-### Modify the sav file
+### Modify the sav file directly
+
+### Use gtk
 
 ### Using the freeciv-sav api

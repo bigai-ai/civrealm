@@ -289,8 +289,6 @@ These questions will be given appropriate suggestions to some extent below.
 
 ### Generate basic archive
 
-### Mini-Game Validation In Freeciv-Web
-
 ### Use gtk tool to edit elements
 
 ### Add trigger actions by lua script
@@ -343,6 +341,8 @@ Before modifying the game archive, you need to understand the archive format of 
     </tr>
 </table>
 
-### Large batch auto randomly generation
+### Mini-Game Validation In Freeciv-Web
+
+### Large batch auto random generation
 
 ### Mini-Game Validation In Civrealm

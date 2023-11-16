@@ -259,9 +259,10 @@ graph TD
     C --> |Not Pass| D 
     C --> |Pass| E(Large batch auto random generation)
     E --> H{Mini-Game Validation\n In Civrealm}
-    H --> |Not Pass| D
-    H --> |Pass| I(Create new Mini-Game successfully)
-
+    H --> |Not Pass| J{Bug from \nCivrealm}
+    J --> |Yes| K[Contribute bugfix for Civrealm]
+    J --> |No| D
+    H --> |Pass| I[Create new Mini-Game]
 ```
 </div>
 
@@ -277,7 +278,7 @@ The basic design mechanisms of mini-game are:
 
 At the beginning of designing a mini-game, you have to answer the following questions:
 
-* What type of the mini-game?
+* What type of the mini-game do you want to design?
 
 * When does the mini-game end?
 

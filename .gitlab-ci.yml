@@ -1,5 +1,5 @@
 before_script:
-  - "pip install mkdocs mkdocs-autorefs mkdocs-material mkdocstrings[python]"
+  - "pip install mkdocs mkdocs-autorefs mkdocs-material mkdocstrings[python] -i https://pypi.tuna.tsinghua.edu.cn/simple"
 
 stages:
   - pages

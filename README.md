@@ -1,5 +1,7 @@
 # CivRealm
 
+[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](http://civilization.pages.mybigai.ac.cn/civrealm/)
+
 CivRealm is a reinforcement learning environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/). The goal is to provide a simple interface for AI researchers to train agents on Freeciv. The interface is based on the [Gymnasium](https://gymnasium.farama.org/) and [Stable Baselines](https://stable-baselines.readthedocs.io/en/master/) framework.
 
 ## About
@@ -22,7 +24,7 @@ In order to focus on a) b) and c) only, round-based games like Freeciv are a pot
 
 ## Prerequisites
 
-In order to test the civrealm on <http://localhost>, kindly follow the docker installation instructions on <https://github.com/freeciv/freeciv-web>.
+In order to test the civrealm on <http://localhost>, kindly follow the docker installation instructions on <https://gitlab.mybigai.ac.cn/civilization/freeciv-web.git>.
 
 > :warning:
 > Please make sure you have installed **the latest** docker engine and docker-compose.
@@ -37,6 +39,7 @@ cd civrealm
 pip install -e .
 ```
 
+<!-- 
 ### Update the freeciv-web image
 
 Start the freeciv-web docker:
@@ -59,6 +62,7 @@ cd freeciv-web
 docker compose down
 docker compose up -d
 ```
+-->
 
 ### Testing the installation
 

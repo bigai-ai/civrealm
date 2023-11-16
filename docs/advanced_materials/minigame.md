@@ -1,17 +1,19 @@
 # Mini-Game
 
-Due to the multifaceted aspects of a full game, including economic expansion, military development, diplomatic negotiations, cultural construction, and technological research, we have devised mini games to address each component individually. Each mini-game is designed with specific objectives, varying difficulty levels, step-based rewards, and an overall game score.
+Due to the multifaceted aspects of a full game, including economic expansion, military development, diplomatic negotiations, cultural construction, and technological research, we have devised mini games to address each component individually. Each mini-game is designed with specific objectives, varying difficulty levels, step-based rewards, and an overall game score. The designed details could be found in the [paper](https://openreview.net/forum?id=UBVNwD3hPN).
 
 By the end of this tutorial, you will be able to
 
 * Understand the basic setting of mini-game
 * Initialize mini-game by using API for random initialization or manual specification
+* Create a new mini-game by several methods
 
 ## Prepare Dataset
-**Step 1: ** find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
+<b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
 
-**Step 2: ** copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
+<b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
 ```bash
+#!/bin/bash
 image="freeciv-web"
 tomcat_version="tomcat10"
 local_path="/tmp/minigame/"
@@ -155,8 +157,7 @@ class MinitaskType(ExtendedEnum):
     MT_DIPLOMACY_TRADE_TECH = "diplomacy_trade_tech"
 ```
 
-## Usage
-### Initialize Random Mini-Game
+## Initialize Random Mini-Game
 ```python
 from civrealm.agents import ControllerAgent
 import gymnasium
@@ -166,7 +167,7 @@ agent = ControllerAgent()
 observations, info = env.reset()
 ```
 
-### Choose Specific Mini-Game
+## Choose Specific Mini-Game
 
 ```python
 from civrealm.agents import ControllerAgent
@@ -178,3 +179,10 @@ observations, info = env.reset(minitask_pattern={
     "level": "easy", 
     "id": 10})
 ```
+
+## Create a new Mini-Game
+### Use gtk
+
+### Modify the sav file
+
+### Using the freeciv-sav api

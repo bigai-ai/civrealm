@@ -51,6 +51,7 @@ markdown_extensions:
   - pymdownx.details
 
 nav:
+  - Home: index.md
   - Getting Started:
       - Install and Setup:
           - System requirements: getting_started/system_requirements.md
@@ -62,13 +63,15 @@ nav:
           - Game Setting: advanced_materials/game_setting.md
           - Full Game: advanced_materials/fullgame.md
           - Mini-Game: advanced_materials/minigame.md
+      - Server:
+          - Freeciv: advanced_materials/freeciv.md
+      - Image:
+          - Freeciv Web: advanced_materials/freeciv_web.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md
       - Train Scheme:
           - Parallel Training: advanced_materials/parallel_training.md
-      - Extra:
-          - Self Play: advanced_materials/selfplay.md
   - Api Reference: api_reference/api.md
   - Releases: releases/releases.md
   - Notes:

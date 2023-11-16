@@ -253,10 +253,10 @@ The general pipeline of creating new mini-game is as follows:
 ```mermaid
 graph TD
     A(Be clear about \nwhat to do) --> B(Generate basic archive)
-    B --> C{Mini-Game Validation}
-    C --> |Not Pass| D(Use gtk tool to edit elements)
+    B --> D(Use gtk tool to edit elements)
     D --> F(Add trigger actions by lua script)
-    F --> C
+    F --> C{Mini-Game Validation}
+    C --> |Not Pass| D 
     C --> |Pass| E(Large batch auto randomly generation)
 ```
 </div>

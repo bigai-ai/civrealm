@@ -512,7 +512,8 @@ class AddTradeCityClause(AddClause):
         if self.value not in self.city_ctrl.cities:
             return False
 
-        if self.city_ctrl.cities[self.value]['capital'] or self.city_ctrl.cities[self.value]['owner'] != self.giver:
+        # city has Palace --> Capital city -- > cannot trade
+        if self.city_ctrl.cities[self.value]['improvements'][21] or self.city_ctrl.cities[self.value]['owner'] != self.giver:
             return False
 
         return True

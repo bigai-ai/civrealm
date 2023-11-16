@@ -161,17 +161,19 @@ class LLMWrapper(Wrapper):
         actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, self.block_length_radius, self.block_width_radius, self.block_info_template)
 
         if ctrl_type == 'city':
-            producing = None
-            if obs[ctrl_type][actor_id]['production_kind'] == VUT_UTYPE:
-                producing = self.controller.rule_ctrl.unit_types_list[obs[ctrl_type][actor_id]['production_value']-self.controller.rule_ctrl.ruleset_control['num_impr_types']]
-            elif obs[ctrl_type][actor_id]['production_kind'] == VUT_IMPROVEMENT:
-                producing = self.controller.rule_ctrl.improvement_types_list[
-                    obs[ctrl_type][actor_id]['production_value']]
-            actor_info['observations']['producing'] = producing
+            actor_info['observations']['producing'] = self.get_city_producing(obs[ctrl_type], actor_id)
 
         fc_logger.debug(f'actor observations: {actor_info}')
 
         return actor_info
+
+    def get_city_producing(self, obs, actor_id):
+        producing = None
+        if obs[actor_id]['production_kind'] == VUT_UTYPE:
+            producing = self.controller.rule_ctrl.unit_types_list[obs[actor_id]['production_value'] - self.controller.rule_ctrl.ruleset_control['num_impr_types']]
+        elif obs[actor_id]['production_kind'] == VUT_IMPROVEMENT:
+            producing = self.controller.rule_ctrl.improvement_types_list[obs[actor_id]['production_value']]
+        return producing
 
     def get_mini_map_info(self, x, y, length_r, width_r, template):
         mini_map_info = dict()

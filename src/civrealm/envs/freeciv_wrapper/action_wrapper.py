@@ -288,9 +288,9 @@ class TensorAction(Wrapper):
             len(self.get_wrapper_attr("others_city_ids")) : :, :
         ] &= 0
 
-        if not self.get_wrapper_attr("finish_research_last_turn"):
+        if self.get_wrapper_attr("researching"):
             self.mask["tech_action_type_mask"][:] &= 0
-        if self.get_wrapper_attr("finish_research_last_turn"):
+        if not self.get_wrapper_attr("researching") and tensor_debug:
             print(f"techs_researched: {self.get_wrapper_attr('techs_researched')}")
 
     def _mask_from_info(self, info):

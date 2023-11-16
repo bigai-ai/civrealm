@@ -7,11 +7,11 @@ class CombineTechResearchGoal(Wrapper):
     def __init__(self, env):
         self.tech_actions = {}
         self.techs_researched = -1
-        self.finish_research_last_turn = False
+        self.researching = False
+        self.__turn = -1
         super().__init__(env)
 
     def info(self, info, observation):
-        self.finish_research_last_turn = False
         self.tech_actions = {}
         info_tech = info["available_actions"].get("tech", {"cur_player": {}})[
             "cur_player"
@@ -37,8 +37,13 @@ class CombineTechResearchGoal(Wrapper):
         techs_researched = observation["player"][
             self.unwrapped.civ_controller.player_ctrl.my_player_id
         ]["techs_researched"]
-        self.finish_research_last_turn = techs_researched > self.techs_researched
-        self.techs_researched = techs_researched
+
+        if self.__turn != info["turn"]:
+            self.researching = self.researching and (
+                techs_researched == self.techs_researched
+            )
+            self.techs_researched = techs_researched
+            self.__turn = info["turn"]
 
         return info
 
@@ -47,4 +52,5 @@ class CombineTechResearchGoal(Wrapper):
             return action
         if action[0] != "tech":
             return action
+        self.researching = True
         return (action[0], "cur_player", self.tech_actions[action[2]])

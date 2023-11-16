@@ -200,6 +200,9 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         player_colors = self.civ_controller.player_ctrl.get_player_colors()
         for ptag in EVALUATION_TAGS:
+            if ptag not in evaluations:
+                continue
+
             plt.figure()
             for player_id in evaluations[ptag].keys():
                 scores = evaluations[ptag][player_id]

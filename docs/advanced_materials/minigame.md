@@ -227,7 +227,7 @@ The messages of mini-game are passed from the server to the agent at each trigge
 
 ## Play mini-game as a random agent
 
-Generally speaking, it is difficult for random agents to win the battle mini-game, and in the development and diplomacy mini-game, the game victory condition will be met with a certain probability.
+Generally speaking, it is difficult for random agents to win the battle and diplomacy mini-game, and in the development mini-game, the game victory condition will be met with a certain probability.
 
 The commands are as follows:
 ```bash

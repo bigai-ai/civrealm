@@ -255,9 +255,13 @@ graph TD
     A(Be clear about \nwhat to do) --> B(Generate basic archive)
     B --> D(Use gtk tool to edit elements)
     D --> F(Add trigger actions by lua script)
-    F --> C{Mini-Game Validation}
+    F --> C{Mini-Game Validation\n In Freeciv-Web}
     C --> |Not Pass| D 
-    C --> |Pass| E(Large batch auto randomly generation)
+    C --> |Pass| E(Large batch auto random generation)
+    E --> H{Mini-Game Validation\n In Civrealm}
+    H --> |Not Pass| D
+    H --> |Pass| I(Create new Mini-Game successfully)
+
 ```
 </div>
 
@@ -285,7 +289,7 @@ These questions will be given appropriate suggestions to some extent below.
 
 ### Generate basic archive
 
-### Mini-Game Validation
+### Mini-Game Validation In Freeciv-Web
 
 ### Use gtk tool to edit elements
 
@@ -341,3 +345,4 @@ Before modifying the game archive, you need to understand the archive format of 
 
 ### Large batch auto randomly generation
 
+### Mini-Game Validation In Civrealm

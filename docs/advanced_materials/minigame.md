@@ -252,12 +252,11 @@ The general pipeline of creating new mini-game is as follows:
 <div align=center>
 ```mermaid
 graph TD
-    A(Be clear about \nwhat to do) --> B(Generate basic archive)
-    B --> D(Use gtk tool to edit elements)
-    D --> F(Add trigger actions by lua script)
+    A(Be clear about \nwhat to do) --> D(Use gtk tool to generate basic archive)
+    D --> F(Set mini-game state by lua script)
     F --> C{Mini-Game Validation\n In Freeciv-Web}
     C --> |Not Pass| D 
-    C --> |Pass| E(Large batch auto random generation)
+    C --> |Pass| E(<b>Large batch auto random generation</b>)
     E --> H{Mini-Game Validation\n In Civrealm}
     H --> |Not Pass| J{Bug from \nCivrealm}
     J --> |Yes| K[Contribute bugfix for Civrealm]
@@ -266,7 +265,7 @@ graph TD
 ```
 </div>
 
-### Be clear about what to do
+### <i>Be clear about what to do</i>
 
 The basic design mechanisms of mini-game are:
 
@@ -288,16 +287,14 @@ At the beginning of designing a mini-game, you have to answer the following ques
 
 These questions will be given appropriate suggestions to some extent below.
 
-### Generate basic archive
+### <i>Use gtk tool to generate basic archive</i>
 
-### Use gtk tool to edit elements
-
-### Add trigger actions by lua script
+### <i>Set mini-game state by lua script</i>
 
 !!! Warning
-    Because the fields in the sav file have dependencies on each other, if you modify a field without noticing some other fields that need to be modified at the same time, it will cause the server to load the sav file unsuccessfully.
+    <b>Donot modify sav file directly in general.</b> Because the fields in the sav file have dependencies on each other, if you modify a field without noticing some other fields that need to be modified at the same time, it will cause the server to load the sav file unsuccessfully.
 
-Before modifying the game archive, you need to understand the archive format of freeciv and how it defines the game state internally.
+Before adding the lua script for basic sav file, you need to understand the archive format of freeciv and how it defines the game state internally.
 
 * The suffix of the game archive file is `.sav`, and usually compressed as a compressed file with `.xz` or `.zst` suffix. If the archive file is compressed, you need to use the corresponding component to decompress it to get the sav file.
 
@@ -342,8 +339,8 @@ Before modifying the game archive, you need to understand the archive format of 
     </tr>
 </table>
 
-### Mini-Game Validation In Freeciv-Web
+### <i>Mini-Game Validation In Freeciv-Web</i>
 
-### Large batch auto random generation
+### <i>Large batch auto random generation</i>
 
-### Mini-Game Validation In Civrealm
+### <i>Mini-Game Validation In Civrealm</i>

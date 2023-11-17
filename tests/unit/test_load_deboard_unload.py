@@ -77,6 +77,33 @@ def test_load_deboard_unload(controller):
     controller.get_info_and_observation()
     assert (unit_focus.punit['transported_by'] == 1099)
 
+    valid_actions = unit_opt.get_actions(1549, valid_only=True)
+    print(f"Transporter {1549} valid action: {valid_actions.keys()}")
+    print(f"Transporter {1549} moves to south east")
+    valid_actions['goto_7'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+
+    valid_actions = unit_opt.get_actions(886, valid_only=True)
+    print(f'Unit {886}, valid action keys: {valid_actions.keys()}')
+    valid_actions['embark_6_1549'].trigger_action(controller.ws_client)
+    print(f'Unit {886} embark to 1549 from 1099')
+    controller.send_end_turn()
+    controller.get_info_and_observation()
+
+    valid_actions = unit_opt.get_actions(1549, valid_only=True)
+    print(f"Transporter {1549} valid action: {valid_actions.keys()}")
+    print(f"Transporter {1549} moves to north west")
+    valid_actions['goto_0'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+
+    valid_actions = unit_opt.get_actions(886, valid_only=True)
+    print(f'Unit {886}, valid action keys: {valid_actions.keys()}')
+    print(f'Unit {886} embark to 1099 from 1549')
+    valid_actions['embark_4_1099'].trigger_action(controller.ws_client)
+    controller.send_end_turn()
+    controller.get_info_and_observation()
+    assert (unit_focus.punit['transported_by'] == 1099)
+
     for unit_id in boat_ids+unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
         ptile = unit_focus.ptile
@@ -256,25 +283,37 @@ def test_load_deboard_unload(controller):
     valid_actions['fortify'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+    #### The board and deboard actions do not change unit's activity.
     print('Unit 1912 deboard')
     valid_actions['deboard'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # print(valid_actions.keys())
-
     print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
     print('Unit 1912 board')
     valid_actions['board'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(valid_actions.keys())
+    print(f"Unit 1912 is participating in activity {unit_focus.punit['activity']} during board")
 
-    print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
+    # Test activity on the sea
+    print(f"Unit 1912 is transported by: {unit_focus.punit['transported_by']}")
+    valid_actions = unit_opt.get_actions(unit_focus.punit['transported_by'], valid_only=True)
+    print(f"Transporter {unit_focus.punit['transported_by']} valid action: {valid_actions.keys()}")
+    print(f"Transporter {unit_focus.punit['transported_by']} move to south east")
+    valid_actions['goto_7'].trigger_action(controller.ws_client)
+    controller.get_info_and_observation()
+
+    print(f"Unit 1912 participates in activity: {unit_focus.punit['activity']}")
+    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+    print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
+    # valid_actions['disembark_0'].trigger_action(controller.ws_client)
+    # controller.get_info_and_observation()
     print('Unit 1912 do marketplace')
-    valid_actions['marketplace_-1'].trigger_action(controller.ws_client)
+    valid_actions['marketplace_0'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     assert (1912 not in unit_opt.unit_data)
-
 
 def main():
     controller = CivController('testcontroller')

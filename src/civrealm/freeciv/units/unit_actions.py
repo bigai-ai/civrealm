@@ -564,7 +564,7 @@ class EngineerAction(UnitAction):
             return False  # raise Exception("Unit has no moves left to build city")
 
         # Transported unit cannot do engineer action.
-        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
+        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0 and self.focus.pcity is None:
             return False
         # if self.focus.ptype['name'] in ["Workers", "Engineers"]:
         return self.is_eng_action_valid()
@@ -1001,8 +1001,8 @@ class ActFortify(UnitAction):
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FORTIFY):
             return False
 
-        # if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0:
-        #     return False
+        if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0 and self.focus.pcity is None:
+            return False
 
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 

@@ -53,6 +53,12 @@ markdown_extensions:
         - name: mermaid
           class: mermaid
           format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.arithmatex:
+      generic: true
+      
+extra_javascript:
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js
 
 nav:
   - Home: index.md
@@ -67,10 +73,6 @@ nav:
           - Game Setting: advanced_materials/game_setting.md
           - Full Game: advanced_materials/fullgame.md
           - Mini-Game: advanced_materials/minigame.md
-      - Server:
-          - Freeciv: advanced_materials/freeciv.md
-      - Image:
-          - Freeciv Web: advanced_materials/freeciv_web.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md

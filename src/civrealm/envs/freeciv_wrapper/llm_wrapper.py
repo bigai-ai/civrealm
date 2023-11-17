@@ -16,6 +16,7 @@
 import os
 import yaml
 import numpy as np
+from civrealm.envs import FreecivBaseEnv
 from gymnasium.core import Wrapper
 from civrealm.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from civrealm.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
@@ -50,11 +51,15 @@ class LLMWrapper(Wrapper):
     action_names: dict
         a dict matches action_keys from FreecivBaseEnv to readable action_names
     tile_length_radius: int
+        (length of a tile - 1) / 2
     tile_width_radius: int
+        (width of a tile - 1) / 2
     tile_info_template: dict
         a dict describes detailed surrounding observations of a unit or a city
     block_length_radius: int
+        (length of a block - 1) / 2
     block_width_radius: int
+        (width of a block - 1) / 2
     block_info_template: dict
         a dict describes zoomed-out surrounding observations of a unit or a city
     ctrl_types: list
@@ -64,7 +69,7 @@ class LLMWrapper(Wrapper):
         a dict describes which categories of actions llm can take; it can be seen as an action mask
     """
 
-    def __init__(self, env):
+    def __init__(self, env: FreecivBaseEnv):
         super().__init__(env)
         self.llm_default_settings = parse_llm_default_settings()
 
@@ -96,6 +101,9 @@ class LLMWrapper(Wrapper):
         return observation, reward, terminated, truncated, info
 
     def get_llm_info(self, obs, info):
+        """
+        Convert observations and available actions of all actors from `FreecivBaseEnv` into a dict of natural language
+        """
         current_turn = info['turn']
 
         llm_info = dict()
@@ -138,6 +146,9 @@ class LLMWrapper(Wrapper):
         return llm_info
 
     def get_actor_info(self, x, y, obs, info, ctrl_type, actor_id, utype=None):
+        """
+        Convert observations and available actions of a specific actor from `FreecivBaseEnv` into a dict of natural language
+        """
         actor_info = dict()
 
         actor_name = None
@@ -176,6 +187,9 @@ class LLMWrapper(Wrapper):
         return producing
 
     def get_mini_map_info(self, x, y, length_r, width_r, template):
+        """
+        Convert observations of a specific actor from `FreecivBaseEnv` into a dict of natural language
+        """
         mini_map_info = dict()
 
         tile_id = 0

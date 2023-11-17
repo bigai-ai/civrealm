@@ -12,9 +12,9 @@
 #
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
+from typing import Any
 
-from gymnasium.core import Wrapper
-
+from gymnasium.core import Wrapper, WrapperObsType
 from civrealm.configs import fc_args
 from civrealm.envs.freeciv_base_env import FreecivBaseEnv
 from civrealm.envs.freeciv_wrapper.llm_wrapper import LLMWrapper
@@ -31,3 +31,6 @@ class FreecivLLMEnv(Wrapper):
 
         llm_env = LLMWrapper(FreecivBaseEnv(username=username, client_port=client_port))
         super().__init__(llm_env)
+
+    def reset(self, **kwargs):
+        return self.env.reset(**kwargs)

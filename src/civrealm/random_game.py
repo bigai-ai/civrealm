@@ -24,13 +24,9 @@ import gymnasium
 
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
-    # env = gymnasium.make('freeciv/FreecivMinitask-v0')
-
-    # env = LLMWrapper(env)
-    # agent = RandomLLMAgent()
     agent = ControllerAgent()
 
-    observations, info = env.reset(minitask_pattern=None)
+    observations, info = env.reset(client_port=fc_args['client_port'], minitask_pattern=None)
     done = False
     step = 0
     while not done:

@@ -11,6 +11,23 @@ The Civrealm Tensor Environment is a reinforcement learning environment wrapped 
 
 and various modular wrappers which are open to customize your own environment.
 
+
+## Network Architecture for a Tensor Agent
+
+![Tensor Architecture](../assets/tensor-architecture.png)
+
+To effectively handle multi-source and variable-length inputs, we draw inspiration from [AlphaStar](https://www.nature.com/articles/s41586-019-1724-z) and implement a serialized hierarchical feature extraction and action selection approach, as shown above. This method involves generating layered actions and predicting value function outputs, and our neural network architecture comprises three main components: representation learning, action selection, and value estimation.
+
+**Representation**. At the representation level, we adopt a hierarchical structure. In the lower layer, we extract controller features using various models like MLP, Transformer, and CNN, depending on whether the input is a single vector, sequence, or image-based. These extracted features are then fed into a transformer to facilitate attention across different entities, creating globally meaningful representations. Additionally, we utilize an RNN to combine the current-state features with the memory state, enabling conditional policy decisions based on the state history.
+
+**Action selection**. At the action selection level, we leverage the learned representations to make decisions. In the actor selection module, we determine the primary action category to be executed, including options like unit, city, government, technology, diplomacy, or termination. Subsequently, we employ a pointer network to select the specific action ID to be executed, followed by the determination of the exact action to be performed.
+
+**Value estimation**. To enable the use of an actor-critic algorithm, we incorporate a value prediction head after the representation learning phase. This shared representation part of the network benefits both the actor and critic, enhancing training efficiency.
+
+**Training**. We use the [Proximal Policy Optimization (PPO)](https://arxiv.org/abs/1707.06347) algorithm to train the agent. To mitigate the on-policy sample complexity of PPO, we harness [Ray](https://www.ray.io/) for parallelizing tensor environments, optimizing training speed and efficiency.
+
+
+
 ## 🏃Using Civtensor Repository
 
 

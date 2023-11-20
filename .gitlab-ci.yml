@@ -19,8 +19,10 @@ pages:
 pytest:
   stage: pytest
   script:
+    - mkdir repos && cd repos
+    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.mybigai.ac.cn/".insteadOf "ssh://git@gitlab.mybigai.ac.cn"
     - git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/freeciv-tensor-baseline.git
-    - cd freeciv-tensor-baseline && git pull && pip install -e . && cd ..
-    - pip install -e .
+    - cd freeciv-tensor-baseline && git pull && pip install -e .
+    - cd ../.. && pip install -e .
     - python -m pytest -x
 

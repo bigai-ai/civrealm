@@ -9,7 +9,8 @@ sequenceDiagram
         Freeciv-Web ->> CivRealm : read docker config
         CivRealm ->> Freeciv-Web : docker compose up -d
     else Docker Image Not Existed
-        Freeciv-Web->>Freeciv-Web: docker compose up -d
+        Freeciv-Web ->> CivRealm : copy docker config
+        Freeciv-Web ->> Freeciv-Web: docker compose up -d
     end
     Freeciv-Web ->> + Freeciv : send setting message
     Freeciv ->> - Freeciv-Web : recieve setting response

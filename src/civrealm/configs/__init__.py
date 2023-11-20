@@ -68,8 +68,9 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
         fc_web_args = yaml.safe_load(file)
 
     image = fc_web_args['services']['freeciv-web']['image']
+    server_port = fc_web_args['services']['freeciv-web']['ports'][0]
     fc_web_args['tag'] = 'latest'
-
+    fc_web_args['port'] = server_port.split(":")[0]
     if tag := re.search(r'\:(.*)', image):
         fc_web_args['tag'] = tag[1]
 

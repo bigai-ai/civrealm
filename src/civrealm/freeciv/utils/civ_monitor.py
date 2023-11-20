@@ -21,6 +21,7 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.configs import fc_web_args
 
 
 class CivMonitor():
@@ -41,7 +42,7 @@ class CivMonitor():
             self._driver = webdriver.Firefox()
             self._driver.maximize_window()
 
-            self._driver.get(f'http://{self._host}:8080/webclient/?action=multi&civserverport='
+            self._driver.get(f'http://{self._host}:{fc_web_args["port"]}/webclient/?action=multi&civserverport='
                              f'{self.client_port}&civserverhost=unknown&multi=true&type=multiplayer')
             sleep(2)
             self._initiated = True

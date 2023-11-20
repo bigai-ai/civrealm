@@ -44,7 +44,7 @@ from civrealm.freeciv.utils.civ_monitor import CivMonitor
 from civrealm.freeciv.turn_manager import TurnManager
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 # from civrealm.freeciv.utils.port_list import PORT_LIST
-from civrealm.configs import fc_args
+from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.fc_types import packet_chat_msg_req
 
 MAX_REQUESTS = 1
@@ -97,7 +97,7 @@ class CivController(CivPropController):
         # if fc_args['multiplayer_game']:
         #     assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
         self.client_port = client_port
-        self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
+        self.score_log_url = f'http://{self.host}:{fc_web_args["port"]}/data/scorelogs/score-{self.client_port}.log'
 
         self.turn_manager = TurnManager(self.client_port)
 
@@ -123,7 +123,7 @@ class CivController(CivPropController):
         if port != None:
             self.client_port = port
 
-        self.score_log_url = f'http://{self.host}:8080/data/scorelogs/score-{self.client_port}.log'
+        self.score_log_url = f'http://{self.host}:{fc_web_args["port"]}/data/scorelogs/score-{self.client_port}.log'
         self.delete_save = True
         self.game_saving_time_range = []
         self.game_is_over = False
@@ -611,7 +611,7 @@ class CivController(CivPropController):
         # Check whether save_game() has been called.
         if len(self.game_saving_time_range) > 0:
             # fc_logger.info('delete_save_game')
-            url = f"http://{self.host}:8080/listsavegames?username={self.clstate.username}"
+            url = f"http://{self.host}:{fc_web_args['port']}/listsavegames?username={self.clstate.username}"
             response = requests.post(url)
             save_list = response.text.split(';')
 
@@ -635,7 +635,7 @@ class CivController(CivPropController):
 
             # If use savegame=ALL, it will delete all saves under the given username.
             sha_password = self.clstate.get_password()
-            url = f"http://{self.host}:8080/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
+            url = f"http://{self.host}:{fc_web_args['port']}/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
             response = requests.post(url)
             if response.text != '':
                 fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
@@ -653,7 +653,7 @@ class CivController(CivPropController):
         self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
-        requests.post(f"http://{self.host}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(f"http://{self.host}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):

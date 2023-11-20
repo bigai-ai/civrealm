@@ -9,6 +9,7 @@ from html.parser import HTMLParser
 from urllib.parse import urljoin
 
 from filelock import FileLock
+from civrealm.configs import fc_web_args
 
 TEMP_DIR = tempfile.gettempdir()
 
@@ -32,7 +33,7 @@ class PortStatus:
 
     def __init__(
         self,
-        host_url="http://localhost:8080",
+        host_url=f"http://localhost:{fc_web_args['port']}",
         status_url="pubstatus",
         dev_ports=[6001],
         lock_file=os.path.join(TEMP_DIR, "civrealm.lock"),

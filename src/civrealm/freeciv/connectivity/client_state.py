@@ -32,7 +32,7 @@ from civrealm.freeciv.utils.base_action import NoActions
 from civrealm.freeciv.utils.base_state import EmptyState
 
 from civrealm.freeciv.utils.freeciv_logging import fc_logger, update_logger
-from civrealm.configs import fc_args
+from civrealm.configs import fc_args, fc_web_args
 
 C_S_INITIAL = 0  # /* Client boot, only used once on program start. */
 C_S_PREPARING = 1  # /* Main menu (disconnected) and connected in pregame. */
@@ -181,7 +181,7 @@ class ClientState(CivPropController):
         return sha_password
 
     def try_create_user_account(self, host, username, password):
-        url = f"http://{host}:8080/create_pbem_user?username={username}&email={username}@civrealm.org&password={password}&captcha=null"
+        url = f"http://{host}:{fc_web_args['port']}/create_pbem_user?username={username}&email={username}@civrealm.org&password={password}&captcha=null"
         response = requests.post(url)
         return response.status_code
 
@@ -227,7 +227,7 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/ai {self.user_name}2")
 
         self.ws_client.send_message("/metamessage hotseat game")
-        requests.post(f"http://{fc_args['host']}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def set_multiplayer_game(self):
         # Set AI player to 0. Based on HACKING file
@@ -261,7 +261,7 @@ class ClientState(CivPropController):
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message(
             f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
-        requests.post(f"http://{fc_args['host']}:8080/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def update_state(self, packet):
         self.client["conn"] = packet

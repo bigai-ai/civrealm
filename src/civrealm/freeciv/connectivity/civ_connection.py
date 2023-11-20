@@ -24,7 +24,7 @@ from overrides import override
 from civrealm.freeciv.connectivity.web_socket_client import WebSocketClient
 from civrealm.freeciv.utils.fc_types import packet_chat_msg_req
 from civrealm.freeciv import init_server
-
+from civrealm.configs import fc_web_args
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 
@@ -153,7 +153,7 @@ class CivConnection(CivWSClient):
         self.host = host
         self.client_port = client_port
         self.proxyport = 1000 + self.client_port
-        self.ws_address = f'ws://{self.host}:8080/civsocket/{self.proxyport}'
+        self.ws_address = f'ws://{self.host}:{fc_web_args["port"]}/civsocket/{self.proxyport}'
 
         self._restart_server_if_down = restart_server_if_down
         self._retry_interval = retry_interval

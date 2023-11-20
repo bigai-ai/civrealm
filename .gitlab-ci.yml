@@ -3,6 +3,7 @@ before_script:
 
 stages:
   - pages
+  - pytest
 
 pages:
   stage: pages
@@ -14,3 +15,12 @@ pages:
       - public
   only:
     - dev
+
+pytest:
+  stage: pytest
+  script:
+    - git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/freeciv-tensor-baseline.git
+    - cd freeciv-tensor-baseline && git pull && pip install -e . && cd ..
+    - pip install -e .
+    - python -m pytest -x
+

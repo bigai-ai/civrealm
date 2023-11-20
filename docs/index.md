@@ -43,7 +43,8 @@ sequenceDiagram
         Freeciv ->>   CivRealm : receive raw observation and info
         Freeciv ->> - Freeciv-Web : receive action commands
     end
-    
+    CivRealm ->> CivRealm : env.close()
+
 ```
 
 ## Motivation

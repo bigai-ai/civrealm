@@ -12,7 +12,7 @@ The Civrealm Tensor Environment is a reinforcement learning environment wrapped 
 and various modular wrappers which are open to customize your own environment.
 
 
-## Network Architecture for a Tensor Agent
+## 🤖 Network Architecture for a Tensor Agent
 
 ![Tensor Architecture](../assets/tensor-architecture.png)
 
@@ -28,7 +28,7 @@ To effectively handle multi-source and variable-length inputs, we draw inspirati
 
 
 
-## 🏃Using Civtensor Repository
+## 🏃 Using Civtensor Repository
 
 
 

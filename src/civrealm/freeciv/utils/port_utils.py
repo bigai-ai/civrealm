@@ -6,6 +6,7 @@ import urllib.request
 from copy import copy
 from datetime import datetime
 from html.parser import HTMLParser
+from urllib.error import HTTPError
 from urllib.parse import urljoin
 
 from filelock import FileLock
@@ -227,10 +228,16 @@ class PortStatusParser(HTMLParser):
 
     def update(self):
         self.data = {}
-        with urllib.request.urlopen(
-            urljoin(self.host_url, self.status_purl)
-        ) as response:
-            html = response.read()
+        try:
+            with urllib.request.urlopen(
+                urljoin(self.host_url, self.status_purl)
+            ) as response:
+                html = response.read()
+        except HTTPError as error:
+            raise ValueError(
+                f"Cannot open status_purl {self.status_purl} host{self.host_url}",
+            ) from error
+
         self.feed(str(html))
 
     def handle_starttag(self, tag, attrs):

@@ -1,5 +1,19 @@
-# before_script:
-#
+before_script:
+    - "python3 --version"
+    - "pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple"
+    - "virtualenv venv"
+    - "source venv/bin/activate"
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .cache/pip
+    - venv/
+
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  
 stages:
   - pages
   - local_pytest

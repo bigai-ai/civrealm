@@ -34,3 +34,5 @@ local_pytest:
   script:
     - pip install -e .
     - sudo rm /tmp/civrealm* && pytest -x
+  tags:
+    - local_pytest

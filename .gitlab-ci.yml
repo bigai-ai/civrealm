@@ -1,8 +1,8 @@
-before_script:
-  - "pip install mkdocs mkdocs-autorefs mkdocs-material mkdocstrings[python] -i https://pypi.tuna.tsinghua.edu.cn/simple"
-
+# before_script:
+#
 stages:
   - pages
+  - test
   - pytest
 
 pages:
@@ -16,13 +16,25 @@ pages:
   only:
     - dev
 
-pytest:
-  stage: pytest
+test_python3.8:
+  stage: test
+  image: python:3.8
+  services:
+    - name: civrealm/freeciv-web:dev
+      alias: freeciv_web
+      command: ["sleep", "infinity"]
   script:
-    - mkdir repos && cd repos
-    - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.mybigai.ac.cn".insteadOf "ssh://git@gitlab.mybigai.ac.cn"
-    - git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/freeciv-tensor-baseline.git
-    - cd freeciv-tensor-baseline && git pull && pip install -e .
-    - cd ../.. && pip install -e .
-    - python -m pytest -x
+    - pip install -e .
+    - "sed -i 's/host: localhost/host: freeciv_web/' default_settings.yaml"
+    - "pytest -vv"
 
+# pytest:
+#   stage: pytest
+#   script:
+#     - "pip install mkdocs mkdocs-autorefs mkdocs-material mkdocstrings[python] -i https://pypi.tuna.tsinghua.edu.cn/simple"
+#     - mkdir repos && cd repos
+#     - git config --global url."https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.mybigai.ac.cn".insteadOf "ssh://git@gitlab.mybigai.ac.cn"
+#     - git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/freeciv-tensor-baseline.git
+#     - cd freeciv-tensor-baseline && git pull && pip install -e .
+#     - cd ../.. && pip install -e .
+#     - python -m pytest -x

@@ -37,15 +37,14 @@ from civrealm.freeciv.map.map_ctrl import MapCtrl
 from civrealm.freeciv.city.city_ctrl import CityCtrl
 from civrealm.freeciv.tech.tech_ctrl import TechCtrl
 
-from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END, E_DESTROYED, E_DIPLOMACY
-from civrealm.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done
+from civrealm.freeciv.utils.fc_events import E_UNDEFINED, E_BAD_COMMAND, E_SCRIPT, E_GAME_END, E_DESTROYED, E_DIPLOMACY, E_SETTING, E_CONNECTION
+from civrealm.freeciv.utils.fc_types import packet_nation_select_req, packet_player_phase_done, packet_chat_msg_req
+from civrealm.freeciv.utils.utility import clean_html
 from civrealm.freeciv.utils.civ_monitor import CivMonitor
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 from civrealm.freeciv.turn_manager import TurnManager
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
-# from civrealm.freeciv.utils.port_list import PORT_LIST
 from civrealm.configs import fc_args, fc_web_args
-from civrealm.freeciv.utils.fc_types import packet_chat_msg_req
 
 MAX_REQUESTS = 1
 SLEEP_TIME = 1
@@ -755,7 +754,7 @@ class CivController(CivPropController):
     def handle_chat_msg(self, packet):
         """#/* 100% complete */"""
         try:
-            message = packet['message']
+            message = clean_html(packet['message'])
             conn_id = packet['conn_id']
             event = packet['event']
         except KeyError:
@@ -793,7 +792,7 @@ class CivController(CivPropController):
         # elif event == E_DESTROYED and self.my_player_is_defeated():
         #     self.ws_client.stop_ioloop()
 
-        # diplomacy actions can be done out of player's own phase, thus the tracked diplomacy states may be out of date, making invalid 'accept negotiation' actions cannot be detected in time
+        # Diplomacy actions can be done out of player's own phase, thus the tracked diplomacy states may be out of date, making invalid 'accept negotiation' actions cannot be detected in time
         elif event == E_DIPLOMACY and 'You cannot form an alliance because' in message:
             for player_id, player in self.player_ctrl.players.items():
                 if player['name'] in message:
@@ -821,7 +820,7 @@ class CivController(CivPropController):
                 self.prepare_game()
 
         if conn_id in self.clstate.connections:
-            message = "<b>" + self.clstate.connections[conn_id]['username'] + ":</b>" + message
+            message = self.clstate.connections[conn_id]['username'] + ":" + message
         else:
             if "/metamessage" in message:
                 # don't spam message dialog on game start.
@@ -832,6 +831,8 @@ class CivController(CivPropController):
 
         packet['message'] = message
         fc_logger.info(f'chat_msg: {packet}')
+        if event != E_SETTING and event != E_CONNECTION:
+            self.game_ctrl.add_chat_message(message)
 
     def handle_start_phase(self, packet):
         """Handle signal from server to start phase - prior to starting turn"""

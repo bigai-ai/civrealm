@@ -24,7 +24,8 @@ import gymnasium
 
 def main():
     env = gymnasium.make('freeciv/FreecivBase-v0')
-    agent = ControllerAgent()
+    env = LLMWrapper(env)
+    agent = RandomLLMAgent()
 
     observations, info = env.reset(client_port=fc_args['client_port'], minitask_pattern=None)
     done = False

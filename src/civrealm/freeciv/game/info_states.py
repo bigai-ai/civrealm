@@ -21,12 +21,15 @@ class GameState(PlainState):
         super().__init__()
         self.scenario_info = scenario_info
         self.calendar_info = calendar_info
+        self.chat_messages = ''
 
     def _update_state(self, pplayer):
         if pplayer != None:
             self._state.update(self.calendar_info)
-            del self._state["calendar_fragment_name"]
+            del self._state['calendar_fragment_name']
             self._state.update(self.scenario_info)
+            self._state['messages'] = self.chat_messages
+            self.chat_messages = ''
 
 
 class ServerState(DictState):

@@ -13,12 +13,14 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re
+import numpy as np
+
 
 # def DIVIDE(n, d):
 # * DIVIDE() divides and rounds down, rather than just divides and
 # *rounds toward 0.  It is assumed that the divisor is positive."""
 # return parseInt( (n) / (d) - (( (n) < 0 && (n) % (d) < 0 ) ? 1 : 0) )
-import numpy as np
 
 
 def FC_WRAP(value, arange):
@@ -92,8 +94,12 @@ def read_sub_arr_with_wrap(arr, start_x, end_x, start_y, end_y):
             return arr[start_x: end_x, start_y: end_y, :]
 
 
-
 def geometric_sequence(length: int, start: int, end: int):
     start_end = np.log(np.array([start + 1e-4, end + 1e-4]))
     log_array = np.linspace(*start_end, length)
     return np.exp(log_array).astype(int).tolist()
+
+html_cleaner = re.compile('<.*?>')
+def clean_html(text_with_html):
+    clean_text = re.sub(html_cleaner, '', text_with_html)
+    return clean_text

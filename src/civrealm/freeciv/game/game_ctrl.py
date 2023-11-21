@@ -70,6 +70,9 @@ class GameCtrl(CivPropController):
         self.register_handler(238, "handle_achievement_info")
         self.register_handler(245, "handle_play_music")
 
+    def add_chat_message(self, message):
+        self.prop_state.chat_messages += message + '<SEP> '
+
     def handle_scenario_info(self, packet):
         """
         Receive scenario information about the current game.

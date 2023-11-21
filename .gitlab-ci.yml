@@ -1,8 +1,9 @@
-before_script:
-    - "python3 --version"
-    - "pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple"
-    - "virtualenv venv"
-    - "source venv/bin/activate"
+.before_script_template:
+  before_script:
+      - "python3 --version"
+      - "pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple"
+      - "virtualenv venv"
+      - "source venv/bin/activate"
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
@@ -16,10 +17,10 @@ variables:
   
 stages:
   - pages
-  - local_pytest
-  - test
+  - tests
 
 pages:
+  extends: .before_script_template
   stage: pages
   image: python:latest
   script:
@@ -32,7 +33,8 @@ pages:
     - dev
 
 test_python3.8:
-  stage: test
+  extends: .before_script_template
+  stage: tests
   image: python:3.8
   services:
     - name: civrealm/freeciv-web:dev
@@ -45,7 +47,7 @@ test_python3.8:
   allow_failure: true
 
 local_pytest:
-  stage: local_pytest
+  stage: tests
   script:
     - sudo pip install -e .
     - sudo rm /tmp/civrealm* && pytest -x

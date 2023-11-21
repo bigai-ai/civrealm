@@ -6,7 +6,7 @@
       - "source venv/bin/activate"
 
 cache:
-  key: ${CI_JOB_NAME}
+  key: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
   paths:
     - .cache/pip
     - venv/

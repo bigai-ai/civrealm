@@ -9,6 +9,7 @@ pages:
   stage: pages
   image: python:latest
   script:
+    - "pip install mkdocs mkdocs-autorefs mkdocs-material mkdocstrings[python] -i https://pypi.tuna.tsinghua.edu.cn/simple"
     - mkdocs build
   artifacts:
     paths:

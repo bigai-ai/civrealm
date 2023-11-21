@@ -87,3 +87,5 @@ nav:
   - Misc: 
       - FAQ: misc/faq.md
       - Resources: misc/resources.md
+
+use_directory_urls: false

@@ -290,14 +290,14 @@ These questions will be given appropriate suggestions to some extent below.
 The tool of freeciv-gtk is provided by freeciv official team to help us design the very basic version of each mini-game. Please follow the instructions in ((https://github.com/freeciv/freeciv/tree/main/doc)) to install the tool and run it, specify the game settings and ruleset, which would be like:
 
 <div align="center">
-  <img src="../../assets/gtk_intro.png" width="360" />
-  <img src="../../assets/gtk_tool_set.png" width="378" />
+  <img src="../assets/gtk_intro.png" width="360" />
+  <img src="../assets/gtk_tool_set.png" width="378" />
 </div>
 
 After start a new game, use <b>'Edit -> Edit Mode' </b> to design the scenario as you expect and then finish making an initial version of savegame. Save the edited scenario so that you can further edit or load it in the game. After that, you can continue to add messages and generate random maps based on it, which is introduced as followed.
 
 <div align="center">
-    <img src="../../assets/gtk_tool_edit.png" alt="drawing" width="800"/>
+    <img src="../assets/gtk_tool_edit.png" alt="drawing" width="800"/>
 </div>
 
 ### <b><i>Set mini-game messages by lua script</i></b>

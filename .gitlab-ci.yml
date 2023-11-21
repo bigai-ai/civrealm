@@ -35,7 +35,7 @@ pages:
 test_python3.8:
   extends: .before_script_template
   variables: 
-    CIVREALM_HOST_URL: "freeciv_web"
+    CIVREALM_HOST_URL: "http://freeciv_web"
   stage: tests
   image: python:3.8
   services:

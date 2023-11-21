@@ -1,5 +1,11 @@
 import time
+import os
 from civrealm.configs import fc_args
+
+if fc_args['debug.logging_path'] is not None:
+    logging_dir = os.path.expanduser(fc_args['debug.logging_path'])
+else:
+    logging_dir = os.path.normpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..', '..', 'logs'))
 
 LOGGING_CONFIG = {
     'version': 1,
@@ -14,7 +20,7 @@ LOGGING_CONFIG = {
             'level': 'INFO',
             'formatter': 'standard',
             'class': 'logging.FileHandler',
-            'filename': f"logs/{time.strftime('%Y.%m.%d')}_root.log",
+            'filename': os.path.join(logging_dir, f"{time.strftime('%Y.%m.%d')}_root.log"),
             'mode': 'a',
         },
         'civrealmFileHandler': {
@@ -22,7 +28,7 @@ LOGGING_CONFIG = {
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             # Change time.strftime('%%Y.%%m.%%d') to time.strftime('%%Y.%%m.%%d_%%H:%%M:%%S') to create a new file for each script
-            'filename': f"logs/{time.strftime('%Y.%m.%d')}_{fc_args['username']}.log",
+            'filename': os.path.join(logging_dir, f"{time.strftime('%Y.%m.%d')}_{fc_args['username']}.log"),
             'mode': 'w',
         },
         'consoleHandler': {

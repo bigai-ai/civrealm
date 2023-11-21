@@ -1,5 +1,4 @@
-username: testcontroller
-# username: myagent
+username: myagent
 # Max number of turns per game
 max_turns: 1000
 # The host url
@@ -56,9 +55,9 @@ debug:
   # **Warning**: generates many log files if True. Turned off by default.
   record_action_and_observation: False
 
-  # Take screenshots during playing
-  # *wait_for_observer* flag should be set to *True* if enable screenshots
-  # you can exec 'update_javascript_for_clean_screenshot' command first for generating more clean screenshots
+  # Take screenshots during playing.
+  # *wait_for_observer* flag should be set to *True* if enable screenshots.
+  # You can exec 'update_javascript_for_clean_screenshot' command first for generating more clean screenshots.
   # **Warning**: generates many log files if True. Turned off by default.
   take_screenshot: False
   global_view_screenshot: True
@@ -73,17 +72,19 @@ debug:
   # load_game: "myagent_T1_2023-08-28-12_19"
   # load_game: "testcontroller_T200_2023-07-31-01_51"
   load_game: ""
-  # game-reproducer
-  # If True, the following random seeds (mapseed, gameseed, agentseed) are ignored
+  
+  # Reproducing a game: if True, the following random seeds (mapseed, gameseed, agentseed) are ignored
   randomly_generate_seeds: True
-  # set mapseed for generating a fixed map, can overwrite the above mapseed
+  # Set mapseed for generating a fixed map, can overwrite the above mapseed
   mapseed: 88
-  # set gameseed for fixing the behavior of random outputs
+  # Set gameseed for fixing the behavior of random outputs
   gameseed: 1729
-  # set agentseed to fix the action sequence when game/map are fixed
+  # Set agentseed to fix the action sequence when game/map are fixed
   agentseed: 1729
-  # print debug information for tensor env
+  # Print debug information for tensor env
   tensor_debug: False
+  # Path for saving logging files. Use null for the default path `civrealm/logs``. 
+  logging_path: null
 
 # The ruleset to be used
 ruleset: classic

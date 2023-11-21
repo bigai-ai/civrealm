@@ -16,10 +16,10 @@ export OPENAI_API_BASE=<openai-api-base>                    # e.g. 'https://xxx.
 export OPENAI_API_KEY=<openai-api-key>
 export DEPLOYMENT_NAME=<deployment-name>                    # e.g. 'gpt-35-turbo-16k'
 # Group 2
-export ASURE_OPENAI_API_TYPE=<asure-openai-api-type>        # e.g. 'azure'
-export ASURE_OPENAI_API_VERSION=<asure-openai-api-version>  # e.g. '2023-05-15'
-export ASURE_OPENAI_API_BASE=<asure-openai-api-base>
-export ASURE_OPENAI_API_KEY=<asure-openai-api-key>
+export AZURE_OPENAI_API_TYPE=<azure-openai-api-type>        # e.g. 'azure'
+export AZURE_OPENAI_API_VERSION=<azure-openai-api-version>  # e.g. '2023-05-15'
+export AZURE_OPENAI_API_BASE=<azure-openai-api-base>
+export AZURE_OPENAI_API_KEY=<azure-openai-api-key>
 # Group 3
 export LOCAL_LLM_URL=<local-llm-url>                        # You may choose to use local LLM.
 # Pinecone

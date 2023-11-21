@@ -84,3 +84,4 @@ The game setting is specified in the "default_settings.yaml" file under the civr
 
 - tensor_debug: whether print debug information for tensor env. By default: False.
 
+- logging_path: the path to the directory that stores the log files. By default: null. If null, the log files will be stored in the civrealm folder.

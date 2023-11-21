@@ -18,7 +18,7 @@ b) Number of actors/actions is unlimited: Buildings, Cities, Units can be produc
 
 c) More long-term consequences: In many cases, effect of actions and decisions can only be seen after several rounds, minutes of play. The longer an effect takes to materialize, mapping the actions/decisions to the very effect gets more complicated. Hence, "naive" greedy approaches to improving a single score (e.g., Flipper, Super Mario, etc.) won't cut it.  
 
-On top of these challenges real-time strategy games due their continuous time and space add another layer of complexity (e.g., optimal formation of units, evade balistic projectiles or missiles).
+On top of these challenges real-time strategy games due their continuous time and space add another layer of complexity (e.g., optimal formation of units, evade ballistic projectiles or missiles).
 
 In order to focus on a) b) and c) only, round-based games like Freeciv are a potential intermediate step for developing AI before jumping to real-time strategy games.
 
@@ -28,7 +28,7 @@ In order to test the civrealm on <http://localhost>, kindly follow the docker in
 
 > :warning:
 > Please make sure you have installed **the latest** docker engine and docker-compose.
-> Using older versions of docker may result in unexpected erorrs.
+> Using older versions of docker may result in unexpected errors.
 
 ## Installation
 

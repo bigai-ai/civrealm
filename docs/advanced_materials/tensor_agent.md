@@ -1,5 +1,5 @@
 # Tensor Agent
-Welcome to Civrealm Tensor Agent! This documentation will guide you through the process of training tensor-based agents, specifically using the Proximal Policy Optimization (PPO), in the Civrealm Environment. We will first provide an overview of the Civrealm Tensor Env, followed by instructions on how to use the Civtensor repository to train a PPO agent on this environment.
+Welcome to Civrealm Tensor Agent! This documentation will guide you through the process of training tensor-based agents, specifically using the Proximal Policy Optimization (PPO), in the Civrealm Environment. We will first provide an overview of the Civrealm Tensor Env, followed by instructions on how to use the civrealm-tensor-baseline repository to train a PPO agent on this environment.
 
 ## 🌏 Civrealm Tensor Environment
 The Civrealm Tensor Environment is a reinforcement learning environment wrapped upon Civrealm Base Env specifically designed for training agents using tensor-based algorithms. This environment 
@@ -28,20 +28,20 @@ To effectively handle multi-source and variable-length inputs, we draw inspirati
 
 
 
-## 🏃 Using Civtensor Repository
+## 🏃 Using civrealm-tensor-baseline Repository
 
 
 
-The civtensor repository is a collection of code and utilities that provide a baseline implementation for training reinforcement learning agents using tensor-based algorithms.
+The civrelam-tensor-baseline repository is a collection of code and utilities that provide a baseline implementation for training reinforcement learning agents using tensor-based algorithms.
 
 It includes an implementation of the PPO algorithm, which we will use to train our agents in the Civrealm Tensor Environment.
 
 ### 🏌️ Getting Started
 To get started, follow these steps:
 
-1. Clone the tensor-baseline repository from GitHub and enter the directory:
+1. Clone the civrealm-tensor-baseline repository from GitHub and enter the directory:
    ```bash
-   cd civtensor
+   cd civrealm-tensor-baseline
    ```
 2. Install the required dependencies by navigating to the repository directory and running:
    ```bash
@@ -60,15 +60,15 @@ To get started, follow these steps:
    This will start the training process, the agent interacts with the environment, collects experiences, and updates its policy using the PPO algorithm.
 
 
-5. Monitor the training progress and evaluate the agent's performance using the provided metrics and visualization tools in the tensor-baseline repository.
+5. Monitor the training progress and evaluate the agent's performance using the provided metrics and visualization tools in the civrealm-tensor-baseline repository.
     ```bash
     cd examples/results/freeciv_tensor_env/$game_type/ppo/installtest/seed-XXXXXXXXX
     # where $game_type = fullgame or minitask
     tensorboard logs/
     ```
-Congratulations! You have successfully set up the Civrealm Tensor Agent and trained a PPO agent on the Civrealm Tensor Environment using the tensor-baseline repository.
+Congratulations! You have successfully set up the Civrealm Tensor Agent and trained a PPO agent on the Civrealm Tensor Environment using the civrealm-tensor-baseline repository.
 
 ## Conclusion
-In this guide, we introduced the Civrealm Tensor Environment and explained how to use the tensor-baseline repository to train a PPO agent on this environment. We encourage you to explore the various features and customization options available in the Civrealm Tensor Agent and experiment with different reinforcement learning algorithms to further enhance your agent's performance. Happy training!
+In this guide, we introduced the Civrealm Tensor Environment and explained how to use the civrealm-tensor-baseline repository to train a PPO agent on this environment. We encourage you to explore the various features and customization options available in the Civrealm Tensor Agent and experiment with different reinforcement learning algorithms to further enhance your agent's performance. Happy training!
 
 

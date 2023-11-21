@@ -447,7 +447,7 @@ notify.event(nil, nil, E.SCRIPT, _(${message}))
 
 ### <b><i>Large batch auto random generation</i></b>
 
-The auto random generation is supported by the `freeciv-sav` module. To implement a new mini-game dependently, you should inherit class `SavTaskGenerator`. For example,
+The auto random generation is supported by the `civrealm-sav` module. To implement a new mini-game dependently, you should inherit class `SavTaskGenerator`. For example,
 
 ```python
 from freeciv_sav.tasks.sav_task import SavTaskGenerator

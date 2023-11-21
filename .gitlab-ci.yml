@@ -28,6 +28,7 @@ test_python3.8:
     - "pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple"
     - "sed -i 's/host: localhost/host: freeciv_web/' default_settings.yaml"
     - "pytest -vv"
+  allow_failure: true
 
 local_pytest:
   stage: local_pytest

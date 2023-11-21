@@ -19,7 +19,7 @@ authors = [
 readme = "README.md"
 license = {text = "GLP3.0"}
 dependencies = [
-    "pyyaml",
+    "pyyaml>=5.4.1",
     "overrides",
     "wheel",
     "docker",

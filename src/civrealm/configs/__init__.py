@@ -78,3 +78,10 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
 
 fc_args = parse_args()
 fc_web_args = parse_fc_web_args()
+
+# Override server host and port with envirionment variables
+# CIVREALM_HOST_URL and CIVREALM_HOST_PORT
+if os.environ.get("CIVREALM_HOST_URL"):
+    fc_args["host"] = os.environ["CIVREALM_HOST_URL"]
+if os.environ.get("CIVREALM_HOST_PORT"):
+    fc_web_args["port"] = os.environ["CIVREALM_HOST_PORT"]

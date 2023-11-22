@@ -298,7 +298,4 @@ class PortStatusParser(HTMLParser):
         print(message)
 
 
-if os.environ.get("CIVREALM_HOST_URL"):
-    Ports = PortStatus(host_url=os.environ["CIVREALM_HOST_URL"])
-else:
-    Ports = PortStatus()
+Ports = PortStatus()

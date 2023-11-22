@@ -63,6 +63,6 @@ local_pytest:
   stage: tests
   script:
     - sudo pip install -e .
-    - sudo rm /tmp/civrealm* && pytest -x
+    - pytest -x
   tags:
     - local_pytest

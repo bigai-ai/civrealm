@@ -102,8 +102,9 @@ class ParallelTensorEnv:
                         print("Reinitialze env....")
                         (observation, info) = ray.get(self.envs[env_id].reset.remote())
                         if not (observation is None or info is None):
-                            print("Obtained Invalid obs or info, restarting...")
                             break
+                        else:
+                            print("Obtained Invalid obs or info, restarting...")
                     except Exception as e:
                         # print(repr(e))
                         fc_logger.error(f'ParallelTensorEnv: {repr(e)}')

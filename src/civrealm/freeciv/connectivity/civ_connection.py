@@ -40,6 +40,10 @@ class CivWSClient(WebSocketClient):
         self.on_message_exception = None
         # Store the server_timeout_callback handle. We use this to cancel the server_timeout_callback if we receive non-empty messages from the server.
         self.server_timeout_handle = None
+        # Store the wait_for_pid timeout handle
+        self.wait_for_timeout_handle = None
+        # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
+        self.begin_turn_timeout_handle = None
 
     def set_on_connection_success_callback(self, callback_func):
         self.on_connection_success_callback = callback_func
@@ -85,6 +89,20 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         self.wait_for_packs = []
         self.read_packs = []
+
+        # Clear the remaining timeout callback to prevent them from affecting the following games in the same process
+        if self.server_timeout_handle != None:
+            self.get_ioloop().remove_timeout(self.server_timeout_handle)
+            fc_logger.debug('Remove server_timeout_handle callback when close connection.')
+        
+        if self.wait_for_timeout_handle != None:
+            self.get_ioloop().remove_timeout(self.wait_for_timeout_handle)
+            fc_logger.debug('Remove wait_for_timeout_handle callback when close connection.')
+
+        if self.begin_turn_timeout_handle != None:
+            self.get_ioloop().remove_timeout(self.begin_turn_timeout_handle)
+            fc_logger.debug('Remove begin_turn_timeout_handle callback when close connection.')
+
         fc_logger.warning('Connection to server is closed!\n***************************########********************************')
 
     @override

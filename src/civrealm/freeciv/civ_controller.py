@@ -111,10 +111,6 @@ class CivController(CivPropController):
         self.game_over_msg_final = False
         self.game_score = None
         self.is_minitask = is_minitask
-        # Store the wait_for_pid timeout handle
-        self.wait_for_time_out_handle = None
-        # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
-        self.begin_turn_time_out_handle = None
 
         self.init_controllers()
 
@@ -130,10 +126,6 @@ class CivController(CivPropController):
         # Store whether the final game_over message is received
         self.game_over_msg_final = False
         self.game_score = None
-        # Store the wait_for_pid timeout handle
-        self.wait_for_time_out_handle = None
-        # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
-        self.begin_turn_time_out_handle = None
         
         self.ws_client = CivConnection(self.host, self.client_port)
         self.ws_client.set_on_connection_success_callback(self.init_game)
@@ -363,7 +355,7 @@ class CivController(CivPropController):
         self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['server_timeout'], self.server_timeout_callback)
         # Add wait_for timeout handler
-        self.wait_for_time_out_handle = self.ws_client.get_ioloop().call_later(
+        self.ws_client.wait_for_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
 
     def _get_info(self):
@@ -423,7 +415,7 @@ class CivController(CivPropController):
         self.ws_client.send_request(packet)
         self.turn_manager.end_turn()
         # Add begin_turn timeout handler
-        self.begin_turn_time_out_handle = self.ws_client.get_ioloop().call_later(
+        self.ws_client.begin_turn_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['begin_turn_timeout'], self.begin_turn_timeout_callback)
 
     def game_has_truncated(self) -> bool:
@@ -489,13 +481,13 @@ class CivController(CivPropController):
                 self.ws_client.stop_waiting(pid_info)
                 self.handle_pack(packet['pid'], packet)
 
-            # Have received all responses, cancle the wait_for_time_out_handle
+            # Have received all responses, cancle the wait_for_timeout_handle
             if not self.ws_client.is_waiting_for_responses():
-                fc_logger.debug('remove wait_for_time_out_handle')
-                if self.wait_for_time_out_handle != None:
-                    self.ws_client.get_ioloop().remove_timeout(self.wait_for_time_out_handle)
+                fc_logger.debug('remove wait_for_timeout_handle')
+                if self.ws_client.wait_for_timeout_handle != None:
+                    self.ws_client.get_ioloop().remove_timeout(self.ws_client.wait_for_timeout_handle)
                     # fc_logger.debug('Remove timeout callback.')
-                    self.wait_for_time_out_handle = None
+                    self.ws_client.wait_for_timeout_handle = None
 
             if not self.clstate.client_frozen:
                 self.maybe_grant_control_to_player()
@@ -859,10 +851,10 @@ class CivController(CivPropController):
         fc_logger.debug(packet)
 
     def handle_begin_turn(self, packet):
-        if self.begin_turn_time_out_handle != None:
-            self.ws_client.get_ioloop().remove_timeout(self.begin_turn_time_out_handle)
+        if self.ws_client.begin_turn_timeout_handle != None:
+            self.ws_client.get_ioloop().remove_timeout(self.ws_client.begin_turn_timeout_handle)
             fc_logger.debug('Remove begin_turn_time_out callback.')
-            self.begin_turn_time_out_handle = None
+            self.ws_client.begin_turn_timeout_handle = None
 
         """Handle signal from server to start turn"""
         if self.turn_manager.turn <= fc_args['max_turns'] and fc_args['debug.autosave']:

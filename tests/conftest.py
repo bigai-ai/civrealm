@@ -35,7 +35,6 @@ else:
 
 try:
     s = subprocess.check_output('docker ps', shell=True)
-    breakpoint()
     assert str(s).find("freeciv-web") != -1
 
     for username in next(os.walk(f'{test_dir}/game_save/'))[1]:

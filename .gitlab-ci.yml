@@ -1,23 +1,44 @@
 .before_script_template:
   before_script:
-      - "python3 --version"
-      - "pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple"
-      - "virtualenv venv"
-      - "source venv/bin/activate"
+    - "python3 --version"
+    - "pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple"
+    - "virtualenv venv"
+    - "source venv/bin/activate"
+
+.python_test_template:
+  stage: tests
+  services:
+    - name: civrealm/freeciv-web:dev
+      alias: freeciv_web
+      command:
+        - "/bin/bash"
+        - "-c"
+        - |
+          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
+          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
+          python "$CI_PROJECT_DIR/copy_ci_test_saves.py";
+          sleep infinity
+  variables:
+    CIVREALM_HOST_URL: "http://freeciv_web"
+    CIVREALM_HOST_PORT: "80"
+    CIVREALM_TEST_SAVE_DIR: "/builds/civilization/civrealm/tests/game_save"
+  script:
+    - "pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple"
+    - "touch pytest.ini; pytest -vv -x"
+  allow_failure: true
 
 cache:
-  key: ${CI_JOB_NAME}
+  key: "${CI_JOB_NAME}-${CI_COMMIT_REF_SLUG}"
   paths:
     - .cache/pip
     - venv/
 
-
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  
+
 stages:
-  - pages
   - tests
+  - pages
 
 pages:
   extends: .before_script_template
@@ -33,28 +54,10 @@ pages:
     - dev
 
 test_python3.8:
-  extends: .before_script_template
-  variables: 
-    CIVREALM_HOST_URL: "http://freeciv_web"
-    CIVREALM_TEST_SAVE_DIR: "/builds/civilization/civrealm/tests/game_save"
-  stage: tests
   image: python:3.8
-  services:
-    - name: civrealm/freeciv-web:dev
-      alias: freeciv_web
-      command: 
-        - '/bin/bash'
-        - '-c'
-        - |
-          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
-          python "$CI_PROJECT_DIR/copy_ci_test_saves.py";
-          sleep infinity
-
-  script:
-    - "pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple"
-    - "sleep infinity"
-  allow_failure: true
+  extends:
+    - .before_script_template
+    - .python_test_template
 
 local_pytest:
   stage: tests

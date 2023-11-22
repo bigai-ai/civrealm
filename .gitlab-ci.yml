@@ -10,14 +10,14 @@
   services:
     - name: civrealm/freeciv-web:dev
       alias: freeciv_web
-      command:
+      entrypoints:
         - "/bin/bash"
         - "-c"
         - |
           until [ -f "$CI_PROJECT_DIR/.git/index" ]; do echo "Wating for index to appear" && sleep 5 ; done;
           while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do echo "Wating for index lock to be removed" && sleep 5; done;
           python "$CI_PROJECT_DIR/copy_ci_test_saves.py";
-          sleep infinity
+          source "/docker/docker-entrypoint.sh"
   variables:
     CIVREALM_HOST_URL: "freeciv_web"
     CIVREALM_HOST_PORT: "80"

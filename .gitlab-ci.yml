@@ -14,8 +14,8 @@
         - "/bin/bash"
         - "-c"
         - |
-          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true; done;
-          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true; done;
+          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do echo "Wating for index to appear" && sleep 5 ; done;
+          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do echo "Wating for index lock to be removed" && sleep 5; done;
           python "$CI_PROJECT_DIR/copy_ci_test_saves.py";
           sleep infinity
   variables:

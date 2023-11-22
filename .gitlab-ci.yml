@@ -18,6 +18,8 @@
           while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true ; done;
           python3 "$CI_PROJECT_DIR/copy_ci_test_saves.py";
           exec "/docker/docker-entrypoint.sh"
+      command:
+        - sleep infinity
   variables:
     CIVREALM_HOST_URL: "freeciv_web"
     CIVREALM_HOST_PORT: "80"

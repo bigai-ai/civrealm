@@ -39,7 +39,7 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_gov_increase_lux(controller):
+def test_gov_set_sci_lux_tax(controller):
     fc_logger.info("test_gov_set_sci_lux_tax")
     _, options = get_first_observation_option(controller)
 

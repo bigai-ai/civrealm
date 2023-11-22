@@ -33,7 +33,7 @@ def controller():
     controller.close()
 
 
-def test_get_action_pro_spy(controller):
+def test_get_action_pro_spy_bribe(controller):
     fc_logger.info("test_get_action_pro_spy_bribe")
     _, options = get_first_observation_option(controller)
     # Class: UnitActions
@@ -49,7 +49,7 @@ def test_get_action_pro_spy(controller):
 def main():
     controller = CivController('testcontroller')
     controller.set_parameter('debug.load_game', 'testcontroller_T154_bribe')
-    test_get_action_pro_spy(controller)
+    test_get_action_pro_spy_bribe(controller)
 
 
 if __name__ == '__main__':

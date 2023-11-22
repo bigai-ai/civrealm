@@ -1,5 +1,3 @@
-import random
-import time
 import warnings
 
 import numpy as np
@@ -30,18 +28,13 @@ def env_with_type(request):
     env.close()
 
 
-@pytest.fixture(params=MinitaskType.list())
-def task_name(request):
-    yield request.param
-
-
 def test_minitask_tensor_env(env_with_type):
     # TODO: test other tasks, only buildcity and battle saves are supported now
     # if task_name not in ["buildcity", "battle"]:
     #     _, _ = env.reset()
     #     return
 
-    env, task_name = env_with_type
+    env, minitask_pattern = env_with_type
     obs, _ = env.reset()
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)
     idx = np.random.randint(len(unit_action_pos[0]))

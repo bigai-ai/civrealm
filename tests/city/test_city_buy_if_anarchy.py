@@ -37,7 +37,7 @@ def find_keys_with_keyword(dictionary, keyword):
     return keys
 
 
-def test_city_buy_prod(controller):
+def test_city_buy_if_anarchy(controller):
     fc_logger.info("test_city_buy_if_anarchy")
     _, options = get_first_observation_option(controller)
 
@@ -56,7 +56,6 @@ def test_city_buy_prod(controller):
     if 'anarchy' in pcity:
         assert len(valid_city_buy_actions) == 0
     else:
-
         """ city_unhappiness cannot prune some invalid 'buy' actions """
         assert len(valid_city_buy_actions) > 0
         city_buy_action = random.choice(valid_city_buy_actions)

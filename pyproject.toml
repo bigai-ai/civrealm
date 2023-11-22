@@ -50,9 +50,9 @@ dependencies = [
 
 
 [project.scripts]
+test_civrealm = "civrealm.random_game:main"
 update_freeciv_web_docker = "civrealm.freeciv.build_server:update_docker_image"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
-test_civrealm = "civrealm.random_game:main"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning", "ignore:.*obs returned by the.*method.*", "ignore:.*Casting input x to numpy array.*"]
@@ -78,6 +78,7 @@ addopts = [
     "tests/city/test_city_buy_prod.py",
     "tests/city/test_city_buy_if_anarchy.py",
     "tests/city/test_city_sell_improvement.py",
+
     # Dipl
     "tests/dipl/test_dipl_start_negotiate.py",
     "tests/dipl/test_dipl_stop_negotiate.py",
@@ -89,6 +90,7 @@ addopts = [
     "tests/dipl/test_dipl_trade_tech.py",
     "tests/dipl/test_dipl_trade_gold.py",
     "tests/dipl/test_dipl_trade_city.py",
+
     # Gov
     "tests/gov/test_change_government.py",
     "tests/gov/test_gov_increase_tax.py",
@@ -98,9 +100,11 @@ addopts = [
     "tests/gov/test_gov_increase_lux.py",
     "tests/gov/test_gov_decrease_lux.py",
     "tests/gov/test_gov_set_sci_lux_tax.py",
+
     # Tech
     "tests/tech/test_choose_research_tech.py",
     "tests/tech/test_choose_research_goal.py",
+
     # Unit
     "tests/unit/test_move_to.py",
     "tests/unit/test_hut_enter.py",

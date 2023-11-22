@@ -19,7 +19,7 @@
           python "$CI_PROJECT_DIR/copy_ci_test_saves.py";
           sleep infinity
   variables:
-    CIVREALM_HOST_URL: "http://freeciv_web"
+    CIVREALM_HOST_URL: "freeciv_web"
     CIVREALM_HOST_PORT: "80"
     CIVREALM_TEST_SAVE_DIR: "/builds/civilization/civrealm/tests/game_save"
   script:

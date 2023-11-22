@@ -235,7 +235,7 @@ class PortStatusParser(HTMLParser):
                 html = response.read()
         except HTTPError as error:
             raise ValueError(
-                f"Cannot open status_purl {self.status_purl} host{self.host_url}",
+                f"Cannot open status_purl {self.status_purl} host {self.host_url}",
             ) from error
 
         self.feed(str(html))

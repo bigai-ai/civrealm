@@ -1,7 +1,6 @@
+import glob
 import os
 import re
-import shutil
-import glob
 import tempfile
 import time
 import urllib.request
@@ -57,7 +56,7 @@ class PortStatus:
                 return
 
             # Remove occupied_ports_file if docker restarted
-            for file in glob.glob(os.path.join(TEMP_DIR,r'civrealm*.txt')):
+            for file in glob.glob(os.path.join(TEMP_DIR, r"civrealm*.txt")):
                 os.remove(file)
             # Create the occupied_ports_file
             with open(self.occupied_ports_file, "w", encoding="utf-8") as _:

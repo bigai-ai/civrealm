@@ -24,7 +24,6 @@ fc_args['pytest'] = True
 fc_args['server_timeout'] = 5
 fc_args['self_play'] = False
 
-
 test_dir = os.path.dirname(__file__)
 if docker_image_name == 'freeciv-web':
     tomcat_dir = 'tomcat10'
@@ -48,7 +47,7 @@ except Exception:
 def pytest_configure(config):
     # This function will be called once by each worker
     worker_id = os.environ.get("PYTEST_XDIST_WORKER")
-
+    fc_args["host"] = config.getoption('--host')
 
 @pytest.fixture(scope="module", autouse=True)
 def restore_fc_args_username():
@@ -57,6 +56,9 @@ def restore_fc_args_username():
     if fc_args["username"] == "minitask":
         fc_args["username"] = "testcontroller"
 
+def pytest_addoption(parser):
+    parser.addoption("--host", action="store", default=fc_args["host"])
+
 def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name
 
@@ -64,7 +66,6 @@ def configure_test_logger(item):
     print(item.name)
     from civrealm.freeciv.utils.freeciv_logging import set_logging_file
     set_logging_file('tests', item.name)
-
 
 @pytest.hookimpl
 def pytest_runtest_call(item):

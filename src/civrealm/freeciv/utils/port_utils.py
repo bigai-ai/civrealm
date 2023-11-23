@@ -58,7 +58,7 @@ class PortStatus:
 
             # Remove occupied_ports_file if docker restarted
             for file in glob.glob(os.path.join(TEMP_DIR,r'civrealm*.txt')):
-                shutil.rmtree(file)
+                os.remove(file)
             # Create the occupied_ports_file
             with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
                 pass  # Do nothing, just create an empty file

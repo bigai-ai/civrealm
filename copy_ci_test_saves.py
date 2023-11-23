@@ -21,7 +21,7 @@ def copy_test_game_save():
 def download_minitask_save():
     """download and unzip minitask.zip save to CI freeciv-web service"""
 
-    zip_dir = os.path.join(test_dir, "minigame.zip")
+    zip_dir = os.path.join("/tmp/", "minigame.zip")
     fileid = "1MB28bFHQPl0-KOGPEIa9d33StrU-S6lp"
     download_command = f"wget --load-cookies /tmp/cookies.txt \"https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id={fileid}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id={fileid}\" -O {zip_dir} && rm -rf /tmp/cookies.txt"
     # download zip

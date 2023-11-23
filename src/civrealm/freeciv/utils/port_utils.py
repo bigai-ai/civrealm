@@ -1,5 +1,7 @@
 import os
 import re
+import shutil
+import glob
 import tempfile
 import time
 import urllib.request
@@ -39,19 +41,27 @@ class PortStatus:
         status_url="pubstatus",
         dev_ports=[6001],
         lock_file=os.path.join(TEMP_DIR, "civrealm.lock"),
-        occupied_ports_file=os.path.join(TEMP_DIR, "civrealm_occupied_ports.txt"),
     ):
         self.status_parser = PortStatusParser(host_url, status_url)
         self.status_parser.update()
+        self.service_birth = self.status_parser.data[6001]["first_birth"]
         self.dev_ports = dev_ports
         self.lock_file = lock_file
-        self.occupied_ports_file = occupied_ports_file
+        self.occupied_ports_file = os.path.join(
+            TEMP_DIR, f"civrealm_occupied_ports_{self.service_birth}.txt"
+        )
         self._cache = {}
+
         with FileLock(self.lock_file):
-            if not os.path.exists(self.occupied_ports_file):
-                # Create the file
-                with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
-                    pass  # Do nothing, just create an empty file
+            if os.path.exists(self.occupied_ports_file):
+                return
+
+            # Remove occupied_ports_file if docker restarted
+            for file in glob.glob(os.path.join(TEMP_DIR,r'civrealm*.txt')):
+                shutil.rmtree(file)
+            # Create the occupied_ports_file
+            with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
+                pass  # Do nothing, just create an empty file
 
     def __iter__(self):
         return self
@@ -139,7 +149,7 @@ class PortStatus:
         return [port for port in self._idles if port not in occupied_ports]
 
     def _check_release(self, occupied_ports):
-        # delete from occupied if port birth time is updated.
+        # delete from occupied if port restart times is updated.
         status = self.status
         for id, [port, _, restart, user] in enumerate(occupied_ports):
             if port not in status:
@@ -188,6 +198,7 @@ class PortStatus:
                     # choose the port with minimal restart number
                     status = self.status
                     result = min(empties, key=lambda port: status[port]["restart"])
+                    time.sleep(0.05)
                     break
 
             status = self.status
@@ -239,6 +250,9 @@ class PortStatusParser(HTMLParser):
             ) from error
 
         self.feed(str(html))
+        if 6001 not in self.data:
+            time.sleep(0.05)
+            self.update()
 
     def handle_starttag(self, tag, attrs):
         if tag == "a":
@@ -261,9 +275,10 @@ class PortStatusParser(HTMLParser):
                 self.data[self.current_port]["restart"] = int(data)
         if ":" in data:
             try:
-                _ = datetime.strptime(data, "%Y-%m-%d %H:%M:%S")
+                timestamp = datetime.strptime(data, "%Y-%m-%d %H:%M:%S").timestamp()
+                self.data[self.current_port]["first_birth"] = int(timestamp)
                 self.after_date = True
-            except ValueError:
+            except Exception:
                 pass
 
     def handle_endtag(self, tag):
@@ -273,7 +288,7 @@ class PortStatusParser(HTMLParser):
                     self.data[self.current_port] = self.parse_port_html(
                         self.current_link
                     )
-                except Exception:
+                except Exception as e:
                     self.current_link = ""
                     self.current_port = None
         if tag == "tr":
@@ -292,6 +307,7 @@ class PortStatusParser(HTMLParser):
         result["user"] = int(result["user"])
         result["uptime"] = int(result["uptime"])
         result["birth"] = int(now - result["uptime"])
+        time.sleep(0.001)
         return result
 
     def error(self, message):

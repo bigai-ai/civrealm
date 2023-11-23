@@ -112,10 +112,12 @@ docker_pytest:
     - python3 -m pip install virtualenv -i https://pypi.tuna.tsinghua.edu.cn/simple
     - virtualenv venv
     - source venv/bin/activate
-    - python3 -m pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
-  script:
     - cd /data/mas/ &&  docker load -i freeciv_image_dev.tar
-    - cd /builds/huangping/civrealm/ && docker compose up -d
+    - unzip ray.zip -d /data/mas/ray/ && cd ray && pip install -e .
+  script:
+    - cd /builds/civrealm/civrealm/
+    - python3 -m pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
+    - docker compose up -d
     - until [ `echo ""|telnet dind:8080|grep Connected|wc -l` -eq 1 ]; do sleep 1s; done;
     - until [ `echo ""|curl dind:8080/pubstatus|grep civsocket|wc -l` -eq 1 ]; do sleep 1s; done;
     - pytest -x --host dind

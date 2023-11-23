@@ -115,7 +115,7 @@ docker_pytest:
     - cd /data/mas/ &&  docker load -i freeciv_image_dev.tar
     - unzip ray.zip -d /data/ray/ && cd /data/ray && pip install -e .
   script:
-    - cd /builds/civrealm/civrealm/
+    - cd /builds/civilization/civrealm/
     - python3 -m pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple
     - docker compose up -d
     - until [ `echo ""|telnet dind:8080|grep Connected|wc -l` -eq 1 ]; do sleep 1s; done;

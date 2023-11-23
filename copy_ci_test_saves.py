@@ -1,6 +1,6 @@
-import glob
 import os
 import subprocess
+import time
 
 test_dir = os.path.dirname(__file__)
 service_save_dir = "/var/lib/tomcat10/webapps/data/savegames/"
@@ -27,14 +27,21 @@ def download_minitask_save():
     # download zip
 
     # Download minigame.zip from google drive if not found in builds/$CI_PROJECT_PATH
+    # wait for cache being extracted
+    time.sleep(20)
     if os.path.isfile(zip_dir):
         print("Found minigame.zip!")
     else:
         print("Downloading minigame.zip...")
-        subprocess.check_call(
-            download_command,
-            shell=True,
+        call_output = str(
+            subprocess.check_output(
+                download_command,
+                shell=True,
+            )
         )
+        print(call_output)
+        # subprocess might carry on before fully returned
+        time.sleep(5)
         if not os.path.isfile(zip_dir):
             raise Exception(
                 f"Failed to Download minigame.zip using download_command {download_command}"

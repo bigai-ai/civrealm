@@ -22,6 +22,7 @@ def download_minitask_save():
     """download and unzip minitask.zip save to CI freeciv-web service"""
 
     zip_dir = os.path.join("/tmp/", "minigame.zip")
+    cache_dir = os.path.join(test_dir, "minigame.zip")
     fileid = "1MB28bFHQPl0-KOGPEIa9d33StrU-S6lp"
     download_command = f"wget --load-cookies /tmp/cookies.txt \"https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id={fileid}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id={fileid}\" -O {zip_dir} && rm -rf /tmp/cookies.txt"
     # download zip
@@ -29,6 +30,8 @@ def download_minitask_save():
     # Download minigame.zip from google drive if not found in builds/$CI_PROJECT_PATH
     # wait for cache being extracted
     time.sleep(20)
+    if os.path.isfile(cache_dir):
+        subprocess.check_call(f"cp {cache_dir} {zip_dir}", shell=True)
     if os.path.isfile(zip_dir):
         print("Found minigame.zip!")
     else:
@@ -48,6 +51,8 @@ def download_minitask_save():
             )
         print(f"Minigame downloaded to {zip_dir}.")
 
+    if not os.path.isfile(cache_dir):
+        subprocess.check_call(f"cp {zip_dir} {cache_dir} ", shell=True)
     local_path = "/tmp/minigame/"
     subprocess.check_call(f"unzip {zip_dir} -d {local_path}", shell=True)
 

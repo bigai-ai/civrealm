@@ -35,7 +35,7 @@ cache:
   script:
     - "pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple"
     - until [ -f "minitask_zipped.flag" ]; do sleep 60 && echo "Waiting for minigame.zip to be downloaded!" ; done;
-    - until curl --output /dev/null --silent --head --fail "$CIVREALM_HOST_URL"; do sleep 60 && echo "Waiting for freeciv-web server to set up!" ; done;
+    - until curl --output /dev/null --silent --head --fail "$CIVREALM_HOST_URL:$CIVREALM_HOST_PORT/pubstatus"; do sleep 60 && echo "Waiting for freeciv-web server to set up!" ; done;
     - "pytest -vv -x"
 
 stages:

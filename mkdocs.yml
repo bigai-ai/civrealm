@@ -55,7 +55,6 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.arithmatex:
       generic: true
-  - neoteroi.cards
 
 extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6

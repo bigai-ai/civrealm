@@ -39,8 +39,8 @@ cache:
     - "pytest -vv -x"
 
 stages:
-  - tests
   - pages
+  - tests
 
 pages:
   extends: .before_script_template

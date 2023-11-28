@@ -108,6 +108,7 @@ class CivController(CivPropController):
         # Store whether the final game_over message is received
         self.game_over_msg_final = False
         self.game_score = None
+        # TODO: check whether reset_civ_controller should reset this
         self.is_minitask = is_minitask
 
         self.init_controllers()
@@ -497,13 +498,15 @@ class CivController(CivPropController):
             raise
 
     def end_game(self):
-        fc_logger.debug(f'Send endgame message')
+        fc_logger.debug(f'Send endgame message {self.client_port}')
         packet = {'pid': packet_chat_msg_req,
                   'message': f"/endgame"}
         wait_for_pid_list = self.end_game_packet_list()
         self.ws_client.send_request(packet, wait_for_pid=wait_for_pid_list)
-        # Listen to the server to get final scores. We use start_ioloop() here since using lock_control() will lead to recursive calling of end_game() during KeyboardInterrupt.
-        self.ws_client.start_ioloop()
+        # Only when we has a connection, we start the ioloop to listen.
+        if self.ws_client._ws_connection:
+            # Listen to the server to get final scores. We use start_ioloop() here since using lock_control() will lead to recursive calling of end_game() during KeyboardInterrupt.
+            self.ws_client.start_ioloop()
 
     def close(self):
         if fc_args['debug.interrupt_save']:

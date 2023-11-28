@@ -1,6 +1,7 @@
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
   CI_DEBUG_SERVICES: "FALSE"
+  FREECIV_IMAGE_VERSION: civrealm/freeciv-web:dev
 
 cache:
   key: "${CI_JOB_NAME}-${CI_COMMIT_REF_SLUG}"
@@ -19,7 +20,7 @@ cache:
 .python_test_template: &python_test_template
   stage: tests
   services:
-    - name: civrealm/freeciv-web:dev
+    - name: $FREECIV_IMAGE_VERSION
       alias: freeciv
       entrypoint:
         - "/bin/bash"

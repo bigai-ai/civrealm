@@ -21,9 +21,8 @@ from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
 
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.configs import fc_web_args
-
-
+from civrealm.configs import fc_web_args, fc_args
+from selenium.webdriver.chrome.options import Options
 class CivMonitor():
     def __init__(self, host, user_name, client_port, global_view=False, poll_interval=2):
         self._driver = None
@@ -39,8 +38,17 @@ class CivMonitor():
 
     def _observe_game(self, user_name):
         if not self._initiated:
-            self._driver = webdriver.Firefox()
-            self._driver.maximize_window()
+            
+            options = webdriver.FirefoxOptions()
+            if fc_args["debug.headless"]:
+                options.add_argument("--headless")
+
+            self._driver = webdriver.Firefox(options=options)
+            
+            if (size_x := fc_args['debug.window_size_x']) and (size_y := fc_args['debug.window_size_y']):
+                self._driver.set_window_size(size_x, size_y)
+            else:
+                self._driver.maximize_window()
 
             self._driver.get(f'http://{self._host}:{fc_web_args["port"]}/webclient/?action=multi&civserverport='
                              f'{self.client_port}&civserverhost=unknown&multi=true&type=multiplayer')
@@ -114,18 +122,20 @@ class CivMonitor():
         self._driver.execute_script(
             'center_tile_mapcanvas(tiles[map.xsize*Math.floor(map.ysize/2)+Math.floor(map.xsize/2)])')
         # For 3D version (FCIV-NET)
-        self._driver.execute_script('camera.position.y = 2000')
-        self._driver.execute_script('camera.position.z -= 150')
+        if fc_web_args['image'] == 'fciv-net':
+            self._driver.execute_script('camera.position.y = 2000')
+            self._driver.execute_script('camera.position.z -= 150')
 
     def init_local_view(self):
         self._driver.execute_script(
             'center_tile_mapcanvas(tiles[Object.entries(units)[0][1].tile])')
         # For 3D version (FCIV-NET)
-        self._driver.execute_script('camera.position.y = 500')
-        self._driver.execute_script('camera.position.x += 20')
-        self._driver.execute_script('camera.position.z += 20')
-        # OrbitControl with autoRotateSpeed 
-        self._driver.execute_script('controls.autoRotateSpeed = 0.2; controls.autoRotate = TRUE')
+        if fc_web_args['image'] == 'fciv-net':
+            self._driver.execute_script('camera.position.y = 500')
+            self._driver.execute_script('camera.position.x += 20')
+            self._driver.execute_script('camera.position.z += 20')
+            # OrbitControl with autoRotateSpeed 
+            self._driver.execute_script('controls.autoRotateSpeed = 0.2; controls.autoRotate = TRUE')
 
 
     def start_monitor(self):

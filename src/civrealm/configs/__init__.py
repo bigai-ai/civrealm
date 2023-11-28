@@ -73,7 +73,9 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
     fc_web_args['port'] = server_port.split(":")[0]
     if tag := re.search(r'\:(.*)', image):
         fc_web_args['tag'] = tag[1]
-
+        fc_web_args['image'] = tag[0].split('/')[1]
+    else:
+        fc_web_args['image'] = image.split('/')[1]
     return fc_web_args
 
 fc_args = parse_args()

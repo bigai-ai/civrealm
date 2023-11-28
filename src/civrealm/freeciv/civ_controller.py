@@ -88,8 +88,6 @@ class CivController(CivPropController):
 
         self.visualize = visualize
         self.monitor = None
-        if self.visualize:
-            self.monitor = CivMonitor(host, username, client_port, global_view=fc_args['debug.global_view_screenshot'])
 
         # Host address
         self.host = host
@@ -135,6 +133,10 @@ class CivController(CivPropController):
         self.register_all_handlers()
         self.turn_manager = TurnManager(self.client_port)
         self.init_controllers()
+
+        # Monitor
+        if self.visualize:
+            self.monitor = CivMonitor(self.host, self.username, self.client_port, global_view=fc_args['debug.global_view_screenshot'])
 
     def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")

@@ -42,7 +42,6 @@ cache:
   artifacts:
     when: on_failure
     name: "FailureLog$CI_JOB_ID"
-    expose_as: "FailureLog$CI_JOB_ID" 
     paths:
       - logs
 

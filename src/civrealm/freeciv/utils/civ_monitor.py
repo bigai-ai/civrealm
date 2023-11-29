@@ -19,10 +19,13 @@ from time import sleep
 from selenium import webdriver
 from selenium.webdriver import Keys
 from selenium.webdriver.common.by import By
-
+import numpy as np
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_web_args, fc_args
 from selenium.webdriver.chrome.options import Options
+from PIL import Image
+import io
+
 class CivMonitor():
     def __init__(self, host, user_name, client_port, global_view=False, poll_interval=2):
         self._driver = None
@@ -148,3 +151,17 @@ class CivMonitor():
 
     def take_screenshot(self, file_path):
         self._driver.save_screenshot(file_path)
+
+    def _click_to_array(self, id=None):
+        if id is not None:
+            bt_single_game = self._driver.find_element(By.ID, id)
+            bt_single_game.click()
+        data = self._driver.get_screenshot_as_png()
+        img = Image.open(io.BytesIO(data))
+        return np.asarray(img)
+
+    def get_webpage_image(self):
+        data = dict()
+        for page_id in fc_args['debug.get_webpage_image']:
+            data[page_id] = self._click_to_array(page_id)
+        return data            

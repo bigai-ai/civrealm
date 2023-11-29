@@ -41,7 +41,7 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   <article>
     <div class="text">
       <h3>Advanced Materials</h3>
-      <p>The advanced materials provide in-depth information on the key concepts of Civrealm with useful background information and explanation.</p>
+      <p>The advanced materials provide in-depth information on the key concepts of Civrealm with useful background information.</p>
       <button><a href="advanced_materials/frame.html">To the old hand</a></button>
     </div>
   </article>

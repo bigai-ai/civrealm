@@ -378,7 +378,9 @@ class CivController(CivPropController):
             #     info['available_actions'] = {}
             # else:
             info['available_actions'] = self.turn_manager.get_info()
-
+        # add img array
+        if fc_args['debug.get_webpage_image'] is not None:
+            info['image_data'] = self.get_img_array()
         return info
 
     def _get_observation(self):
@@ -970,3 +972,6 @@ class CivController(CivPropController):
 
     def take_screenshot(self, file_path):
         self.monitor.take_screenshot(file_path)
+
+    def get_img_array(self):
+        return self.monitor.get_webpage_image()

@@ -62,11 +62,15 @@ debug:
   take_screenshot: False
   global_view_screenshot: True
   sleep_time_after_turn: 0.0
-  # headless mode for browser when take_screenshot is true
+  # The headless mode for browser when take_screenshot is true
   headless: False
-  # window size for sceenshot, for example, window_size_x: 3840, window_size_y: 2160
+  # The window size for sceenshot, for example, window_size_x: 3840, window_size_y: 2160
   window_size_x: 
   window_size_y: 
+  # get_webpage_image: list. Locate elements by ID in the web page, and get image data for the corresponding page.  
+  # *wait_for_observer* flag should be set to *True* if enable screenshots.
+  # The options include, but are not limited to: ["cities_tab", "tech_tab", "players_tab", "civ_tab", "map_tab"]
+  get_webpage_image: 
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
   autosave: True
   # If true, will save the game when using KeyboardInterrupt. Note that when using this, we should disable autosave. Otherwise, the game will be saved in the beginning of every turn and cannot be saved again when KeyboardInterrupt.

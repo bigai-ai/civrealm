@@ -16,6 +16,7 @@
 
 import os
 import json
+import traceback
 import time
 import datetime
 import matplotlib.pyplot as plt
@@ -45,7 +46,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
         # Create dummy controller to retrieve action_space and observation_space.
         self.civ_controller = CivController(username=self.username,
-                                            visualize=fc_args['debug.take_screenshot'],
+                                            visualize=fc_args['debug.take_screenshot'] or fc_args['debug.get_webpage_image'],
                                             is_minitask=self.is_minitask)
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
@@ -133,6 +134,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             self._record_action(available_actions, action)
             self._take_screenshot()
         except Exception as e:
+            print(traceback.format_exc())
             fc_logger.error(repr(e))
             reward = 0
             info = None

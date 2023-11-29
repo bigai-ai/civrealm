@@ -38,6 +38,13 @@ cache:
     - until [ -f "minitask_zipped.flag" ]; do sleep 60 && echo "Waiting for minigame.zip to be downloaded!" ; done;
     - until curl --output /dev/null --silent --fail "$CIVREALM_HOST_URL:$CIVREALM_HOST_PORT/pubstatus"; do sleep 60 && echo "Waiting for freeciv-web server to set up!" ; done;
     - "pytest -vv -x"
+  allow_failure: true
+  artifacts:
+    when: on_failure
+    name: "FailureLog$CI_JOB_ID"
+    paths:
+      - logs
+
 
 stages:
   - pages
@@ -60,28 +67,24 @@ test_python3.8:
   image: python:3.8
   extends:
     - .before_script_template
-  allow_failure: true
   <<: *python_test_template
 
 test_python3.9:
   image: python:3.9
   extends:
     - .before_script_template
-  allow_failure: true
   <<: *python_test_template
 
 test_python3.10:
   image: python:3.10
   extends:
     - .before_script_template
-  allow_failure: true
   <<: *python_test_template
 
 test_python3.11:
   image: python:3.11
   extends:
     - .before_script_template
-  allow_failure: true
   <<: *python_test_template
 
 local_pytest:

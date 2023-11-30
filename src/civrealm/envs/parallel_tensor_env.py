@@ -87,15 +87,18 @@ class ParallelTensorEnv:
                 rewards[env_id] = 0
 
             if dones[env_id]:
-                ray.get(self.envs[env_id].close.remote())
-                # Get the final score
-                final_score = ray.get(self.envs[env_id].get_final_score.remote())
-                # Append the new final score to recent_scores
-                for tag in final_score.keys():
-                    # Some keys are new and we need to add them
-                    if tag not in self.recent_scores:
-                        self.recent_scores[tag] = deque(maxlen=fc_args['score_window'])
-                    self.recent_scores[tag].append(final_score[tag])
+                try:
+                    ray.get(self.envs[env_id].close.remote())
+                    # Get the final score
+                    final_score = ray.get(self.envs[env_id].get_final_score.remote())
+                    # Append the new final score to recent_scores
+                    for tag in final_score.keys():
+                        # Some keys are new and we need to add them
+                        if tag not in self.recent_scores:
+                            self.recent_scores[tag] = deque(maxlen=fc_args['score_window'])
+                        self.recent_scores[tag].append(final_score[tag])
+                except Exception as e:
+                    fc_logger.error(f'ParallelTensorEnv: {repr(e)}')
 
                 while True:
                     try:

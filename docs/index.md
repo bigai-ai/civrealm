@@ -2,11 +2,9 @@
 
 CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/), a Civilization-inspired game. Within CivRealm, we provide interfaces for two typical agent types: tensor-based reinforcement learning agents based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents powered by language models.
 
-
-
 <title>Example</title>
 <style>
-.grid { 
+.grid {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
   grid-gap: 20px;
@@ -34,42 +32,42 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   <article>
     <div class="text">
       <h3>Getting Started</h3>
-      <p>New to Civrealm? Check out the absolute Beginner's Guide. It contains an introduction to CivRealm's main concepts and links to additional tutorials.</p>
+      <p>New to Civrealm? Start with our Beginner's Guide. This guide offers an overview of CivRealm's core concepts and provides links to further tutorials.</p>
       <button><a href="getting_started/system_requirements.html">To the beginner</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Advanced Materials</h3>
-      <p>The advanced materials provide in-depth information on the key concepts of Civrealm with useful background information.</p>
+      <p>The advanced materials offer comprehensive insights into Civrealm's essential concepts, complemented by valuable background details.</p>
       <button><a href="advanced_materials/frame.html">To the old hand</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Api Reference</h3>
-      <p>The reference guide contains a detailed description of the functions and objects included in Civrealm. The reference describes how the methods work.</p>
+      <p>The reference guide provides an in-depth explanation of the functions and objects incorporated within Civrealm. It elaborates on the functioning of the methods.</p>
       <button><a href="api_reference/api.html">To the reference</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Releases</h3>
-      <p>The released versions of CivRealm, and the dependencies and downstream repositories.</p>
+      <p>The official versions of CivRealm, along with their associated dependencies and downstream repositories.</p>
       <button><a href="releases/releases.html">Align your version</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Notes</h3>
-      <p>How to contribute to CivRealm? This is a guide for you with the perform benchmarks. </p>
+      <p>How to Contribute to CivRealm: This guide will help you create or customize the environment. </p>
       <button><a href="notes/contribute.html">Contribute to CivRealm</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Misc</h3>
-      <p>If you have some questions, the FAQ page and resources could help you to initially.</p>
+      <p>If you have any questions, the FAQ page and resources can assist you initially.</p>
       <button><a href="misc/faq.html">Find your answer</a></button>
     </div>
   </article>

@@ -69,7 +69,6 @@ nav:
       - Quick Start: getting_started/quickstart.md
       - Trouble Shooting: getting_started/trouble_shooting.md
   - Advanced Materials:
-      - Frame: advanced_materials/frame.md
       - Game:
           - Game Setting: advanced_materials/game_setting.md
           - Full Game: advanced_materials/fullgame.md
@@ -79,6 +78,7 @@ nav:
           - LLM Agent: advanced_materials/llm_agent.md
       - Train Scheme:
           - Parallel Training: advanced_materials/parallel_training.md
+      - Architecture: advanced_materials/architecture.md
   - Api Reference: api_reference/api.md
   - Releases: releases/releases.md
   - Notes:

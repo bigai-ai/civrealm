@@ -1,4 +1,6 @@
-# Frame
+# System Architecture
+
+The following figure shows the communication process between CivRealm and Freeciv.
 
 ```mermaid
 sequenceDiagram

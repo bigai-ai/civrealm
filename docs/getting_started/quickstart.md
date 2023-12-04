@@ -1,12 +1,12 @@
 ### Testing the installation
 
-To test if the installation is successful, run
+To test if the installation is successful, run:
 
 ```bash
 test_civrealm 
 ```
 
-To test with multiple players, run
+To test with multiple players, run:
 
 ```bash
 test_civrealm --minp=2 --username=myagent --client_port=6001
@@ -21,9 +21,12 @@ test_civrealm --username=myagent1 --client_port=6001
 > Note that to run multiple agents in the same game, you need to make them connect to the same port (specified by client_port). The available client_port range is 6001, 6300~6331.
 
 > :warning:
-> Note that when a game finishes on a port, the server on that port will take some time (around 10 seconds) to restart itself. If you start a new game on that port before the server is ready, the program will encounter expected errors and may stop/halt.
+> Note that when a game finishes on a port, the server on that port will take some time (around 10 seconds) to restart itself. If you start a new game on that port before the server is ready, the program will encounter unexpected errors and may stop/halt.
 
 To observe the game play, you can access http://localhost:8080/ on a browser. Then, please click the "Online Games" button. You can find the running game under the "MULTIPLAYER" tab as shown below.
+> :warning:
+> Disclaimer: The screenshots displayed on this website result from running the Freeciv game, and they may contain names of nations, players, leaders, or territories that could be politically sensitive. It is important to note that these names are purely fictional and are part of the game's design.
+
 <div align="center">
     <img src="../assets/get_started/tab.png" alt="drawing" width="800"/>
 </div>

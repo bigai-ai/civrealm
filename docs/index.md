@@ -73,6 +73,6 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   </article>
 </main>
 
-We also provide a set of tools for training and evaluating agents, as well as a set of baselines for both agent type. We hope that CivRealm can serve as a testbed for developing and evaluating agents that can learn and reason in complex environments.
+We also provide a set of tools for training and evaluating agents, as well as a set of baselines for both agent types. We hope that CivRealm can serve as a testbed for developing and evaluating agents that can learn and reason in complex environments.
 
 ![Punic War](assets/punic_war_base.jpg)

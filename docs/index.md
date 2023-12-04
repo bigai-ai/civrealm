@@ -1,5 +1,7 @@
 # *CivRealm*: A Learning and Reasoning Odyssey in *Civilization* for Decision-Making Agents
 
+![Punic War](assets/punic_war_base.jpg)
+
 CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/), a Civilization-inspired game. Within CivRealm, we provide interfaces for two typical agent types: tensor-based reinforcement learning agents based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents powered by language models.
 
 <title>Example</title>
@@ -45,8 +47,8 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   </article>
   <article>
     <div class="text">
-      <h3>Api Reference</h3>
-      <p>The reference guide provides an in-depth explanation of the functions and objects incorporated within Civrealm. It elaborates on the functioning of the methods.</p>
+      <h3>API Reference</h3>
+      <p>The reference guide provides an in-depth explanation of the functions and objects incorporated within Civrealm. It elaborates on the function APIs.</p>
       <button><a href="api_reference/api.html">To the reference</a></button>
     </div>
   </article>
@@ -67,12 +69,12 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   <article>
     <div class="text">
       <h3>Misc</h3>
-      <p>If you have any questions, the FAQ page and resources can assist you initially.</p>
+      <p style="white-space: pre-line">If you have any further questions, the FAQ page and resources may assist you.
+
+      </p>
       <button><a href="misc/faq.html">Find your answer</a></button>
     </div>
   </article>
 </main>
 
 We also provide a set of tools for training and evaluating agents, as well as a set of baselines for both agent types. We hope that CivRealm can serve as a testbed for developing and evaluating agents that can learn and reason in complex environments.
-
-![Punic War](assets/punic_war_base.jpg)

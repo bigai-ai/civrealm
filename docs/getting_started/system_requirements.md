@@ -23,4 +23,4 @@ docker load -i IMAGE_FILE_NAME
 !!! note "Docker version"
     Please make sure you have installed **the latest** docker engine and docker-compose. Using older versions of docker may result in unexpected erorrs.
 !!! tip "Docker permission"
-    If the docker command complains about the sudo permission, please follow the instruction in: https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo.
+    If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).

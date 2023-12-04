@@ -27,7 +27,7 @@ To observe the game play, you can access http://localhost:8080/ on a browser. Th
 <div align="center">
     <img src="../assets/get_started/tab.png" alt="drawing" width="800"/>
 </div>
-In this page, you can click the "info" button pointed by the arrow and go to the following page.
+In the above page, you can click the "info" button pointed by the arrow and go to the following page.
 <div align="center">
     <img src="../assets/get_started/info.png" alt="drawing" width="800"/>
 </div>
@@ -39,7 +39,7 @@ Because the game has started before you join, you will see a black screen after 
 <div align="center">
     <img src="../assets/get_started/black.png" alt="drawing" width="800"/>
 </div>
-To observe the game play, you need to send the "observe" command through the console of the explorer. Taking Firefox explorer as an example, you may press "ctrl+shift+I" to start the console. Then, in the console, you can type "send_message("/observe")" to send the command as pointed by the arrow in the above figure. After that, you will be able to observe the game from a global view, i.e., you can see the game play of all players.
+To observe the game play, you need to send the "observe" command through the console of the explorer. Taking Firefox explorer as an example, you may press "ctrl+shift+I" to start the console. Then, in the console, you can type "send_message("/observe")" to send the command as pointed by the arrow in the above figure. After that, you will be able to observe the game from a global view, i.e., you can see the game play of all players, as shown below.
 <div align="center">
     <img src="../assets/get_started/obs_console.png" alt="drawing" width="800"/>
 </div>
@@ -56,7 +56,7 @@ Then, under the "MULTIPLAYER" tab, you will see the game status is "Pregame". In
 <div align="center">
     <img src="../assets/get_started/tab_wait.png" alt="drawing" width="800"/>
 </div>
-Similarly, you can click the "Info" button to see the information page.
+Similarly, you can click the "Info" button in the above page to see the following information page.
 <div align="center">
     <img src="../assets/get_started/info_wait.png" alt="drawing" width="800"/>
 </div>
@@ -64,11 +64,11 @@ You may click the "Join" button to join as an observer by using the "testcontrol
 <div align="center">
     <img src="../assets/get_started/obs_chat.png" alt="drawing" width="800"/>
 </div>
-In this page, you may send the "observe" command in the chatbox instead of the console. As pointed by the arrow, we type "/observe myagent" in the chatbox. After we press "Enter" to send the command, the game will start and we can observe the game play of "myagent".
+In the above page, you may send the "observe" command in the chatbox instead of the console. As pointed by the arrow, we type "/observe myagent" in the chatbox. After we press "Enter" to send the command, the game will start and we can observe the game play of "myagent".
 <div align="center">
     <img src="../assets/get_started/obs_wait.png" alt="drawing" width="800"/>
 </div>
-Note that you may also send the "observe" command in the chatbox during the game play. As pointed by the arrow in the following page, we can type "/observe" in the chatbox.
+Note that you may also send the "observe" command in the chatbox during the game play. As pointed by the arrow in the following page, we type "/observe" in the chatbox.
 <div align="center">
     <img src="../assets/get_started/obs_chat_full.png" alt="drawing" width="800"/>
 </div>
@@ -76,15 +76,15 @@ After we send the command, the observation becomes the global view.
 <div align="center">
     <img src="../assets/get_started/obs_full.png" alt="drawing" width="800"/>
 </div>
-Note that there could be an empty space inside a player name as shown in the below.
+Similarly, if we type "/observe PLAYER_NAME" in the chatbox, we will see the individual player's view. Note that there could be empty spaces inside a player name as shown in the below.
 <div align="center">
     <img src="../assets/get_started/player_name.png" alt="drawing" width="800"/>
 </div>
-In this case, to observe its game play, you have to send the "observe" command through the console of explorer. Moreover, you need to decorate the empty space inside the player name with ' ' as shown below. Otherwise, the server cannot read the player name correctly. Following this format, the command we type in the console is "send_message("/observe Jiu' 'Gindeg")".
+In this case, to observe its game play, you have to send the "observe" command through the console of explorer. Moreover, you need to decorate the empty spaces inside the player name with ' ' as shown below. Otherwise, the server cannot read the player name correctly. Following this format, the command we type in the console is "send_message("/observe Philippe' 'le' 'Bon")".
 <div align="center">
     <img src="../assets/get_started/obs_console_name.png" alt="drawing" width="800"/>
 </div>
-As shown below, by sending the "observe" command, you will be able to observe the game play of AI player "Jiu Gindeg".
+As shown below, by sending the "observe" command, we are able to observe the game play of AI player "Philippe le Bon".
 <div align="center">
     <img src="../assets/get_started/obs_name.png" alt="drawing" width="800"/>
 </div>

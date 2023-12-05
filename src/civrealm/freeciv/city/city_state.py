@@ -23,7 +23,7 @@ import numpy as np
 from civrealm.freeciv.game.ruleset import RulesetCtrl
 from civrealm.freeciv.map.map_ctrl import MapCtrl
 
-from civrealm.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD,\
+from civrealm.freeciv.utils.fc_types import O_LUXURY, O_SCIENCE, O_GOLD, O_TRADE, O_SHIELD, \
     O_FOOD, FC_INFINITY, VUT_UTYPE, VUT_IMPROVEMENT
 
 from civrealm.freeciv.utils.base_state import DictState
@@ -60,7 +60,8 @@ class CityState(DictState):
         self._state = {}
         for city_id in self.city_dict:
             pcity = self.city_dict[city_id]
-            self._state[city_id] = self._get_city_state(pcity, pcity['owner'] == pplayer['playerno'])
+            self._state[city_id] = self._get_city_state(
+                pcity, pcity['owner'] == pplayer['playerno'])
 
     def _get_city_state(self, pcity, city_owned):
         city_state = {}
@@ -109,18 +110,23 @@ class CityState(DictState):
         city_state['city_pollution'] = pcity['pollution']
         city_state['state'] = CityState.get_city_state(pcity)
         if 'granary_turns' in pcity:
-            city_state['granary_turns'] = min(city_state['granary_turns'], 32767)
-            city_state['growth_in'] = CityState.city_turns_to_growth_text(pcity)
+            city_state['granary_turns'] = min(
+                city_state['granary_turns'], 32767)
+            city_state['growth_in'] = CityState.city_turns_to_growth_text(
+                pcity)
         else:
             city_state['growth_in'] = -1
-        city_state['turns_to_prod_complete'] = min(self.get_city_production_time(pcity), 32767)
-        city_state['prod_process'] = min(self.get_production_progress(pcity), 32767)
+        city_state['turns_to_prod_complete'] = min(
+            self.get_city_production_time(pcity), 32767)
+        city_state['prod_process'] = min(
+            self.get_production_progress(pcity), 32767)
 
         for citizen in citizen_types:
             cur_citizen = 'ppl_' + citizen
             city_state[cur_citizen] = 0
             if pcity[cur_citizen] != None:
-                city_state[cur_citizen] = pcity['ppl_' + citizen][FEELING_FINAL]
+                city_state[cur_citizen] = pcity['ppl_' +
+                                                citizen][FEELING_FINAL]
 
         city_state['can_build_unit'] = pcity['can_build_unit']
         city_state['improvements'] = pcity['improvements']
@@ -130,7 +136,8 @@ class CityState(DictState):
     def get_named_city_improvements(self, pcity):
         city_state: Dict[str, bool] = {}
         for improvement_i in range(self.rule_ctrl.ruleset_control['num_impr_types']):
-            tech_tag = 'impr_int_%s_%i' % (self.rule_ctrl.improvements[improvement_i]['name'], improvement_i)
+            tech_tag = 'impr_int_%s_%i' % (
+                self.rule_ctrl.improvements[improvement_i]['name'], improvement_i)
             city_state[tech_tag] = False
             if 'improvements' in pcity and pcity['improvements'][improvement_i] == 1:
                 city_state[tech_tag] = True

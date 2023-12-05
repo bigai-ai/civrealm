@@ -27,7 +27,8 @@ import civrealm.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T376_load_deboard_unload')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T376_load_deboard_unload')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -116,7 +117,8 @@ def test_load_deboard_unload(controller):
             # This unit is not in a city, cannot unload its units.
             assert ('unit_unload' not in valid_actions)
             # Move to the city
-            valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(controller.ws_client)
+            valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(
+                controller.ws_client)
         if unit_id in unit_ids:
             # This unit is not transporter, cannot perform unload
             assert ('unit_unload' not in valid_actions)
@@ -128,14 +130,16 @@ def test_load_deboard_unload(controller):
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
-        print(f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
+        print(
+            f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
         # These units is being transported.
         assert (unit_focus.punit['transported'])
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
         if unit_id == 886:
-            print(f"Unit {unit_id}\'s homecity: {unit_focus.punit['homecity']}")
+            print(
+                f"Unit {unit_id}\'s homecity: {unit_focus.punit['homecity']}")
             print('Unit 886 changes homecity')
             valid_actions['set_homecity'].trigger_action(controller.ws_client)
             old_homecity = unit_focus.punit['homecity']
@@ -146,7 +150,8 @@ def test_load_deboard_unload(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         # Unit's homecity can be changed when it is on the boat.
         if unit_id == 886:
-            print(f"Unit {unit_id}\'s homecity: {unit_focus.punit['homecity']}")
+            print(
+                f"Unit {unit_id}\'s homecity: {unit_focus.punit['homecity']}")
             assert (old_homecity != unit_focus.punit['homecity'])
 
         # if unit_id == 1912 or unit_id == 1964:
@@ -163,7 +168,8 @@ def test_load_deboard_unload(controller):
         assert ('unit_unload' in valid_actions)
 
         if unit_id == 1549:
-            print(f"Boat {unit_id}'s move left before unload: {unit_focus.punit['movesleft']}")
+            print(
+                f"Boat {unit_id}'s move left before unload: {unit_focus.punit['movesleft']}")
             # Boat 1549 unloads its units.
             valid_actions['unit_unload'].trigger_action(controller.ws_client)
 
@@ -172,7 +178,8 @@ def test_load_deboard_unload(controller):
     controller.get_info_and_observation()
 
     unit_focus = unit_opt.unit_data[1549]
-    print(f"Boat {1549}'s move left after unload: {unit_focus.punit['movesleft']}")
+    print(
+        f"Boat {1549}'s move left after unload: {unit_focus.punit['movesleft']}")
 
     for unit_id in unit_ids:
         unit_focus = unit_opt.unit_data[unit_id]
@@ -198,7 +205,8 @@ def test_load_deboard_unload(controller):
         assert ('board' not in valid_actions)
         assert ('deboard' in valid_actions)
         print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
-        print(f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
+        print(
+            f"{unit_id} is transported by {unit_focus.punit['transported_by']}")
         print(f"Unit {unit_id}\'s activity: {unit_focus.punit['activity']}")
         valid_actions['deboard'].trigger_action(controller.ws_client)
 
@@ -283,7 +291,7 @@ def test_load_deboard_unload(controller):
     valid_actions['fortify'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     print(f"Unit 1912 participate in activity: {unit_focus.punit['activity']}")
-    #### The board and deboard actions do not change unit's activity.
+    # The board and deboard actions do not change unit's activity.
     print('Unit 1912 deboard')
     valid_actions['deboard'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
@@ -295,17 +303,22 @@ def test_load_deboard_unload(controller):
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(valid_actions.keys())
-    print(f"Unit 1912 is participating in activity {unit_focus.punit['activity']} during board")
+    print(
+        f"Unit 1912 is participating in activity {unit_focus.punit['activity']} during board")
 
     # Test activity on the sea
     print(f"Unit 1912 is transported by: {unit_focus.punit['transported_by']}")
-    valid_actions = unit_opt.get_actions(unit_focus.punit['transported_by'], valid_only=True)
-    print(f"Transporter {unit_focus.punit['transported_by']} valid action: {valid_actions.keys()}")
-    print(f"Transporter {unit_focus.punit['transported_by']} move to south east")
+    valid_actions = unit_opt.get_actions(
+        unit_focus.punit['transported_by'], valid_only=True)
+    print(
+        f"Transporter {unit_focus.punit['transported_by']} valid action: {valid_actions.keys()}")
+    print(
+        f"Transporter {unit_focus.punit['transported_by']} move to south east")
     valid_actions['goto_7'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
 
-    print(f"Unit 1912 participates in activity: {unit_focus.punit['activity']}")
+    print(
+        f"Unit 1912 participates in activity: {unit_focus.punit['activity']}")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     # valid_actions['disembark_0'].trigger_action(controller.ws_client)
@@ -315,9 +328,11 @@ def test_load_deboard_unload(controller):
     controller.get_info_and_observation()
     assert (1912 not in unit_opt.unit_data)
 
+
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T376_load_deboard_unload')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T376_load_deboard_unload')
     test_load_deboard_unload(controller)
 
 

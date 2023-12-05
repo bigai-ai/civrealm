@@ -262,7 +262,8 @@ class MapCtrl(CivPropController):
 
         for x in range(self.map_info['xsize']):
             for y in range(self.map_info['ysize']):
-                self.prop_state.tiles[x + y * self.map_info['xsize']]['goto_dir'] = None
+                self.prop_state.tiles[x + y *
+                                      self.map_info['xsize']]['goto_dir'] = None
 
     def handle_tile_info(self, packet):
         self.prop_state.update_tile(packet)
@@ -278,7 +279,8 @@ class MapCtrl(CivPropController):
         # NOTE: init_client_goto(), generate_citydlg_dimensions(), calculate_overview_dimensions() are not implemented in freeciv-web
         self.map_info = packet
         self.map_init_topology()
-        self.prop_state.map_allocate(self.map_info['xsize'], self.map_info['ysize'])
+        self.prop_state.map_allocate(
+            self.map_info['xsize'], self.map_info['ysize'])
         self.map_info['startpos_table'] = {}
 
 
@@ -322,7 +324,8 @@ class CityTileMap():
                     d_sq = self.map_ctrl.map_vector_to_sq_distance(dx, dy)
 
                     if d_sq <= new_radius:
-                        vectors.append([dx, dy, d_sq, dxy_to_center_index(dx, dy, r)])
+                        vectors.append(
+                            [dx, dy, d_sq, dxy_to_center_index(dx, dy, r)])
 
             vectors = sorted(vectors, key=functools.cmp_to_key(get_dist))
             base_map = [None for _ in range((2*r+1)*(2*r+1))]
@@ -382,13 +385,15 @@ class CityTileMap():
         if wrap_has_flag(map_const.TF_WRAPX):  # Cylinder with N-S axis
             d = self.delta_tile_helper(y, r, self.map_ctrl.map_info['ysize'])
             if d[2] not in self.maps:
-                self.maps[d[2]] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
+                self.maps[d[2]
+                          ] = self.build_city_tile_map_with_limits(-r, r, d[0], d[1])
             return self.maps[d[2]]
 
         if wrap_has_flag(map_const.TF_WRAPY):  # Cylinder with E-W axis
             d = self.delta_tile_helper(x, r, self.map_ctrl.map_info['xsize'])
             if d[2] not in self.maps:
-                self.maps[d[2]] = self.build_city_tile_map_with_limits(d[0], d[1], -r, r)
+                self.maps[d[2]] = self.build_city_tile_map_with_limits(
+                    d[0], d[1], -r, r)
             return self.maps[d[2]]
 
         # Flat
@@ -396,7 +401,8 @@ class CityTileMap():
         dy = self.delta_tile_helper(y, r, self.map_ctrl.map_info['ysize'])
         map_i = (2*r + 1) * dx[2] + dy[2]
         if map_i not in self.maps:
-            m = self.build_city_tile_map_with_limits(dx[0], dx[1], dy[0], dy[1])
+            m = self.build_city_tile_map_with_limits(
+                dx[0], dx[1], dy[0], dy[1])
             self.maps[map_i] = m
         return self.maps[map_i]
 
@@ -415,7 +421,8 @@ class CityTileMap():
         if city_tile_map_index >= len(a_map):
             fc_logger.info('dx: {}, dy: {}, radius: {}, city_tile[x]: {}, city_tile[y]: {}'.format(
                 dx, dy, self.radius, city_tile['x'], city_tile['y']))
-            fc_logger.info('city_tile_map_index: {}, a_map length: {}'.format(city_tile_map_index, len(a_map)))
+            fc_logger.info('city_tile_map_index: {}, a_map length: {}'.format(
+                city_tile_map_index, len(a_map)))
             return None
         return a_map[city_tile_map_index]
 

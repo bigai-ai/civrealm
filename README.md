@@ -78,7 +78,6 @@ test_civrealm --username=myagent1
 
 As a standard, the official docker image from the [official repository](https://github.com/freeciv/freeciv-web) will be pulled. If you want to create a custom freeciv server (e.g., different rulesets, customizations, etc.) you can use `build_freeciv_server` to create a custom docker image or run a separate image in parallel. In this case, you might need to adapt src/init_server.py -->
 
-
 ## Trouble shooting
 
 The following are some common issues that you may encounter when running the code. If you encounter any other issues, please feel free to open an issue.
@@ -121,4 +120,3 @@ The following are some common issues that you may encounter when running the cod
   ```
 
 * If the screenshot is not centered on the location of your first unit, it is because you are using multiple displays. Please ensure the Firefox browser for screenshot pops up on your primary display.
-

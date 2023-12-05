@@ -24,7 +24,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T30_2023-07-31-09_09')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T30_2023-07-31-09_09')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)

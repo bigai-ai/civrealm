@@ -37,7 +37,8 @@ class PlayerState(DictState):
             'gold', 'culture', 'mood', 'revolution_finishes', 'science_cost', 'bulbs_researched', 'researching_cost',
             'tech_goal', 'tech_upkeep', 'techs_researched', 'total_bulbs_prod', 'embassy_txt']
         self.other_player_fields = ['love']
-        self.all_player_fields = self.common_player_fields + self.my_player_fields + self.other_player_fields
+        self.all_player_fields = self.common_player_fields + \
+            self.my_player_fields + self.other_player_fields
 
     @property
     def my_player_id(self):
@@ -54,7 +55,8 @@ class PlayerState(DictState):
     def _get_player_state(self, player):
         # Initialize the fields for player state
         player_state = dict([(key, None) for key in self.all_player_fields])
-        player_state.update(dict([(f'tech_{tech_id}', None) for tech_id in self.rule_ctrl.techs]))
+        player_state.update(
+            dict([(f'tech_{tech_id}', None) for tech_id in self.rule_ctrl.techs]))
 
         player_state['player_id'] = player['playerno']
         player_state.update(dict(
@@ -74,7 +76,8 @@ class PlayerState(DictState):
         return player_state
 
     def _get_my_player_state(self):
-        player_state = {'love': None, 'embassy_txt': self.get_embassy_text(self.my_player_id)}
+        player_state = {'love': None,
+                        'embassy_txt': self.get_embassy_text(self.my_player_id)}
         return player_state
 
     def _get_other_player_state(self, opponent):
@@ -85,9 +88,11 @@ class PlayerState(DictState):
         player_state['love'] = self.col_love(opponent)
 
         if self.my_player['real_embassy'][opponent['playerno']]:
-            player_state.update(self.show_intelligence_report_embassy(opponent))
+            player_state.update(
+                self.show_intelligence_report_embassy(opponent))
         else:
-            player_state.update(self.show_intelligence_report_hearsay(opponent))
+            player_state.update(
+                self.show_intelligence_report_hearsay(opponent))
         return player_state
 
     def show_intelligence_report_hearsay(self, opponent):
@@ -203,7 +208,8 @@ class PlayerState(DictState):
                 # My player fields
                 'gold': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
                 'culture': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
-                'mood': gymnasium.spaces.Discrete(2),  # mood_type, values are MOOD_PEACEFUL and MOOD_COMBAT
+                # mood_type, values are MOOD_PEACEFUL and MOOD_COMBAT
+                'mood': gymnasium.spaces.Discrete(2),
                 # The turn when the revolution finishes
                 'revolution_finishes': gymnasium.spaces.Box(low=-1, high=65535, shape=(1,), dtype=int),
                 'science_cost': gymnasium.spaces.Box(low=0, high=65535, shape=(1,), dtype=int),
@@ -216,7 +222,8 @@ class PlayerState(DictState):
                 'embassy_txt': gymnasium.spaces.Text(max_length=100),
 
                 # Other player fields
-                'love': gymnasium.spaces.Text(max_length=100),  # Possible values are player_const.ATTITUDE_TXT
+                # Possible values are player_const.ATTITUDE_TXT
+                'love': gymnasium.spaces.Text(max_length=100),
             },
             **{
                 f'tech_{tech_id}': gymnasium.spaces.Discrete(2) for tech_id in self.rule_ctrl.techs.keys()

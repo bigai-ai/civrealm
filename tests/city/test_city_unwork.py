@@ -25,7 +25,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -60,7 +61,8 @@ def test_city_unwork(controller):
         dy = dxy[-1]
 
         ctile = city_opt.city_map.map_ctrl.city_tile(pcity)
-        wtile = city_opt.city_map.map_ctrl.map_pos_to_tile(ctile["x"] + int(dx), ctile["y"] + int(dy))
+        wtile = city_opt.city_map.map_ctrl.map_pos_to_tile(
+            ctile["x"] + int(dx), ctile["y"] + int(dy))
         if_work_1 = wtile["worked"]
 
         unwork_action.trigger_action(controller.ws_client)

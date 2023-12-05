@@ -25,14 +25,16 @@ class RandomAgent(BaseAgent):
 
     def random_action_by_name(self, valid_action_dict, name):
         # Assume input actions are valid, and return a random choice of the actions whose name contains the input name.
-        action_choices = [key for key in valid_action_dict.keys() if name in key]
+        action_choices = [
+            key for key in valid_action_dict.keys() if name in key]
         if action_choices:
             return random.choice(action_choices)
         else:
             return None
 
     def act(self, observations, info):
-        unit_actor, unit_action_dict = self.get_next_valid_actor(observations, info, 'unit')
+        unit_actor, unit_action_dict = self.get_next_valid_actor(
+            observations, info, 'unit')
         fc_logger.info(f'Valid actions: {unit_action_dict}')
         if not unit_actor:
             return None

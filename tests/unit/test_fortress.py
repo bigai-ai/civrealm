@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-20-15_23_diplcity')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T133_2023-07-20-15_23_diplcity')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -91,7 +92,8 @@ def test_fortress(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-20-15_23_diplcity')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T133_2023-07-20-15_23_diplcity')
     test_fortress(controller)
 
 

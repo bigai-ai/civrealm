@@ -26,6 +26,7 @@ from selenium.webdriver.chrome.options import Options
 from PIL import Image
 import io
 
+
 class CivMonitor():
     def __init__(self, host, user_name, client_port, global_view=False, poll_interval=2):
         self._driver = None
@@ -41,13 +42,13 @@ class CivMonitor():
 
     def _observe_game(self, user_name):
         if not self._initiated:
-            
+
             options = webdriver.FirefoxOptions()
             if fc_args["debug.headless"]:
                 options.add_argument("--headless")
 
             self._driver = webdriver.Firefox(options=options)
-            
+
             if (size_x := fc_args['debug.window_size_x']) and (size_y := fc_args['debug.window_size_y']):
                 self._driver.set_window_size(size_x, size_y)
             else:
@@ -73,22 +74,26 @@ class CivMonitor():
                         bt_single_game.click()
                         self.state = "input_observer_name"
                     except Exception as err:
-                        self._driver.find_element("xpath", "/html/body/nav/div/div[2]/ul/li[2]/a").click()
+                        self._driver.find_element(
+                            "xpath", "/html/body/nav/div/div[2]/ul/li[2]/a").click()
                         sleep(self._poll_interval)
                         bt_single_games = self._driver.find_element(
                             "xpath", "/html/body/div/div/ul/li[2]/a")  # select multiplayer
                         bt_single_games.click()
                         sleep(self._poll_interval)
-                        fc_logger.info("go_multi_player_and_join err! %s" % err)
+                        fc_logger.info(
+                            "go_multi_player_and_join err! %s" % err)
                     sleep(self._poll_interval)
 
                 if self.state == "input_observer_name":
                     try:
-                        bt_single_game = self._driver.find_element(By.ID, "username_req")
+                        bt_single_game = self._driver.find_element(
+                            By.ID, "username_req")
                         bt_single_game.clear()
 
                         cur_time = time.strftime('%Y%m%d%H%M%S')
-                        bt_single_game.send_keys(f'observer{self.client_port}{cur_time}')
+                        bt_single_game.send_keys(
+                            f'observer{self.client_port}{cur_time}')
                         sleep(self._poll_interval)
                         bt_single_game = self._driver.find_elements(
                             By.CSS_SELECTOR, ".ui-dialog-buttonset .ui-button.ui-corner-all.ui-widget")[1]  # Join Games
@@ -100,12 +105,14 @@ class CivMonitor():
 
                 if self.state == "viewing":
                     try:
-                        bt_single_game = self._driver.find_element(By.ID, "pregame_text_input")  # console
+                        bt_single_game = self._driver.find_element(
+                            By.ID, "pregame_text_input")  # console
                         bt_single_game.clear()
                         if self.global_view:
                             bt_single_game.send_keys(f'/observe')
                         else:
-                            bt_single_game.send_keys(f'/observe {self._user_name}')
+                            bt_single_game.send_keys(
+                                f'/observe {self._user_name}')
                         sleep(self._poll_interval)
                         bt_single_game.send_keys(Keys.ENTER)
                         self.state = "view_game"
@@ -137,12 +144,13 @@ class CivMonitor():
             self._driver.execute_script('camera.position.y = 500')
             self._driver.execute_script('camera.position.x += 20')
             self._driver.execute_script('camera.position.z += 20')
-            # OrbitControl with autoRotateSpeed 
-            self._driver.execute_script('controls.autoRotateSpeed = 0.2; controls.autoRotate = TRUE')
-
+            # OrbitControl with autoRotateSpeed
+            self._driver.execute_script(
+                'controls.autoRotateSpeed = 0.2; controls.autoRotate = TRUE')
 
     def start_monitor(self):
-        self.monitor_thread = threading.Thread(target=self._observe_game, args=[self._user_name])
+        self.monitor_thread = threading.Thread(
+            target=self._observe_game, args=[self._user_name])
         self.monitor_thread.start()
 
     def stop_monitor(self):
@@ -164,4 +172,4 @@ class CivMonitor():
         data = dict()
         for page_id in fc_args['debug.get_webpage_image']:
             data[page_id] = self._click_to_array(page_id)
-        return data            
+        return data

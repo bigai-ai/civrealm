@@ -130,7 +130,8 @@ class TensorObservation(Wrapper):
         # Initialize build_cost with 0 for now
         obs["rules"]["build_cost"] = 0
 
-        mutable_fields = [field for field in obs.keys() if field in self.mutable_fields]
+        mutable_fields = [
+            field for field in obs.keys() if field in self.mutable_fields]
         immutable_fields = [
             field for field in obs.keys() if field in self.immutable_fields
         ]
@@ -174,7 +175,8 @@ class TensorObservation(Wrapper):
         if not self.obs_initialized:
             for field, field_dict in immutable.items():
                 self.obs_layout[field] = OrderedDict(
-                    [(k, field_dict[k].shape) for k in sorted(list(field_dict.keys()))]
+                    [(k, field_dict[k].shape)
+                     for k in sorted(list(field_dict.keys()))]
                 )
 
         for field, field_dict in immutable.items():
@@ -190,7 +192,8 @@ class TensorObservation(Wrapper):
         return obs
 
     def _embed_mutable(self, obs):
-        mutable = {field: obs[field] for field in obs if field in self.mutable_fields}
+        mutable = {field: obs[field]
+                   for field in obs if field in self.mutable_fields}
         mutable_layout = self.observation_config["obs_mutable_layout"]
 
         if not self.obs_initialized:
@@ -214,17 +217,20 @@ class TensorObservation(Wrapper):
             if tensor_debug:
                 # check entity layout is correct
                 assert all(
-                    self.obs_layout[field] == {k: v.shape for k, v in entity.items()}
+                    self.obs_layout[field] == {
+                        k: v.shape for k, v in entity.items()}
                     for entity in entity_dict.values()
                 )
             # combine every entity's properties into an array along the last axis
             entity_dict = {
-                id: np.concatenate([entity[k] for k in sorted(entity.keys())], axis=-1)
+                id: np.concatenate([entity[k]
+                                   for k in sorted(entity.keys())], axis=-1)
                 for id, entity in entity_dict.items()
             }
             # combine all entities in a field into an array along the first axis
             mutable[field] = np.stack(
-                [entity_dict[id] for id in self.get_wrapper_attr(field + "_ids")],
+                [entity_dict[id]
+                    for id in self.get_wrapper_attr(field + "_ids")],
                 axis=0,
             ).astype(np.int32)
 
@@ -254,7 +260,8 @@ class TensorObservation(Wrapper):
             player["techs"] = []
             for tech in sorted(obs["tech"]):
                 player_tech = player.pop(f"tech_{tech}")
-                player["techs"].append(player_tech if player_tech is not None else 255)
+                player["techs"].append(
+                    player_tech if player_tech is not None else 255)
         return obs
 
     def _encode_treaty(self, treaty, player):

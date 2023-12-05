@@ -87,7 +87,8 @@ class DiplomacyCtrl(CivPropController):
         self.player_ctrl = player_ctrl
 
         self.clstate = clstate
-        self.prop_state = DiplomacyState(self.diplstates, self.diplomacy_clause_map, self.meeting_initializers, self.player_ctrl.players)
+        self.prop_state = DiplomacyState(
+            self.diplstates, self.diplomacy_clause_map, self.meeting_initializers, self.player_ctrl.players)
         self.prop_actions = DiplOptions(ws_client, rule_ctrl, city_ctrl, self.player_ctrl, self.diplomacy_clause_map,
                                         self.contact_turns_left, self.reason_to_cancel, self.diplstates, self.others_diplstates)
         # TODO: dipl_evaluator is not implemented yet
@@ -138,11 +139,13 @@ class DiplomacyCtrl(CivPropController):
 
         if packet['plr1'] not in self.reason_to_cancel:
             self.reason_to_cancel[packet['plr1']] = dict()
-        self.reason_to_cancel[packet['plr1']][packet['plr2']] = packet['has_reason_to_cancel']
+        self.reason_to_cancel[packet['plr1']
+                              ][packet['plr2']] = packet['has_reason_to_cancel']
 
         if packet['plr1'] not in self.contact_turns_left:
             self.contact_turns_left[packet['plr1']] = dict()
-        self.contact_turns_left[packet['plr1']][packet['plr2']] = packet['contact_turns_left']
+        self.contact_turns_left[packet['plr1']
+                                ][packet['plr2']] = packet['contact_turns_left']
 
         if packet['plr1'] not in self.others_diplstates:
             self.others_diplstates[packet['plr1']] = dict()
@@ -157,7 +160,8 @@ class DiplomacyCtrl(CivPropController):
             return
 
         self.diplstates[packet[opposite_player]] = packet['type']
-        self.city_ctrl.prop_actions.diplomacy_states = copy.deepcopy(self.diplstates)
+        self.city_ctrl.prop_actions.diplomacy_states = copy.deepcopy(
+            self.diplstates)
 
         """
         if packet['type'] == DS_WAR and self.check_not_dipl_states(packet[opposite_player]):
@@ -189,7 +193,8 @@ class DiplomacyCtrl(CivPropController):
             self.diplomacy_request_queue.append(packet['counterpart'])
 
         self.diplomacy_clause_map[packet['counterpart']] = []
-        self.meeting_initializers[packet['counterpart']] = packet['initiated_from']
+        self.meeting_initializers[packet['counterpart']
+                                  ] = packet['initiated_from']
         fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
         self.refresh_diplomacy_request_queue()
 
@@ -197,7 +202,8 @@ class DiplomacyCtrl(CivPropController):
         counterpart = packet['counterpart']
 
         if counterpart in self.diplomacy_request_queue:
-            del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
+            del self.diplomacy_request_queue[self.diplomacy_request_queue.index(
+                counterpart)]
         # setTimeout(refresh_diplomacy_request_queue, 1000)
 
         if self.active_diplomacy_meeting_id == counterpart:
@@ -225,8 +231,10 @@ class DiplomacyCtrl(CivPropController):
             if packet['type'] in CONFLICTING_CLAUSES or packet['type'] == player_const.CLAUSE_GOLD:
                 for clause_id, clause in enumerate(self.diplomacy_clause_map[packet['counterpart']]):
                     if clause['type'] == packet['type'] and (packet['type'] in CONFLICTING_CLAUSES or (packet['type'] == player_const.CLAUSE_GOLD and packet['giver'] == clause['giver'])):
-                        self.diplomacy_clause_map[packet['counterpart']][clause_id] = packet
-                        fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+                        self.diplomacy_clause_map[packet['counterpart']
+                                                  ][clause_id] = packet
+                        fc_logger.debug(
+                            f'diplomacy_clause_map: {self.diplomacy_clause_map}')
                         return
 
             self.diplomacy_clause_map[packet['counterpart']].append(packet)
@@ -239,7 +247,8 @@ class DiplomacyCtrl(CivPropController):
                     packet['type'] == check_clause['type'] and
                     packet['value'] == check_clause['value']):
                 del self.diplomacy_clause_map[packet['counterpart']][i]
-                fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+                fc_logger.debug(
+                    f'diplomacy_clause_map: {self.diplomacy_clause_map}')
                 break
 
     def handle_diplomacy_accept_treaty(self, packet):
@@ -249,14 +258,16 @@ class DiplomacyCtrl(CivPropController):
 
         if myself_accepted and other_accepted:
             if counterpart in self.diplomacy_request_queue:
-                del self.diplomacy_request_queue[self.diplomacy_request_queue.index(counterpart)]
+                del self.diplomacy_request_queue[self.diplomacy_request_queue.index(
+                    counterpart)]
 
             if self.active_diplomacy_meeting_id == counterpart:
                 self.refresh_diplomacy_request_queue()
 
             if counterpart in self.diplomacy_clause_map:
                 del self.diplomacy_clause_map[counterpart]
-            fc_logger.debug(f'diplomacy_clause_map: {self.diplomacy_clause_map}')
+            fc_logger.debug(
+                f'diplomacy_clause_map: {self.diplomacy_clause_map}')
 
             if counterpart in self.meeting_initializers:
                 del self.meeting_initializers[counterpart]

@@ -44,15 +44,18 @@ class PropState(ABC):
 
     @abstractmethod
     def _update_state(self, pplayer):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     @abstractmethod
     def _lock_properties(self):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     @abstractmethod
     def _state_has_locked_properties(self):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     def update(self, pplayer, *args):
         self._update_state(pplayer, *args)
@@ -63,7 +66,8 @@ class PropState(ABC):
 
     @abstractmethod
     def _set_num_vars(self):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     def get_state(self):
         """Get state ensures that the returned state only contains the properties that
@@ -76,7 +80,8 @@ class PropState(ABC):
 
     @abstractmethod
     def get_state_vec(self, item=None):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
 
 class PlainState(PropState):
@@ -113,7 +118,8 @@ class DictState(PlainState):
     def _state_has_locked_properties(self):
         for item in self._state.keys():
             cur_set = set(self._state[item].keys())
-            shared_keys, keys_added, keys_removed = sets_equal(cur_set, self._locked_set)
+            shared_keys, keys_added, keys_removed = sets_equal(
+                cur_set, self._locked_set)
             if keys_removed is not None:
                 if len(keys_removed) != 0:
                     raise Exception("State properties have changed from initially locked properties:\n\
@@ -137,7 +143,8 @@ class DictState(PlainState):
                 if np.isnan(vec[0, knum]):
                     raise Exception("No nan allowed for key: %s" % key)
             except:
-                fc_logger.error("Incompatible string/int %s %s" % (key, self._state[item][key]))
+                fc_logger.error("Incompatible string/int %s %s" %
+                                (key, self._state[item][key]))
                 err = True
 
         if err:
@@ -148,7 +155,8 @@ class DictState(PlainState):
         if item_id in self._state.keys():
             del self._state[item_id]
         else:
-            fc_logger.warning("Strange - Trying to delete unit that is not there: %s" % item_id)
+            fc_logger.warning(
+                "Strange - Trying to delete unit that is not there: %s" % item_id)
 
 
 class EmptyState(PlainState):

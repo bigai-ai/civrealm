@@ -25,6 +25,8 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args
 
 # import watchpoints
+
+
 class TurnManager(object):
     def __init__(self, port) -> None:
         # NOTE: The server counts the turn number from 1.
@@ -136,7 +138,8 @@ class TurnManager(object):
         for ctrl_type in self._turn_ctrls.keys():
             fc_logger.debug(f'....: {ctrl_type}')
             controller: CivPropController = self._turn_ctrls[ctrl_type]
-            action_list: ActionList = controller.get_current_options(self._turn_player)
+            action_list: ActionList = controller.get_current_options(
+                self._turn_player)
             self._turn_actions[ctrl_type] = action_list
         return self._turn_actions
 
@@ -157,7 +160,8 @@ class TurnManager(object):
 
     def perform_action(self, action, ws_client):
         ctrl_type, valid_actor_id, action_name = action
-        self._turn_actions[ctrl_type].trigger_single_action(valid_actor_id, action_name)
+        self._turn_actions[ctrl_type].trigger_single_action(
+            valid_actor_id, action_name)
         return
 
     def get_reward(self, current_score):

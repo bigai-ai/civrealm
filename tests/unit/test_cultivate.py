@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -52,10 +53,12 @@ def test_cultivate(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 137:
             assert ('cultivate' not in valid_actions)
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_EAST}'])
         elif unit_id == 139:
             assert ('cultivate' not in valid_actions)
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_WEST}'])
     # Perform goto action for the worker
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
@@ -116,7 +119,8 @@ def test_cultivate(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_cultivate(controller)
 
 

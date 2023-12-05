@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T139_2023-07-28-09_49')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T139_2023-07-28-09_49')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -69,7 +70,8 @@ def test_mine_desert(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T139_2023-07-28-09_49')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T139_2023-07-28-09_49')
     test_mine_desert(controller)
 
 

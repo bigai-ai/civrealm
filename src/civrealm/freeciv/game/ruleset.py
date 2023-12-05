@@ -74,11 +74,13 @@ class RulesetCtrl(CivPropController):
         self.prop_state = RuleState(self.game_info)
         self.prop_actions = NoActions(ws_client)
 
-        self.ground_unit_transporter = ['Trireme', 'Caravel', 'Galleon', 'Frigate', 'Transport']
+        self.ground_unit_transporter = [
+            'Trireme', 'Caravel', 'Galleon', 'Frigate', 'Transport']
         self.missile_unit_transporter = ['Submarine']
         self.air_unit_transporter = ['Carrier']
 
-        self.air_units = ['Fighter', 'Bomber', 'AWACS', 'Helicopter', 'Stealth_Fighter', 'Stealth_Bomber']
+        self.air_units = ['Fighter', 'Bomber', 'AWACS',
+                          'Helicopter', 'Stealth_Fighter', 'Stealth_Bomber']
         self.missile_units = ['Cruise_Missile', 'Nuclear']
         self.ground_units = [
             'Settlers', 'Workers', 'Engineers', 'Warriors', 'Phalanx', 'Archers', 'Legion', 'Pikemen', 'Musketeers',
@@ -150,12 +152,15 @@ class RulesetCtrl(CivPropController):
             packet['graphic_str'] = "tundra"
 
         self.terrains[packet['id']] = packet
-        self.terrains[packet['id']]['output'] = np.array(self.terrains[packet['id']]['output'], dtype=np.ushort)
-        self.terrains[packet['id']]['flags'] = byte_to_bit_array(packet['flags'])
+        self.terrains[packet['id']]['output'] = np.array(
+            self.terrains[packet['id']]['output'], dtype=np.ushort)
+        self.terrains[packet['id']]['flags'] = byte_to_bit_array(
+            packet['flags'])
 
     def handle_ruleset_resource(self, packet):
         self.resources[packet['id']] = packet
-        self.resources[packet['id']]['output'] = np.array(self.resources[packet['id']]['output'], dtype=np.ushort)
+        self.resources[packet['id']]['output'] = np.array(
+            self.resources[packet['id']]['output'], dtype=np.ushort)
 
     def handle_ruleset_control(self, packet):
         """
@@ -197,8 +202,10 @@ class RulesetCtrl(CivPropController):
             # print(packet)
             # print('\n')
             if packet['id'] >= len(self.unit_types_list):
-                self.unit_types_list += [None] * (packet['id'] - len(self.unit_types_list) + 1)
-                self.unit_costs_list += [None] * (packet['id'] - len(self.unit_costs_list) + 1)
+                self.unit_types_list += [None] * \
+                    (packet['id'] - len(self.unit_types_list) + 1)
+                self.unit_costs_list += [None] * \
+                    (packet['id'] - len(self.unit_costs_list) + 1)
             self.unit_types_list[packet['id']] = packet['name']
             self.unit_costs_list[packet['id']] = packet['build_cost']
 
@@ -248,8 +255,10 @@ class RulesetCtrl(CivPropController):
         self.improvements[packet['id']] = packet
 
         if packet['id'] >= len(self.improvement_types_list):
-            self.improvement_types_list += [None] * (packet['id'] - len(self.improvement_types_list) + 1)
-            self.improvement_costs_list += [None] * (packet['id'] - len(self.improvement_costs_list) + 1)
+            self.improvement_types_list += [None] * \
+                (packet['id'] - len(self.improvement_types_list) + 1)
+            self.improvement_costs_list += [None] * \
+                (packet['id'] - len(self.improvement_costs_list) + 1)
         self.improvement_types_list[packet['id']] = packet['name']
         self.improvement_costs_list[packet['id']] = packet['build_cost']
 
@@ -328,7 +337,8 @@ class RulesetCtrl(CivPropController):
         self.extras[packet['id']] = packet
         self.extras[packet['name']] = packet
 
-        setattr(sys.modules[__name__], ("EXTRA_" + packet['name']).upper(), packet['id'])
+        setattr(sys.modules[__name__], ("EXTRA_" +
+                packet['name']).upper(), packet['id'])
 
         if packet['name'] == "Railroad":
             setattr(sys.modules[__name__], "EXTRA_RAIL", packet['id'])
@@ -480,5 +490,6 @@ class RulesetCtrl(CivPropController):
         self.game_info['turn'] = packet['turn']
 
     def handle_web_ruleset_unit_addition(self, packet):
-        utype_actions = BitVector(bitlist=byte_to_bit_array(packet['utype_actions']))
+        utype_actions = BitVector(
+            bitlist=byte_to_bit_array(packet['utype_actions']))
         self.unit_types[packet['id']]['utype_actions'] = utype_actions

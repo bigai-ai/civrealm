@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T391_transform')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T391_transform')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -56,12 +57,14 @@ def test_transform(controller):
         else:
             assert ('transform_terrain' in valid_actions)
             # Perform transform
-            valid_actions['transform_terrain'].trigger_action(controller.ws_client)
+            valid_actions['transform_terrain'].trigger_action(
+                controller.ws_client)
 
     boat_valid_actions = unit_opt.get_actions(boat_id, valid_only=True)
     # Boat goes to west
     print('Boat moves.')
-    boat_valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(controller.ws_client)
+    boat_valid_actions[f'goto_{map_const.DIR8_WEST}'].trigger_action(
+        controller.ws_client)
 
     old_terrain_name = ''
     # Get unit new state
@@ -99,7 +102,8 @@ def test_transform(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T391_transform')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T391_transform')
     test_transform(controller)
 
 

@@ -55,7 +55,8 @@ def test_attack(controller):
     valid_actions = unit_opt.get_actions(horseman_id, valid_only=True)
     print(valid_actions.keys())
     print('Attack the southeast tile')
-    valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'].trigger_action(controller.ws_client)
+    valid_actions[f'attack_{map_const.DIR8_SOUTHEAST}'].trigger_action(
+        controller.ws_client)
 
     # Get unit new state
     controller.get_info_and_observation()

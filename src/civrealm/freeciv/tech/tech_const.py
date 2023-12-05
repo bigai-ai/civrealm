@@ -23,7 +23,7 @@ REQ_RANGE_PLAYER = 7
 REQ_RANGE_TEAM = 8
 REQ_RANGE_ALLIANCE = 9
 REQ_RANGE_WORLD = 10
-REQ_RANGE_COUNT = 11   #/* Keep this last */
+REQ_RANGE_COUNT = 11  # /* Keep this last */
 
 
 """
@@ -56,7 +56,8 @@ AR_SIZE = 3
 TF_BONUS_TECH = 0  # /* player gets extra tech if rearched first */
 TF_BRIDGE = 1  # /* "Settler" unit types can build bridges over rivers */
 TF_RAILROAD = 2  # /* "Settler" unit types can build rail roads */
-TF_POPULATION_POLLUTION_INC = 3  # /* Increase the pollution factor created by population by one */
+# /* Increase the pollution factor created by population by one */
+TF_POPULATION_POLLUTION_INC = 3
 TF_FARMLAND = 4  # /* "Settler" unit types can build farmland */
 TF_BUILD_AIRBORNE = 5  # /* Player can build air units */
 TF_LAST = 6

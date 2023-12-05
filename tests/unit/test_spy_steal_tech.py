@@ -54,7 +54,8 @@ def test_spy_steal_tech(controller):
     print(f"Participate in activity {punit['activity']}")
 
     valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
-    test_action_list.append(valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
+    test_action_list.append(
+        valid_actions[f'spy_steal_tech_{map_const.DIR8_SOUTH}'])
 
     print('Steal technology from the city on the south tile')
     techs_researched_before = player_opt.players[0]['techs_researched']

@@ -29,7 +29,8 @@ class Action(ABC):
 
     def encode_to_json(self):
         """Encode action to json - abstract function should be overwritten"""
-        fc_logger.warning(f'encode_to_json not implemented for {self.__class__}')
+        fc_logger.warning(
+            f'encode_to_json not implemented for {self.__class__}')
         return self._action_packet()
 
     def trigger_action(self, ws_client):
@@ -57,13 +58,15 @@ class Action(ABC):
     @abstractmethod
     def is_action_valid(self):
         """Check if action is valid - abstract function should be overwritten"""
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     @abstractmethod
     def _action_packet(self):
         """returns the packet that should be sent to the server to carry out action -
         abstract function should be overwritten"""
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     def _refresh_state_packet(self):
         return None
@@ -94,19 +97,22 @@ class ActionList(object):
             del self._action_dict[actor_id]
         else:
             # This can happen when a unit is destroyed right after it is born.
-            fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
+            fc_logger.info(
+                "strange - trying to remove non-existent actor: %s" % actor_id)
 
         if actor_id in self._get_pro_action_dict:
             del self._get_pro_action_dict[actor_id]
         else:
             # This can happen when a unit is destroyed right after it is born.
-            fc_logger.info("strange - trying to remove non-existent actor: %s" % actor_id)
+            fc_logger.info(
+                "strange - trying to remove non-existent actor: %s" % actor_id)
 
     def add_action(self, actor_id, a_action):
         if actor_id not in self._action_dict:
             raise Exception("Add actor %s first!!!" % actor_id)
         if a_action.action_key in self._action_dict[actor_id]:
-            raise Exception("action_key %s should be unique for each actor" % a_action.action_key)
+            raise Exception(
+                "action_key %s should be unique for each actor" % a_action.action_key)
 
         self._action_dict[actor_id][a_action.action_key] = a_action
 
@@ -132,7 +138,8 @@ class ActionList(object):
         if actor_id not in self._get_pro_action_dict:
             raise Exception("Add actor %s first!!!" % actor_id)
         if a_action.action_key in self._get_pro_action_dict[actor_id]:
-            raise Exception("action_key %s should be unique for each actor" % a_action.action_key)
+            raise Exception(
+                "action_key %s should be unique for each actor" % a_action.action_key)
 
         self._get_pro_action_dict[actor_id][a_action.action_key] = a_action
 
@@ -147,7 +154,8 @@ class ActionList(object):
             if valid_only:
                 act_dict = {}
             else:
-                act_dict = dict([(key, None) for key in self._action_dict[actor_id]])
+                act_dict = dict([(key, None)
+                                for key in self._action_dict[actor_id]])
             if self._can_actor_act(actor_id):
                 for action_key in self._action_dict[actor_id]:
                     action = self._action_dict[actor_id][action_key]
@@ -166,7 +174,8 @@ class ActionList(object):
             return act_list
 
     def _can_actor_act(self, actor_id):
-        raise Exception("To be overwritten with function returning True/False %i" % actor_id)
+        raise Exception(
+            "To be overwritten with function returning True/False %i" % actor_id)
 
     def trigger_single_action(self, actor_id, action_id):
         # FIXME: unsed function
@@ -188,16 +197,20 @@ class ActionList(object):
                 fc_logger.info("No actions wanted for actor %s" % a_actor)
                 continue
             if type(actor_wants) is list:
-                raise ("Wants for actor %s should be a dictionary not a list" % a_actor)
+                raise (
+                    "Wants for actor %s should be a dictionary not a list" % a_actor)
 
-            action_most_wanted = max(list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
+            action_most_wanted = max(
+                list(actor_wants.keys()), key=(lambda x: actor_wants[x]))
 
             if actor_wants[action_most_wanted] > 0:
                 fc_logger.info(action_most_wanted)
-                self._action_dict[a_actor][action_most_wanted].trigger_action(self.ws_client)
+                self._action_dict[a_actor][action_most_wanted].trigger_action(
+                    self.ws_client)
 
     def update(self, pplayer):
-        raise Exception("To be implemented by class %s for player %s" % (self, pplayer))
+        raise Exception(
+            "To be implemented by class %s for player %s" % (self, pplayer))
 
     def get_num_actions(self):
         a_actor = self._action_dict[self._action_dict.keys()[0]]
@@ -208,11 +221,13 @@ class ActionList(object):
         return a_actor.keys()
 
     def get_num_get_pro_actions(self):
-        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
+        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[
+            0]]
         return len(a_actor.keys())
 
     def get_get_pro_action_list(self):
-        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[0]]
+        a_actor = self._get_pro_action_dict[self._get_pro_action_dict.keys()[
+            0]]
         return a_actor.keys()
 
     def get_action_info(self):

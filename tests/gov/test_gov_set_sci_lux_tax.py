@@ -24,7 +24,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T31_2023-07-31-09_38')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T31_2023-07-31-09_38')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -32,7 +33,7 @@ def controller():
 
 
 def find_keys_with_keyword(dictionary, keyword):
-    keys = [] 
+    keys = []
     for key in dictionary:
         if keyword in key:
             keys.append(dictionary[key])
@@ -46,7 +47,8 @@ def test_gov_set_sci_lux_tax(controller):
     player_opt = options['gov']
     pplayer = options['player'].players[0]
 
-    print('current sci_lux_tax:', (pplayer['science'], pplayer['luxury'], pplayer['tax']))
+    print('current sci_lux_tax:',
+          (pplayer['science'], pplayer['luxury'], pplayer['tax']))
 
     set_sci_lux_tax_action = find_keys_with_keyword(
         player_opt.get_actions(0, valid_only=True),

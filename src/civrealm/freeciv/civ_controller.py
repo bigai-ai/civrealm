@@ -84,7 +84,7 @@ class CivController(CivPropController):
         self.nation_select_id = -1
 
         # if fc_args['multiplayer_game']:
-            # assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
+        # assert client_port in PORT_LIST, f'Multiplayer game port {client_port} is invalid.'
 
         self.visualize = visualize
         self.monitor = None
@@ -113,7 +113,7 @@ class CivController(CivPropController):
 
         self.init_controllers()
 
-    def reset_civ_controller(self, port = None):
+    def reset_civ_controller(self, port=None):
         if port != None:
             self.client_port = port
 
@@ -125,7 +125,7 @@ class CivController(CivPropController):
         # Store whether the final game_over message is received
         self.game_over_msg_final = False
         self.game_score = None
-        
+
         self.ws_client = CivConnection(self.host, self.client_port)
         self.ws_client.set_on_connection_success_callback(self.init_game)
         self.ws_client.set_packets_callback(self.assign_packets)
@@ -137,7 +137,8 @@ class CivController(CivPropController):
 
         # Monitor
         if self.visualize:
-            self.monitor = CivMonitor(self.host, self.username, self.client_port, global_view=fc_args['debug.global_view_screenshot'])
+            self.monitor = CivMonitor(self.host, self.username, self.client_port,
+                                      global_view=fc_args['debug.global_view_screenshot'])
 
     def register_all_handlers(self):
         self.register_handler(25, "handle_chat_msg")
@@ -169,16 +170,21 @@ class CivController(CivPropController):
         self.clstate = ClientState(self.username,
                                    self.ws_client, self.rule_ctrl)
 
-        self.city_ctrl = CityCtrl(self.ws_client, self.rule_ctrl, self.clstate, self.game_ctrl, self.map_ctrl)
-        self.player_ctrl = PlayerCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl)
-        self.dipl_ctrl = DiplomacyCtrl(self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl, self.player_ctrl)
+        self.city_ctrl = CityCtrl(
+            self.ws_client, self.rule_ctrl, self.clstate, self.game_ctrl, self.map_ctrl)
+        self.player_ctrl = PlayerCtrl(
+            self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl)
+        self.dipl_ctrl = DiplomacyCtrl(
+            self.ws_client, self.clstate, self.city_ctrl, self.rule_ctrl, self.player_ctrl)
 
-        self.tech_ctrl = TechCtrl(self.ws_client, self.rule_ctrl, self.player_ctrl)
+        self.tech_ctrl = TechCtrl(
+            self.ws_client, self.rule_ctrl, self.player_ctrl)
 
         self.unit_ctrl = UnitCtrl(self.ws_client, self.opt_ctrl, self.rule_ctrl, self.map_ctrl,
                                   self.player_ctrl, self.city_ctrl, self.dipl_ctrl)
 
-        self.gov_ctrl = GovernmentCtrl(self.ws_client, self.rule_ctrl, self.dipl_ctrl)
+        self.gov_ctrl = GovernmentCtrl(
+            self.ws_client, self.rule_ctrl, self.dipl_ctrl)
 
         self.controller_list = {"game": self.game_ctrl,
                                 "rules": self.rule_ctrl,
@@ -248,7 +254,8 @@ class CivController(CivPropController):
             fc_logger.debug('Server Timeout. Stop ioloop...')
         except Exception as e:
             fc_logger.error(f"{repr(e)}")
-        self.ws_client.on_message_exception = Exception('Timeout: No response received from server.')
+        self.ws_client.on_message_exception = Exception(
+            'Timeout: No response received from server.')
 
     # Set a begin_turn timeout callback
     def begin_turn_timeout_callback(self):
@@ -258,15 +265,18 @@ class CivController(CivPropController):
             fc_logger.debug('Begin_turn Timeout. Stop ioloop...')
         except Exception as e:
             fc_logger.error(f"{repr(e)}")
-        self.ws_client.on_message_exception = Exception('Timeout: No begin_turn packet received from server.')
+        self.ws_client.on_message_exception = Exception(
+            'Timeout: No begin_turn packet received from server.')
 
     # Set a wait_for_timeout callback
     def wait_for_timeout_callback(self):
-        fc_logger.warning(f'Call wait_for_timeout_callback()...Turn: {self.turn_manager.turn}. Time: {datetime.now()}')
+        fc_logger.warning(
+            f'Call wait_for_timeout_callback()...Turn: {self.turn_manager.turn}. Time: {datetime.now()}')
         # Try to store the save for this turn
         self.delete_save = False
         self.ws_client.wait_for_packs.clear()
-        self.ws_client.send_message(f"wait_for_timeout_callback clears wait_for_packs.")
+        self.ws_client.send_message(
+            f"wait_for_timeout_callback clears wait_for_packs.")
 
     def get_turn(self):
         return self.turn_manager.turn
@@ -292,11 +302,13 @@ class CivController(CivPropController):
 
     def my_player_is_defeated(self):
         if self.clstate.client_state() == C_S_RUNNING:
-            my_cities = self.city_ctrl.get_cities_by_player_id(self.player_ctrl.my_player_id)
+            my_cities = self.city_ctrl.get_cities_by_player_id(
+                self.player_ctrl.my_player_id)
             have_settlers = self.unit_ctrl.my_units_have_type('Settlers')
             if self.is_minitask:
                 if len(my_cities) == 0 and not have_settlers and not self.unit_ctrl.have_units():
-                    fc_logger.debug(f'In minitask, have no cities, settlers, and units.')
+                    fc_logger.debug(
+                        f'In minitask, have no cities, settlers, and units.')
                     return True
             else:
                 # NOTE: maybe we should return False if the player still has attack units, or allow for a short time of survival (e.g., 10 turns).
@@ -329,13 +341,13 @@ class CivController(CivPropController):
         # if not self.should_wait() and self.my_player_is_defeated():
         #     self.ws_client.stop_ioloop()
         #     return
-        
+
         # For certain reasons, the game is over. We just stop the ioloop. Otherwise, clients may keep waiting for some packets while the server will not respond due to game over.
         if self.game_is_over or self.game_is_end:
             self.ws_client.stop_ioloop()
             # fc_logger.debug(f'maybe_grant_control_to_player: stop_ioloop after game ends.')
             return
-        
+
         # fc_logger.debug(f'maybe_grant_control_to_player: keep ioloop.')
         return
 
@@ -362,12 +374,14 @@ class CivController(CivPropController):
             fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
 
     def _get_info(self):
-        fc_logger.debug(f'Player {self.player_ctrl.my_player_id} get_info. Turn: {self.turn_manager.turn}')
+        fc_logger.debug(
+            f'Player {self.player_ctrl.my_player_id} get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
         # If there is exception during _on_message callback, we raise it.
         if self.ws_client.on_message_exception != None:
             raise self.ws_client.on_message_exception
-        info = {'turn': self.turn_manager.turn, 'mini_game_messages': self.turn_manager.turn_messages}
+        info = {'turn': self.turn_manager.turn,
+                'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated() or self.game_is_over or self.game_is_end:
             # fc_logger.debug(f'_get_info: Game already ends.')
             info['available_actions'] = {}
@@ -415,8 +429,10 @@ class CivController(CivPropController):
         if self.rule_ctrl.game_info == {}:
             return
         self.clstate.begin_logged = False
-        fc_logger.info(f"Ending turn {self.rule_ctrl.game_info['turn']}. Port: {self.client_port}")
-        packet = {"pid": packet_player_phase_done, "turn": self.rule_ctrl.game_info['turn']}
+        fc_logger.info(
+            f"Ending turn {self.rule_ctrl.game_info['turn']}. Port: {self.client_port}")
+        packet = {"pid": packet_player_phase_done,
+                  "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         self.turn_manager.end_turn()
         # Add begin_turn timeout handler
@@ -440,7 +456,8 @@ class CivController(CivPropController):
         # FIXME: check victory conditions.
         _terminated = self.my_player_is_defeated()
         if _terminated:
-            fc_logger.info(f"Game has terminated because my player had been defeated!")
+            fc_logger.info(
+                f"Game has terminated because my player had been defeated!")
         return _terminated
 
     # ============================================================
@@ -478,7 +495,8 @@ class CivController(CivPropController):
                     elif 'counterpart' in packet:
                         pid_info = (packet['pid'], packet['counterpart'])
                     elif 'plr1' in packet:
-                        pid_info = (packet['pid'], (packet['plr1'], packet['plr2']))
+                        pid_info = (packet['pid'],
+                                    (packet['plr1'], packet['plr2']))
                     elif 'tile' in packet:
                         pid_info = (packet['pid'], packet['tile'])
                     else:
@@ -490,7 +508,8 @@ class CivController(CivPropController):
             if not self.ws_client.is_waiting_for_responses():
                 fc_logger.debug('remove wait_for_timeout_handle')
                 if self.ws_client.wait_for_timeout_handle != None:
-                    self.ws_client.get_ioloop().remove_timeout(self.ws_client.wait_for_timeout_handle)
+                    self.ws_client.get_ioloop().remove_timeout(
+                        self.ws_client.wait_for_timeout_handle)
                     # fc_logger.debug('Remove timeout callback.')
                     self.ws_client.wait_for_timeout_handle = None
 
@@ -524,7 +543,7 @@ class CivController(CivPropController):
             self.game_is_over = False
             self.game_is_end = False
             self.ws_client.start_ioloop()
-        
+
         if self.visualize:
             self.monitor.stop_monitor()
         if fc_args['debug.autosave'] and self.delete_save:
@@ -581,14 +600,16 @@ class CivController(CivPropController):
         game_scores = None
 
         for ptry in range(MAX_REQUESTS):
-            response = requests.get(self.score_log_url, headers={"Cache-Control": "no-cache"})
+            response = requests.get(self.score_log_url, headers={
+                                    "Cache-Control": "no-cache"})
             if response.status_code == 200:
                 fc_logger.debug(f'Request of game_scores succeed')
                 game_scores = response.text
                 # fc_logger.debug(f'game_scores: {game_scores}')
                 break
             else:
-                fc_logger.debug(f'Request of game_scores failed with status code: {response.status_code}')
+                fc_logger.debug(
+                    f'Request of game_scores failed with status code: {response.status_code}')
                 time.sleep(SLEEP_TIME)
         return game_scores
 
@@ -599,7 +620,8 @@ class CivController(CivPropController):
         end_time = datetime.now(timezone.utc)
 
         minutes_diff = (end_time - begin_time).total_seconds() // 60.0 + 1
-        self.game_saving_time_range = [begin_time + timedelta(it) for it in range(int(minutes_diff))]
+        self.game_saving_time_range = [
+            begin_time + timedelta(it) for it in range(int(minutes_diff))]
 
     def delete_save_game(self):
         """
@@ -626,7 +648,8 @@ class CivController(CivPropController):
                 fc_logger.debug('Failed to find saved game file to delete.')
                 for saving_time in self.game_saving_time_range:
                     possible_saved_name = f"{self.clstate.username}_T{self.turn_manager.turn}_{saving_time.strftime('%Y-%m-%d-%H_%M')}"
-                    fc_logger.debug(f'Possible save name: {possible_saved_name}')
+                    fc_logger.debug(
+                        f'Possible save name: {possible_saved_name}')
                 for saved_name in save_list:
                     fc_logger.debug(f'Save name in List: {saved_name}')
                 return
@@ -636,7 +659,8 @@ class CivController(CivPropController):
             url = f"http://{self.host}:{fc_web_args['port']}/deletesavegame?username={self.clstate.username}&savegame={real_saved_name}&sha_password={sha_password}"
             response = requests.post(url)
             if response.text != '':
-                fc_logger.debug(f'Failed to delete save. Response text: {response.text}')
+                fc_logger.debug(
+                    f'Failed to delete save. Response text: {response.text}')
             else:
                 fc_logger.debug(f'Deleting unnecessary saved game.')
 
@@ -651,13 +675,15 @@ class CivController(CivPropController):
         self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
-        requests.post(f"http://{self.host}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(
+            f"http://{self.host}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
 
     def prepare_game(self):
         names, opts = self.player_ctrl.pregame_getplayer_options()
         if names != []:
-            self.pregame_choose_player(opts[0]["name"], opts[0]["playerid"], "pick_nation")
+            self.pregame_choose_player(
+                opts[0]["name"], opts[0]["playerid"], "pick_nation")
 
     def pregame_choose_player(self, name, player_id, option="pick_nation"):
         if name == None:
@@ -783,11 +809,11 @@ class CivController(CivPropController):
             self.parse_script_message(message)
         elif ('game is over' in message.lower() or 'game ended' in message.lower()):
             self.game_is_over = True
-        
+
         # When AI is destroyed, we also receive E_DESTROYED event. So we need to check whether we are defeated.
         elif (event == E_GAME_END) or (event == E_DESTROYED and self.my_player_is_defeated()):
             self.game_is_end = True
-        
+
         # elif event == E_DESTROYED and self.my_player_is_defeated():
         #     self.ws_client.stop_ioloop()
 
@@ -819,7 +845,8 @@ class CivController(CivPropController):
                 self.prepare_game()
 
         if conn_id in self.clstate.connections:
-            message = self.clstate.connections[conn_id]['username'] + ":" + message
+            message = self.clstate.connections[conn_id]['username'] + \
+                ":" + message
         else:
             if "/metamessage" in message:
                 # don't spam message dialog on game start.
@@ -839,7 +866,6 @@ class CivController(CivPropController):
             fc_logger.info("Starting Phase")
             self.clstate.update_client_state(C_S_RUNNING)
             self.turn_manager.begin_phase()
-            
 
     def handle_end_phase(self, packet):
         # chatbox_clip_messages()
@@ -859,7 +885,8 @@ class CivController(CivPropController):
 
     def handle_begin_turn(self, packet):
         if self.ws_client.begin_turn_timeout_handle != None:
-            self.ws_client.get_ioloop().remove_timeout(self.ws_client.begin_turn_timeout_handle)
+            self.ws_client.get_ioloop().remove_timeout(
+                self.ws_client.begin_turn_timeout_handle)
             fc_logger.debug('Remove begin_turn_time_out callback.')
             self.ws_client.begin_turn_timeout_handle = None
 
@@ -889,7 +916,8 @@ class CivController(CivPropController):
         for city_id in self.city_ctrl.cities:
             pcity = self.city_ctrl.cities[city_id]
             if pcity['owner'] == self.player_ctrl.my_player_id:
-                self.city_ctrl.prop_actions.city_unhappiness[pcity['id']] = self.city_ctrl.city_unhappy(pcity)
+                self.city_ctrl.prop_actions.city_unhappiness[pcity['id']] = self.city_ctrl.city_unhappy(
+                    pcity)
 
     def handle_end_turn(self, packet):
         """Handle signal from server to end turn"""
@@ -926,12 +954,14 @@ class CivController(CivPropController):
         if not packet['used']:
             # Forget the connection
             if pconn is None:
-                fc_logger.warning(f"Server removed unknown connection {packet['id']}")
+                fc_logger.warning(
+                    f"Server removed unknown connection {packet['id']}")
                 return
             self.clstate.client_remove_cli_conn(pconn)
             pconn = None
         else:
-            pplayer = self.player_ctrl.valid_player_by_number(packet['player_num'])
+            pplayer = self.player_ctrl.valid_player_by_number(
+                packet['player_num'])
             # Receive the first conn_info
             if self.clstate.first_conn_info_received == False:
                 # When first conn_info comes, the connections in clstate is empty.
@@ -956,7 +986,7 @@ class CivController(CivPropController):
                         self.clstate.set_follower_property()
 
                 self.clstate.first_conn_info_received = True
-                
+
             # This connection is not attached to any players, just return.
             if pplayer == None:
                 return

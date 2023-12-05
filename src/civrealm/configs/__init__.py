@@ -19,6 +19,7 @@ import yaml
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
 def boolean_string(s):
     s = s.lower()
     if s not in {'false', 'true'}:
@@ -46,21 +47,26 @@ def parse_args():
             group = parser.add_argument_group(key)
             # print(key)
             for sub_key in opt[key].keys():
-                assert type(opt[key][sub_key]) is not dict, "Config only accepts two-level of arguments"
+                assert type(
+                    opt[key][sub_key]) is not dict, "Config only accepts two-level of arguments"
                 if type(opt[key][sub_key]) is bool:
-                    group.add_argument('--' + key + '.' + sub_key, default=opt[key][sub_key], type=boolean_string)
+                    group.add_argument(
+                        '--' + key + '.' + sub_key, default=opt[key][sub_key], type=boolean_string)
                 else:
                     group.add_argument(
                         '--' + key + '.' + sub_key, default=opt[key][sub_key],
                         type=type(opt[key][sub_key]))
         else:
             if type(opt[key]) is bool:
-                parser.add_argument('--' + key, default=opt[key], type=boolean_string)
+                parser.add_argument(
+                    '--' + key, default=opt[key], type=boolean_string)
             else:
-                parser.add_argument('--' + key, default=opt[key], type=type(opt[key]))
+                parser.add_argument(
+                    '--' + key, default=opt[key], type=type(opt[key]))
     args, remaining_argv = parser.parse_known_args(remaining_argv)
 
     return vars(args)
+
 
 def parse_fc_web_args(config_file='../../../docker-compose.yml'):
 
@@ -77,6 +83,7 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
     else:
         fc_web_args['image'] = image.split('/')[1]
     return fc_web_args
+
 
 fc_args = parse_args()
 fc_web_args = parse_fc_web_args()

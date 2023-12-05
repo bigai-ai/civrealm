@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.fc_types import ACTIVITY_FORTIFIED
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -60,7 +61,8 @@ def test_upgrade(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T133_2023-07-25-08_57')
     test_upgrade(controller)
 
 

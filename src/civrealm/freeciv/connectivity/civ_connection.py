@@ -64,7 +64,8 @@ class CivWSClient(WebSocketClient):
                 self.server_timeout_handle = None
 
             self.read_packs = json.loads(message)
-            fc_logger.info(('Received packets id: ', [p['pid'] for p in self.read_packs]))
+            fc_logger.info(('Received packets id: ', [
+                           p['pid'] for p in self.read_packs]))
             self.packets_callback(self.read_packs)
             self.read_packs = []
             self.clear_send_queue()
@@ -93,17 +94,21 @@ class CivWSClient(WebSocketClient):
         # Clear the remaining timeout callback to prevent them from affecting the following games in the same process
         if self.server_timeout_handle != None:
             self.get_ioloop().remove_timeout(self.server_timeout_handle)
-            fc_logger.debug('Remove server_timeout_handle callback when close connection.')
-        
+            fc_logger.debug(
+                'Remove server_timeout_handle callback when close connection.')
+
         if self.wait_for_timeout_handle != None:
             self.get_ioloop().remove_timeout(self.wait_for_timeout_handle)
-            fc_logger.debug('Remove wait_for_timeout_handle callback when close connection.')
+            fc_logger.debug(
+                'Remove wait_for_timeout_handle callback when close connection.')
 
         if self.begin_turn_timeout_handle != None:
             self.get_ioloop().remove_timeout(self.begin_turn_timeout_handle)
-            fc_logger.debug('Remove begin_turn_timeout_handle callback when close connection.')
+            fc_logger.debug(
+                'Remove begin_turn_timeout_handle callback when close connection.')
 
-        fc_logger.warning('Connection to server is closed!\n***************************########********************************')
+        fc_logger.warning(
+            'Connection to server is closed!\n***************************########********************************')
 
     @override
     def _on_connection_error(self, exception):
@@ -116,11 +121,12 @@ class CivWSClient(WebSocketClient):
         Sends a request to the server, with a JSON packet.
         '''
         if not self._ws_connection:
-            fc_logger.debug(f'CivWSClient::send_request: Web socket connection has not been established.')
+            fc_logger.debug(
+                f'CivWSClient::send_request: Web socket connection has not been established.')
             # raise RuntimeError('Web socket connection is closed.')
             # Sometimes the connection with server has not been established, we should not send data. So we simply return.
             return
-        
+
         self.send_queue.append(packet_payload)
         if wait_for_pid is not None:
             if isinstance(wait_for_pid, list):
@@ -193,7 +199,8 @@ class CivConnection(CivWSClient):
             ws.connect(self.ws_address)
             return True
         except Exception as err:
-            fc_logger.info(f'Connect not successful: {err} retrying in {self._retry_interval} seconds.')
+            fc_logger.info(
+                f'Connect not successful: {err} retrying in {self._retry_interval} seconds.')
             if self._restart_server_if_down and not self._restarting_server:
                 self._restart_server()
                 return self._detect_server_up()
@@ -219,7 +226,9 @@ class CivConnection(CivWSClient):
             fc_logger.info('---------------------------')
             fc_logger.info(
                 'Most likely key ports (80, 8080, 6000-3, 7000-3) on host machine are blocked by existing processes!')
-            fc_logger.info('Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)')
-            fc_logger.info('and kill them via htop, top, or "kill process_pid"')
+            fc_logger.info(
+                'Run: sudo netstat -pant to identify respective processes (e.g., nginx, Apache)')
+            fc_logger.info(
+                'and kill them via htop, top, or "kill process_pid"')
             fc_logger.info('---------------------------')
             exit()

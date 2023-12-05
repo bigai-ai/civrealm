@@ -51,7 +51,8 @@ def test_embark_2(controller):
     print(f'Unit {unit_id}, valid action keys: {valid_actions.keys()}')
     print('Embark')
     # Perform embark action
-    valid_actions[f'embark_{map_const.DIR8_NORTHEAST}_637'].trigger_action(controller.ws_client)
+    valid_actions[f'embark_{map_const.DIR8_NORTHEAST}_637'].trigger_action(
+        controller.ws_client)
     # The unit's original position is 431
     assert (ptile['index'] == 431)
 

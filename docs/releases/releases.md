@@ -1,8 +1,7 @@
 # Releases
 
-
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>CivRealm Version</b></td>
         <td bgcolor="Lavender"><b>Freeciv-web Image Version</b></td>
         <td bgcolor="Lavender"><b>Mini-Game Dataset</b></td>

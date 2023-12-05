@@ -27,7 +27,8 @@ import civrealm.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T53_2023-07-27-02_29_homecity')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T53_2023-07-27-02_29_homecity')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -49,19 +50,23 @@ def test_homecity(controller):
     assert (len(valid_actions) > 0)
     unit_focus = unit_opt.unit_data[unit_id]
     # Check whether the action pro is accurate
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     # Go to north
     print('Go to north')
-    valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     # The unit is not in the city tile, cannot change home city.
     assert ('set_homecity' not in valid_actions.keys())
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     # Go back to city tile
     print('Go back to south')
-    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
 
@@ -72,14 +77,16 @@ def test_homecity(controller):
     controller.get_info_and_observation()
     print(f"Unit {unit_id} now participate in activity {punit['activity']}")
 
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_HOME_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     unit_action = valid_actions['set_homecity']
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
     assert (unit_action.is_action_valid())
     unit_action.trigger_action(controller.ws_client)
-    print(f"Change the homecity of unit {unit_id} to the current garissoned city")
+    print(
+        f"Change the homecity of unit {unit_id} to the current garissoned city")
     # controller.send_end_turn()
     controller.get_info_and_observation()
     punit = unit_opt.unit_ctrl.units[unit_id]
@@ -96,14 +103,16 @@ def test_homecity(controller):
     # The unit's homecity is the current city, cannot change home city here.
     assert ('set_homecity' not in valid_actions.keys())
     assert (len(valid_actions) > 0)
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_HOME_CITY] == {'min': 0, 'max': 0})
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}, home city: {punit['homecity']}.")
 
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T53_2023-07-27-02_29_homecity')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T53_2023-07-27-02_29_homecity')
     test_homecity(controller)
 
 

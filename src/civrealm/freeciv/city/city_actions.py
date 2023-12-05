@@ -76,29 +76,36 @@ class CityActions(ActionList):
                     if dx == 0 and dy == 0:
                         continue
 
-                    self.add_action(city_id, CityWorkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
-                    self.add_action(city_id, CityUnworkTile(pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
+                    self.add_action(city_id, CityWorkTile(
+                        pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
+                    self.add_action(city_id, CityUnworkTile(
+                        pcity, dx, dy, self.city_map, pplayer, self.rulectrl, self.diplomacy_states))
 
-            self.add_action(city_id, CityBuyProduction(pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
+            self.add_action(city_id, CityBuyProduction(
+                pcity, pplayer, self.rulectrl, self.turn, self.city_unhappiness))
 
             for specialist_num in range(pcity['specialists_size']):
-                self.add_action(city_id, CityChangeSpecialist(pcity, specialist_num))
+                self.add_action(city_id, CityChangeSpecialist(
+                    pcity, specialist_num))
 
             for unit_type_id in self.rulectrl.unit_types:
                 punit_type = self.rulectrl.unit_types[unit_type_id]
-                self.add_action(city_id, CityChangeUnitProduction(pcity, punit_type))
+                self.add_action(
+                    city_id, CityChangeUnitProduction(pcity, punit_type))
 
             for improvement_id in self.rulectrl.improvements:
 
                 pimprovement = self.rulectrl.improvements[improvement_id]
-                self.add_action(city_id, CityChangeImprovementProduction(pcity, pimprovement))
+                self.add_action(
+                    city_id, CityChangeImprovementProduction(pcity, pimprovement))
 
                 """
                 logic from freeciv server: freeciv/common/improvement.c
                 func: can_city_sell_building / is_building_sellable / is_improvement              
                 """
                 if pimprovement['genus'] == IG_IMPROVEMENT:
-                    self.add_action(city_id, CitySellImprovement(pcity, improvement_id, pimprovement["name"]))
+                    self.add_action(city_id, CitySellImprovement(
+                        pcity, improvement_id, pimprovement["name"]))
 
             """ self.add_action(city_id, CityKeepProduction(pcity, self.ws_client)) """
 
@@ -119,9 +126,11 @@ class CityWorkTile(Action):
         self.city_map.update_map(pcity["city_radius_sq"])
 
         self.ctile = city_map.map_ctrl.city_tile(pcity)
-        self.ptile = city_map.map_ctrl.map_pos_to_tile(self.ctile["x"] + dx, self.ctile["y"] + dy)
+        self.ptile = city_map.map_ctrl.map_pos_to_tile(
+            self.ctile["x"] + dx, self.ctile["y"] + dy)
 
-        self.output_idx = self.city_map.get_city_dxy_to_index(dx, dy, self.ctile)
+        self.output_idx = self.city_map.get_city_dxy_to_index(
+            dx, dy, self.ctile)
         if self.output_idx is None:
             self.action_key += "_None_%i_%i" % (dx, dy)
         else:
@@ -217,7 +226,8 @@ class CityWorkTile(Action):
         packet = {"pid": packet_city_make_worker,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
+        self.wait_for_pid = [(31, self.pcity['tile']),
+                             (15, self.ptile['index'])]
         return packet
 
     """
@@ -241,7 +251,8 @@ class CityUnworkTile(CityWorkTile):
         packet = {"pid": packet_city_make_specialist,
                   "city_id": self.pcity['id'],
                   "tile_id": self.ptile['index']}
-        self.wait_for_pid = [(31, self.pcity['tile']), (15, self.ptile['index'])]
+        self.wait_for_pid = [(31, self.pcity['tile']),
+                             (15, self.ptile['index'])]
         return packet
 
 
@@ -396,7 +407,8 @@ class CityChangeProduction(Action):
 class CityChangeUnitProduction(CityChangeProduction):
 
     def __init__(self, pcity, punit_type):
-        super().__init__(pcity, VUT_UTYPE, punit_type["id"], punit_type["name"])
+        super().__init__(pcity, VUT_UTYPE,
+                         punit_type["id"], punit_type["name"])
         self.punit_type = punit_type
 
     def is_action_valid(self):
@@ -430,7 +442,8 @@ class CityChangeUnitProduction(CityChangeProduction):
 class CityChangeImprovementProduction(CityChangeProduction):
 
     def __init__(self, pcity, pimprovement):
-        super().__init__(pcity, VUT_IMPROVEMENT, pimprovement["id"], pimprovement["name"])
+        super().__init__(pcity, VUT_IMPROVEMENT,
+                         pimprovement["id"], pimprovement["name"])
         self.pimprovement = pimprovement
 
     def is_action_valid(self):
@@ -460,7 +473,8 @@ class CityChangeImprovementProduction(CityChangeProduction):
         if self.pimprovement['name'] == "Coinage":
             build_cost = "-"
 
-        infos = dict([(key, self.pimprovement[key]) for key in ["name", "helptext", "rule_name"]])
+        infos = dict([(key, self.pimprovement[key])
+                     for key in ["name", "helptext", "rule_name"]])
         infos["build_cost"] = build_cost
         return infos
 
@@ -482,4 +496,5 @@ class CityKeepProduction(Action):
         return 'keep_production'
 
     def trigger_action(self, ws_client):
-        self.ws_client.send_message(f"City {self.pcity['id']} keeps production.")
+        self.ws_client.send_message(
+            f"City {self.pcity['id']} keeps production.")

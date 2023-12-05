@@ -13,15 +13,15 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from civrealm.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE,\
-    VUT_GOVERNMENT, VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION, VUT_UTYPE,\
-    VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE, VUT_SPECIALIST, VUT_MINSIZE,\
-    VUT_AI_LEVEL, VUT_TERRAINCLASS, VUT_MINYEAR, VUT_TERRAINALTER, VUT_CITYTILE,\
-    VUT_GOOD, VUT_TERRFLAG, VUT_NATIONALITY, VUT_ROADFLAG,\
-    VUT_EXTRA, VUT_TECHFLAG, VUT_ACHIEVEMENT, VUT_DIPLREL, VUT_MAXTILEUNITS,\
-    VUT_STYLE, VUT_MINCULTURE, VUT_UNITSTATE, VUT_MINMOVES, VUT_MINVETERAN,\
-    VUT_MINHP, VUT_AGE, VUT_NATIONGROUP, VUT_TOPO, VUT_IMPR_GENUS, VUT_ACTION,\
-    VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING, TRI_MAYBE,\
+from civrealm.freeciv.utils.fc_types import TRI_NO, VUT_NONE, TRI_YES, VUT_ADVANCE, \
+    VUT_GOVERNMENT, VUT_IMPROVEMENT, VUT_TERRAIN, VUT_NATION, VUT_UTYPE, \
+    VUT_UTFLAG, VUT_UCLASS, VUT_UCFLAG, VUT_OTYPE, VUT_SPECIALIST, VUT_MINSIZE, \
+    VUT_AI_LEVEL, VUT_TERRAINCLASS, VUT_MINYEAR, VUT_TERRAINALTER, VUT_CITYTILE, \
+    VUT_GOOD, VUT_TERRFLAG, VUT_NATIONALITY, VUT_ROADFLAG, \
+    VUT_EXTRA, VUT_TECHFLAG, VUT_ACHIEVEMENT, VUT_DIPLREL, VUT_MAXTILEUNITS, \
+    VUT_STYLE, VUT_MINCULTURE, VUT_UNITSTATE, VUT_MINMOVES, VUT_MINVETERAN, \
+    VUT_MINHP, VUT_AGE, VUT_NATIONGROUP, VUT_TOPO, VUT_IMPR_GENUS, VUT_ACTION, \
+    VUT_MINTECHS, VUT_EXTRAFLAG, VUT_MINCALFRAG, VUT_SERVERSETTING, TRI_MAYBE, \
     RPT_POSSIBLE, VUT_COUNT
 
 from civrealm.freeciv.tech.tech_helpers import is_tech_known
@@ -58,7 +58,8 @@ class ReqInfo():
             result = TRI_YES
         elif req['kind'] == VUT_ADVANCE:
             # /* The requirement is filled if the player owns the tech. */
-            result = ReqInfo.is_tech_in_range(target_player, req['range'], req['value'])
+            result = ReqInfo.is_tech_in_range(
+                target_player, req['range'], req['value'])
         elif req['kind'] == VUT_GOVERNMENT:
             # /* The requirement is filled if the player is using the government. */
             if target_player == None:

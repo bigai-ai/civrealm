@@ -25,7 +25,8 @@ import civrealm.freeciv.players.player_const as player_const
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-05_01')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T169_2023-07-27-05_01')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -45,7 +46,8 @@ def test_dipl_trade_tech(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['dipl']
-    trade_tech_act = find_keys_with_keyword(player_opt.get_actions(3, valid_only=True), 'trade_tech_clause')[1]
+    trade_tech_act = find_keys_with_keyword(
+        player_opt.get_actions(3, valid_only=True), 'trade_tech_clause')[1]
 
     assert (trade_tech_act.is_action_valid())
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
@@ -57,4 +59,5 @@ def test_dipl_trade_tech(controller):
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[3]
     len_2 = len(clauses)
 
-    assert (len_1 + 1 == len_2 and clauses[0]['type'] == player_const.CLAUSE_ADVANCE)
+    assert (len_1 + 1 == len_2 and clauses[0]
+            ['type'] == player_const.CLAUSE_ADVANCE)

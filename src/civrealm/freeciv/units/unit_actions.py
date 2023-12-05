@@ -92,7 +92,8 @@ class FocusUnit():
                         self.unit_ctrl.units[tunit['transported_by']])['name'] in self.rule_ctrl.ground_unit_transporter:
                     # update transport_count
                     if tunit['transported_by'] in transport_count:
-                        transport_count[tunit['transported_by']] = transport_count[tunit['transported_by']] + 1
+                        transport_count[tunit['transported_by']
+                                        ] = transport_count[tunit['transported_by']] + 1
                     else:
                         # Initialize count for this transporter
                         transport_count[tunit['transported_by']] = 1
@@ -147,7 +148,8 @@ class UnitActions(ActionList):
         self.city_ctrl = city_ctrl
         self.unit_data = {}
         # The action class related to dynamic target units.
-        self.target_unit_action_class = {fc_types.ACTION_TRANSPORT_EMBARK: ActEmbark}
+        self.target_unit_action_class = {
+            fc_types.ACTION_TRANSPORT_EMBARK: ActEmbark}
         # The actions added dynamically. Need to clear the added actions after every step.
         self.target_unit_action_keys = {fc_types.ACTION_TRANSPORT_EMBARK: []}
         # Key: actor_id, value: (cancelled activity, cancelled activity extra target).
@@ -172,7 +174,7 @@ class UnitActions(ActionList):
                 self.add_unit_order_commands(unit_id)
                 # Add actions that query action probability
                 self.add_unit_get_pro_order_commands(unit_id)
-        
+
         self.clear_target_unit_actions()
         self.cancel_orders_before_query_pro()
         self.query_action_probablity()
@@ -196,7 +198,8 @@ class UnitActions(ActionList):
                     # Record the activity to be cancelled.
                     self.cancel_order_dict[unit_id] = (activity, activity_tgt)
                     # Cancel order
-                    self._action_dict[unit_id]['cancel_order'].trigger_action(self.ws_client)
+                    self._action_dict[unit_id]['cancel_order'].trigger_action(
+                        self.ws_client)
 
                 # if unit_id == 103:
                 #     fc_logger.info(f'**Cancel order. {punit}')
@@ -209,11 +212,13 @@ class UnitActions(ActionList):
             if cancelled_activity[0] != fc_types.ACTIVITY_SENTRY and cancelled_activity[0] != fc_types.ACTIVITY_GOTO and cancelled_activity[0] != fc_types.ACTIVITY_EXPLORE:
                 # Get the action corresponding to the cancelled activity.
                 if cancelled_activity[0] == fc_types.ACTIVITY_BASE or cancelled_activity[0] == fc_types.ACTIVITY_GEN_ROAD:
-                    action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]][cancelled_activity[1]]
+                    action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]
+                                                              ][cancelled_activity[1]]
                 else:
                     action_key = fc_types.ACTIVITY_ACTION_MAP[cancelled_activity[0]]
                 # Restore the activity.
-                self._action_dict[unit_id][action_key].trigger_action(self.ws_client)
+                self._action_dict[unit_id][action_key].trigger_action(
+                    self.ws_client)
 
                 # if unit_id == 103:
                 #     fc_logger.info(f'++Restore activity. {self.unit_data[unit_id].punit}')
@@ -237,7 +242,8 @@ class UnitActions(ActionList):
 
     def _update_unit_data(self, punit, pplayer, unit_id):
         if unit_id not in self.unit_data:
-            self.unit_data[unit_id] = FocusUnit(self.rule_ctrl, self.map_ctrl, self.city_ctrl, self.unit_ctrl)
+            self.unit_data[unit_id] = FocusUnit(
+                self.rule_ctrl, self.map_ctrl, self.city_ctrl, self.unit_ctrl)
 
         ptype = self.rule_ctrl.unit_type(punit)
         ptile = self.map_ctrl.index_to_tile(punit['tile'])
@@ -247,17 +253,20 @@ class UnitActions(ActionList):
         # May add ally_units, all neighbor units for other actions.
         # # The enemy_units is useful for the actions that target the enemy units, e.g., attack.
         # enemy_units = self.get_adjacent_enemy_units(ptile)
-        self.unit_data[unit_id].set_focus(punit, ptype, ptile, pterrain, pcity, pplayer)
+        self.unit_data[unit_id].set_focus(
+            punit, ptype, ptile, pterrain, pcity, pplayer)
 
     def update_unit_action_pro(self, actor_unit_id, target_unit_id, dir, prob):
         for action_key in self.target_unit_action_keys:
             # The action that targets a unit is possible. Need to add it dynamically.
             if action_prob_possible(prob[action_key]):
                 unit_focus = self.unit_data[actor_unit_id]
-                action = self.target_unit_action_class[action_key](unit_focus, dir, target_unit_id)
+                action = self.target_unit_action_class[action_key](
+                    unit_focus, dir, target_unit_id)
                 self.add_action(actor_unit_id, action)
                 # Record the added action for auto-removing.
-                self.target_unit_action_keys[action_key].append((actor_unit_id, action.action_key))
+                self.target_unit_action_keys[action_key].append(
+                    (actor_unit_id, action.action_key))
 
         self.unit_data[actor_unit_id].action_prob[dir] = prob
 
@@ -283,7 +292,8 @@ class UnitActions(ActionList):
 
         # Add stay (i.e., no move) direction for this two action.
         for act_class in [ActTradeRoute, ActMarketplace]:
-            self.add_action(unit_id, act_class(unit_focus, map_const.DIR8_STAY))
+            self.add_action(unit_id, act_class(
+                unit_focus, map_const.DIR8_STAY))
 
     def add_unit_get_pro_order_commands(self, unit_id):
         unit_focus = self.unit_data[unit_id]
@@ -293,7 +303,8 @@ class UnitActions(ActionList):
             for dir8 in map_const.DIR8_ORDER:
                 self.add_get_pro_action(unit_id, act_class(unit_focus, dir8))
             # Also query the action pro for the current tile.
-            self.add_get_pro_action(unit_id, act_class(unit_focus, map_const.DIR8_STAY))
+            self.add_get_pro_action(unit_id, act_class(
+                unit_focus, map_const.DIR8_STAY))
 
     # Query action probablity from server
     def query_action_probablity(self):
@@ -328,7 +339,8 @@ class UnitActions(ActionList):
             if valid_only:
                 act_dict = {}
             else:
-                act_dict = dict([(key, None) for key in self._get_pro_action_dict[actor_id]])
+                act_dict = dict([(key, None)
+                                for key in self._get_pro_action_dict[actor_id]])
             if self._can_query_action_pro(actor_id):
                 for action_key in self._get_pro_action_dict[actor_id]:
                     action = self._get_pro_action_dict[actor_id][action_key]
@@ -387,7 +399,8 @@ class ActKeepActivity(Action):
         return 'keep_activity'
 
     def trigger_action(self, ws_client):
-        ws_client.send_message(f"Unit {self.focus.punit['id']} keeps activity.")
+        ws_client.send_message(
+            f"Unit {self.focus.punit['id']} keeps activity.")
         self.focus.punit['keep_activity'] = True
 
 
@@ -396,10 +409,12 @@ class UnitAction(Action):
         self.focus = focus
 
     def is_action_valid(self):
-        raise Exception("Not implemented - To be implemented by specific Action classes")
+        raise Exception(
+            "Not implemented - To be implemented by specific Action classes")
 
     def _action_packet(self):
-        raise Exception("Not implemented - To be implemented by specific Action classes")
+        raise Exception(
+            "Not implemented - To be implemented by specific Action classes")
 
     def utype_can_do_action(self, unit, action_id):
         if not unit['type'] in self.focus.rule_ctrl.unit_types:
@@ -410,7 +425,8 @@ class UnitAction(Action):
             fc_logger.error('utype_can_do_action(): bad unit type.')
             return False
         if action_id >= fc_types.ACTION_COUNT or action_id < 0:
-            fc_logger.error(f'utype_can_do_action(): invalid action id: {action_id}')
+            fc_logger.error(
+                f'utype_can_do_action(): invalid action id: {action_id}')
             return False
 
         return putype['utype_actions'][action_id]
@@ -475,7 +491,8 @@ class ActCancelOrder(UnitAction):
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
         # self.wait_for_pid = 63
-        packet = self._request_new_unit_activity(fc_types.ACTIVITY_IDLE, EXTRA_NONE)
+        packet = self._request_new_unit_activity(
+            fc_types.ACTIVITY_IDLE, EXTRA_NONE)
         return packet
 
 
@@ -540,7 +557,8 @@ class ActTileInfo(StdAction):
         infos['location']['x'] = ptile['x']
         infos['location']['y'] = ptile['y']
         if tile_get_known(ptile) in [TILE_KNOWN_UNSEEN, TILE_UNKNOWN]:
-            show_dialog_message("Tile info", "Location: x:" + ptile['x'] + " y:" + ptile['y'])
+            show_dialog_message("Tile info", "Location: x:" +
+                                ptile['x'] + " y:" + ptile['y'])
             return
 
         punit_id = 0
@@ -561,7 +579,8 @@ class EngineerAction(UnitAction):
     # If a unit is performing an engineering action, we don't show it in the valid action list again. If the unit continues to perform the same action again, we cannot receive response from the server.
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
-            return False  # raise Exception("Unit has no moves left to build city")
+            # raise Exception("Unit has no moves left to build city")
+            return False
 
         # Transported unit cannot do engineer action.
         if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0 and self.focus.pcity is None:
@@ -912,7 +931,8 @@ class ActBuildCity(UnitAction):
 
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
-            return False  # raise Exception("Unit has no moves left to build city")
+            # raise Exception("Unit has no moves left to build city")
+            return False
 
         # Check whether the unit type can do the given action
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_FOUND_CITY):
@@ -972,7 +992,8 @@ class ActJoinCity(UnitAction):
 
     def is_action_valid(self):
         if self.focus.punit['movesleft'] == 0:
-            return False  # raise Exception("Unit has no moves left to build city")
+            # raise Exception("Unit has no moves left to build city")
+            return False
 
         # Check whether the unit type can do the given action
         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_JOIN_CITY):
@@ -983,7 +1004,8 @@ class ActJoinCity(UnitAction):
     def _action_packet(self):
         target_city = self.focus.pcity
         if target_city == None:
-            fc_logger.error('The unit does not locate inside a city, should not call _action_packet() for ActJoin')
+            fc_logger.error(
+                'The unit does not locate inside a city, should not call _action_packet() for ActJoin')
             assert (False)
         unit_id = self.focus.punit["id"]
         # Join city will cause the removal of unit. Wait for the unit remove packet.
@@ -1029,8 +1051,10 @@ class ActBuildRoad(EngineerAction):
             return False
 
         bridge_known = is_tech_known(self.focus.pplayer, 8)
-        tile_no_river = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_RIVER)
-        no_road_yet = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_ROAD)
+        tile_no_river = not TileState.tile_has_extra(
+            self.focus.ptile, fc_types.EXTRA_RIVER)
+        no_road_yet = not TileState.tile_has_extra(
+            self.focus.ptile, fc_types.EXTRA_ROAD)
         return (bridge_known or tile_no_river) and no_road_yet
 
     def _eng_packet(self):
@@ -1055,8 +1079,10 @@ class ActBuildRailRoad(EngineerAction):
             return False
 
         railroad_known = is_tech_known(self.focus.pplayer, 65)
-        already_road = TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_ROAD)
-        no_rail_yet = not TileState.tile_has_extra(self.focus.ptile, fc_types.EXTRA_RAILROAD)
+        already_road = TileState.tile_has_extra(
+            self.focus.ptile, fc_types.EXTRA_ROAD)
+        no_rail_yet = not TileState.tile_has_extra(
+            self.focus.ptile, fc_types.EXTRA_RAILROAD)
         return railroad_known and already_road and no_rail_yet
 
     def _eng_packet(self):
@@ -1262,7 +1288,8 @@ class ActUpgrade(UnitAction):
         if self.focus.pcity is None:
             return False
         return self.focus.ptype != None and self.focus.obsolete_type != None and \
-            can_player_build_unit_direct(self.focus.pplayer, self.focus.obsolete_type)
+            can_player_build_unit_direct(
+                self.focus.pplayer, self.focus.obsolete_type)
 
     def _action_packet(self):
         target_id = self.focus.pcity['id'] if self.focus.pcity != None else 0
@@ -1360,7 +1387,8 @@ class ActUnloadUnit(UnitAction):
         for unit in units:
             # The unit is transported by the focus transporter
             if unit['transported_by'] == self.focus.punit['id']:
-                packets.append(self._unit_do_activity(unit['id'], fc_types.ACTIVITY_IDLE, EXTRA_NONE))
+                packets.append(self._unit_do_activity(
+                    unit['id'], fc_types.ACTIVITY_IDLE, EXTRA_NONE))
                 packets.append(self.unit_do_action(
                     self.focus.punit["id"],
                     unit['id'],
@@ -1398,7 +1426,8 @@ class DiplomaticAction(UnitAction):
     def is_dipl_action_valid(self):
         """Abstract function to check validity of action -
            to be overwritten by specific diplomat action"""
-        raise Exception("Not implemented - should be overwritten by %s" % self.__class__)
+        raise Exception(
+            "Not implemented - should be overwritten by %s" % self.__class__)
 
 
 class ActSpyCityAction(DiplomaticAction):
@@ -1466,7 +1495,8 @@ class ActSpyStealTechTargeted(ActSpyStealTech):
         self._prep_tech_tree()
 
     def _prep_tech_tree(self):
-        self.tech_valid = dict([(tech_id, False) for tech_id in self.focus.techs])
+        self.tech_valid = dict([(tech_id, False)
+                               for tech_id in self.focus.techs])
 
     def is_dipl_action_valid(self):
         self._prep_tech_tree()
@@ -1474,7 +1504,8 @@ class ActSpyStealTechTargeted(ActSpyStealTech):
             return self.tech_valid
 
         for tech_id in self.focus.rule_ctrl.techs:
-            tgt_kn = is_tech_known(self.focus.unit_ctrl.player_ctrl.city_owner(self.focus.pcity), tech_id)
+            tgt_kn = is_tech_known(
+                self.focus.unit_ctrl.player_ctrl.city_owner(self.focus.pcity), tech_id)
 
             if not tgt_kn:
                 continue
@@ -1484,7 +1515,8 @@ class ActSpyStealTechTargeted(ActSpyStealTech):
             * techs the player don't know the prereqs of."""
 
             # /* Actor and target player tech known state. */
-            self.tech_valid[tech_id] = is_tech_prereq_known(self.focus.pplayer, tech_id)
+            self.tech_valid[tech_id] = is_tech_prereq_known(
+                self.focus.pplayer, tech_id)
 
         return self.tech_valid
 
@@ -1597,7 +1629,8 @@ class ActSpyUpgradeUnit(ActSpyUnitAction):
         possible, allow him to order it done."""
 
         bribe_possible = cost <= self.unit_ctrl.unit_owner(actor_unit)['gold']
-        packet = self.unit_do_action(actor_unit['id'], target_unit['id'], act_id, sending=False)
+        packet = self.unit_do_action(
+            actor_unit['id'], target_unit['id'], act_id, sending=False)
 
         return bribe_possible, packet
 
@@ -1606,8 +1639,10 @@ class ActSpyUpgradeUnit(ActSpyUnitAction):
             Show the player the price of inviting the city and, if inciting is
             possible, allow him to order it done.
         """
-        incite_possible = cost != INCITE_IMPOSSIBLE_COST and cost <= self.unit_ctrl.unit_owner(actor_unit)['gold']
-        packet = self.unit_do_action(actor_unit['id'], target_city['id'], act_id, sending=False)
+        incite_possible = cost != INCITE_IMPOSSIBLE_COST and cost <= self.unit_ctrl.unit_owner(actor_unit)[
+            'gold']
+        packet = self.unit_do_action(
+            actor_unit['id'], target_city['id'], act_id, sending=False)
         return incite_possible, packet
 
     def popup_unit_upgrade_dlg(self, actor_unit, target_city, cost, act_id):
@@ -1615,8 +1650,10 @@ class ActSpyUpgradeUnit(ActSpyUnitAction):
             Show the player the price of upgrading the unit and, if upgrading is
             affordable, allow him to order it done.
         """
-        upgrade_possible = cost <= self.unit_ctrl.unit_owner(actor_unit)['gold']
-        packet = self.unit_do_action(actor_unit['id'], target_city['id'], act_id, sending=False)
+        upgrade_possible = cost <= self.unit_ctrl.unit_owner(actor_unit)[
+            'gold']
+        packet = self.unit_do_action(
+            actor_unit['id'], target_city['id'], act_id, sending=False)
         return upgrade_possible, packet
 
     def popup_sabotage_dialog(self, actor_unit, target_city, city_imprs, act_id):
@@ -1630,7 +1667,8 @@ class ActSpyUpgradeUnit(ActSpyUnitAction):
                    * sabotaging it as above zero. """
 
                 packet = self.unit_do_action(actor_unit['id'], target_city['id'], act_id,
-                                             encode_building_id(improvement['id']),
+                                             encode_building_id(
+                                                 improvement['id']),
                                              sending=False)
                 action_options[improvement["id"]] = packet
 
@@ -1656,8 +1694,10 @@ class ActGoto(StdAction):
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
             return False
-        target_idx = self.focus.map_ctrl.index_to_tile(self.focus.punit["tile"])
-        self.move_dir = self.focus.map_ctrl.get_direction_for_step(target_idx, self.newtile)
+        target_idx = self.focus.map_ctrl.index_to_tile(
+            self.focus.punit["tile"])
+        self.move_dir = self.focus.map_ctrl.get_direction_for_step(
+            target_idx, self.newtile)
 
         return not (self.move_dir is None or self.move_dir == -1)
 
@@ -1719,8 +1759,10 @@ class ActHutEnter(StdAction):
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
         if not self.focus.unit_ctrl.can_actor_unit_move(self.focus.punit, self.newtile):
             return False
-        target_idx = self.focus.map_ctrl.index_to_tile(self.focus.punit["tile"])
-        self.move_dir = self.focus.map_ctrl.get_direction_for_step(target_idx, self.newtile)
+        target_idx = self.focus.map_ctrl.index_to_tile(
+            self.focus.punit["tile"])
+        self.move_dir = self.focus.map_ctrl.get_direction_for_step(
+            target_idx, self.newtile)
 
         return not (self.move_dir is None or self.move_dir == -1)
 
@@ -1826,7 +1868,8 @@ class ActGetActionPro(UnitAction):
         else:
             newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
             if newtile is None:
-                self.focus.action_prob[self.dir8] = [{'min': 0, 'max': 0}]*(fc_types.ACTION_COUNT+1)
+                self.focus.action_prob[self.dir8] = [
+                    {'min': 0, 'max': 0}]*(fc_types.ACTION_COUNT+1)
                 return False
             self.target_tile_id = newtile['index']
             if len(newtile['units']) > 0:
@@ -1924,7 +1967,8 @@ class ActNuke(UnitAction):
 
     def key_unit_nuke(self):
         # /* The last order of the goto is the nuclear detonation. */
-        self.activate_goto_last(fc_types.ORDER_PERFORM_ACTION, fc_types.ACTION_NUKE)
+        self.activate_goto_last(
+            fc_types.ORDER_PERFORM_ACTION, fc_types.ACTION_NUKE)
 
 
 class ActEmbassyStay(UnitAction):
@@ -2117,7 +2161,8 @@ def order_wants_direction(order, act_id, ptile):
     if order == fc_types.ORDER_PERFORM_ACTION and action == None:
         # /* Bad action id or action rule data not received and stored
         # * properly. */
-        logger.warning("Asked to put invalid action " + act_id + " in an order.")
+        logger.warning("Asked to put invalid action " +
+                       act_id + " in an order.")
         return False
 
     if order in [fc_types.ORDER_MOVE, ORDER_ACTION_MOVE]:

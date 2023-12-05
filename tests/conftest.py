@@ -49,6 +49,7 @@ def pytest_configure(config):
     worker_id = os.environ.get("PYTEST_XDIST_WORKER")
     fc_args["host"] = config.getoption('--host')
 
+
 @pytest.fixture(scope="module", autouse=True)
 def restore_fc_args_username():
     # restore fc_args to 'testcontroller' after beeing overwritten by minitask
@@ -56,8 +57,10 @@ def restore_fc_args_username():
     if fc_args["username"] == "minitask":
         fc_args["username"] = "testcontroller"
 
+
 def pytest_addoption(parser):
     parser.addoption("--host", action="store", default=fc_args["host"])
+
 
 def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name
@@ -66,6 +69,7 @@ def configure_test_logger(item):
     print(item.name)
     from civrealm.freeciv.utils.freeciv_logging import set_logging_file
     set_logging_file('tests', item.name)
+
 
 @pytest.hookimpl
 def pytest_runtest_call(item):

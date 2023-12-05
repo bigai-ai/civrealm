@@ -45,7 +45,8 @@ class wrapper_override:
         @wraps(wrapped_step)
         def step(self, action):
             wrapped_action = self.action(action) if override_action else action
-            result = dict(list(zip(result_names, wrapped_step(self, wrapped_action))))
+            result = dict(
+                list(zip(result_names, wrapped_step(self, wrapped_action))))
             result["wrapped_action"] = wrapped_action
             result["action"] = action
             for method_name in overrides:
@@ -86,7 +87,8 @@ class wrapper_override:
 
     def __call__(self, cls: Type[gymnasium.Wrapper]):
         if not issubclass(cls, gymnasium.Wrapper):
-            raise TypeError(f"`{cls}' must be a subclass of `gymnasium.Wrapper'")
+            raise TypeError(
+                f"`{cls}' must be a subclass of `gymnasium.Wrapper'")
         for func_name in self.overrides:
             if not hasattr(cls, func_name):
                 raise NotImplementedError(

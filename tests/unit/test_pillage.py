@@ -53,7 +53,8 @@ def test_pillage(controller):
     valid_actions['plant'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
     assert (unit_opt.unit_ctrl.units[551]['activity'] != 0)
-    print(f"Unit 551 participate in activity {unit_opt.unit_ctrl.units[551]['activity']}")
+    print(
+        f"Unit 551 participate in activity {unit_opt.unit_ctrl.units[551]['activity']}")
 
     for worker in worker_id:
         valid_actions = unit_opt.get_actions(worker, valid_only=True)
@@ -113,7 +114,8 @@ def test_pillage(controller):
 
     # Move to a city
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
 

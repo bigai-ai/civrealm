@@ -26,7 +26,7 @@ from civrealm.freeciv.connectivity.civ_connection import CivConnection
 from civrealm.freeciv.game.ruleset import RulesetCtrl
 
 from civrealm.freeciv.utils.base_controller import CivPropController
-from civrealm.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready,\
+from civrealm.freeciv.utils.fc_types import GUI_WEB, packet_client_info, packet_player_ready, \
     packet_conn_pong
 from civrealm.freeciv.utils.base_action import NoActions
 from civrealm.freeciv.utils.base_state import EmptyState
@@ -125,9 +125,11 @@ class ClientState(CivPropController):
         else:
             # Set map seed. The same seed leads to the same map.
             if 'debug.mapseed' in fc_args:
-                self.ws_client.send_message(f'/set mapseed {fc_args["debug.mapseed"]}')
+                self.ws_client.send_message(
+                    f'/set mapseed {fc_args["debug.mapseed"]}')
             if 'debug.gameseed' in fc_args:
-                self.ws_client.send_message(f'/set gameseed {fc_args["debug.gameseed"]}')
+                self.ws_client.send_message(
+                    f'/set gameseed {fc_args["debug.gameseed"]}')
 
         if self.multiplayer_game:
             self.set_multiplayer_game()
@@ -154,13 +156,14 @@ class ClientState(CivPropController):
                 elif self.multiplayer_game:
                     # Everytime follower be connected, the host send a ready message
                     if 'has connected from' in message or 'Load complete' in message:
-                    # if 'has connected from' in message or 'now controls' in message:
-                    # if 'has connected from' in message:
+                        # if 'has connected from' in message or 'now controls' in message:
+                        # if 'has connected from' in message:
                         self.ws_client.send_message('Please be ready to start')
                     # If it is multiplayer game, check if all players are ready
                     if 'alive players are ready to start' in message:
                         # Follower always set itself to be ready when new player join
-                        ready_player_num, overall_player_num = self.get_ready_state(message)
+                        ready_player_num, overall_player_num = self.get_ready_state(
+                            message)
                         if ready_player_num == overall_player_num-1:
                             return True
             elif 'now observes' in message:
@@ -195,7 +198,8 @@ class ClientState(CivPropController):
         # Maybe create an user account on Freeciv Web
         sha_password = self.get_password()
 
-        self.try_create_user_account(fc_args['host'], self.username, sha_password)
+        self.try_create_user_account(
+            fc_args['host'], self.username, sha_password)
 
         # Log in to Freeciv Web through websocket
         login_message = {"pid": 4, "username": self.username,
@@ -227,7 +231,8 @@ class ClientState(CivPropController):
         self.ws_client.send_message(f"/ai {self.user_name}2")
 
         self.ws_client.send_message("/metamessage hotseat game")
-        requests.post(f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(
+            f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def set_multiplayer_game(self):
         # Set AI player to 0. Based on HACKING file
@@ -261,7 +266,8 @@ class ClientState(CivPropController):
         # self.ws_client.send_message("/metaconnection persistent")
         self.ws_client.send_message(
             f"/metamessage Multiplayer Game hosted by {self.username} in port {self.ws_client.client_port}")
-        requests.post(f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
+        requests.post(
+            f"http://{fc_args['host']}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
 
     def update_state(self, packet):
         self.client["conn"] = packet
@@ -344,7 +350,8 @@ class ClientState(CivPropController):
                 # login() in network_init() will increase name_index and connect again
                 self.ws_client.network_init()
             else:
-                raise RuntimeError(f"Login congestion: {packet['message']}. Port: {self.ws_client.client_port}")
+                raise RuntimeError(
+                    f"Login congestion: {packet['message']}. Port: {self.ws_client.client_port}")
         else:
             raise RuntimeError(f"Log in rejected: {packet['message']}")
 
@@ -353,7 +360,8 @@ class ClientState(CivPropController):
 
     def set_client_state(self, newstate):
         """Sets the client state (initial, pre, running, over etc)."""
-        self.connect_error = (C_S_PREPARING == self.civclient_state) and (C_S_PREPARING == newstate)
+        self.connect_error = (C_S_PREPARING == self.civclient_state) and (
+            C_S_PREPARING == newstate)
         self.oldstate = self.civclient_state
 
         if self.civclient_state != newstate:

@@ -9,6 +9,7 @@ By the end of this tutorial, you will be able to
 * Create a new mini-game by yourself
 
 ## 🎮 Setting
+
 ### 🏁 Game Status
 
 To describe whether a mini-game is over, the game-ending conditions include:
@@ -17,6 +18,7 @@ To describe whether a mini-game is over, the game-ending conditions include:
 * Reaching the maximum number of rounds set for the game
 
 The enumerated values are as follows:
+
 ```python title="src/civrealm/envs/freeciv_minitask_env.py"
 @unique
 class MinitaskGameStatus(ExtendedEnum):
@@ -25,9 +27,11 @@ class MinitaskGameStatus(ExtendedEnum):
 ```
 
 ### 🔥 Game Difficulty
+
 Based on the richness of terrain resources, the comparison of unit quantities, and other information, we designed the difficulty level of the mini-game.
 
 The enumerated values are as follows:
+
 ```python title="src/civrealm/envs/freeciv_minitask_env.py"
 @unique
 class MinitaskDifficulty(ExtendedEnum):
@@ -41,6 +45,7 @@ class MinitaskDifficulty(ExtendedEnum):
 In the mini-game, the player’s current victory status can be represented as: failure, success, and unknown. The unknown state signifies that the game has not yet concluded, while the determination of failure and success only occurs after the game ends.
 
 The enumerated values are as follows:
+
 ```python title="src/civrealm/envs/freeciv_minitask_env.py"
 @unique
 class MinitaskPlayerStatus(ExtendedEnum):
@@ -48,65 +53,66 @@ class MinitaskPlayerStatus(ExtendedEnum):
     MPS_FAIL = 0
     MPS_UNKNOWN = -1
 ```
+
 ### 🗺️ Supported Types
 
 We have designed the following 10 types of mini-games:
 
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>Category</b></td>
         <td bgcolor="Lavender"><b>ID</b></td>
         <td bgcolor="Lavender"><b>Name</b></td>
         <td bgcolor="Lavender"><b>Introduction</b></td>
     </tr>
-    <tr> 
+    <tr>
         <td rowspan="4">Development</td>
         <td>1</td>
         <td>development_build_city</td>
         <td>Move settler to suitable areas for building a city.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>2</td>
         <td>development_build_infra</td>
         <td>Command workers to build infrastructures for improving cities.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>3</td>
         <td>development_citytile_wonder</td>
         <td>Arrange work tiles to speed up producing a world wonder.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>4</td>
         <td>development_transport</td>
         <td>Transport settlers by ships to another continent and build cities.</td>
     </tr>
-    <tr> 
+    <tr>
         <td rowspan="5">Battle</td>
         <td>5</td>
         <td>battle_[ancient_era,industry_era,<br>info_era,medieval,modern_era]</td>
         <td>Defeat enemy units on land tiles (units from various ages).</td>
     </tr>
-    <tr> 
+    <tr>
         <td>6</td>
         <td>battle_attack_city</td>
         <td>Conquer an enemy city.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>7</td>
         <td>battle_defend_city</td>
         <td>Against enemy invasion for a certain number of turns.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>8</td>
         <td>battle_naval</td>
         <td>Defeat enemy fleet on the ocean (with Middle Times frigates).</td>
     </tr>
-    <tr> 
+    <tr>
         <td>9</td>
         <td>battle_naval_modern</td>
         <td>Defeat enemy fleet on the ocean (with several classes of modern ships).</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Diplomacy</td>
         <td>10</td>
         <td>diplomacy_trade_tech</td>
@@ -116,6 +122,7 @@ We have designed the following 10 types of mini-games:
 </table>
 
 The enumerated values are as follows:
+
 ```python title="src/civrealm/envs/freeciv_minitask_env.py"
 @unique
 class MinitaskType(ExtendedEnum):
@@ -144,6 +151,7 @@ The steps are as follows:
 <b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
 
 <b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
+
 ```bash
 #!/bin/bash
 image="freeciv-web"
@@ -186,6 +194,7 @@ Inside `reset` method of environment, you can use the parameter `minitask_patter
 `id`: the id of mini-game, the available range is 0 to MAX_ID
 
 For example, if you want to set the type as `development_build_city` and the difficulty as `easy`, then the code is as follows:
+
 ```python
 from civrealm.agents import ControllerAgent
 import gymnasium
@@ -197,7 +206,9 @@ observations, info = env.reset(minitask_pattern={
 ```
 
 ## Definition of Mini-game messages
+
 The messages of mini-game are passed from the server to the agent at each trigger point by lua script setting. The general json structure of message is:
+
 ```json
 {
     "task": "minitask",
@@ -230,12 +241,14 @@ The messages of mini-game are passed from the server to the agent at each trigge
 Generally speaking, it is difficult for random agents to win the battle and diplomacy mini-game, and in the development mini-game, the game victory condition will be met with a certain probability.
 
 The commands are as follows:
+
 ```bash
 cd civrealm/
 python src/civrealm/random_game_minitask.py
 ```
 
 After executing the commands, the log will be like:
+
 ```log
 Step: 0, Turn: 1, Reward: 0.0, Terminated: False, Truncated: False, Action: ('tech', 'cur_player', 'set_tech_goal_Conscription_18')
         Minitask Info: {'status': 0, 'success': -1, 'human_cnt': 11.0, 'ai_cnt': 12.0, 'mini_score': -1.0, 'mini_goal': 11.0, 'max_turn': 50, 'human_leader_alive': 1, 'ai_leader_alive': 1, 'is_mini_success': -1}
@@ -281,13 +294,13 @@ At the beginning of designing a mini-game, you have to answer the following ques
 
 * How to calculate the reward for each step?
 
-* How to set the difficulty of the game? 
+* How to set the difficulty of the game?
 
 These questions will be given appropriate suggestions to some extent below.
 
 ### <b><i>Use gtk tool to generate basic archive</i></b>
 
-The tool of freeciv-gtk is provided by freeciv official team to help us design the very basic version of each mini-game. Please follow the instructions in ((https://github.com/freeciv/freeciv/tree/main/doc)) to install the tool and run it, specify the game settings and ruleset, which would be like:
+The tool of freeciv-gtk is provided by freeciv official team to help us design the very basic version of each mini-game. Please follow the instructions in ((<https://github.com/freeciv/freeciv/tree/main/doc>)) to install the tool and run it, specify the game settings and ruleset, which would be like:
 
 <div align="center">
   <img src="../assets/gtk_intro.png" width="360" />
@@ -312,27 +325,27 @@ The lua script is used to send mini-game messages to the agent. Before adding th
 * In the sav file, there are many key-value structures to describe the current game state. Here, We list the main tags and their explanations:
 
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>Tag</b></td>
         <td bgcolor="Lavender"><b>Description</b></td>
     </tr>
-    <tr> 
+    <tr>
         <td>savefile</td>
         <td>A set of definition rules for common elements, including activity, technology, etc.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>game</td>
         <td>The base state values of the game, such as turn, launch order and year.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>script</td>
         <td>The script of lua. At the inherent or designed trigger points of the game, obtain the internal data of the game, calculate the custom game state values, and send out event messages.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>settings</td>
         <td>The setting of freeciv server.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>map</td>
         <td>The global map of world, and distribution information of resources, cities, and land development.</td>
     </tr>
@@ -340,7 +353,7 @@ The lua script is used to send mini-game messages to the agent. Before adding th
         <td>player0</td>
         <td>The game status of a player with an id of 0, including information such as how many units and cities the player0 have. </td>
     </tr>
-    <tr> 
+    <tr>
         <td>score0</td>
         <td>The scores of a player with an id of 0, including information such as total score and unhappy degree.</td>
     </tr>
@@ -351,41 +364,43 @@ The lua script is used to send mini-game messages to the agent. Before adding th
 </table>
 
 Here, we focus on the implementation of `script` tag. In the sav file, the format of `script` as below:
+
 ```
 [script]
 code=${lua code}$
 ```
+
 `{lua code}` is the code of lua language that implements to send mini-game messages.
 
 <b>Firstly</b>, you need to consider which trigger points to set during the game in order to change the status value of the mini-game, and set up the end conditions of the game.
 All trigger action functions can be referred to the [Lua Reference manual](https://freeciv.fandom.com/wiki/Lua_reference_manual#Legend). We list the common trigger action functions as follows:
 
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>(return) type</b></td>
         <td bgcolor="Lavender"><b>function name/variable</b></td>
         <td bgcolor="Lavender"><b>arguments</b></td>
         <td bgcolor="Lavender"><b>comments</b></td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>turn_begin</td>
         <td>(Number turn, Number year)</td>
         <td>Trigger at each turn begining.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>city_built</td>
         <td>(City city)</td>
         <td>Trigger at city built.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>unit_lost</td>
         <td>(Unit unit, Player loser, String reason)</td>
         <td>Trigger at unit lost.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>city_destroyed</td>
         <td>(City city, Player loser, Player destroyer)</td>
@@ -396,31 +411,31 @@ All trigger action functions can be referred to the [Lua Reference manual](https
 In addition, we developed the following trigger action function to enhance the perception of the freeciv-server game process:
 
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>(return) type</b></td>
         <td bgcolor="Lavender"><b>function name/variable</b></td>
         <td bgcolor="Lavender"><b>arguments</b></td>
         <td bgcolor="Lavender"><b>comments</b></td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>game_started</td>
         <td>(Player player)</td>
         <td>Trigger at game started. The `game_started` supports to display the welcome message at the beginning of the game, if you use the `turn_begin` to set turn=1 to display the welcome message, it will not take effect, because the game thinks that it is already in the current turn running state, and will not trigger the judgment of the `turn_begin`, although this function can be achieved by setting the technique of phase=1 additionally, but the setting will cause other players to act first, which will bring unexpected problems.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>game_ended</td>
         <td>(Player player)</td>
         <td>Trigger at game ended. Since freeciv-server has many internal conditions for ending the game, all the end states of the game can be recycled by using game_ended. If game ended, set mini-game `status`=1(MinitaskGameStatus.MGS_END_GAME).</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>action_finished_worker_build</td>
         <td>(City city)</td>
         <td>Trigger at activity finished by worker.</td>
     </tr>
-    <tr> 
+    <tr>
         <td>Boolean</td>
         <td>action_started_worker_build</td>
         <td>(City city)</td>
@@ -428,7 +443,7 @@ In addition, we developed the following trigger action function to enhance the p
     </tr>
 </table>
 
-<b>Secondly</b>, calculate the mini-score and mini-goal. 
+<b>Secondly</b>, calculate the mini-score and mini-goal.
 
 Taking mini-game `battle` as an example, the formula for calculating the `mini-score` is as follows:
 
@@ -441,6 +456,7 @@ $\text{mini_goal}=\text{unit_cnt_of_human_player}$
 It means that if you want to satisfy mini_score>=mini_goal to succeed, you need to destroy all units of ai player.
 
 <b>Finally</b>, wrap your message of mini-game and send it out throught E.SCRIPT event. The event function is:
+
 ```
 notify.event(nil, nil, E.SCRIPT, _(${message}))
 ```
@@ -471,7 +487,7 @@ class NewMiniGameGenerator(SavTaskGenerator):
 The tools contains `map_op` `unit_op`, `player_op`, `game_op`, etc. The main functions of tools are as follows:
 
 <table>
-    <tr> 
+    <tr>
         <td bgcolor="Lavender"><b>OP</b></td>
         <td bgcolor="Lavender"><b>function name</b></td>
         <td bgcolor="Lavender"><b>comments</b></td>
@@ -498,9 +514,8 @@ The tools contains `map_op` `unit_op`, `player_op`, `game_op`, etc. The main fun
     </tr>
 </table>
 
-Use these functions to help you to implement large batch auto random generation of mini-game. 
+Use these functions to help you to implement large batch auto random generation of mini-game.
 
 ### <b><i>Mini-Game Validation</i></b>
 
 Check your mini-game inside `freeciv-web`, and test the mini-game to follow the section `Play mini-game as a random agent`. If the tests pass, congratulations on completing the task for creating new mini-game.
-

@@ -95,7 +95,8 @@ def onehotifier_maker(category):
             return result
 
     else:
-        raise NotImplementedError(f"Not implemented yet for type {type(category)}")
+        raise NotImplementedError(
+            f"Not implemented yet for type {type(category)}")
     return onehot
 
 

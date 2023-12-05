@@ -26,9 +26,11 @@ class CombineTechResearchGoal(Wrapper):
                 info_tech.pop(f"research_tech_{tech_arg}", False) or goal
             )
             if goal:
-                self.tech_actions["research " + tech_arg] = f"set_tech_goal_{tech_arg}"
+                self.tech_actions["research " +
+                                  tech_arg] = f"set_tech_goal_{tech_arg}"
             else:
-                self.tech_actions["research " + tech_arg] = f"research_tech_{tech_arg}"
+                self.tech_actions["research " +
+                                  tech_arg] = f"research_tech_{tech_arg}"
         info["available_actions"]["tech"][
             self.get_wrapper_attr("my_player_id")
         ] = info_tech

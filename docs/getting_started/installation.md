@@ -1,4 +1,5 @@
 ## Download the source code
+
 Clone the CivRealm repository from GitHub and enter the directory:
 
 ```bash
@@ -6,6 +7,7 @@ cd civrealm
 ```
 
 ## Installation
+>
 > We suggest using Conda to create a clean virtual environment for installation.
 
 Installation through the source code in the CivRealm folder:
@@ -15,6 +17,7 @@ pip install -e .
 ```
 
 ## Test the installation
+
 To test the installation, run the following command in the CivRealm folder:
 
 ```bash
@@ -31,9 +34,6 @@ Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit
 Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 119, 'move SouthEast')
 Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 120, 'move SouthEast')
 ```
-
-
-
 
 <!-- 
 ### Update the freeciv-web image

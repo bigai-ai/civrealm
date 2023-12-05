@@ -15,7 +15,7 @@ The game setting is specified in the "default_settings.yaml" file under the civr
 - hotseat_game: whether to use the hotseat mode in single-player game. By default: False.
 
 - wait_for_observer: whether to wait for an observer join before start the game. By default: False. If set to True, the game will not start until a user observes the game through the browser.
- 
+
 - server_timeout: we consider the server is timeout after it does not respond any messages for server_timeout seconds. In pytest, we automatically set it as 5 in conftest.py.
 
 - wait_for_timeout: sometimes we perform an invalid action and cannot receive the response to wait_for_packs. We wait for wait_for_timeout seconds and clear the wait_for_packs to prevent the process from stucking.
@@ -58,7 +58,7 @@ The game setting is specified in the "default_settings.yaml" file under the civr
 
 ### Settings for debug
 
-- record_action_and_observation: records the game state and available actions at every step. By default: False. **Warning**: generates many log files if True. 
+- record_action_and_observation: records the game state and available actions at every step. By default: False. **Warning**: generates many log files if True.
 
 - take_screenshot: take screenshots during playing. By default: False. *wait_for_observer* flag should be set to True if enable screenshots. Exec "update_javascript_for_clean_screenshot" command first to get cleaner screenshots. **Warning**: generates many log files if True.
 
@@ -72,9 +72,9 @@ The game setting is specified in the "default_settings.yaml" file under the civr
 
 - password: password used to login to the freeciv web account. By default: civrealm.
   
-- load_game: the name of save data to be loaded. By default: "". 
+- load_game: the name of save data to be loaded. By default: "".
 
-- randomly_generate_seeds: whether to use randomly generated seeds for running games. By default: True. If set to True, the following random seeds (mapseed, gameseed, agentseed) are ignored. 
+- randomly_generate_seeds: whether to use randomly generated seeds for running games. By default: True. If set to True, the following random seeds (mapseed, gameseed, agentseed) are ignored.
 
 - mapseed: the seed for generating a map. The same seed leads to the same map.
 

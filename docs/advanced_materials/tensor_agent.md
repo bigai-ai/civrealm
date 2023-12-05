@@ -78,25 +78,33 @@ which we will use to train our agents in the Civrealm Tensor Environment.
 To get started, follow these steps:
 
 1. Clone the civrealm-tensor-baseline repository from GitHub and enter the directory:
+
    ```bash
    cd civrealm-tensor-baseline
    ```
+
 2. Install the required dependencies by running:
+
    ```bash
    pip install -e .
    ```
-3. Training 
+
+3. Training
   PPO baseline for **fullgame**
+
   ```bash
   cd examples
   python train.py
   ```
+
   In default, this would start a runner with the config specified in `civrealm-tensor-baseline/civtensor/configs/`.
 4. **OR** Train PPO baseline for **minitasks**:
+
   ```bash
   cd examples
   python run.py
   ```
+
   In default, this would start a sequence of runners each with a minitask config specified in `civrealm-tensor-baseline/examples/run_configs`.
   Either will start the training process, allowing the agent to interact with the environment,
   collect experiences, and update its policy using the PPO algorithm.
@@ -110,6 +118,7 @@ the civrealm-tensor-baseline repository.
     # where $game_type = fullgame or minitask
     tensorboard --logdir logs/
     ```
+
 The output of the last command should return a url.
 ![Terminal Output](../assets/tensorboard.png)
 Visit this url with your favorite web browser, and you can view your agent behavior in real time.

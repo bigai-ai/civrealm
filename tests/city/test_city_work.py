@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T257_2023-08-07-14_04')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T257_2023-08-07-14_04')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -50,7 +51,8 @@ def test_city_work(controller):
     for city_id in city_opt.cities:
         pcity = city_opt.cities[city_id]
 
-        valid_work_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True), 'city_work')
+        valid_work_actions = find_keys_with_keyword(
+            city_opt.get_actions(city_id, valid_only=True), 'city_work')
         if len(valid_work_actions) == 0:
             continue
 
@@ -60,7 +62,8 @@ def test_city_work(controller):
         dy = work_action.dy
 
         ctile = city_opt.city_map.map_ctrl.city_tile(pcity)
-        wtile = city_opt.city_map.map_ctrl.map_pos_to_tile(ctile["x"] + dx, ctile["y"] + dy)
+        wtile = city_opt.city_map.map_ctrl.map_pos_to_tile(
+            ctile["x"] + dx, ctile["y"] + dy)
         if_work_1 = wtile["worked"]
 
         work_action.trigger_action(controller.ws_client)

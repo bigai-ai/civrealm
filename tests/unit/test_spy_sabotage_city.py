@@ -53,7 +53,8 @@ def test_spy_sabotage(controller):
     print(f"Participate in activity {punit['activity']}")
 
     valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
-    test_action_list.append(valid_actions[f'spy_sabotage_city_{map_const.DIR8_SOUTHWEST}'])
+    test_action_list.append(
+        valid_actions[f'spy_sabotage_city_{map_const.DIR8_SOUTHWEST}'])
 
     print('Sabotage the city on southwest tile')
     # Perform spy_sabotage action of the diplomat

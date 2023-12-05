@@ -72,7 +72,8 @@ class CityCtrl(CivPropController):
         self.clstate = clstate
 
         self.prop_state = CityState(self.cities, rule_ctrl, map_ctrl)
-        self.prop_actions = CityActions(ws_client, self.cities, rule_ctrl, map_ctrl)
+        self.prop_actions = CityActions(
+            ws_client, self.cities, rule_ctrl, map_ctrl)
 
     def register_all_handlers(self):
         # self.register_handler(13, "handle_scenario_description")
@@ -127,7 +128,8 @@ class CityCtrl(CivPropController):
 
         if pcity['traderoute_count'] != 0 and routes is None:
             # /* This city is supposed to have trade routes. It doesn't.  */
-            fc_logger.info("Can't find the trade routes " + pcity['name'] + " is said to have")
+            fc_logger.info("Can't find the trade routes " +
+                           pcity['name'] + " is said to have")
             return
 
         for i in range(pcity['traderoute_count']):
@@ -147,7 +149,8 @@ class CityCtrl(CivPropController):
             if tcity is None:
                 continue
 
-            trade_data["trade_"+good['name']].append((tcity['name'], routes[i]['value']))
+            trade_data["trade_"+good['name']
+                       ].append((tcity['name'], routes[i]['value']))
 
         return trade_data
 
@@ -188,7 +191,8 @@ class CityCtrl(CivPropController):
                               size=self.rule_ctrl.ruleset_control['num_impr_types']),
             dtype=np.bool_)
         # TODO: check the shape of city_options
-        packet['city_options'] = np.array(byte_to_bit_array(packet['city_options'], size=CITYO_LAST), dtype=np.bool_)
+        packet['city_options'] = np.array(byte_to_bit_array(
+            packet['city_options'], size=CITYO_LAST), dtype=np.bool_)
 
         # logger.info("handle_city_info packet: ", packet)
 
@@ -221,16 +225,19 @@ class CityCtrl(CivPropController):
         """
 
         packet['can_build_unit'] = np.array(
-            byte_to_bit_array(packet['can_build_unit'], size=self.rule_ctrl.ruleset_control['num_unit_types']),
+            byte_to_bit_array(
+                packet['can_build_unit'], size=self.rule_ctrl.ruleset_control['num_unit_types']),
             dtype=np.bool_)
         packet['can_build_improvement'] = np.array(
-            byte_to_bit_array(packet['can_build_improvement'], size=self.rule_ctrl.ruleset_control['num_impr_types']),
+            byte_to_bit_array(packet['can_build_improvement'],
+                              size=self.rule_ctrl.ruleset_control['num_impr_types']),
             dtype=np.bool_)
 
         # logger.info("handle_web_city_info_addition packet: ", packet)
         if packet["id"] not in self.cities:
             # /* The city should have been sent before the additional info. */
-            fc_logger.info("packet_web_city_info_addition for unknown city ", packet['id'])
+            fc_logger.info(
+                "packet_web_city_info_addition for unknown city ", packet['id'])
             return
         else:
             # Merge the information from web_city_info_addition into the recently

@@ -65,18 +65,25 @@ def test_get_action_pro(controller):
             # Attack pros are different given different targets.
             assert (unit_focus.action_prob[map_const.DIR8_NORTHWEST]
                     [fc_types.ACTION_ATTACK] == {'min': 200, 'max': 200})
-            assert (unit_focus.action_prob[map_const.DIR8_SOUTHEAST][fc_types.ACTION_ATTACK] == {'min': 1, 'max': 2})
+            assert (unit_focus.action_prob[map_const.DIR8_SOUTHEAST]
+                    [fc_types.ACTION_ATTACK] == {'min': 1, 'max': 2})
             # Cannot move to sea (north and west).
-            assert (unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert (unit_focus.action_prob[map_const.DIR8_WEST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_NORTH]
+                    [fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_WEST][fc_types.ACTION_UNIT_MOVE] == {
+                    'min': 0, 'max': 0})
             # Cannot move to east. TODO: figure out why. Maybe because an enemy unit is doing fortify.
-            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {
+                    'min': 0, 'max': 0})
             # Can move to own units.
-            assert (unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE])
+            assert (
+                unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE])
         if unit_id == 126:
             # Cannot move to enemy unit. Explorer also cannot attack enemy.
-            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_ATTACK] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_UNIT_MOVE] == {
+                    'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_EAST][fc_types.ACTION_ATTACK] == {
+                    'min': 0, 'max': 0})
         #     ptile = unit_focus.ptile
         #     tile = unit_opt.map_ctrl.mapstep(ptile, map_const.DIR8_NORTH)
         #     extra = tile['extras']

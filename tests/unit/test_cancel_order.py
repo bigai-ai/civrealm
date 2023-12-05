@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.fc_types import ACTIVITY_FORTIFIED, ACTIVITY_FORTIFY
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -48,7 +49,8 @@ def test_cancel_order(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 139:
             # Move to north
-            valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+            valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(
+                controller.ws_client)
         if unit_id == 185:
             # Fortify
             print(f'unit_id: {unit_id} do fortify.')
@@ -128,7 +130,8 @@ def test_cancel_order(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_cancel_order(controller)
 
 

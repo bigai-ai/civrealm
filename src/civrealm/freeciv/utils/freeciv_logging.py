@@ -24,7 +24,8 @@ import logging.config
 from civrealm.configs.logging_config import LOGGING_CONFIG
 
 # You can set the level to logging.DEBUG or logging.WARN if you want to change the amount of output.
-log_dir = os.path.dirname(LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'])
+log_dir = os.path.dirname(
+    LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'])
 if not os.path.exists(log_dir):
     os.makedirs(log_dir)
 logging.config.dictConfig(LOGGING_CONFIG)
@@ -41,10 +42,12 @@ def set_logging_file(log_dir_name, log_file_suffix, remove_old_suffix=True):
     basename, ext = os.path.splitext(os.path.basename(logger_filename))
     if remove_old_suffix:
         basename = basename.split('_')[0]
-    logger_filename = os.path.normpath(os.path.join(log_dir, f'{basename}_{log_file_suffix}{ext}'))
+    logger_filename = os.path.normpath(os.path.join(
+        log_dir, f'{basename}_{log_file_suffix}{ext}'))
 
     file_handler_with_suffix = logging.FileHandler(logger_filename, 'w')
-    formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
+    formatter = logging.Formatter(
+        LOGGING_CONFIG['formatters']['standard']['format'])
     file_handler_with_suffix.setFormatter(formatter)
 
     for handler in fc_logger.handlers[:]:
@@ -62,14 +65,15 @@ def ray_logger_setup():
 
 def update_logger(original_name, new_name):
     print('update logger')
-    log_dir = os.path.dirname(LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'])
+    log_dir = os.path.dirname(
+        LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'])
     if not os.path.exists(log_dir):
         os.makedirs(log_dir)
 
     log_file_name = LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename']
     # Update log file name
-    LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'] = log_file_name.replace(original_name, new_name)
+    LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename'] = log_file_name.replace(
+        original_name, new_name)
     logging.config.dictConfig(LOGGING_CONFIG)
     global fc_logger
     fc_logger = logging.getLogger('civrealm')
-

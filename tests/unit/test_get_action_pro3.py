@@ -31,7 +31,8 @@ from civrealm.freeciv.utils.fc_types import EXTRA_ROAD, EXTRA_MINE
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -87,7 +88,8 @@ def test_get_action_pro3(controller):
             print(
                 f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     valid_actions = unit_opt.get_actions(138, valid_only=True)
-    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
     print("Move south")
@@ -101,7 +103,8 @@ def test_get_action_pro3(controller):
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     assert ('mine' in valid_actions)
     # TODO: current server does not return correct probability for build_road action in the hill. If this assert fails in the future, we can update the action_valid() for build_road action.
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_ROAD] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_ROAD] == {'min': 0, 'max': 0})
     valid_actions['mine'].trigger_action(controller.ws_client)
     for turn_i in range(11):
         controller.send_end_turn()
@@ -112,7 +115,8 @@ def test_get_action_pro3(controller):
         if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
             print(
                 f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 200, 'max': 200})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_PILLAGE] == {'min': 200, 'max': 200})
     build_tile = unit_opt.map_ctrl.index_to_tile(unit_focus.punit['tile'])
     print(f"extras[EXTRA_MINE]: {build_tile['extras'][EXTRA_MINE]}")
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
@@ -130,7 +134,8 @@ def test_get_action_pro3(controller):
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
-    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
     print("Move south")
@@ -201,7 +206,8 @@ def test_get_action_pro3(controller):
                 f'index: {i}, action name: {fc_types.ACTION_NAME_DICT[i]}, {unit_focus.action_prob[map_const.DIR8_STAY][i]}')
     print(f"Extra set bit: {find_set_bits(build_tile['extras'])}")
     # There is only a Gold extra in the tile and the pillage action should be invalid.
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_PILLAGE] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_PILLAGE] == {'min': 0, 'max': 0})
 
     valid_actions = unit_opt.get_actions(138, valid_only=True)
     assert ('pillage' not in valid_actions)
@@ -226,7 +232,8 @@ def test_get_action_pro3(controller):
     # punit = unit_opt.unit_ctrl.units[unit_id]
     # unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(
+        controller.ws_client)
     print('Move north')
 
     controller.send_end_turn()
@@ -245,7 +252,8 @@ def test_get_action_pro3(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_get_action_pro3(controller)
 
 

@@ -36,9 +36,11 @@ def configure_test_logger():
             os.makedirs(log_dir)
 
     basename, ext = os.path.splitext(os.path.basename(logger_filename))
-    logger_filename = os.path.join(log_dir, f"{basename}_{fc_args['username']}{ext}")
+    logger_filename = os.path.join(
+        log_dir, f"{basename}_{fc_args['username']}{ext}")
     file_handler_with_id = logging.FileHandler(logger_filename, 'w')
-    formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
+    formatter = logging.Formatter(
+        LOGGING_CONFIG['formatters']['standard']['format'])
     file_handler_with_id.setFormatter(formatter)
 
     for handler in fc_logger.handlers[:]:

@@ -50,7 +50,8 @@ def test_mine(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTH}'])
             build_action = valid_actions['mine']
         else:
             pass

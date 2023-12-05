@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T201_2023-07-31-07_46')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T201_2023-07-31-07_46')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -57,7 +58,8 @@ def test_build_railroad(controller):
                 f"Unit id: {unit_id}, position: ({build_tile['x']}, {build_tile['y']}), extras[EXTRA_RAILROAD]: {build_tile['extras'][EXTRA_RAILROAD]}, move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
             assert ('build_railroad' in valid_actions)
             print(f'unit_id: {unit_id} build railroad.')
-            valid_actions['build_railroad'].trigger_action(controller.ws_client)
+            valid_actions['build_railroad'].trigger_action(
+                controller.ws_client)
         if unit_id == 236:
             # worker on a tile without road, shouldn't be able to build railroad
             assert (not build_tile['extras'][EXTRA_ROAD] == 1)
@@ -69,7 +71,8 @@ def test_build_railroad(controller):
             controller.get_info_and_observation()
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             # move to northeast tile which has road
-            valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'].trigger_action(controller.ws_client)
+            valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'].trigger_action(
+                controller.ws_client)
     controller.get_info_and_observation()
     for unit_id in unit_ids:
         punit = unit_opt.unit_ctrl.units[unit_id]
@@ -95,7 +98,8 @@ def test_build_railroad(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T201_2023-07-31-07_46')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T201_2023-07-31-07_46')
     test_build_railroad(controller)
 
 

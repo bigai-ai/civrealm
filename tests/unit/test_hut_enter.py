@@ -55,14 +55,16 @@ def test_hut_enter(controller):
             # Not hut in the north
             assert ('hut_enter_1' not in valid_actions)
             # Go to north
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTH}'])
 
         elif unit_id == 138:
             assert ('hut_enter_2' in valid_actions)
             # This unit is building road.
             assert (punit['activity'] == ACTIVITY_GEN_ROAD)
             test_action_list.append(valid_actions['hut_enter_2'])
-            target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTHEAST)
+            target_tile = unit_opt.map_ctrl.mapstep(
+                unit_tile, map_const.DIR8_NORTHEAST)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
 
     # Perform goto action for each unit
@@ -87,7 +89,8 @@ def test_hut_enter(controller):
             assert ('hut_enter_1' in valid_actions)
             # Enter hut
             valid_actions['hut_enter_1'].trigger_action(controller.ws_client)
-            target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTH)
+            target_tile = unit_opt.map_ctrl.mapstep(
+                unit_tile, map_const.DIR8_NORTH)
             assert (target_tile['extras'][EXTRA_HUT] == 1)
 
     controller.get_info_and_observation()

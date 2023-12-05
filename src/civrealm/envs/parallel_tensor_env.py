@@ -90,12 +90,14 @@ class ParallelTensorEnv:
                 try:
                     ray.get(self.envs[env_id].close.remote())
                     # Get the final score
-                    final_score = ray.get(self.envs[env_id].get_final_score.remote())
+                    final_score = ray.get(
+                        self.envs[env_id].get_final_score.remote())
                     # Append the new final score to recent_scores
                     for tag in final_score.keys():
                         # Some keys are new and we need to add them
                         if tag not in self.recent_scores:
-                            self.recent_scores[tag] = deque(maxlen=fc_args['score_window'])
+                            self.recent_scores[tag] = deque(
+                                maxlen=fc_args['score_window'])
                         self.recent_scores[tag].append(final_score[tag])
                 except Exception as e:
                     fc_logger.error(f'ParallelTensorEnv: {repr(e)}')
@@ -103,7 +105,8 @@ class ParallelTensorEnv:
                 while True:
                     try:
                         print("Reinitialze env....")
-                        (observation, info) = ray.get(self.envs[env_id].reset.remote())
+                        (observation, info) = ray.get(
+                            self.envs[env_id].reset.remote())
                         if not (observation is None or info is None):
                             break
                         else:
@@ -121,6 +124,6 @@ class ParallelTensorEnv:
                 unfinished = False
 
         return observations, rewards, terminated, truncated, infos
-    
+
     def get_recent_scores(self):
         return {tag: list(self.recent_scores[tag]) for tag in self.recent_scores.keys()}

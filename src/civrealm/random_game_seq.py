@@ -20,7 +20,8 @@ import civrealm
 import gymnasium
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*')
+warnings.filterwarnings(
+    'ignore', message='.*The obs returned by the .* method.*')
 
 
 def main():
@@ -42,7 +43,8 @@ def run(port):
     while not done:
         try:
             action = agent.act(observations, info)
-            observations, reward, terminated, truncated, info = env.step(action)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
             done = terminated or truncated
         except Exception as e:
             fc_logger.warning(repr(e))

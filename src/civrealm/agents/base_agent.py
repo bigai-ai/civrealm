@@ -57,7 +57,8 @@ class BaseAgent(ABC):
                 if actor_id in self.planned_actor_ids[env_id]:
                     # We have planned an action for this actor in this turn.
                     continue
-                fc_logger.debug(f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl, actions: {action_dict}')
+                fc_logger.debug(
+                    f'Trying to operate actor_id {actor_id} by {ctrl_type}_ctrl, actions: {action_dict}')
 
                 for action_name in list(action_dict.keys()):
                     if not action_dict[action_name]:

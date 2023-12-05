@@ -14,14 +14,13 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 import gymnasium
 import ray
 import os
 # Disable log deduplication of Ray. This ensures the print messages from all actors can be shown.
 os.environ['RAY_DEDUP_LOGS'] = '0'
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 @ray.remote
 class FreecivParallelEnv():
@@ -36,7 +35,6 @@ class FreecivParallelEnv():
         # time.sleep(3)
         # action = None
         return self.env.step(action)
-
 
     def reset(self, **kwargs):
         # print('FreecivParallelEnv.reset...')
@@ -54,7 +52,7 @@ class FreecivParallelEnv():
 
     def get_username(self):
         return self.env.unwrapped.get_username()
-    
+
     def get_playerid(self):
         return self.env.unwrapped.get_playerid()
 
@@ -63,9 +61,9 @@ class FreecivParallelEnv():
 
     def get_final_score(self):
         return self.env.unwrapped.get_final_score()
-    
+
     def plot_game_scores(self):
         return self.env.unwrapped.plot_game_scores()
-    
+
     def get_game_results(self):
         return self.env.unwrapped.get_game_results()

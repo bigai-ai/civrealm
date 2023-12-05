@@ -29,7 +29,8 @@ from BitVector import BitVector
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -65,8 +66,10 @@ def test_get_action_pro2(controller):
         #     f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
         if unit_id == 140:
             # The agent cannot move to sea.
-            assert (unit_focus.action_prob[map_const.DIR8_SOUTH][fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
-            assert (unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {'min': 200, 'max': 200})
+            assert (unit_focus.action_prob[map_const.DIR8_SOUTH]
+                    [fc_types.ACTION_UNIT_MOVE] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_NORTH][fc_types.ACTION_UNIT_MOVE] == {
+                    'min': 200, 'max': 200})
 
         # for i in range(len(unit_focus.action_prob[map_const.DIR8_STAY])):
         #     if unit_focus.action_prob[map_const.DIR8_STAY][i] != {'min': 0, 'max': 0}:
@@ -75,7 +78,8 @@ def test_get_action_pro2(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_get_action_pro2(controller)
 
 

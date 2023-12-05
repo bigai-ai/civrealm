@@ -29,7 +29,8 @@ class FreecivLLMEnv(Wrapper):
                  username: str = fc_args["username"],
                  client_port: int = fc_args["client_port"]):
 
-        llm_env = LLMWrapper(FreecivBaseEnv(username=username, client_port=client_port))
+        llm_env = LLMWrapper(FreecivBaseEnv(
+            username=username, client_port=client_port))
         super().__init__(llm_env)
 
     def reset(self, **kwargs):

@@ -35,7 +35,8 @@ class FreecivA3CEnv():
         # time.sleep(3)
         return self.env.step(action)
 
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = self.env.step(
+            action)
         return self.env.civ_controller.get_turn(), 0, False, truncated, self.env.civ_controller.get_turn()
 
     def reset(self):

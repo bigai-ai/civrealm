@@ -37,7 +37,8 @@ class UnitState(DictState):
         self.type_unit_fields = [
             'rule_name', 'attack_strength', 'defense_strength', 'firepower', 'build_cost', 'convert_time',
             'converted_to', 'obsoleted_by', 'hp', 'move_rate', 'vision_radius_sq', 'worker']
-        self.my_unit_fields = ['home_city', 'moves_left', 'upkeep_food', 'upkeep_shield', 'upkeep_gold']
+        self.my_unit_fields = ['home_city', 'moves_left',
+                               'upkeep_food', 'upkeep_shield', 'upkeep_gold']
 
     def _update_state(self, pplayer):
         """ 
@@ -46,7 +47,8 @@ class UnitState(DictState):
         self._state = {}
         for unit_id in self.unit_ctrl.units.keys():
             punit = self.unit_ctrl.units[unit_id]
-            self._state[unit_id] = self._get_unit_state(punit, punit['owner'] == pplayer['playerno'])
+            self._state[unit_id] = self._get_unit_state(
+                punit, punit['owner'] == pplayer['playerno'])
 
     def _get_unit_state(self, punit, unit_owned):
         """Returns a dictionary of all infos relevant for unit_state."""

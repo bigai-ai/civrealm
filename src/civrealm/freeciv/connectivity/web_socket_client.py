@@ -53,7 +53,8 @@ class WebSocketClient(object):
                                          connect_timeout=self.connect_timeout,
                                          request_timeout=self.request_timeout,
                                          headers=headers)
-        websocket.websocket_connect(request, callback=self._connect_callback, on_message_callback=self._on_message)
+        websocket.websocket_connect(
+            request, callback=self._connect_callback, on_message_callback=self._on_message)
 
     @final
     def start_ioloop(self):
@@ -84,7 +85,8 @@ class WebSocketClient(object):
         :param str data: message.
         """
         if not self._ws_connection:
-            fc_logger.debug(f'web_socket_client::send: Web socket connection has not been established.')
+            fc_logger.debug(
+                f'web_socket_client::send: Web socket connection has not been established.')
             return
         # TODO: check if we need to clear empty spaces
         msg = json.dumps(data)

@@ -1,3 +1,5 @@
+import gymnasium
+import time
 import warnings
 
 import numpy as np
@@ -9,11 +11,8 @@ from civrealm.envs.freeciv_wrapper.utils import *
 from civrealm.freeciv.utils.port_utils import Ports
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
-
-import time
-
-import gymnasium
+warnings.filterwarnings(
+    "ignore", message=".*The obs returned by the .* method.*")
 
 
 @pytest.fixture(params=MinitaskType.list())

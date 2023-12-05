@@ -10,3 +10,9 @@
 
   --md-code-hl-color: #4287FF1A;
 }
+.md-typeset__table {
+   min-width: 100%;
+}
+.md-typeset table:not([class]) {
+    display: table;
+}

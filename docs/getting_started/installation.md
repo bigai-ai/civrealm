@@ -1,27 +1,36 @@
 # Installation
 
-## Download the Source Code
+## Python Version
 
-Clone the CivRealm repository from GitHub and enter the directory:
+Civrealm requires Python version `>=3.8`.
+
+!!! note "Python Environment"
+    We suggest using [Anaconda](https://www.anaconda.com/data-science-platform) to create a clean virtual environment for installation.
+
+### Virtual Environment
+
+If you are using [Anaconda](https://www.anaconda.com/data-science-platform), you can create a new environment `civrealm` with Python 3.8 by running the following command:
 
 ```bash
-cd civrealm
+conda create -n civrealm python=3.8
+conda activate civrealm
 ```
 
 ## Installation
 
-!!! note "Python Environment"
-    We suggest using Conda to create a clean virtual environment for installation.
-
-Installation through the source code in the CivRealm folder:
+Clone the CivRealm repository from GitHub and enter the directory. Then
+install through pip with the source code in the CivRealm folder:
 
 ```bash
+cd civrealm
 pip install -e .
 ```
 
 ## Test the Installation
 
-To test the installation, run the following command after installation:
+### Single-Player Mode (Against Built-in AIs)
+
+To test the installation, run the following command after installation. It starts a game with one customized player game against built-in AIs with the default settings.
 
 ```bash
 test_civrealm
@@ -38,7 +47,8 @@ Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit
 Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 120, 'move SouthEast')
 ```
 
-## Multi-Player Mode
+### Multi-Player Mode
+
 To test with multiple players, run the following command in one terminal to start the game with player `myagent`:
 
 ```bash

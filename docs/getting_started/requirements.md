@@ -1,13 +1,5 @@
 # Requirements
 
-## Python Version
-
-Civrealm requires Python version >=3.8. If you are using [Anaconda](https://www.anaconda.com/data-science-platform), you can create a new environment `civrealm` with Python 3.8 by running the following command:
-
-```bash
-conda create -n civrealm python=3.8
-```
-
 ## Docker Image of Freeciv-web
 
 !!! warning "Do not use the original Freeciv-web"

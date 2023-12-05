@@ -1,4 +1,6 @@
-The game setting is specified in the "default_settings.yaml" file under the civrealm folder. The details of the game setting are as follows:
+# Game Settings
+
+The game setting is specified in the `default_settings.yaml` file under the civrealm folder. The details of the game setting are as follows:
 
 ### Basic settings for game play
 

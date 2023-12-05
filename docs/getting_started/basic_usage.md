@@ -1,3 +1,5 @@
+# Basic Usage
+
 ## Initializing a Basic Environment
 
 Initializing a basic/LLM Freeciv environment is simple with the Gymnasium API:

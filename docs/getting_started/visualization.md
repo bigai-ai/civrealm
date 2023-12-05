@@ -1,4 +1,4 @@
-## Visualization
+# Visualization
 
 To observe the game play, you can access <http://localhost:8080/> on a browser. Then, please click the "Online Games" button. You can find the running game under the "MULTIPLAYER" tab as shown below.
 > :warning:

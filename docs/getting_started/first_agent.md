@@ -1,4 +1,4 @@
-## Write your first agent
+# Write Your First Agent
 
 ```python
 import random

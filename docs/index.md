@@ -35,21 +35,21 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
     <div class="text">
       <h3>Getting Started</h3>
       <p>New to Civrealm? Start with our Beginner's Guide. This guide offers an overview of CivRealm's core concepts and provides links to further tutorials.</p>
-      <button><a href="getting_started/system_requirements.html">To the beginner</a></button>
+      <button><a href="getting_started/requirements.html">To the beginner</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>Advanced Materials</h3>
       <p>The advanced materials offer comprehensive insights into Civrealm's essential concepts, complemented by valuable background details.</p>
-      <button><a href="advanced_materials/frame.html">To the old hand</a></button>
+      <button><a href="advanced_materials/game_settings.html">To the old hand</a></button>
     </div>
   </article>
   <article>
     <div class="text">
       <h3>API Reference</h3>
       <p>The reference guide provides an in-depth explanation of the functions and objects incorporated within Civrealm. It elaborates on the function APIs.</p>
-      <button><a href="api_reference/api.html">To the reference</a></button>
+      <button><a href="api_reference/environments.html">To the reference</a></button>
     </div>
   </article>
   <article>

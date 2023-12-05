@@ -36,11 +36,11 @@ class CivWSClient(WebSocketClient):
         self.send_queue = []
         self.on_connection_success_callback = None
         self.on_message_callback = None
-        # Store the exception raised in _on_message()
-        self.on_message_exception = None
-        # Store the server_timeout_callback handle. We use this to cancel the server_timeout_callback if we receive non-empty messages from the server.
+        # Store the exception raised in _get_info()
+        self.get_info_exception = None
+        # Store the server_timeout_callback handle during init() and perform_action() as we need to wait for the server's response. We use this to cancel the server_timeout_callback if we receive non-empty messages from the server.
         self.server_timeout_handle = None
-        # Store the wait_for_pid timeout handle
+        # Store the wait_for_pid timeout handle. When we perform invalid actions in some unknown situations, the server will not provide responses for invalid actions and we should not wait indefinitely.
         self.wait_for_timeout_handle = None
         # Store the begin_turn timeout handle. Sometimes, the server does not send begin_turn packet for unknown reason, which stucks the game running.
         self.begin_turn_timeout_handle = None
@@ -73,7 +73,7 @@ class CivWSClient(WebSocketClient):
             # self.close()
             fc_logger.error(f"{repr(e)}")
             # Store the exception raised in callback to the main process, and then stop the ioloop to handle the exception.
-            self.on_message_exception = e
+            self.get_info_exception = e
             try:
                 self.stop_ioloop()
             except Exception as e:

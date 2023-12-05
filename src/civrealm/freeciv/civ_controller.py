@@ -45,6 +45,8 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 from civrealm.freeciv.turn_manager import TurnManager
 from civrealm.configs import fc_args, fc_web_args
+from civrealm.exception import ServerTimeoutException
+from civrealm.exception import BeginTurnTimeoutException
 
 MAX_REQUESTS = 1
 SLEEP_TIME = 1
@@ -254,7 +256,7 @@ class CivController(CivPropController):
             fc_logger.debug('Server Timeout. Stop ioloop...')
         except Exception as e:
             fc_logger.error(f"{repr(e)}")
-        self.ws_client.on_message_exception = Exception(
+        self.ws_client.get_info_exception = ServerTimeoutException(
             'Timeout: No response received from server.')
 
     # Set a begin_turn timeout callback
@@ -265,7 +267,7 @@ class CivController(CivPropController):
             fc_logger.debug('Begin_turn Timeout. Stop ioloop...')
         except Exception as e:
             fc_logger.error(f"{repr(e)}")
-        self.ws_client.on_message_exception = Exception(
+        self.ws_client.get_info_exception = BeginTurnTimeoutException(
             'Timeout: No begin_turn packet received from server.')
 
     # Set a wait_for_timeout callback
@@ -366,20 +368,26 @@ class CivController(CivPropController):
             self.ws_client.send_message(f"Debug. Do nothing for this step.")
         else:
             self.turn_manager.perform_action(action, self.ws_client)
+        # Logically, the previous time_out_callback should have been canceled.
+        assert self.ws_client.server_timeout_handle == None
         # Add server timeout handler
         self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['server_timeout'], self.server_timeout_callback)
-        # Add wait_for timeout handler
-        self.ws_client.wait_for_timeout_handle = self.ws_client.get_ioloop().call_later(
-            fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
+
+        if action != None and self.turn_manager._get_action_object(action).wait_for_pid != None:
+            # Logically, the previous time_out_callback should have been canceled.
+            assert self.ws_client.wait_for_timeout_handle == None
+            # Add wait_for timeout handler
+            self.ws_client.wait_for_timeout_handle = self.ws_client.get_ioloop().call_later(
+                fc_args['wait_for_timeout'], self.wait_for_timeout_callback)
 
     def _get_info(self):
         fc_logger.debug(
             f'Player {self.player_ctrl.my_player_id} get_info. Turn: {self.turn_manager.turn}')
         self.lock_control()
-        # If there is exception during _on_message callback, we raise it.
-        if self.ws_client.on_message_exception != None:
-            raise self.ws_client.on_message_exception
+        # If there is exception during _get_info, we raise it.
+        if self.ws_client.get_info_exception != None:
+            raise self.ws_client.get_info_exception
         info = {'turn': self.turn_manager.turn,
                 'mini_game_messages': self.turn_manager.turn_messages}
         if self.my_player_is_defeated() or self.game_is_over or self.game_is_end:
@@ -435,6 +443,7 @@ class CivController(CivPropController):
                   "turn": self.rule_ctrl.game_info['turn']}
         self.ws_client.send_request(packet)
         self.turn_manager.end_turn()
+        assert self.ws_client.begin_turn_timeout_handle == None
         # Add begin_turn timeout handler
         self.ws_client.begin_turn_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['begin_turn_timeout'], self.begin_turn_timeout_callback)

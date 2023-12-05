@@ -27,8 +27,7 @@ def main():
     env = LLMWrapper(env)
     agent = RandomLLMAgent()
 
-    observations, info = env.reset(
-        client_port=fc_args['client_port'], minitask_pattern=None)
+    observations, info = env.reset(client_port=fc_args['client_port'])
     done = False
     step = 0
     while not done:

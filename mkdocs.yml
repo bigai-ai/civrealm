@@ -10,6 +10,8 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.indexes
+    - content.code.copy
+    - content.code.select
     - content.tabs.link
   logo: assets/logo-h48.png
   favicon: assets/logo-64.png
@@ -64,9 +66,12 @@ nav:
   - Home: index.md
   - Getting Started:
       - Install and Setup:
-          - System requirements: getting_started/system_requirements.md
+          - System Requirements: getting_started/system_requirements.md
           - Installation: getting_started/installation.md
-      - Quick Start: getting_started/quickstart.md
+      - Quick Start: 
+          - Basic Usage: getting_started/basic_usage.md
+          - Your First Agent: getting_started/first_agent.md
+          - Visualization: getting_started/visualization.md
       - Trouble Shooting: getting_started/trouble_shooting.md
   - Advanced Materials:
       - Game:
@@ -84,7 +89,7 @@ nav:
   - Notes:
       - Contribute To CivRealm: notes/contribute.md
       - Performance Benchmarks: notes/benchmarks.md
-  - Misc: 
+  - Misc:
       - FAQ: misc/faq.md
       - Resources: misc/resources.md
 

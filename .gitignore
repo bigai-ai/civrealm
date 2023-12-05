@@ -8,6 +8,7 @@ plot_game_scores/
 game_scores/
 civrealm.egg-info/
 tests/logs/
+public/
 geckodriver
 geckodriver.log
 .pytest_cache/

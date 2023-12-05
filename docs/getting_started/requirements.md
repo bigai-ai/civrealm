@@ -1,4 +1,4 @@
-# System Requirements
+# Requirements
 
 ## Python Version
 
@@ -17,7 +17,7 @@ CivRealm provides an interface for programmatic control of the Freeciv-web game.
 
 1. Download our customized docker image from [here](https://drive.google.com/file/d/1tf32JpwqGN7AtUPe0Q4fIRkE4icSM-51/view?usp=sharing).
 
-2. Run the following command to load the docker image to use it locally:
+2. Run the following command to load the downloaded docker image `IMAGE_FILE_NAME` to use it locally:
 
 ```bash
 docker load -i IMAGE_FILE_NAME

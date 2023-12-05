@@ -19,7 +19,7 @@ warnings.filterwarnings(
 def env_with_type(request):
     minitask_pattern = request.param
     env = gymnasium.make(
-        "freeciv/FreecivTensorMinitask-v0",
+        "civrealm/FreecivTensorMinitask-v0",
         client_port=Ports.get(),
         minitask_pattern=minitask_pattern,
     )

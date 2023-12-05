@@ -23,7 +23,7 @@ import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivMinitask-v0')
+    env = gymnasium.make('civrealm/FreecivMinitask-v0')
     agent = ControllerAgent()
 
     observations, info = env.reset()

@@ -1,6 +1,6 @@
 username: myagent
 # Max number of turns per game
-max_turns: 10
+max_turns: 1000
 # The host url
 host: localhost
 #The port of the Freeciv server. The default is 6000. Should be 6001 if multiplayer_game is True.

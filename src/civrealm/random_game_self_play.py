@@ -40,10 +40,10 @@ def main():
 
     client_port = Ports.get()
     envs = []
-    envs.append(FreecivParallelEnv.remote('freeciv/FreecivBase-v0'))
+    envs.append(FreecivParallelEnv.remote('civrealm/FreecivBase-v0'))
     for i in range(1, fc_args['minp']):
         envs.append(FreecivParallelEnv.remote(
-            'freeciv/FreecivBase-v0', username=f"{fc_args['username']}{i}"))
+            'civrealm/FreecivBase-v0', username=f"{fc_args['username']}{i}"))
 
     agent = ControllerAgent()
     # env = LLMWrapper(env)

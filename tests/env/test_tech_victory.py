@@ -29,7 +29,7 @@ def tech_env(request):
     fc_args["endvictory"] = endvictory
     fc_args["victories"] = victories
     fc_args["debug.load_game"] = "testcontroller_T370_tech_victory"
-    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get())
+    env = gymnasium.make("civrealm/FreecivBase-v0", client_port=Ports.get())
     yield env, endvictory, victories
     env.close()
 

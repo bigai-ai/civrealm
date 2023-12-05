@@ -38,7 +38,7 @@ def make_env():
     fc_args["debug.load_game"] = "testcontroller_T200_2023-07-31-01_51"
     # fc_args['username']= 'testcontroller_T257_2023-08-07-14_04'
 
-    env = gymnasium.make("freeciv/FreecivTensor-v0", client_port=Ports.get())
+    env = gymnasium.make("civrealm/FreecivTensor-v0", client_port=Ports.get())
     yield env
     env.close()
 

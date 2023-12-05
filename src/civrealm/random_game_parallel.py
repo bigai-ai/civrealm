@@ -34,8 +34,8 @@ def main():
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
         agent = ControllerAgent()
-        runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
-        # runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
+        runner = ParallelRunner('civrealm/FreecivBase-v0', agent, None, i)
+        # runner = A3CRunner('civrealm/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         print(f'Batch length: {len(batchs)}')
         # for batch in batchs:

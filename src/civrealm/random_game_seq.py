@@ -35,7 +35,7 @@ def main():
 
 
 def run(port):
-    env = gymnasium.make('freeciv/FreecivBase-v0', client_port=port)
+    env = gymnasium.make('civrealm/FreecivBase-v0', client_port=port)
     agent = ControllerAgent()
 
     observations, info = env.reset()

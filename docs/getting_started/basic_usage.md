@@ -6,7 +6,7 @@ Initializing a basic/LLM Freeciv environment is simple with the Gymnasium API:
 
     ```python
     import gymnasium
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     ```
 
 === "An LLM Enviornment"
@@ -14,7 +14,7 @@ Initializing a basic/LLM Freeciv environment is simple with the Gymnasium API:
     ```python
     import gymnasium
     from civrealm.envs.freeciv_wrapper import LLMWrapper
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     env = LLMWrapper(env)
     ```
 
@@ -58,7 +58,7 @@ To combine the above code snippets, we can write a simple script to initialize a
     from civrealm.agents import RandomAgent
     import gymnasium
 
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     agent = RandomAgent()
 
     observations, info = env.reset()
@@ -85,7 +85,7 @@ To combine the above code snippets, we can write a simple script to initialize a
     from civrealm.agents import RandomLLMAgent
     import gymnasium
 
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     env = LLMWrapper(env)
     agent = RandomLLMAgent()
 

@@ -172,13 +172,13 @@ done
 
 ## Initialize Random Mini-Game
 
-`freeciv/FreecivMinitask-v0` is the environment of mini-game. When the mini game is launched, its internal design will randomly select a game of any type and any difficulty.
+`civrealm/FreecivMinitask-v0` is the environment of mini-game. When the mini game is launched, its internal design will randomly select a game of any type and any difficulty.
 
 ```python
 from civrealm.agents import ControllerAgent
 import gymnasium
 
-env = gymnasium.make('freeciv/FreecivMinitask-v0')
+env = gymnasium.make('civrealm/FreecivMinitask-v0')
 agent = ControllerAgent()
 observations, info = env.reset()
 ```
@@ -199,7 +199,7 @@ For example, if you want to set the type as `development_build_city` and the dif
 from civrealm.agents import ControllerAgent
 import gymnasium
 
-env = gymnasium.make("freeciv/FreecivMinitask-v0")
+env = gymnasium.make("civrealm/FreecivMinitask-v0")
 observations, info = env.reset(minitask_pattern={
     "type": "development_build_city", 
     "level": "easy"})

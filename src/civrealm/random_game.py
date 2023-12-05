@@ -23,7 +23,7 @@ import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     env = LLMWrapper(env)
     agent = RandomLLMAgent()
 

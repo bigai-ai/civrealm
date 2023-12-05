@@ -140,7 +140,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             self._record_action(available_actions, action)
             self._take_screenshot()
         except (ServerTimeoutException, BeginTurnTimeoutException) as server_problem:
-            fc_logger.error(repr(e))
+            fc_logger.error(repr(server_problem))
             reward = 0
             info = {}
             observation = {}

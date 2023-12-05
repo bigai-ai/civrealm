@@ -79,12 +79,13 @@ class ParallelTensorEnv:
                 infos[env_id] = result[4]
                 dones[env_id] = terminated[env_id] or truncated[env_id]
             except Exception as e:
-                print(str(e))
-                # self.logger.warning(repr(e))
-                dones[env_id] = True
-                terminated[env_id] = True
-                truncated[env_id] = True
-                rewards[env_id] = 0
+                # print(str(e))
+                # # self.logger.warning(repr(e))
+                # dones[env_id] = True
+                # terminated[env_id] = True
+                # truncated[env_id] = True
+                # rewards[env_id] = 0
+                raise e
 
             if dones[env_id]:
                 try:

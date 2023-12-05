@@ -164,6 +164,11 @@ class TurnManager(object):
             valid_actor_id, action_name)
         return
 
+    # Get the action object based on the input action tuple
+    def _get_action_object(self, action):
+        ctrl_type, valid_actor_id, action_name = action
+        return self._turn_actions[ctrl_type]._action_dict[valid_actor_id][action_name]
+
     def get_reward(self, current_score):
         # FIXME: this function gets called every time the agent takes an action. However, the score only changes between turns.
         reward = current_score - self._last_score

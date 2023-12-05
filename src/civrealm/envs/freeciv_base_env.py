@@ -30,7 +30,7 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.freeciv.utils.eval_tags import EVALUATION_TAGS
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.port_utils import Ports
-
+from civrealm.exception import ServerTimeoutException, BeginTurnTimeoutException
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic CivRealm environment """
@@ -139,14 +139,23 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             available_actions = info['available_actions']
             self._record_action(available_actions, action)
             self._take_screenshot()
-        except Exception as e:
-            print(traceback.format_exc())
+        except (ServerTimeoutException, BeginTurnTimeoutException) as server_problem:
             fc_logger.error(repr(e))
             reward = 0
-            info = None
-            observation = None
+            info = {}
+            observation = {}
             terminated = False
             truncated = True
+
+        except Exception as e:
+            # print(traceback.format_exc())
+            # fc_logger.error(repr(e))
+            # reward = 0
+            # info = None
+            # observation = None
+            # terminated = False
+            # truncated = True
+            raise e
 
         return observation, reward, terminated, truncated, info
 

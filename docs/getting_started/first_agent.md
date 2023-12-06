@@ -42,17 +42,25 @@ class RandomAgent(BaseAgent):
 ```
 !!! note "Base Environment"
 
-If we run the script, we should see outputs:
+    You should use "Base Environment" to test "RandomAgent"
 
-```bash
-Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_road')
-Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 105, 'goto_2')
-Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 106, 'build_road')
-Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 107, 'build_road')
-Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 108, 'goto_5')
-Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
-Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_city')
-```
+    ```python
+    import gymnasium
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    ```
+
+!!! success
+    Now, if we run the script, we should see outputs:
+
+    ```bash
+    Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_road')
+    Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 105, 'goto_2')
+    Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 106, 'build_road')
+    Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 107, 'build_road')
+    Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 108, 'goto_5')
+    Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
+    Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_city')
+    ```
 
 ## Write a random LLM agent
 
@@ -86,14 +94,24 @@ class RandomLLMAgent(BaseAgent):
 ```
 !!! note "LLM Environment"
 
-If we run the script, we should see outputs:
+    You should Use "LLM Environment" to test "RandomLLMAgent"  
 
-```bash
-Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move East')
-Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 113, 'move West')
-Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 114, 'move North')
-Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 115, 'move North')
-Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 116, 'move NorthEast')
-Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
-Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move South')
-```
+    ```python
+    import gymnasium
+    from civrealm.envs.freeciv_wrapper import LLMWrapper
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    env = LLMWrapper(env)
+    ```
+
+!!! success
+    Now, if we run the script, we should see outputs:
+
+    ```bash
+    Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move East')
+    Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 113, 'move West')
+    Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 114, 'move North')
+    Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 115, 'move North')
+    Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 116, 'move NorthEast')
+    Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
+    Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move South')
+    ```

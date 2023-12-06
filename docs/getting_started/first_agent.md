@@ -1,5 +1,9 @@
 # Write Your First Agent
 
+## Write a simple rule-based agent
+
+At each step, agent chooses the first valid actor who has done nothing yet in the current turn. If there is not such an actor, agent ends the current turn. Otherwise, if the chosen actor can build a city, agent generates an action "build a city" for the actor with probability 0.8; else, agent randomly chooses a valid "move" action for the actor.
+
 ```python
 import random
 
@@ -36,7 +40,23 @@ class RandomAgent(BaseAgent):
         return 'unit', unit_actor, self.random_action_by_name(unit_action_dict, 'goto')
 
 ```
+!!! note "Base Environment"
 
+If we run the script, we should see outputs:
+
+```bash
+Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_road')
+Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 105, 'goto_2')
+Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 106, 'build_road')
+Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 107, 'build_road')
+Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 108, 'goto_5')
+Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
+Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 101, 'build_city')
+```
+
+## Write a random LLM agent
+
+At each step, agent chooses the first valid actor who has done nothing yet in the current turn. If there is not such an actor, agent ends the current turn. Otherwise, agent randomly chooses a valid action for the actor.
 
 ```python
 class RandomLLMAgent(BaseAgent):
@@ -63,4 +83,17 @@ class RandomLLMAgent(BaseAgent):
                     action_name = random.choice(available_actions)
                     self.planned_actor_ids.append(actor_id)
                     return (ctrl_type, actor_id, action_name)
+```
+!!! note "LLM Environment"
+
+If we run the script, we should see outputs:
+
+```bash
+Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move East')
+Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 113, 'move West')
+Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 114, 'move North')
+Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 115, 'move North')
+Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 116, 'move NorthEast')
+Step: 5, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: None
+Step: 6, Turn: 2, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 103, 'move South')
 ```

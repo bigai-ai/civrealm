@@ -42,3 +42,11 @@ sequenceDiagram
     CivRealm ->> CivRealm : env.close()
 
 ```
+
+# Freeciv&Freeciv-web Workflow Architecture
+
+The following figure shows the development workflow between Freeciv and Freeciv-web.
+
+<div align="center">
+  <img src="../assets/workflow.png" width="900" />
+</div>

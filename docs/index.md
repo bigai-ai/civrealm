@@ -23,7 +23,7 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   padding: 0 20px 20px;
 }
 .text > button {
-  background: #DF9295;
+  background: #ccc;<!--#DF9295-->
   border: 0;
   color: white;
   padding: 10px;
@@ -61,14 +61,14 @@ CivRealm is an interactive environment for the open-source strategy game [Freeci
   </article>
   <article>
     <div class="text">
-      <h3>Notes</h3>
+      <h3>Contribute</h3>
       <p>How to Contribute to CivRealm: This guide will help you create or customize the environment. </p>
       <button><a href="notes/contribute.html">Contribute to CivRealm</a></button>
     </div>
   </article>
   <article>
     <div class="text">
-      <h3>Misc</h3>
+      <h3>FAQ</h3>
       <p style="white-space: pre-line">If you have any further questions, the FAQ page and resources may assist you.
 
       </p>

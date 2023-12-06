@@ -79,7 +79,10 @@ nav:
       - Game:
           - Game Settings: advanced_materials/game_settings.md
           - Full Game: advanced_materials/fullgame.md
-          - Mini-Game: advanced_materials/minigame.md
+          - Mini-Game: 
+            - Usage: advanced_materials/minigame_usage.md
+            - Setting: advanced_materials/minigame_setting.md
+            - Create Minigame: advanced_materials/minigame_create.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md

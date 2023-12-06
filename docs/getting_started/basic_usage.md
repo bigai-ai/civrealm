@@ -78,7 +78,7 @@ print('game results:', game_results)
     ```
 
 !!! tip "Customize the Environment"
-    We provide a set of configurations to customize the environment. For example, you can use the `--max_turns` argument to specify the maximum number of turns in a game. For more details, please refer to the [Game Settings](../advanced_materials/game_setting.md) page.
+    We provide a set of configurations to customize the environment. For example, you can use the `--max_turns` argument to specify the maximum number of turns in a game. For more details, please refer to the [Game Settings](../advanced_materials/game_settings.md) page.
 
 ## Putting Things Together
 

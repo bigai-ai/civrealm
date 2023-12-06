@@ -1,5 +1,5 @@
 Argument,Default value,Description
-username,myagent,"The user name used to log in the game."
+username,myagent,"The user name used to log in the game. Spaces and underscores are not allowed."
 max_turns,1000,"The maximum number of turns per game. The game will end after the turn number reaches this limit."
 host,localhost,"The URL that hosts the game."
 client_port,6001,"The port to be connected by the client. Used in the single-thread mode. For parallel running, the client port is chosen from available ports."

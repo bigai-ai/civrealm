@@ -1,4 +1,4 @@
-# The user name used to log in the game.
+# The user name used to log in the game. Spaces and underscores are not allowed.
 username: myagent
 # The maximum number of turns per game. The game will end after the turn number reaches this limit.
 max_turns: 1000

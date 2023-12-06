@@ -1,4 +1,4 @@
-site_name: Civrealm
+site_name: CivRealm
 repo_url: https://gitlab.mybigai.ac.cn/civilization/civrealm
 repo_name: civilization/civrealm
 copyright: Copyright &copy; 2023 BIGAI
@@ -40,6 +40,7 @@ plugins:
             heading_level: 3
 
 markdown_extensions:
+  - admonition
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -49,7 +50,6 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-  - admonition
   - pymdownx.details
   - pymdownx.superfences:
       custom_fences:

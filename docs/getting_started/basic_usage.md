@@ -65,19 +65,20 @@ game_results = env.get_game_results()
 print('game results:', game_results)
 ```
 
+!!! success
+    Now, if we run the script, we should see outputs similar to the command `test_civrealm`:
+
+    ```bash
+    Reset with port: 6300
+    Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 102, 'build_city')
+    Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 109, 'goto_6')
+    Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 110, 'goto_0')
+    Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 111, 'goto_1')
+    Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 112, 'goto_5')
+    ```
+
 !!! tip "Customize the Environment"
     We provide a set of configurations to customize the environment. For example, you can use the `--max_turns` argument to specify the maximum number of turns in a game. For more details, please refer to the [Game Settings](../advanced_materials/game_setting.md) page.
-
-Now, if we run the script, we should see outputs similar to the command `test_civrealm`:
-
-```bash
-Reset with port: 6300
-Step: 0, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 102, 'build_city')
-Step: 1, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 109, 'goto_6')
-Step: 2, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 110, 'goto_0')
-Step: 3, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 111, 'goto_1')
-Step: 4, Turn: 1, Reward: 0, Terminated: False, Truncated: False, action: ('unit', 112, 'goto_5')
-```
 
 ## Putting Things Together
 

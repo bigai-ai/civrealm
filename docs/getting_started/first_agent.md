@@ -6,10 +6,7 @@ At each step, agent chooses the first valid actor who has done nothing yet in th
 
 ```python
 import random
-
-from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.agents.base_agent import BaseAgent
-
 
 class RandomAgent(BaseAgent):
     def __init__(self):
@@ -49,6 +46,41 @@ class RandomAgent(BaseAgent):
     env = gymnasium.make('civrealm/FreecivBase-v0')
     ```
 
+Run "RandomAgent" in CivRealm:
+
+```python
+import gymnasium
+from civrealm.agents import RandomAgent
+from civrealm.configs import fc_args
+
+
+def main():
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    agent = RandomAgent()
+
+    observations, info = env.reset(client_port=fc_args['client_port'])
+    done = False
+    step = 0
+    while not done:
+        try:
+            action = agent.act(observations, info)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+            step += 1
+            done = terminated or truncated
+        except Exception as e:
+            fc_logger.error(repr(e))
+            raise e
+    env.close()
+
+
+if __name__ == '__main__':
+    main()
+```
+
 !!! success
     Now, if we run the script, we should see outputs:
 
@@ -67,6 +99,9 @@ class RandomAgent(BaseAgent):
 At each step, agent chooses the first valid actor who has done nothing yet in the current turn. If there is not such an actor, agent ends the current turn. Otherwise, agent randomly chooses a valid action for the actor.
 
 ```python
+import random
+from civrealm.agents.base_agent import BaseAgent
+
 class RandomLLMAgent(BaseAgent):
     def __init__(self):
         super().__init__()
@@ -102,6 +137,43 @@ class RandomLLMAgent(BaseAgent):
     env = gymnasium.make('civrealm/FreecivBase-v0')
     env = LLMWrapper(env)
     ```
+
+Run "RandomLLMAgent" in CivRealm:
+
+```python
+import gymnasium
+from civrealm.envs.freeciv_wrapper import LLMWrapper
+from civrealm.agents import RandomLLMAgent
+from civrealm.configs import fc_args
+
+
+def main():
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    env = LLMWrapper(env)
+    agent = RandomLLMAgent()
+
+    observations, info = env.reset(client_port=fc_args['client_port'])
+    done = False
+    step = 0
+    while not done:
+        try:
+            action = agent.act(observations, info)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+            step += 1
+            done = terminated or truncated
+        except Exception as e:
+            fc_logger.error(repr(e))
+            raise e
+    env.close()
+
+
+if __name__ == '__main__':
+    main()
+```
 
 !!! success
     Now, if we run the script, we should see outputs:

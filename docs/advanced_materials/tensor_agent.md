@@ -47,7 +47,7 @@ Observations can be immutable and mutable.
 
 **Immutable Obs**: `map`, `player`, `rules`.
 
-They have fixed dimensions through the game-play.
+hey have fixed dimensions through the game-play.
 
 ???- note "Immutable Observations"
 
@@ -228,6 +228,127 @@ Congratulations!
 You have successfully set up the Civrealm Tensor Agent and
 started training a PPO agent on the Civrealm Tensor Environment,
 using the civrealm-tensor-baseline repository.
+
+### Runner Configuration
+
+The default configs reside in `civtensor/configs/`
+
+`freeciv_tensor_env.yaml` defines environment-related properties. You may specify which task to run by specifying `task_name`.
+```python title="civtensor/configs/env_cfgs/freeciv_tensor_env.yaml"
+task_name: fullgame
+env_args:
+```
+
+- Acceptable `task_name` are `"fullgame"` or `"$minitask_type $minitask_difficulty"`. 
+!!! note
+
+    For available mini-task types and difficulties, please check [minigame](./minigame.md)
+
+`ppo.yaml` defines environment-related properties. You may specify which task to run by specifying `task_name`.
+
+??? note "Details of `ppo.yaml`"
+
+    ```python title="civtensor/configs/algos_cfgs/ppo.yaml"
+    seed:
+      # whether to use the specified seed
+      seed_specify: False
+      # seed
+      seed: 1
+    device:
+      # whether to use CUDA
+      cuda: True
+      # whether to set CUDA deterministic
+      cuda_deterministic: True
+      # arg to torch.set_num_threads
+      torch_threads: 4
+    train:
+      # number of parallel environments for training data collection
+      n_rollout_threads: 8
+      # number of total training steps
+      num_env_steps: 10000000
+      # number of steps per environment per training data collection
+      episode_length: 125
+      # logging interval
+      log_interval: 1
+      # evaluation interval
+      eval_interval: 5
+      # whether to use ValueNorm
+      use_valuenorm: True
+      # whether to use linear learning rate decay
+      use_linear_lr_decay: False
+      # whether to consider the case of truncation when an episode is done
+      use_proper_time_limits: True
+      # if set, load models from this directory; otherwise, randomly initialise the models
+      model_dir: ~
+    eval:
+      # whether to use evaluation
+      use_eval: True
+      # number of parallel environments for evaluation
+      n_eval_rollout_threads: 1
+      # number of episodes per evaluation
+      eval_episodes: 20
+    render:
+      # whether to use render
+      use_render: False
+      # number of episodes to render
+      render_episodes: 10
+    model:
+      # hidden dimension
+      hidden_dim: 256
+      # hidden dimension for rnn
+      rnn_hidden_dim: 1024
+      # number of heads in transformer
+      n_head: 2
+      # number of layers in transformer
+      n_layers: 2
+      # dropout probability
+      drop_prob: 0
+      # number of rnn layers
+      n_rnn_layers: 2
+      # initialization method for network parameters, choose from xavier_uniform_, orthogonal_, ...
+      initialization_method: orthogonal_
+      # gain of the output layer of the network.
+      gain: 0.01
+      # length of data chunk; only useful when use_recurrent_policy is True; episode_length has to be a multiple of data_chunk_length
+      data_chunk_length: 10
+      # actor learning rate
+      lr: 0.0005
+      # eps in Adam
+      opti_eps: 0.00001
+      # weight_decay in Adam
+      weight_decay: 0
+    algo:
+      # ppo parameters
+      # number of epochs for actor update
+      ppo_epoch: 5
+      # whether to use clipped value loss
+      use_clipped_value_loss: True
+      # clip parameter
+      clip_param: 0.2
+      # number of mini-batches per epoch
+      num_mini_batch: 1
+      # coefficient for entropy term in actor loss
+      entropy_coef: 0.01
+      # coefficient for value loss
+      value_loss_coef: 0.001
+      # whether to clip gradient norm
+      use_max_grad_norm: True
+      # max gradient norm (0.5?)
+      max_grad_norm: 10.0
+      # whether to use Generalized Advantage Estimation (GAE)
+      use_gae: True
+      # discount factor
+      gamma: 0.99
+      # GAE lambda
+      gae_lambda: 0.95
+      # whether to use huber loss
+      use_huber_loss: True
+      # huber delta
+      huber_delta: 10.0
+    logger:
+      # logging directory
+      log_dir: "./results"
+    ```
 
 ## Conclusion
 

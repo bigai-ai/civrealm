@@ -1,8 +1,23 @@
 # Requirements
 
+## Operating System
+
+Civrealm works with the following operating systems:
+
+* Windows >= `10`
+
+* Ubuntu >= `20.0`
+
+* macOS X
+
 ## Docker Version
 
 Civrealm requires docker version >= `24.0.6`.
+
+Check docker version by
+```bash
+docker -v
+```
 
 !!! note "Install Docker"
     We suggest following the [Docker Docs](https://docs.docker.com/engine/install/) to install the latest version of docker.
@@ -42,4 +57,8 @@ docker compose up -d
 !!! tip "Docker permission"
     If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
 
-After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
+!!! tip "command not found: docker compose"
+    If the `docker compose` command is not found, please make sure that you have installed the docker version >= `24.0.6`.
+
+!!! success "Freeciv-Web Service"
+    After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.

@@ -202,7 +202,7 @@ It means that if you want to satisfy mini_score>=mini_goal to succeed, you need 
 notify.event(nil, nil, E.SCRIPT, _(${message}))
 ```
 
-### Large batch auto random generation
+## Large batch auto random generation
 
 The auto random generation is supported by the `civrealm-sav` module. To implement a new mini-game dependently, you should inherit class `SavTaskGenerator`. For example,
 

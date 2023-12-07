@@ -21,7 +21,7 @@ LOGGING_CONFIG = {
             'formatter': 'standard',
             'class': 'logging.FileHandler',
             'filename': os.path.join(logging_dir, f"{time.strftime('%Y.%m.%d')}_root.log"),
-            'mode': 'a',
+            'mode': 'w',
         },
         'civrealmFileHandler': {
             'level': 'DEBUG',

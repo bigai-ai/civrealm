@@ -37,7 +37,7 @@ def test_tech_victory(tech_env):
     env, endvictory, victories = tech_env
     _, info = env.reset()
     done = False
-    end_turn = 375
+    end_turn = 380
     while not done:
         _, reward, terminated, truncated, info = env.step(None)
         done = terminated or truncated or (info["turn"] == end_turn)
@@ -45,4 +45,5 @@ def test_tech_victory(tech_env):
         assert info["turn"] == 373
     elif fc_web_args["tag"] >= "1.1":
         assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"
+        
 

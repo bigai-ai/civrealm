@@ -266,7 +266,7 @@ class UnitActions(ActionList):
 
         unit_focus = self.unit_data[unit_id]
 
-        for act_class in [ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActFallout, ActPollution,  ActKeepActivity,
+        for act_class in [ActTransform, ActMine, ActCultivate, ActPlant, ActFortress, ActAirbase, ActIrrigation, ActKeepActivity,
                           ActParadrop, ActBuildCity, ActJoinCity, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActBoard, ActUnloadUnit, ActCancelOrder,
@@ -832,30 +832,30 @@ class ActFallout(ActOnExtra):
 
 
 # class ActPollution(ActOnExtra):
-class ActPollution(EngineerAction):
-    """Action to remove pollution"""
-    action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_POLLUTION]
+# class ActPollution(EngineerAction):
+#     """Action to remove pollution"""
+#     action_key = fc_types.ACTIVITY_ACTION_MAP[fc_types.ACTIVITY_POLLUTION]
 
-    # def __init__(self, cur_focus):
-    #     self.extra_type = fc_types.EXTRA_POLLUTION
-    #     super().__init__(cur_focus)
+#     # def __init__(self, cur_focus):
+#     #     self.extra_type = fc_types.EXTRA_POLLUTION
+#     #     super().__init__(cur_focus)
 
-    def is_eng_action_valid(self):
-        if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CLEAN_POLLUTION):
-            return False
+#     def is_eng_action_valid(self):
+#         if not self.utype_can_do_action(self.focus.punit, fc_types.ACTION_CLEAN_POLLUTION):
+#             return False
 
-        # Is already removing pollution, no need to show this action again.
-        if self.focus.punit['activity'] == fc_types.ACTIVITY_POLLUTION:
-            return False
+#         # Is already removing pollution, no need to show this action again.
+#         if self.focus.punit['activity'] == fc_types.ACTIVITY_POLLUTION:
+#             return False
 
-        # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
-        # return terr_name == "Forest"
-        # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
-        # return self.focus.pterrain['pollution_time'] > 0
-        return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CLEAN_POLLUTION])
+#         # terr_name = self.focus.rule_ctrl.tile_terrain(self.focus.ptile)['name']
+#         # return terr_name == "Forest"
+#         # return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CULTIVATE])
+#         # return self.focus.pterrain['pollution_time'] > 0
+#         return action_prob_possible(self.focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_CLEAN_POLLUTION])
 
-    def _eng_packet(self):
-        return self._request_new_unit_activity(fc_types.ACTIVITY_POLLUTION, EXTRA_NONE)
+#     def _eng_packet(self):
+#         return self._request_new_unit_activity(fc_types.ACTIVITY_POLLUTION, EXTRA_NONE)
 
 # -------Further unit specific actions
 

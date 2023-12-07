@@ -139,7 +139,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         max_id : int
             The max id of mini-game.
         """
-
         self.set_minitask(seed, minitask_pattern, max_id)
         observations, info = super().reset(seed, options)
         self._set_minitask_info(info)
@@ -206,6 +205,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return metrics
 
     def step(self, action):
+        fc_logger.debug(f"mini-env step action: {action}")
         observation, reward, terminated, truncated, info = super().step(action)
         self._set_minitask_info(info)
         return observation, reward, terminated, truncated, info

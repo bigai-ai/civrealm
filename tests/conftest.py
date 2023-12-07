@@ -16,18 +16,20 @@
 import os
 import subprocess
 import pytest
-from civrealm.freeciv.build_server import docker_image_name
-from civrealm.configs import fc_args
+from civrealm.configs import fc_args, fc_web_args
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+
 fc_args['username'] = 'testcontroller'
 fc_args['ruleset'] = 'classic'
 fc_args['pytest'] = True
 fc_args['server_timeout'] = 5
 fc_args['self_play'] = False
 
+docker_image_name = fc_web_args['image']
 test_dir = os.path.dirname(__file__)
-if docker_image_name == 'freeciv-web':
+if docker_image_name.startswith('freeciv-web'):
     tomcat_dir = 'tomcat10'
-elif docker_image_name == 'fciv-net':
+elif docker_image_name.startswith('fciv-net'):
     tomcat_dir = 'tomcat9'
 else:
     raise ValueError(f'Unknown docker image name: {docker_image_name}')
@@ -66,6 +68,7 @@ def configure_test_logger(item):
     print(item.name)
     from civrealm.freeciv.utils.freeciv_logging import set_logging_file
     set_logging_file('tests', item.name)
+    fc_logger.info(f"init tests: {item.name}")
 
 @pytest.hookimpl
 def pytest_runtest_call(item):

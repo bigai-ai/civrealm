@@ -26,6 +26,9 @@ cache:
         - "/bin/bash"
         - "-c"
         - |
+          until [ -f "$CI_PROJECT_DIR/.git/index" ]; do true ; done;
+          while [ -f "$CI_PROJECT_DIR/.git/index.lock" ]; do true ; done;
+          python3 "$CI_PROJECT_DIR/copy_ci_test_saves.py"
           /docker/docker-entrypoint.sh && sleep infinity
   variables:
     CIVREALM_HOST_URL: "freeciv"

@@ -22,6 +22,11 @@ cache:
   services:
     - name: $FREECIV_IMAGE_VERSION
       alias: freeciv
+      entrypoint:
+        - "/bin/bash"
+        - "-c"
+        - |
+          /docker/docker-entrypoint.sh && sleep infinity
   variables:
     CIVREALM_HOST_URL: "freeciv"
     CIVREALM_HOST_PORT: "80"

@@ -58,11 +58,10 @@ info['llm_info']['unit']['121']['available_actions']
 
 ## 🤖 Architecture of Mastaba
 
-Mastaba requires Python version >=3.8.
-Additional packages (and versions) are listed in
-`requirements.txt`.
+![Mastaba Architecture](../assets/llm_agent.png)
 
-### LLM Preparations
+## 🏃 Using civrealm-llm-baseline Repository
+
 
 Before running the agents, several environment variables should be set:
 
@@ -73,11 +72,17 @@ export OPENAI_API_VERSION='<openai-api-version>'
 export OPENAI_API_BASE=<openai-api-base>                    # e.g. 'https://xxx.openai.azure.com'
 export OPENAI_API_KEY=<openai-api-key>
 export DEPLOYMENT_NAME=<deployment-name>                    # e.g. 'gpt-35-turbo-16k'
+```
+
+```
 # Group 2
 export AZURE_OPENAI_API_TYPE=<azure-openai-api-type>        # e.g. 'azure'
 export AZURE_OPENAI_API_VERSION=<azure-openai-api-version>  # e.g. '2023-05-15'
 export AZURE_OPENAI_API_BASE=<azure-openai-api-base>
 export AZURE_OPENAI_API_KEY=<azure-openai-api-key>
+```
+
+```
 # Group 3
 export LOCAL_LLM_URL=<local-llm-url>                        # You may choose to use local LLM.
 # Pinecone
@@ -85,9 +90,7 @@ export MY_PINECONE_API_KEY=<pinecone-api-key>               # Necessary. Free ac
 export MY_PINECONE_ENV=<pinecone-env>                       # e.g. 'gcp-starter'
 ```
 
-The above Groups are independent. One may set only one group and just use that group. OpenAI GPT is preferred.
-
-After setting the above variables, run `python main.py`
+The above Groups are independent. Set only one group and use that group. OpenAI GPT is preferred. After setting the above variables, run `python main.py`
 
 ### Choosing Models
 

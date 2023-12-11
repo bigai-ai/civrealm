@@ -18,25 +18,27 @@
 
 import json
 from typing import final
+import asyncio
 from tornado import httpclient
 from tornado import httputil
 from tornado import websocket
 from tornado import ioloop
-import asyncio
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
-APPLICATION_JSON = 'application/json'
+APPLICATION_JSON = "application/json"
 
 DEFAULT_CONNECT_TIMEOUT = 300
 DEFAULT_REQUEST_TIMEOUT = 300
 
 
 class WebSocketClient(object):
-    """Base for web socket clients.
-    """
+    """Base for web socket clients."""
 
-    def __init__(self, connect_timeout=DEFAULT_CONNECT_TIMEOUT,
-                 request_timeout=DEFAULT_REQUEST_TIMEOUT):
+    def __init__(
+        self,
+        connect_timeout=DEFAULT_CONNECT_TIMEOUT,
+        request_timeout=DEFAULT_REQUEST_TIMEOUT,
+    ):
         self.connect_timeout = connect_timeout
         self.request_timeout = request_timeout
         self._ws_connection = None
@@ -48,13 +50,19 @@ class WebSocketClient(object):
         :param str url: server URL.
         """
         self.url = url
-        headers = httputil.HTTPHeaders({'Content-Type': APPLICATION_JSON})
-        request = httpclient.HTTPRequest(url=url,
-                                         connect_timeout=self.connect_timeout,
-                                         request_timeout=self.request_timeout,
-                                         headers=headers)
+        headers = httputil.HTTPHeaders({"Content-Type": APPLICATION_JSON})
+        request = httpclient.HTTPRequest(
+            url=url,
+            connect_timeout=self.connect_timeout,
+            request_timeout=self.request_timeout,
+            headers=headers,
+        )
+        asyncio.set_event_loop(asyncio.new_event_loop())
         websocket.websocket_connect(
-            request, callback=self._connect_callback, on_message_callback=self._on_message)
+            request,
+            callback=self._connect_callback,
+            on_message_callback=self._on_message,
+        )
 
     @final
     def start_ioloop(self):
@@ -86,7 +94,8 @@ class WebSocketClient(object):
         """
         if not self._ws_connection:
             fc_logger.debug(
-                f'web_socket_client::send: Web socket connection has not been established.')
+                f"web_socket_client::send: Web socket connection has not been established."
+            )
             return
         # TODO: check if we need to clear empty spaces
         msg = json.dumps(data)
@@ -95,8 +104,7 @@ class WebSocketClient(object):
 
     @final
     def close(self):
-        """Close connection.
-        """
+        """Close connection."""
         # Connection already closed.
         if self._connection_closed:
             return
@@ -130,13 +138,12 @@ class WebSocketClient(object):
         pass
 
     def _on_connection_success(self):
-        """This is called on successful connection ot the server.
-        """
+        """This is called on successful connection ot the server."""
         pass
 
     def _on_connection_close(self):
         """This is called when server closed the connection.
-        This is called before socket is closed, should be overriden to clean up data before closing the connection. 
+        This is called before socket is closed, should be overriden to clean up data before closing the connection.
         """
         pass
 

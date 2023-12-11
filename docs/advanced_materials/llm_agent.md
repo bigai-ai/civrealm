@@ -19,8 +19,16 @@ Besides, a LLM wrapper is open to customize your own environment.
 Start a single FreecivLLM environment :
 
 ````python
-env = gymnasium.make("freeciv/FreecivLLMEnv-v0", client_port=Ports.get())
-obs, info = env.reset()
+env = gymnasium.make('civrealm/FreecivLLM-v0')
+obs, info = env.reset(client_port=fc_args['client_port'])
+````
+
+Use LLM Wrapper to customize an environment :
+
+````python
+env = gymnasium.make('civrealm/FreecivBase-v0')
+env = LLMWrapper(env)
+obs, info = env.reset(client_port=fc_args['client_port'])
 ````
 
 ### LLM Info
@@ -30,7 +38,7 @@ Observations and actions in natural language are stored in llm_info as:
 info["llm_info"]
 ````
 
-llm_info is a Dict consisting of 2 subspaces with keys "unit" and "city". Subspace of "unit" is a Dict with keys of unit_id, and subspace of "city" is a Dict with keys of city_id, describing "name", "available_actions", and "observations" of the corresponding unit and city.
+llm_info is a Dict consisting of 6 subspaces with keys "player", "city", tech", "unit", "dipl", and "gov". Subspace of "unit" is a Dict with keys of unit_id, and subspace of "city" is a Dict with keys of city_id, describing "name", "available_actions", and local "observations" of the corresponding unit and city. Subspaces of "player", tech", "dipl", and "gov" are currently empty, and will be completed in the future, meaning that LLM Env only support controlling units and cities by natural language at this stage.
 
 Read llm_info of "unit 121" by:
 
@@ -38,6 +46,14 @@ Read llm_info of "unit 121" by:
 info["info_info"]['unit']['121']
 ````
 
+!!! note "Choose an existing unit or city"
+
+    You should read llm_info of an currently existing unit or city
+
+    ```python
+    unit_id = random.choice(info['llm_info']['unit'].keys())
+    city_id = random.choice(info['llm_info']['city'].keys())
+    ```
 
 ### Observation
 

@@ -1,8 +1,8 @@
 # LLM Agent
 
-Welcome to Civrealm LLM Agent！ This documentation will guide you through the process of building LLM agents in CivRealm Environment. We will first provide an overview of CivRealm LLM Env, followed by instruction on how to use the civrealm-llm-baseline repository to build a llm agent **Mastaba** on this environment.
+Welcome to Civrealm LLM Agent！ This documentation will guide you through the process of building LLM agents in CivRealm Environment. We will first provide an overview of CivRealm LLM Env, followed by instruction on how to use the civrealm-llm-baseline repository to build llm agents **Mastaba** and **BaseLang** on this environment.
 
-## 🌏 Civrealm Tensor Environment
+## 🌏 Civrealm LLM Environment
 
 The Civrealm LLM Environment is a LLM environment wrapped
 upon Civrealm Base Env specifically designed for building LLM agents. This environment
@@ -72,9 +72,14 @@ info['llm_info']['unit']['121']['available_actions']
 ````
 
 
-## 🤖 Architecture of Mastaba
+## 🤖 Architecture of BaseLang and Mastaba
 
 ![Mastaba Architecture](../assets/llm_agent.png)
+
+### BaseLang
+BaseLang consists of three components: observation, reasoning, and commands. For observation, a 5 * 5 tile-based observation is employed, centered on each unit's location, optimizing tactical information provision while accommodating strategic depth. The reasoning module mimics [AutoGPT](https://github.com/Significant-Gravitas/AutoGPT) and outputs in three stages: thought, reasoning, and command. Commands empower the agent with the choice between "manual and history search" and "final decision" commands, enabling data retrieval from a vector database or selecting available actions to execute based on environmental and historical context. Finally, individual LLMs are assigned to each unit, with their context histories, to facilitate detailed planning. 
+
+### Mastaba
 
 To facilitate cooperation between independent entities, Mastaba introduces a hierarchical structure, organizing LLM workers, observations, and decision-making into a pyramid-like structure.
 
@@ -139,10 +144,96 @@ To get started, follow these steps:
     python main.py
     ```
 
-### Choosing Models
+### Switch Agents
+Choose BaseLang agent:
 
-In file `main.py`, set `agent=BaseLangAgent()` or `agent=MastabaAgent()` to switch
-between agents **BaseLang** and **Mastaba**
+````python
+import gymnasium
+from agents import BaseLangAgent
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+
+
+def main():
+    env = gymnasium.make('civrealm/FreecivLLM-v0')
+    agent = BaseLangAgent()
+
+    observations, info = env.reset()
+
+    done = False
+    step = 0
+    while not done:
+        try:
+            action = agent.act(observations, info)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
+            done = terminated or truncated
+
+            step += 1
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+        except Exception as e:
+            fc_logger.error(repr(e))
+            raise e
+    env.close()
+
+
+if __name__ == '__main__':
+    main()
+````
+
+Choose Mastaba agent:
+
+````python
+import gymnasium
+from agents import MastabaAgent
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+
+
+def main():
+    env = gymnasium.make('civrealm/FreecivLLM-v0')
+    agent = MastabaAgent(max_deconflict_depth=3)
+
+    observations, info = env.reset()
+
+    done = False
+    step = 0
+    while not done:
+        try:
+            action = agent.act(observations, info)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
+            done = terminated or truncated
+
+            step += 1
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+        except Exception as e:
+            fc_logger.error(repr(e))
+            raise e
+    env.close()
+
+
+if __name__ == '__main__':
+    main()
+````
+
+!!! note "Customize Env by LLM Wrapper"
+
+    You can also make a LLM Env by LLM Wrapper
+
+    ```python
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    env = LLMWrapper(env)
+    agent = BaseLang()
+    ```
+
+    ```python
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    env = LLMWrapper(env)
+    agent = MastabaAgent(max_deconflict_depth=3)
+    ```
 
 ## Conclusion
 

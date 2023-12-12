@@ -32,6 +32,7 @@ cache:
   variables:
     CIVREALM_HOST_URL: "freeciv"
     CIVREALM_HOST_PORT: "80"
+    RUNNER_SCRIPT_TIMEOUT: 50m
   script:
     - "pip install -e . -i https://pypi.tuna.tsinghua.edu.cn/simple"
     - until curl --output /dev/null --silent --fail "$CIVREALM_HOST_URL:$CIVREALM_HOST_PORT/pubstatus"; do sleep 60 && echo "Waiting for freeciv-web server to set up!" ; done;

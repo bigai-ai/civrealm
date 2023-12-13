@@ -60,7 +60,7 @@ class CivWSClient(WebSocketClient):
             # Remove the server_timeout_callback. Even the callback has been called, this remove will not raise exception.
             if self.server_timeout_handle != None:
                 self.get_ioloop().remove_timeout(self.server_timeout_handle)
-                # fc_logger.debug('Remove timeout callback.')
+                fc_logger.debug('Remove server timeout callback.')
                 self.server_timeout_handle = None
 
             self.read_packs = json.loads(message)

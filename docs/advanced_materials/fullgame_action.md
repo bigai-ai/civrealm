@@ -42,45 +42,43 @@
 
 ### City Actions
 
-| Action Class  | Action Description            | Parameter                        |
-|--------|--------------------------------------|-------------------------------|
-|        | Choose a working tile for city        | the target tile               |
-|        | Do not work on a tile                 | the target tile               |
-|        | Buy building or unit                 | -                             |
-|        | Change the type of a specialist      | type of the target specialist |
-|        | Sell a building                      | the target building           |
-|        | Construct a building                 | the target building           |
-|        | Produce a unit                       | the target unit               |
+| Action Class                     | Action Description            | Parameter                        |
+|----------------------------------|--------------------------------------|-------------------------------|
+| CityWorkTile                     | Choose a working tile for city        | the target tile               |
+| CityUnworkTile                   | Do not work on a tile                 | the target tile               |
+| CityBuyProduction                | Buy building or unit                 | -                             |
+| CityChangeSpecialist             | Change the type of a specialist      | type of the target specialist |
+| CitySellImprovement              | Sell a building                      | the target building           |
+| CityChangeImprovementProduction  | Construct a building                 | the target building           |
+| CityChangeUnitProduction         | Produce a unit                       | the target unit               |
 
 ### Diplomacy Actions
 
-| Action Class  | Action Description           | Parameter                          |
-|--------|--------------------------|-----------------------------------------------|
-|        | Start a negotiation      | target player ID                              |
-|        | End a negotiation        | target player ID                              |
-|        | Establish an embassy     | target player ID                              |
-|        | Share vision             | target player ID                              |
-|        | Cancel a treaty          | target player ID                              |
-|        | Add a clause             | target player ID, target clause type or technology type |
-|        | Remove a clause          | target player ID, target clause type or technology type |
+| Action Class       | Action Description        | Parameter                                          |
+|--------------------|---------------------------|----------------------------------------------------|
+| StartNegotiate     | Start a negotiation       | target player ID                                   |
+| StopNegotiate      | End a negotiation         | target player ID                                   |
+| AcceptTreaty       | Accept treaties           | target player ID                                   |
+| CancelTreaty       | Cancel a treaty           | target player ID                                   |
+| CancelVision       | Cancel sharing vision     | target player ID                                   |
+| AddClause          | Add a basic clause        | target player ID + target basic clause type        |
+| AddTradeTechClause | Add a trading tech clause | target player ID + giver ID + target technology ID |
+| AddTradeGoldClause | Add a trading gold clause | target player ID + giver ID + how much gold        |
+| AddTradeCityClause | Add a trading city clause | target player ID + giver ID + target city ID       |
+| RemoveClause       | Remove a clause           | target player ID + parameters of the target clause |
 
 ### Government Actions
 
-| Action Class  | Action Description           | Parameter                |
-|--------|--------------------|-------------------------|
-|        | Revolution         | the target Government   |
-|        | Increase tax        | -                       |
-|        | Increase science    | -                       |
-|        | Increase luxury     | -                       |
-|        | Decrease tax        | -                       |
-|        | Decrease science    | -                       |
-|        | Decrease luxury     | -                       |
+| Action Class     | Action Description                  | Parameter                        |
+|------------------|-------------------------------------|----------------------------------|
+| ChangeGovernment | Revolution                          | the target Government ID         |
+| SetSciLuxTax     | Set rates of tax + science + luxury | rates of tax + science + luxury  |
 
 ### Technology Actions
 
-| Action Class  | Action Description           | Parameter                |
-|--------|--------------------|-------------------------|
-|        | Set a current research goal         | the target technology   |
-|        | Set a future research goal        | the target technology   |
+| Action Class          | Action Description           | Parameter                 |
+|-----------------------|--------------------|---------------------------|
+| ActChooseResearchTech | Set a current research goal         | the target technology ID  |
+| ActChooseResearchGoal | Set a future research goal        | the target technology ID  |
 
 

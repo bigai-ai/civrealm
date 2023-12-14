@@ -248,6 +248,10 @@ class CivController(CivPropController):
         # Add server timeout handler
         self.ws_client.server_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['server_timeout'], self.server_timeout_callback)
+        
+        # Add begin_turn timeout handler. Sometimes the server does not send the begin_turn packet after successful login.
+        self.ws_client.begin_turn_timeout_handle = self.ws_client.get_ioloop().call_later(
+            fc_args['begin_turn_timeout'], self.begin_turn_timeout_callback)
 
     # Set a server timeout callback
     def server_timeout_callback(self):
@@ -516,8 +520,8 @@ class CivController(CivPropController):
 
             # Have received all responses, cancle the wait_for_timeout_handle
             if not self.ws_client.is_waiting_for_responses():
-                fc_logger.debug('remove wait_for_timeout_handle')
                 if self.ws_client.wait_for_timeout_handle != None:
+                    fc_logger.debug('remove wait_for_timeout_handle')
                     self.ws_client.get_ioloop().remove_timeout(
                         self.ws_client.wait_for_timeout_handle)
                     # fc_logger.debug('Remove timeout callback.')

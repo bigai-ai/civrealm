@@ -52,7 +52,8 @@ DS_NO_CONTACT = 5
 DS_TEAM = 6
 DS_LAST = 7
 
-DS_TXT = ["Armistice", "War", "Ceasefire", "Peace", "Alliance", "No contact", "Team", "Last"]
+DS_TXT = ["Armistice", "War", "Ceasefire", "Peace",
+          "Alliance", "No contact", "Team", "Last"]
 ATTITUDE_TXT = ["Genocidal", "Belligerent", "Hostile", "Uncooperative", "Uneasy", "Neutral",
                 "Respectful", "Helpful", "Enthusiastic", "Admiring", "Worshipful"]
 
@@ -63,4 +64,5 @@ MAX_AI_LOVE = 1000
 PLRF_AI = 0
 PLRF_SCENARIO_RESERVED = 1
 PLRF_COUNT = 2
-AI_SKILLS = ["Away", "Handicapped", "Novice", "Easy", "Normal", "Hard", "Cheating", "Experimental"]
+AI_SKILLS = ["Away", "Handicapped", "Novice", "Easy",
+             "Normal", "Hard", "Cheating", "Experimental"]

@@ -25,7 +25,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-27-07_59')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-27-07_59')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -54,7 +55,8 @@ def test_city_change_specialist(controller):
         if len(valid_change_specialist_action) == 0:
             continue
 
-        change_specialist_action = random.choice(valid_change_specialist_action)
+        change_specialist_action = random.choice(
+            valid_change_specialist_action)
         assert (change_specialist_action.is_action_valid())
 
         specialists_1 = pcity['specialists']

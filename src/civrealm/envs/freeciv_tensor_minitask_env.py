@@ -33,7 +33,8 @@ class FreecivTensorMinitaskEnv(Wrapper):
         tensor_env = MiniTaskGameOverScoreInfo(
             TensorWrapper(
                 env=MinitaskDelayedReward(
-                    FreecivMinitaskEnv(username="minitask", client_port=client_port),
+                    FreecivMinitaskEnv(username="minitask",
+                                       client_port=client_port),
                     success_reward=100,
                     replacement=False,
                 ),

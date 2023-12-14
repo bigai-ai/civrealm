@@ -17,20 +17,22 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.port_utils import Ports
 
+
 @pytest.fixture(params=[
-    ("enabled", "SPACERACE|ALLIED"), 
-    ("enabled", "SPACERACE"), 
-    ("disabled", "SPACERACE|ALLIED"), 
-    ("disabled", "SPACERACE"), 
+    ("enabled", "SPACERACE|ALLIED"),
+    ("enabled", "SPACERACE"),
+    ("disabled", "SPACERACE|ALLIED"),
+    ("disabled", "SPACERACE"),
 ])
 def allied_env(request):
     endvictory, victories = request.param
     fc_args["endvictory"] = endvictory
     fc_args["victories"] = victories
     fc_args["debug.load_game"] = "testminitask_T5_allied_victory"
-    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get(), username="testminitask")
+    env = gymnasium.make("civrealm/FreecivBase-v0", client_port=Ports.get(), username="testminitask")
     yield env, endvictory, victories
     env.close()
+
 
 def test_allied_victory(allied_env):
     fc_logger.info("test_allied_victory")
@@ -45,4 +47,3 @@ def test_allied_victory(allied_env):
         assert info["turn"] == 7
     elif fc_web_args["tag"] >= "1.1":
         assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"
-

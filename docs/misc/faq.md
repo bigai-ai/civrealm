@@ -1,4 +1,5 @@
 # FAQ
+
 ## Image Questions
 
 <table><tr><td bgcolor="Lavender">🤔 1. When using the latest code from the official Freeciv-web GitHub repository to generate an image and executing the civrealm code, some unknown exceptions raise, how to solve this problem?</td></tr></table>

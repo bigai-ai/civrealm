@@ -2,7 +2,7 @@
 
 ## Development Process
 
-* For bugfix, we recommend that you raise them in the issue section, and have them fully discussed and verified by the developers.
+* For bugfix, we recommend that you raise them in the issue section, and have them discussed and verified by the developers.
 
 ## Coding Styles
 

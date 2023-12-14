@@ -24,7 +24,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-27-01_24')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T169_2023-07-27-01_24')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -44,7 +45,8 @@ def test_dipl_remove_clause(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['dipl']
-    remove_clause_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'remove_clause')[0]
+    remove_clause_act = find_keys_with_keyword(
+        player_opt.get_actions(4, valid_only=True), 'remove_clause')[0]
 
     assert (remove_clause_act.is_action_valid())
     clauses = controller.controller_list['dipl'].diplomacy_clause_map[4]

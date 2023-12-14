@@ -1,3 +1,5 @@
+import gymnasium
+import time
 import warnings
 
 import numpy as np
@@ -10,20 +12,17 @@ from civrealm.freeciv.utils.port_utils import Ports
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
-
-import time
-
-import gymnasium
+warnings.filterwarnings(
+    "ignore", message=".*The obs returned by the .* method.*")
 
 
 @pytest.fixture(params=MinitaskType.list())
 def env_with_type(request):
     minitask_pattern = request.param
     env = gymnasium.make(
-        "freeciv/FreecivTensorMinitask-v0",
+        "civrealm/FreecivTensorMinitask-v0",
         client_port=Ports.get(),
-        minitask_pattern=minitask_pattern,
+        minitask_pattern={"type": minitask_pattern},
     )
     yield env, minitask_pattern
     env.close()

@@ -1,4 +1,4 @@
-site_name: Civrealm
+site_name: CivRealm
 repo_url: https://gitlab.mybigai.ac.cn/civilization/civrealm
 repo_name: civilization/civrealm
 copyright: Copyright &copy; 2023 BIGAI
@@ -10,6 +10,8 @@ theme:
     - navigation.tabs
     - navigation.sections
     - navigation.indexes
+    - content.code.copy
+    - content.code.select
     - content.tabs.link
   logo: assets/logo-h48.png
   favicon: assets/logo-64.png
@@ -17,6 +19,7 @@ theme:
     scheme: bigai
   icon:
     repo: fontawesome/brands/gitlab
+    annotation: material/arrow-right-circle
 
 extra_css:
   - css/extra.css
@@ -24,6 +27,7 @@ extra_css:
 plugins:
   - search
   - autorefs
+  - table-reader
   - mkdocstrings:
       default_handler: python
       handlers:
@@ -37,6 +41,7 @@ plugins:
             heading_level: 3
 
 markdown_extensions:
+  - admonition
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -46,7 +51,6 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
-  - admonition
   - pymdownx.details
   - pymdownx.superfences:
       custom_fences:
@@ -64,27 +68,36 @@ nav:
   - Home: index.md
   - Getting Started:
       - Install and Setup:
-          - System requirements: getting_started/system_requirements.md
+          - Requirements: getting_started/requirements.md
           - Installation: getting_started/installation.md
-      - Quick Start: getting_started/quickstart.md
+      - Quick Start:
+          - Basic Usage: getting_started/basic_usage.md
+          - Your First Agent: getting_started/first_agent.md
+          - Visualization: getting_started/visualization.md
       - Trouble Shooting: getting_started/trouble_shooting.md
   - Advanced Materials:
       - Game:
-          - Game Setting: advanced_materials/game_setting.md
+          - Game Settings: advanced_materials/game_settings.md
           - Full Game: advanced_materials/fullgame.md
-          - Mini-Game: advanced_materials/minigame.md
+          - Mini-Game: 
+            - Usage: advanced_materials/minigame_usage.md
+            - Setting: advanced_materials/minigame_setting.md
+            - Create Minigame: advanced_materials/minigame_create.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md
       - Train Scheme:
           - Parallel Training: advanced_materials/parallel_training.md
       - Architecture: advanced_materials/architecture.md
-  - Api Reference: api_reference/api.md
+  - API Reference:
+      - Environments: api_reference/environments.md
+      - Wrappers: api_reference/wrappers.md
+      - Observations: api_reference/observations.md
   - Releases: releases/releases.md
   - Notes:
       - Contribute To CivRealm: notes/contribute.md
       - Performance Benchmarks: notes/benchmarks.md
-  - Misc: 
+  - Misc:
       - FAQ: misc/faq.md
       - Resources: misc/resources.md
 

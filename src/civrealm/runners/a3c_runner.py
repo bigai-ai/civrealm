@@ -9,7 +9,8 @@ import copy
 
 class A3CRunner:
     def __init__(self, env_name, agent, logger, epoch_num):
-        ray.init(local_mode=False, runtime_env={"worker_process_setup_hook": ray_logger_setup})
+        ray.init(local_mode=False, runtime_env={
+                 "worker_process_setup_hook": ray_logger_setup})
         self.logger = ray_logger_setup()
 
         # Number of envs that run simultaneously
@@ -48,7 +49,8 @@ class A3CRunner:
         dones = [False]*self.batch_size_run
 
         # Reset the envs
-        result_ids = [self.envs[i].reset.remote() for i in range(self.batch_size_run)]
+        result_ids = [self.envs[i].reset.remote()
+                      for i in range(self.batch_size_run)]
         results = ray.get(result_ids)
         for i in range(self.batch_size_run):
             observations.append(results[i][0])
@@ -71,7 +73,8 @@ class A3CRunner:
         # Store whether an env has closed its connection
         closed_envs = [False]*self.batch_size_run
 
-        envs_not_terminated = [b_idx for b_idx, done in enumerate(dones) if not done]
+        envs_not_terminated = [b_idx for b_idx,
+                               done in enumerate(dones) if not done]
         # final_env_infos = []  # may store extra stats like battle won. this is filled in ORDER OF TERMINATION
 
         while True:
@@ -101,7 +104,8 @@ class A3CRunner:
                     #     action = 'pass'
                     # else:
                     #     action = None
-                    action = ray.get(self.envs[i].compute_action.remote(observation, info))
+                    action = ray.get(
+                        self.envs[i].compute_action.remote(observation, info))
                     # print(observation)
                     # print(info)
                     # print(action)
@@ -150,12 +154,14 @@ class A3CRunner:
                     self.logger.warning(repr(e))
                     dones[env_id] = True
 
-            self.batchs.append((observations, infos, rewards, copy.deepcopy(dones)))
+            self.batchs.append(
+                (observations, infos, rewards, copy.deepcopy(dones)))
             # print(f'done_list: {done_list}')
             # print(f'observation_list: {observation_list}')
 
             # Update envs_not_terminated
-            envs_not_terminated = [b_idx for b_idx, termed in enumerate(dones) if not termed]
+            envs_not_terminated = [b_idx for b_idx,
+                                   termed in enumerate(dones) if not termed]
 
             result_ids = []
             for i in range(self.batch_size_run):

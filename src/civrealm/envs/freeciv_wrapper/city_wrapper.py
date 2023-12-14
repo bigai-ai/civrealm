@@ -10,7 +10,8 @@ class PersistentCityProduction(Wrapper):
     def info(self, info, observation):
         for city_id, city in observation.get("city", {}).items():
             if (
-                (city["owner"] == self.unwrapped.civ_controller.player_ctrl.my_player_id)
+                (city["owner"] ==
+                 self.unwrapped.civ_controller.player_ctrl.my_player_id)
                 and (city["prod_process"] != 0)
                 and (self.__turn != city["turn_last_built"] + 1)
             ):

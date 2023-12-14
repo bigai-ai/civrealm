@@ -48,12 +48,14 @@ def test_join_city(controller):
     print(
         f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
     # The settler is not inside a city, cannot join
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 0, 'max': 0})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_JOIN_CITY] == {'min': 0, 'max': 0})
     # Get valid actions
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     assert ('join_city' not in valid_actions)
     # Move to south
-    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_SOUTH}'].trigger_action(
+        controller.ws_client)
 
     controller.send_end_turn()
     # Get unit new state
@@ -69,7 +71,8 @@ def test_join_city(controller):
     print(
         f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}, activity: {unit_focus.punit['activity']}.")
     # The settler can join city now.
-    assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
+    assert (unit_focus.action_prob[map_const.DIR8_STAY]
+            [fc_types.ACTION_JOIN_CITY] == {'min': 200, 'max': 200})
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
     join_action = valid_actions['join_city']
 

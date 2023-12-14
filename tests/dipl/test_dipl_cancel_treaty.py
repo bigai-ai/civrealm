@@ -25,7 +25,8 @@ import civrealm.freeciv.players.player_const as player_const
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -45,7 +46,8 @@ def test_dipl_cancel_treaty(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['dipl']
-    cancel_treaty_act = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'cancel_treaty')[0]
+    cancel_treaty_act = find_keys_with_keyword(
+        player_opt.get_actions(4, valid_only=True), 'cancel_treaty')[0]
 
     assert (cancel_treaty_act.is_action_valid())
     ds_1 = controller.controller_list['dipl'].diplstates[4]
@@ -54,4 +56,5 @@ def test_dipl_cancel_treaty(controller):
     controller.get_info_and_observation()
     ds_2 = controller.controller_list['dipl'].diplstates[4]
 
-    assert (ds_1 == player_const.DS_ALLIANCE and ds_2 == player_const.DS_ARMISTICE)
+    assert (ds_1 == player_const.DS_ALLIANCE and ds_2 ==
+            player_const.DS_ARMISTICE)

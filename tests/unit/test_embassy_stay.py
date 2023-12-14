@@ -26,7 +26,8 @@ import civrealm.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T385_embassy_investigate')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T385_embassy_investigate')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -53,7 +54,8 @@ def test_embassy_stay(controller):
 
     valid_actions['fortify'].trigger_action(controller.ws_client)
     controller.get_info_and_observation()
-    print(f"Partificate in activity {unit_opt.unit_data[unit_id].punit['activity']}")
+    print(
+        f"Partificate in activity {unit_opt.unit_data[unit_id].punit['activity']}")
 
     # unit_focus = unit_opt.unit_data[unit_id]
     # for i in range(len(unit_focus.action_prob[map_const.DIR8_NORTHWEST])):
@@ -62,7 +64,8 @@ def test_embassy_stay(controller):
 
     other_player_id = controller.city_ctrl.cities[885]['owner']
     # Embassy has not been established
-    assert (controller.player_ctrl.players[controller.player_ctrl.my_player_id]['real_embassy'][other_player_id] == 0)
+    assert (controller.player_ctrl.players[controller.player_ctrl.my_player_id]
+            ['real_embassy'][other_player_id] == 0)
 
     print('Establish embassy')
     valid_actions['embassy_stay_0'].trigger_action(controller.ws_client)
@@ -72,13 +75,15 @@ def test_embassy_stay(controller):
     assert (unit_id not in unit_opt.unit_data)
 
     # Embassy has been established
-    assert (controller.player_ctrl.players[controller.player_ctrl.my_player_id]['real_embassy'][other_player_id])
+    assert (
+        controller.player_ctrl.players[controller.player_ctrl.my_player_id]['real_embassy'][other_player_id])
 
 
 def main():
     fc_args['username'] = 'testcontroller'
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T385_embassy_investigate')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T385_embassy_investigate')
     test_embassy_stay(controller)
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)

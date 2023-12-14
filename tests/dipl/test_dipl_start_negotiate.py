@@ -24,7 +24,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T169_2023-07-19-13_11')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -44,7 +45,8 @@ def test_dipl_start_negotiate(controller):
     _, options = get_first_observation_option(controller)
 
     player_opt = options['dipl']
-    negotiate_act_set = find_keys_with_keyword(player_opt.get_actions(4, valid_only=True), 'start_negotiation')
+    negotiate_act_set = find_keys_with_keyword(
+        player_opt.get_actions(4, valid_only=True), 'start_negotiation')
 
     if len(negotiate_act_set) > 0:
         negotiate_act = negotiate_act_set[0]

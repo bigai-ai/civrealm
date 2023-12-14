@@ -23,7 +23,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -47,7 +48,8 @@ def test_city_change_unit_prod(controller):
     for city_id in city_opt.cities.keys():
         pcity = city_opt.cities[city_id]
 
-        valid_unit_prod_actions = find_keys_with_keyword(city_opt.get_actions(city_id, valid_only=True), 'produce')
+        valid_unit_prod_actions = find_keys_with_keyword(
+            city_opt.get_actions(city_id, valid_only=True), 'produce')
         if len(valid_unit_prod_actions) == 0:
             continue
 

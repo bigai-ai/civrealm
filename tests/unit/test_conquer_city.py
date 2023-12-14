@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T144_conquer_city')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T144_conquer_city')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -53,11 +54,13 @@ def test_conquer_city(controller):
     target_tile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_NORTH)
     assert (not unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)
             ['owner'] == unit_opt.player_ctrl.my_player_id)
-    previous_owner = unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)['owner']
+    previous_owner = unit_opt.unit_ctrl.city_ctrl.tile_city(target_tile)[
+        'owner']
 
     print('Conquer the city on the north')
     # Perform conquer city action
-    valid_actions[f'conquer_city_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+    valid_actions[f'conquer_city_{map_const.DIR8_NORTH}'].trigger_action(
+        controller.ws_client)
     controller.get_info_and_observation()
     unit_tile = unit_opt.map_ctrl.index_to_tile(punit['tile'])
     assert (punit['tile'] == 1473)
@@ -67,7 +70,8 @@ def test_conquer_city(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T144_conquer_city')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T144_conquer_city')
     test_conquer_city(controller)
 
 

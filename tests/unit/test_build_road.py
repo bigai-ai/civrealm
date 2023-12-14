@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -50,7 +51,8 @@ def test_build_road(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == worker_id:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTH}'])
             build_action = valid_actions['build_road']
         else:
             pass

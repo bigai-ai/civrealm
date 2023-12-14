@@ -36,7 +36,8 @@ def XOR(a, b):
 def byte_to_bit_array(abyte_array, size=None):
     bit_array = []
     for abyte in abyte_array:
-        bit_array.extend([int(x) for x in "{0:0>8}".format(bin(abyte)[2:])][::-1])
+        bit_array.extend([int(x)
+                         for x in "{0:0>8}".format(bin(abyte)[2:])][::-1])
     return bit_array[:size]
 
 
@@ -99,7 +100,10 @@ def geometric_sequence(length: int, start: int, end: int):
     log_array = np.linspace(*start_end, length)
     return np.exp(log_array).astype(int).tolist()
 
+
 html_cleaner = re.compile('<.*?>')
+
+
 def clean_html(text_with_html):
     clean_text = re.sub(html_cleaner, '', text_with_html)
     return clean_text

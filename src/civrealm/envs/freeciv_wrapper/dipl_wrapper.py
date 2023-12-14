@@ -167,7 +167,8 @@ class TruncateDiplCity(Wrapper):
                     int(post_args[-3])
                 ]
             else:
-                city_index = self.get_wrapper_attr("city_ids")[int(post_args[-3])]
+                city_index = self.get_wrapper_attr(
+                    "city_ids")[int(post_args[-3])]
             action_name = (
                 f"{args[0][6:]}TradeCity_{city_index}_{post_args[-2]}_{post_args[-1]}"
             )

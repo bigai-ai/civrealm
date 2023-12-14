@@ -54,7 +54,8 @@ def test_spy_bribe_unit(controller):
     print(f"Now participate in activity {punit['activity']}")
 
     valid_actions = unit_opt.get_actions(diplomat_id, valid_only=True)
-    test_action_list.append(valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
+    test_action_list.append(
+        valid_actions[f'spy_bribe_unit_{map_const.DIR8_SOUTHWEST}'])
 
     print('Bribe the enemy unit on southwest tile')
     newtile = unit_opt.map_ctrl.mapstep(unit_tile, map_const.DIR8_SOUTHWEST)
@@ -63,7 +64,8 @@ def test_spy_bribe_unit(controller):
         print(f'Target unit ID: {target_id}')
     else:
         target_id = -1
-    assert (unit_opt.unit_ctrl.units[target_id]['owner'] != unit_opt.player_ctrl.my_player_id)
+    assert (unit_opt.unit_ctrl.units[target_id]
+            ['owner'] != unit_opt.player_ctrl.my_player_id)
     # Perform spy_bribe_unit action for the diplomat
     for action in test_action_list:
         action.trigger_action(controller.ws_client)
@@ -80,7 +82,8 @@ def test_spy_bribe_unit(controller):
     else:
         target_id = -1
     assert (target_id != diplomat_id)
-    assert (unit_opt.unit_ctrl.units[target_id]['owner'] == unit_opt.player_ctrl.my_player_id)
+    assert (unit_opt.unit_ctrl.units[target_id]
+            ['owner'] == unit_opt.player_ctrl.my_player_id)
 
 
 def main():

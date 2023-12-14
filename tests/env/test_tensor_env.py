@@ -10,7 +10,8 @@ from civrealm.envs.freeciv_wrapper.utils import *
 from civrealm.freeciv.utils.port_utils import Ports
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings("ignore", message=".*The obs returned by the .* method.*")
+warnings.filterwarnings(
+    "ignore", message=".*The obs returned by the .* method.*")
 
 
 @pytest.fixture
@@ -37,7 +38,7 @@ def make_env():
     fc_args["debug.load_game"] = "testcontroller_T200_2023-07-31-01_51"
     # fc_args['username']= 'testcontroller_T257_2023-08-07-14_04'
 
-    env = gymnasium.make("freeciv/FreecivTensor-v0", client_port=Ports.get())
+    env = gymnasium.make("civrealm/FreecivTensor-v0", client_port=Ports.get())
     yield env
     env.close()
 
@@ -46,13 +47,12 @@ def test_tensor_env(env):
     obs, info = env.reset()
 
     stop_nego_act = {
-            "actor_type" : 4,
-            "dipl_id": 2,
-            "dipl_action_type": 235,
-            }
+        "actor_type": 4,
+        "dipl_id": 2,
+        "dipl_action_type": 235,
+    }
     obs, _, _, _, info = env.step(stop_nego_act)
 
-        
     unit_action_pos = np.where(obs["unit_action_type_mask"] == 1)
     idx = np.random.randint(len(unit_action_pos[0]))
     act_unit = {

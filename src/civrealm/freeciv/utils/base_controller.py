@@ -51,11 +51,13 @@ class CivPropController(ABC):
         # info_packets = {15}
         # info_packets = {15, 51}
         info_packets = {15, 51, 90}
-        self.unlogged_packets = self.unlogged_packets.union(ruleset_packets, server_setting_packets, info_packets)
+        self.unlogged_packets = self.unlogged_packets.union(
+            ruleset_packets, server_setting_packets, info_packets)
 
     @abstractmethod
     def register_all_handlers(self):
-        raise Exception(f'Abstract function - To be overwritten by {self.__class__}')
+        raise Exception(
+            f'Abstract function - To be overwritten by {self.__class__}')
 
     def register_with_parent(self, parent):
         for key in self.hdict.keys():
@@ -73,7 +75,8 @@ class CivPropController(ABC):
             handle_func = getattr(self.hdict[pid][0], self.hdict[pid][1])
             handle_func(data)
         else:
-            fc_logger.warning("Handler function for pid %i not yet implemented" % pid)
+            fc_logger.warning(
+                "Handler function for pid %i not yet implemented" % pid)
 
     def get_observation_space(self, *args):
         return self.prop_state.get_observation_space(*args)

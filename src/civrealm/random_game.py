@@ -23,17 +23,18 @@ import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivBase-v0')
     env = LLMWrapper(env)
     agent = RandomLLMAgent()
 
-    observations, info = env.reset(client_port=fc_args['client_port'], minitask_pattern=None)
+    observations, info = env.reset(client_port=fc_args['client_port'])
     done = False
     step = 0
     while not done:
         try:
             action = agent.act(observations, info)
-            observations, reward, terminated, truncated, info = env.step(action)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
             print(
                 f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
                 f'Truncated: {truncated}, action: {action}')

@@ -50,23 +50,31 @@ def test_move_to(controller):
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_EAST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_EAST}'])
             # goto_south is not a valid action for this unit.
             assert (f'goto_{map_const.DIR8_SOUTH}' not in valid_actions)
         elif unit_id == 166:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHWEST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTHWEST}'])
         elif unit_id == 185:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTH}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_SOUTH}'])
         elif unit_id == 158:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTHWEST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_SOUTHWEST}'])
         elif unit_id == 156:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_WEST}'])
         elif unit_id == 138:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTH}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTH}'])
         elif unit_id == 137:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_NORTHEAST}'])
         elif unit_id == 139:
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_SOUTHEAST}'])
         else:
             pass
     # Perform goto action for each unit
@@ -87,23 +95,27 @@ def test_move_to(controller):
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
         if unit_id == 140 or unit_id == 189:
             assert (valid_actions != {})
-            assert (unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit) != '0')
+            assert (unit_helpers.get_unit_moves_left(
+                unit_opt.rule_ctrl, punit) != '0')
         else:
             assert (valid_actions == {})
-            assert (unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit) == '0')
+            assert (unit_helpers.get_unit_moves_left(
+                unit_opt.rule_ctrl, punit) == '0')
 
         if unit_id == 140:
             # EAST
             assert (new_position[0] == old_position[0]+1)
         elif unit_id == 166:
             # NORTHWEST
-            assert (new_position[0] == old_position[0]-1 and new_position[1] == old_position[1]-1)
+            assert (new_position[0] == old_position[0] -
+                    1 and new_position[1] == old_position[1]-1)
         elif unit_id == 185:
             # SOUTH
             assert (new_position[1] == old_position[1]+1)
         elif unit_id == 158:
             # SOUTHWEST
-            assert (new_position[0] == old_position[0]-1 and new_position[1] == old_position[1]+1)
+            assert (new_position[0] == old_position[0] -
+                    1 and new_position[1] == old_position[1]+1)
         elif unit_id == 156:
             # WEST
             assert (new_position[0] == old_position[0]-1)
@@ -112,10 +124,12 @@ def test_move_to(controller):
             assert (new_position[1] == old_position[1]-1)
         elif unit_id == 137:
             # NORTHEAST
-            assert (new_position[0] == old_position[0]+1 and new_position[1] == old_position[1]-1)
+            assert (new_position[0] == old_position[0] +
+                    1 and new_position[1] == old_position[1]-1)
         elif unit_id == 139:
             # SOUTHEAST
-            assert (new_position[0] == old_position[0]+1 and new_position[1] == old_position[1]+1)
+            assert (new_position[0] == old_position[0] +
+                    1 and new_position[1] == old_position[1]+1)
         else:
             pass
 

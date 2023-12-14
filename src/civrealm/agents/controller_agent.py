@@ -38,11 +38,13 @@ class ControllerAgent(BaseAgent):
             for i in range(len(observations)):
                 available_actions = info[i]['available_actions']
                 for ctrl_type in available_actions.keys():
-                    valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations[i], info[i], ctrl_type, env_id=i)
+                    valid_actor_id, valid_action_dict = self.get_next_valid_actor(
+                        observations[i], info[i], ctrl_type, env_id=i)
                     if valid_actor_id is None:
                         continue
 
-                    calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
+                    calculate_func = getattr(
+                        self, f'calculate_{ctrl_type}_actions')
                     action_name = calculate_func(valid_action_dict)
                     if action_name is not None:
                         actions[i] = (ctrl_type, valid_actor_id, action_name)
@@ -50,11 +52,13 @@ class ControllerAgent(BaseAgent):
         else:
             available_actions = info['available_actions']
             for ctrl_type in available_actions.keys():
-                valid_actor_id, valid_action_dict = self.get_next_valid_actor(observations, info, ctrl_type)
+                valid_actor_id, valid_action_dict = self.get_next_valid_actor(
+                    observations, info, ctrl_type)
                 if valid_actor_id is None:
                     continue
 
-                calculate_func = getattr(self, f'calculate_{ctrl_type}_actions')
+                calculate_func = getattr(
+                    self, f'calculate_{ctrl_type}_actions')
                 action_name = calculate_func(valid_action_dict)
                 if action_name is not None:
                     return (ctrl_type, valid_actor_id, action_name)
@@ -67,7 +71,8 @@ class ControllerAgent(BaseAgent):
         if len(action_probabilities) == 0 or sum(action_probabilities) == 0.0:
             return None
 
-        action_name = random.choices(action_list, weights=action_probabilities, k=1)[0]
+        action_name = random.choices(
+            action_list, weights=action_probabilities, k=1)[0]
         fc_logger.debug(f'Action sampled: {action_name}')
         return action_name
 

@@ -42,10 +42,12 @@ def update_docker_image():
 
     print('Updating docker image...')
     freeciv_dir = os.path.dirname(__file__)
-    modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_server_code')
+    modified_code_dir = os.path.join(
+        freeciv_dir, 'misc', 'modified_server_code')
 
     # Add more ports for multiplayer mode to enable parallel training and testing.
-    run_bash_command(f'docker exec -t {docker_image_name} sh -c "rm /docker/publite2/*longturn*"')
+    run_bash_command(
+        f'docker exec -t {docker_image_name} sh -c "rm /docker/publite2/*longturn*"')
 
     # Customize the civ2civ3 ruleset to allow building settlers with population cost 1
     run_bash_command(
@@ -53,8 +55,10 @@ def update_docker_image():
 
     # Add more ports for multiplayer mode to enable parallel training and testing.
     # Replace the `settings.ini` and `publite2.py` file in `/docker/publite2/`
-    run_bash_command(f'docker cp {modified_code_dir}/settings.ini {docker_image_name}:/docker/publite2/settings.ini')
-    run_bash_command(f'docker cp {modified_code_dir}/publite2.py {docker_image_name}:/docker/publite2/publite2.py')
+    run_bash_command(
+        f'docker cp {modified_code_dir}/settings.ini {docker_image_name}:/docker/publite2/settings.ini')
+    run_bash_command(
+        f'docker cp {modified_code_dir}/publite2.py {docker_image_name}:/docker/publite2/publite2.py')
 
     # Set the command level of client to hack to allow running all commands for debugging
     # Replace the `pubscript_multiplayer.serv` and `pubscript_singleplayer.serv` file in `/docker/publite2/`
@@ -79,13 +83,15 @@ def update_docker_image():
         f'docker exec -it {docker_image_name} bash -c "cd /docker/freeciv-web/; source build.sh"')
 
     # Commit the modified docker image
-    run_bash_command(f'docker commit {docker_image_name} freeciv/{docker_image_name}')
+    run_bash_command(
+        f'docker commit {docker_image_name} freeciv/{docker_image_name}')
 
 
 def update_javascript_for_clean_screenshot():
     print('Updating docker image...')
     freeciv_dir = os.path.dirname(__file__)
-    modified_code_dir = os.path.join(freeciv_dir, 'misc', 'modified_javascript_for_screenshot')
+    modified_code_dir = os.path.join(
+        freeciv_dir, 'misc', 'modified_javascript_for_screenshot')
 
     # Copy modified javascript to docker image
     run_bash_command(

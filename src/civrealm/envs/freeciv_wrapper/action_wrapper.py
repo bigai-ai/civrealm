@@ -153,7 +153,8 @@ class TensorAction(Wrapper):
 
         if tensor_debug:
             assert (
-                self.mask[actor_name + "_action_type_mask"][entity_pos, action_index]
+                self.mask[actor_name +
+                          "_action_type_mask"][entity_pos, action_index]
                 == 1
             ), f"{actor_name} action of id pos {entity_pos}, \
                     action type index {action_index} is masked"
@@ -177,7 +178,8 @@ class TensorAction(Wrapper):
             self.reset_mask()
         self.available_actions = deepcopy(info["available_actions"])
         self.__turn = info["turn"]
-        self.__dealing_with_incoming = self.get_wrapper_attr("dealing_with_incoming")
+        self.__dealing_with_incoming = self.get_wrapper_attr(
+            "dealing_with_incoming")
         self._update_mask(observation, info, action)
 
         return update(observation, deepcopy(self.mask))
@@ -252,22 +254,26 @@ class TensorAction(Wrapper):
         # Mask mutable entities using observation
 
         # Mask out trailing spaces for unit and city
-        self.mask["unit_id_mask"][len(self.get_wrapper_attr("unit_ids")) : :, :] = 0
-        self.mask["city_id_mask"][len(self.get_wrapper_attr("city_ids")) : :, :] = 0
-        self.mask["dipl_id_mask"][len(self.get_wrapper_attr("dipl_ids")) : :, :] = 0
+        self.mask["unit_id_mask"][len(
+            self.get_wrapper_attr("unit_ids"))::, :] = 0
+        self.mask["city_id_mask"][len(
+            self.get_wrapper_attr("city_ids"))::, :] = 0
+        self.mask["dipl_id_mask"][len(
+            self.get_wrapper_attr("dipl_ids"))::, :] = 0
         self.mask["unit_mask"] = self.mask["unit_id_mask"].copy()
         self.mask["city_mask"] = self.mask["city_id_mask"].copy()
 
         self.mask["unit_action_type_mask"][
-            len(self.get_wrapper_attr("unit_ids")) : :, :
+            len(self.get_wrapper_attr("unit_ids"))::, :
         ] = 0
         self.mask["city_action_type_mask"][
-            len(self.get_wrapper_attr("city_ids")) : :, :
+            len(self.get_wrapper_attr("city_ids"))::, :
         ] = 0
 
         # Mask Unit
         for pos, unit_id in enumerate(
-            self.get_wrapper_attr("unit_ids")[: self.action_config["resize"]["unit"]]
+            self.get_wrapper_attr("unit_ids")[
+                : self.action_config["resize"]["unit"]]
         ):
             unit = observation["unit"][unit_id]
             if unit["moves_left"] == 0 or self.unwrapped.civ_controller.unit_ctrl.units[
@@ -282,19 +288,21 @@ class TensorAction(Wrapper):
                 self.mask["unit_action_type_mask"][pos, :] &= 0
 
         self.mask["others_unit_mask"][
-            len(self.get_wrapper_attr("others_unit_ids")) : :, :
+            len(self.get_wrapper_attr("others_unit_ids"))::, :
         ] &= 0
         self.mask["others_city_mask"][
-            len(self.get_wrapper_attr("others_city_ids")) : :, :
+            len(self.get_wrapper_attr("others_city_ids"))::, :
         ] &= 0
 
         if self.get_wrapper_attr("researching"):
             self.mask["tech_action_type_mask"][:] &= 0
         if not self.get_wrapper_attr("researching") and tensor_debug:
-            print(f"techs_researched: {self.get_wrapper_attr('techs_researched')}")
+            print(
+                f"techs_researched: {self.get_wrapper_attr('techs_researched')}")
 
     def _mask_from_info(self, info):
-        others_player_num = len(info["available_actions"].get("player", {}).keys())
+        others_player_num = len(
+            info["available_actions"].get("player", {}).keys())
         self.mask["others_player_mask"][others_player_num::, :] &= 0
 
         # Mask City and Unit
@@ -352,5 +360,6 @@ class TensorAction(Wrapper):
             for id, entity in self.available_actions.get(field, {}).items():
                 assert len(entity) == sum(action_layout[field].values())
         assert len(
-            self.available_actions["gov"][self.get_wrapper_attr("my_player_id")]
+            self.available_actions["gov"][self.get_wrapper_attr(
+                "my_player_id")]
         ) == sum(action_layout["gov"].values())

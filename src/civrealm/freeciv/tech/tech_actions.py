@@ -39,8 +39,10 @@ class TechActions(ActionList):
         for tech_id in self.rule_ctrl.techs:
             tech_name = self.rule_ctrl.techs[tech_id]["name"]
 
-            self.add_action(actor_id, ActChooseResearchTech(pplayer, tech_id, tech_name))
-            self.add_action(actor_id, ActChooseResearchGoal(pplayer, tech_id, tech_name))
+            self.add_action(actor_id, ActChooseResearchTech(
+                pplayer, tech_id, tech_name))
+            self.add_action(actor_id, ActChooseResearchGoal(
+                pplayer, tech_id, tech_name))
 
 
 class ActChooseResearchTech(Action):
@@ -73,4 +75,3 @@ class ActChooseResearchGoal(ActChooseResearchTech):
         self.wait_for_pid = (60, self.pplayer['playerno'])
 
         return packet
-

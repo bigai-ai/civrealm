@@ -123,8 +123,10 @@ class GameCtrl(CivPropController):
             # /* This was the last part. */
             regxp = "/\n/gi"
 
-            self.page_msg["message"] = self.page_msg["message"].replace(regxp, "<br>\n")
-            fc_logger.info(self.page_msg["headline"] + self.page_msg["message"])
+            self.page_msg["message"] = self.page_msg["message"].replace(
+                regxp, "<br>\n")
+            fc_logger.info(
+                self.page_msg["headline"] + self.page_msg["message"])
 
             # /* Clear the message. */
             self.page_msg = {}

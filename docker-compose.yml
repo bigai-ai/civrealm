@@ -1,21 +1,20 @@
 version: "3"
 services:
-
-  freeciv-web:
-    image: freeciv/freeciv-web
+  freeciv-web-updates:
+    image: freeciv/freeciv-web-updates
     build: .
-    container_name: freeciv-web
+    container_name: freeciv-web-updates
     command: ["sleep", "infinity"]
     volumes:
-      - "data:/var/lib/tomcat10/webapps/data"
+      - "update_data:/var/lib/tomcat10/webapps/data"
     ports:
-      - "8080:80"
-      - "4002:4002"
-      - "6000-6009:6000-6009"
-      - "7000-7009:7000-7009"
-      - "8888:8080"
+      - "8180:80"
+      - "4102:4002"
+      - "6100-6109:6000-6009"
+      - "7100-7109:7000-7009"
+      - "8988:8080"
     user: docker
 
 volumes:
-  data:
+  update_data:
 

@@ -24,7 +24,7 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.freeciv.utils.utility import geometric_sequence
 
 GOLD_STEP = 1
-GOLD_SET = geometric_sequence(length=15,start=25,end=1500)
+GOLD_SET = geometric_sequence(length=15, start=25, end=1500)
 
 
 class DiplOptions(ActionList):
@@ -70,15 +70,18 @@ class DiplOptions(ActionList):
 
                 if counterpart != pplayer:
                     if len(new_city_set) > 0 and self.rule_ctrl.game_info["trading_city"]:
-                        self.update_trade_city_clauses(counter_id, pplayer, counterpart, new_city_set)
-                        self.update_trade_city_clauses(counter_id, counterpart, pplayer, new_city_set)
+                        self.update_trade_city_clauses(
+                            counter_id, pplayer, counterpart, new_city_set)
+                        self.update_trade_city_clauses(
+                            counter_id, counterpart, pplayer, new_city_set)
 
                 continue
 
             if counterpart == pplayer or self.is_barbarian_pirate(self.players[counter_id]['nation']):
                 continue
             self.add_actor(counter_id)
-            self.update_counterpart_options(counter_id, pplayer, counterpart, self.city_set)
+            self.update_counterpart_options(
+                counter_id, pplayer, counterpart, self.city_set)
 
     def is_barbarian_pirate(self, nation_id):
         return self.rule_ctrl.nations[nation_id]['rule_name'].lower() in ['barbarian', 'pirate']
@@ -104,8 +107,10 @@ class DiplOptions(ActionList):
             self.add_action(counter_id, CancelVision(self.diplomacy_clause_map,
                                                      self.contact_turns_left, cur_player, counterpart))
 
-            self.update_clause_options(counter_id, cur_player, counterpart, new_city_set)
-            self.update_clause_options(counter_id, counterpart, cur_player, new_city_set)
+            self.update_clause_options(
+                counter_id, cur_player, counterpart, new_city_set)
+            self.update_clause_options(
+                counter_id, counterpart, cur_player, new_city_set)
 
     def update_clause_options(self, counter_id, cur_player, counterpart, new_city_set):
         for ctype in BASE_CLAUSES:
@@ -140,9 +145,9 @@ class DiplOptions(ActionList):
                 self.add_action(counter_id, RemoveClause(player_const.CLAUSE_GOLD, pgold, counter_id, cur_player,
                                                          counterpart, self.diplomacy_clause_map, self.contact_turns_left))
 
-
         if self.rule_ctrl.game_info["trading_city"]:
-            self.update_trade_city_clauses(counter_id, cur_player, counterpart, new_city_set)
+            self.update_trade_city_clauses(
+                counter_id, cur_player, counterpart, new_city_set)
 
     '''
         if self.rule_ctrl.game_info["trading_gold"]:
@@ -253,7 +258,8 @@ class CancelTreaty(StartNegotiate):
         return not self.senate_blocking()
 
     def senate_blocking(self):
-        liberty_flag = has_statue_of_liberty(self.city_ctrl.cities, self.cur_player)
+        liberty_flag = has_statue_of_liberty(
+            self.city_ctrl.cities, self.cur_player)
         return (self.reason_to_cancel[self.cur_player['playerno']][self.counterpart['playerno']] == 0
                 and self.is_republic_democracy(self.cur_player['government']) and not liberty_flag)
 
@@ -265,7 +271,8 @@ class CancelTreaty(StartNegotiate):
                   "other_player_id": self.counterpart["playerno"],
                   "clause": self.diplstates[self.counterpart['playerno']]}
 
-        self.wait_for_pid = (59, (self.cur_player['playerno'], self.counterpart["playerno"]))
+        self.wait_for_pid = (
+            59, (self.cur_player['playerno'], self.counterpart["playerno"]))
         return packet
 
 
@@ -314,7 +321,8 @@ class RemoveClause(base_action.Action):
         self.contact_turns_left = contact_turns_left
         self.start_meeting = None
 
-        self.action_key += "_%s_%i_%i_%i" % (player_const.CLAUSE_TXT[clause_type], value, self.giver, self.receiver)
+        self.action_key += "_%s_%i_%i_%i" % (
+            player_const.CLAUSE_TXT[clause_type], value, self.giver, self.receiver)
 
     def is_action_valid(self):
         if self.already_on_meeting():
@@ -346,7 +354,8 @@ class AddClause(RemoveClause):
 
     def __init__(self, clause_type, value, counter_id, cur_player, counterpart, diplomacy_clause_map,
                  contact_turns_left, ws_client, diplstates, others_diplstates):
-        super().__init__(clause_type, value, counter_id, cur_player, counterpart, diplomacy_clause_map, contact_turns_left)
+        super().__init__(clause_type, value, counter_id, cur_player,
+                         counterpart, diplomacy_clause_map, contact_turns_left)
         self.ws_client = ws_client
 
         # diplstates contains diplomacy states of my_player
@@ -359,6 +368,7 @@ class AddClause(RemoveClause):
     is_clause_valid may return True if the clause already exists in the clause map
     it will be used in AcceptTreaty
     """
+
     def is_clause_valid(self):
 
         if self.cur_player['playerno'] == self.counter_id and self.clause_type in CONFLICTING_CLAUSES:
@@ -366,7 +376,8 @@ class AddClause(RemoveClause):
 
         ds = self.diplstates[self.counter_id]
         if (ds == player_const.DS_PEACE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ARMISTICE and self.clause_type in [player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_ALLIANCE and self.clause_type in [player_const.CLAUSE_ALLIANCE, player_const.CLAUSE_PEACE, player_const.CLAUSE_CEASEFIRE]) or (ds == player_const.DS_CEASEFIRE and self.clause_type == player_const.CLAUSE_CEASEFIRE):
-            fc_logger.debug(f'we already have this diplomatic state: {self.clause_type}')
+            fc_logger.debug(
+                f'we already have this diplomatic state: {self.clause_type}')
             return False
 
         if (self.clause_type == player_const.CLAUSE_EMBASSY and
@@ -434,14 +445,17 @@ class AddClause(RemoveClause):
                 """ clause in CONFLICTING_CLAUSES does not have direction thus there can only be one clause of this kind """
                 if self.clause_type in CONFLICTING_CLAUSES and clause['type'] in CONFLICTING_CLAUSES:
                     if clause['giver'] == self.cur_player['playerno']:
-                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player,
+                                                  self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
                     else:
-                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.counterpart, self.cur_player, self.diplomacy_clause_map, self.contact_turns_left)
+                        rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.counterpart,
+                                                  self.cur_player, self.diplomacy_clause_map, self.contact_turns_left)
 
                 """ clause of CLAUSE_GOLD has direction thus there can be two clauses of this kind respectively corresponding to cur_player --> counterpart and counterpart --> cur_player"""
 
-                if self.clause_type == player_const.CLAUSE_GOLD and clause['type'] == player_const.CLAUSE_GOLD and clause['giver'] ==  self.cur_player['playerno']:
-                    rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player, self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
+                if self.clause_type == player_const.CLAUSE_GOLD and clause['type'] == player_const.CLAUSE_GOLD and clause['giver'] == self.cur_player['playerno']:
+                    rem_clause = RemoveClause(clause['type'], clause['value'], self.counter_id, self.cur_player,
+                                              self.counterpart, self.diplomacy_clause_map, self.contact_turns_left)
 
                 if rem_clause is not None and rem_clause.is_action_valid():
                     rem_clause.trigger_action(self.ws_client)
@@ -522,7 +536,7 @@ class AddTradeCityClause(AddClause):
 class AcceptTreaty(StartNegotiate):
     action_key = "accept_treaty"
 
-    def __init__(self,diplomacy_clause_map, contact_turns_left, cur_player, counterpart, ws_client, diplstates, others_diplstates, players, city_ctrl):
+    def __init__(self, diplomacy_clause_map, contact_turns_left, cur_player, counterpart, ws_client, diplstates, others_diplstates, players, city_ctrl):
         super().__init__(diplomacy_clause_map, contact_turns_left, cur_player, counterpart)
         self.ws_client = ws_client
         self.diplstates = diplstates
@@ -537,6 +551,7 @@ class AcceptTreaty(StartNegotiate):
     actions in _action_dict cannot handle some clauses in a clause map 
     which have not been masked for saved games or human players
     """
+
     def is_action_valid(self):
         if not self.counterpart['playerno'] in self.diplomacy_clause_map.keys():
             return False
@@ -599,7 +614,8 @@ class IgnoreDiplomacy(Action):
         return 'ignore_diplomacy_request'
 
     def trigger_action(self, ws_client):
-        self.ws_client.send_message(f"Ignore diplomacy request of player {self.counter_id}")
+        self.ws_client.send_message(
+            f"Ignore diplomacy request of player {self.counter_id}")
 
 
 def has_statue_of_liberty(cities, cur_player):
@@ -610,5 +626,3 @@ def has_statue_of_liberty(cities, cur_player):
             return True
 
     return False
-
-

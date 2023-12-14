@@ -26,7 +26,8 @@ from civrealm.freeciv.utils.fc_types import ACTIVITY_FORTIFIED, ACTIVITY_FORTIFY
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -44,7 +45,8 @@ def test_fortify(controller):
     print(
         f"Unit id: {unit_id}, position: ({unit_tile['x']}, {unit_tile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, punit)}.")
     valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-    assert ('fortify' in valid_actions.keys() and not punit['activity'] == ACTIVITY_FORTIFIED)
+    assert ('fortify' in valid_actions.keys()
+            and not punit['activity'] == ACTIVITY_FORTIFIED)
     unit_action = valid_actions['fortify']
     assert (unit_action.is_action_valid())
     # Perform fortify action
@@ -75,7 +77,8 @@ def test_fortify(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_fortify(controller)
 
 

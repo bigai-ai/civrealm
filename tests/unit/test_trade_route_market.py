@@ -27,7 +27,8 @@ import civrealm.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T379_2023-08-09-06_16')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T379_2023-08-09-06_16')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -91,7 +92,8 @@ def test_trade_route_market(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        print(f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
+        print(
+            f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
 
         trade_route = False
         trade_route_num = 0
@@ -114,7 +116,8 @@ def test_trade_route_market(controller):
             assert (trade_route)
             assert (trade_route_num == 1)
             print('Unit 1912 build trade route')
-            valid_actions['trade_route_-1'].trigger_action(controller.ws_client)
+            valid_actions['trade_route_-1'].trigger_action(
+                controller.ws_client)
 
     city_id = 414
     # The trade route is empty before 1912 build one.
@@ -132,7 +135,8 @@ def test_trade_route_market(controller):
         unit_focus = unit_opt.unit_data[unit_id]
         # Get valid actions
         valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-        print(f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
+        print(
+            f"Unit {unit_id}, valid action keys: {valid_actions.keys()}, activity: {unit_focus.punit['activity']}")
 
         trade_route = False
         trade_route_num = 0
@@ -165,7 +169,8 @@ def test_trade_route_market(controller):
 
 def main():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T379_2023-08-09-06_16')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T379_2023-08-09-06_16')
     test_trade_route_market(controller)
 
 

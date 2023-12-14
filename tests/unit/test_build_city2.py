@@ -27,7 +27,8 @@ import civrealm.freeciv.utils.fc_types as fc_types
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T52_2023-07-26-02_14')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T52_2023-07-26-02_14')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -50,12 +51,14 @@ def test_build_city2(controller):
             f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
         if unit_id == 219:
             # The settler is too close to a city, cannot build
-            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 0, 'max': 0})
+            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {
+                    'min': 0, 'max': 0})
             # Get valid actions
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             assert ('build_city' not in valid_actions)
             # Move to north
-            valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(controller.ws_client)
+            valid_actions[f'goto_{map_const.DIR8_NORTH}'].trigger_action(
+                controller.ws_client)
 
     controller.send_end_turn()
     # Get unit new state
@@ -68,7 +71,8 @@ def test_build_city2(controller):
             f"Unit id: {unit_id}, position: ({ptile['x']}, {ptile['y']}), move left: {unit_helpers.get_unit_moves_left(unit_opt.rule_ctrl, unit_focus.punit)}.")
         if unit_id == 219:
             # The settler can build city now.
-            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {'min': 200, 'max': 200})
+            assert (unit_focus.action_prob[map_const.DIR8_STAY][fc_types.ACTION_FOUND_CITY] == {
+                    'min': 200, 'max': 200})
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
             build_action = valid_actions['build_city']
 

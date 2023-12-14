@@ -111,8 +111,10 @@ class TensorBase(Wrapper):
         Update config using ruleset information at the start of the turn.
         """
         self.units = self.unwrapped.civ_controller.rule_ctrl.unit_types
-        self.unit_types = [self.units[i]["name"] for i in range(len(self.units))]
-        self.unit_costs = [self.units[i]["build_cost"] for i in range(len(self.units))]
+        self.unit_types = [self.units[i]["name"]
+                           for i in range(len(self.units))]
+        self.unit_costs = [self.units[i]["build_cost"]
+                           for i in range(len(self.units))]
         self.improvements = self.unwrapped.civ_controller.rule_ctrl.improvements
         self.impr_costs = [
             self.improvements[i]["build_cost"] for i in range(len(self.improvements))
@@ -133,6 +135,7 @@ class TensorBase(Wrapper):
         return obs, info
 
     def step(self, *args, **kwargs):
-        obs, reward, terminated, truncated, info = self.env.step(*args, **kwargs)
+        obs, reward, terminated, truncated, info = self.env.step(
+            *args, **kwargs)
         self.update_sequence_ids(obs)
         return obs, reward, terminated, truncated, info

@@ -30,7 +30,7 @@ class PenalizeStep(Wrapper):
             self.actions_in_turn = 0
             return reward
         self.actions_in_turn += 1
-        return reward-1*int(self.actions_in_turn>20)
+        return reward-1*int(self.actions_in_turn > 20)
 
 
 @wrapper_override(["reward"])

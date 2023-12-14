@@ -26,9 +26,9 @@ from civrealm.freeciv.players.player_ctrl import PlayerCtrl
 from civrealm.freeciv.utils.base_controller import CivPropController
 from civrealm.freeciv.units.spacerace import SpaceCtrl
 from civrealm.freeciv.units.action_dialog import action_prob_possible
-from civrealm.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC,\
-    ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_ACTIVE, ACT_DEC_NOTHING,\
-    ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set,\
+from civrealm.freeciv.utils.fc_types import O_FOOD, O_SHIELD, O_GOLD, ACTION_SPY_INCITE_CITY, ACTION_SPY_INCITE_CITY_ESC, \
+    ACTION_UPGRADE_UNIT, ACTION_COUNT, ACTION_SPY_BRIBE_UNIT, ACT_DEC_ACTIVE, ACT_DEC_NOTHING, \
+    ACT_DEC_PASSIVE, packet_unit_get_actions, packet_unit_sscs_set, \
     USSDT_UNQUEUE, USSDT_QUEUE, ACTION_FOUND_CITY
 
 from civrealm.freeciv.game.game_ctrl import IDENTITY_NUMBER_ZERO
@@ -66,7 +66,8 @@ class UnitCtrl(CivPropController):
         self.base_action = UnitAction(None)
 
         self.prop_state = UnitState(self, rule_ctrl, map_ctrl, city_ctrl)
-        self.prop_actions = UnitActions(ws_client, self, rule_ctrl, player_ctrl, map_ctrl, city_ctrl)
+        self.prop_actions = UnitActions(
+            ws_client, self, rule_ctrl, player_ctrl, map_ctrl, city_ctrl)
 
         self.space_ctrl = SpaceCtrl(ws_client, player_ctrl)
 
@@ -274,7 +275,8 @@ class UnitCtrl(CivPropController):
           victim of targeted sabotage city victim.
         """
         popup_sabotage_dialog(self.find_unit_by_number(packet['diplomat_id']),
-                              self.city_ctrl.find_city_by_number(packet['city_id']),
+                              self.city_ctrl.find_city_by_number(
+                                  packet['city_id']),
                               BitVector(bitlist=packet['improvements']),
                               packet['action_id'])
 
@@ -308,7 +310,8 @@ class UnitCtrl(CivPropController):
         be concerned about which unit the client is focusing on.
         """
 
-        punit = self._player_find_unit_by_id(self.unit_owner(packet_unit), packet_unit['id'])
+        punit = self._player_find_unit_by_id(
+            self.unit_owner(packet_unit), packet_unit['id'])
         self._clear_tile_unit(punit)
 
         game_unit = self.find_unit_by_number(packet_unit['id'])
@@ -373,7 +376,8 @@ class UnitCtrl(CivPropController):
                 "type": USSDT_UNQUEUE,
                 "value": IDENTITY_NUMBER_ZERO
             }
-            self.ws_client.send_request(unqueue_packet, wait_for_pid=(63, old_actor_id))
+            self.ws_client.send_request(
+                unqueue_packet, wait_for_pid=(63, old_actor_id))
             # self.ws_client.send_request(unqueue_packet, wait_for_pid=63)
             # if old_actor_id == 1912:
             #     print(old_actor_id)
@@ -457,7 +461,8 @@ class UnitCtrl(CivPropController):
         if action_type == ACTION_SPY_BRIBE_UNIT:
             target_unit = self.find_unit_by_number(target_id)
             if target_unit is None:
-                fc_logger.info("Bad target unit (" + target_id + ") in unit action answer.")
+                fc_logger.info(
+                    "Bad target unit (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_bribe_dialog(actor_unit, target_unit, cost, action_type)
@@ -465,17 +470,20 @@ class UnitCtrl(CivPropController):
         elif (action_type == ACTION_SPY_INCITE_CITY
               or action_type == ACTION_SPY_INCITE_CITY_ESC):
             if target_city is None:
-                fc_logger.info("Bad target city (" + target_id + ") in unit action answer.")
+                fc_logger.info(
+                    "Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
                 popup_incite_dialog(actor_unit, target_city, cost, action_type)
                 return
         elif action_type == ACTION_UPGRADE_UNIT:
             if target_city is None:
-                fc_logger.info("Bad target city (" + target_id + ") in unit action answer.")
+                fc_logger.info(
+                    "Bad target city (" + target_id + ") in unit action answer.")
                 return
             else:
-                popup_unit_upgrade_dlg(actor_unit, target_city, cost, action_type)
+                popup_unit_upgrade_dlg(
+                    actor_unit, target_city, cost, action_type)
                 return
 
         elif action_type == ACTION_COUNT:
@@ -510,9 +518,11 @@ class UnitCtrl(CivPropController):
 
         # Update action probability for this unit
         target_tile = self.map_ctrl.index_to_tile(target_tile_id)
-        unit_tile = self.map_ctrl.index_to_tile(self.units[actor_unit_id]['tile'])
+        unit_tile = self.map_ctrl.index_to_tile(
+            self.units[actor_unit_id]['tile'])
         move_dir = self.map_ctrl.get_direction_for_step(unit_tile, target_tile)
-        self.prop_actions.update_unit_action_pro(actor_unit_id, target_unit_id, move_dir, action_probabilities)
+        self.prop_actions.update_unit_action_pro(
+            actor_unit_id, target_unit_id, move_dir, action_probabilities)
 
         self.prop_actions.restore_activity(actor_unit_id)
 
@@ -590,7 +600,8 @@ class UnitCtrl(CivPropController):
                 return False
 
         if self.city_ctrl.tile_city(target_tile) != None:
-            tgt_owner_id = self.player_ctrl.city_owner(self.city_ctrl.tile_city(target_tile))['playerno']
+            tgt_owner_id = self.player_ctrl.city_owner(
+                self.city_ctrl.tile_city(target_tile))['playerno']
 
             if tgt_owner_id == self.unit_owner(actor_unit)['playerno']:
                 # This city isn't foreign. */
@@ -633,7 +644,8 @@ class UnitCtrl(CivPropController):
         if len(special_char_list) > 0:
             for i in range(len(special_char_list)):
                 sub_pattern = special_char_list[i]
-                name = re.sub(sub_pattern, urllib.parse.unquote(sub_pattern), name)
+                name = re.sub(
+                    sub_pattern, urllib.parse.unquote(sub_pattern), name)
         # replace empty space encoding with empty space
         pattern = r"%20"
         replacement = " "
@@ -652,10 +664,13 @@ class UnitCtrl(CivPropController):
         suggested_name = self.decode_special_characters(packet['name'])
         # suggested_name = urllib.parse.quote(packet['name'], safe='~()*!.\'').replace("%", "")
         if suggested_name in self.city_name_list:
-            duplicate_name_num = sum(city_name.startswith(suggested_name) for city_name in self.city_name_list)
+            duplicate_name_num = sum(city_name.startswith(
+                suggested_name) for city_name in self.city_name_list)
             suggested_name = '{}_{}'.format(suggested_name, duplicate_name_num)
         self.city_name_list.append(suggested_name)
 
-        packet = self.base_action.unit_do_action(unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=suggested_name)
-        self.ws_client.send_request(packet, wait_for_pid=(31, actor_unit['tile']))
+        packet = self.base_action.unit_do_action(
+            unit_id, actor_unit['tile'], ACTION_FOUND_CITY, name=suggested_name)
+        self.ws_client.send_request(
+            packet, wait_for_pid=(31, actor_unit['tile']))
         # self.ws_client.send_request(packet, wait_for_pid=31)

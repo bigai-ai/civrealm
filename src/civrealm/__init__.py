@@ -17,22 +17,22 @@
 from gymnasium.envs.registration import register
 
 register(
-    id='freeciv/FreecivBase-v0',
+    id='civrealm/FreecivBase-v0',
     entry_point='civrealm.envs:FreecivBaseEnv',
 )
 register(
-    id='freeciv/FreecivTensor-v0',
+    id='civrealm/FreecivTensor-v0',
     entry_point='civrealm.envs:FreecivTensorEnv',
 )
 register(
-    id='freeciv/FreecivTensorMinitask-v0',
+    id='civrealm/FreecivTensorMinitask-v0',
     entry_point='civrealm.envs:FreecivTensorMinitaskEnv',
 )
 register(
-    id='freeciv/FreecivLLM-v0',
+    id='civrealm/FreecivLLM-v0',
     entry_point='civrealm.envs:FreecivLLMEnv',
 )
 register(
-    id='freeciv/FreecivMinitask-v0',
+    id='civrealm/FreecivMinitask-v0',
     entry_point='civrealm.envs:FreecivMinitaskEnv',
 )

@@ -30,6 +30,7 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.freeciv.utils.eval_tags import EVALUATION_TAGS
 from civrealm.configs import fc_args
 from civrealm.freeciv.utils.port_utils import Ports
+from civrealm.exception import ServerTimeoutException, BeginTurnTimeoutException
 
 class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
     """ Basic CivRealm environment """
@@ -51,11 +52,13 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self._action_space = self.civ_controller.action_space
         self._observation_space = self.civ_controller.observation_space
         self.set_up_recording()
-        utils.EzPickle.__init__(self, self.username, client_port, self.is_minitask)
+        utils.EzPickle.__init__(self, self.username,
+                                client_port, self.is_minitask)
 
     def set_up_screenshots(self):
         self._screenshot_step_count = 0
-        curr_date_time = str(datetime.date.today()) + "_" + str(datetime.datetime.now().time().strftime('%H-%M-%S.%f'))
+        curr_date_time = str(datetime.date.today()) + "_" + \
+            str(datetime.datetime.now().time().strftime('%H-%M-%S.%f'))
         self.screenshot_dir = os.path.join(
             os.path.dirname(fc_logger.handlers[0].baseFilename),
             'screenshots', self.username + "_" + str(self.get_port()) + "_" + curr_date_time)
@@ -96,16 +99,19 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         self._recording_base_filename = os.path.join(
             self.recording_dir, f'turn_{turn:03d}_step_{self._record_step_count:04d}')
         with open(f'{self._recording_base_filename}_{name}.json', 'w') as f:
-            json.dump(content, f, skipkeys=True, sort_keys=True, default=default_json_encoder)
+            json.dump(content, f, skipkeys=True, sort_keys=True,
+                      default=default_json_encoder)
 
     def _record_observation(self, observation):
         self._record_to_file('state', observation, lambda x: x.get_bitvector_in_ascii()
                              if isinstance(x, BitVector) else x.tolist())
 
     def _record_action(self, available_actions, action):
-        self._record_to_file('available_action', available_actions, lambda x: x.encode_to_json())
+        self._record_to_file('available_action',
+                             available_actions, lambda x: x.encode_to_json())
         if action:
-            self._record_to_file('chosen_action', action, lambda x: x.encode_to_json())
+            self._record_to_file('chosen_action', action,
+                                 lambda x: x.encode_to_json())
         self._record_step_count += 1
 
     def _get_info_and_observation(self):
@@ -133,15 +139,24 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             available_actions = info['available_actions']
             self._record_action(available_actions, action)
             self._take_screenshot()
-        except Exception as e:
-            print(traceback.format_exc())
-            fc_logger.error(repr(e))
+        except (ServerTimeoutException, BeginTurnTimeoutException) as server_problem:
+            fc_logger.error(repr(server_problem))
             reward = 0
-            info = None
-            observation = None
+            info = {}
+            observation = {}
             terminated = False
             truncated = True
-        
+
+        except Exception as e:
+            # print(traceback.format_exc())
+            # fc_logger.error(repr(e))
+            # reward = 0
+            # info = None
+            # observation = None
+            # terminated = False
+            # truncated = True
+            raise e
+
         return observation, reward, terminated, truncated, info
 
     def get_port(self):
@@ -149,7 +164,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
 
     def get_username(self):
         return self.civ_controller.clstate.username
-    
+
     def get_playerid(self):
         return self.civ_controller.player_ctrl.my_player_id
 
@@ -173,7 +188,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
             fc_args['debug.randomly_generate_seeds'] = False
             fc_args['debug.mapseed'] = seed
             fc_args['debug.agentseed'] = seed
-        
+
         # fc_logger.debug(f'begin_logged: {self.civ_controller.clstate.begin_logged}, turn_active: {self.civ_controller.turn_manager.turn_active}')
         # Log in and get the first info and observation
         self.civ_controller.init_network()
@@ -210,7 +225,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
                 scores = evaluations[ptag][player_id]
                 x_1 = players[player_id]['start_turn']
                 x_axis = range(x_1, x_1 + len(scores))
-                plt.plot(x_axis, scores, color=player_colors[player_id], label='player' + '_' + str(player_id))
+                plt.plot(
+                    x_axis, scores, color=player_colors[player_id], label='player' + '_' + str(player_id))
 
             plt.legend()
             pfile = os.path.join(plot_game_scores_folder, ptag + '.png')

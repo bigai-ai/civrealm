@@ -60,13 +60,20 @@ class MapState(PlainState):
         self._unit_type_num = len(self.rule_ctrl.unit_types)
 
         self._state['status'] = np.full((x_size, y_size), 0, dtype=np.ushort)
-        self._state['terrain'] = np.full((x_size, y_size), 255, dtype=np.ushort)
-        self._state['extras'] = np.full((x_size, y_size, self._extra_num), 0, dtype=np.bool_)
-        self._state['output'] = np.full((x_size, y_size, 6), 0, dtype=np.ushort)
-        self._state['tile_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
-        self._state['city_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
-        self._state['unit'] = np.full((x_size, y_size, self._unit_type_num), 0, dtype=np.ushort)
-        self._state['unit_owner'] = np.full((x_size, y_size), 255, dtype=np.ushort)
+        self._state['terrain'] = np.full(
+            (x_size, y_size), 255, dtype=np.ushort)
+        self._state['extras'] = np.full(
+            (x_size, y_size, self._extra_num), 0, dtype=np.bool_)
+        self._state['output'] = np.full(
+            (x_size, y_size, 6), 0, dtype=np.ushort)
+        self._state['tile_owner'] = np.full(
+            (x_size, y_size), 255, dtype=np.ushort)
+        self._state['city_owner'] = np.full(
+            (x_size, y_size), 255, dtype=np.ushort)
+        self._state['unit'] = np.full(
+            (x_size, y_size, self._unit_type_num), 0, dtype=np.ushort)
+        self._state['unit_owner'] = np.full(
+            (x_size, y_size), 255, dtype=np.ushort)
 
         for y in range(y_size):
             for x in range(x_size):
@@ -97,7 +104,8 @@ class MapState(PlainState):
     def update_tile(self, tile_packet):
         # Tile information will be updated no matter the tile is seen or not. The _state that will be passed to the agent is the state of the tiles that are seen.
         # Transform 16-bytes extra data to 128-bits data
-        tile_packet['extras'] = BitVector(bitlist=byte_to_bit_array(tile_packet['extras']))
+        tile_packet['extras'] = BitVector(
+            bitlist=byte_to_bit_array(tile_packet['extras']))
 
         tile_index = tile_packet['tile']
         assert self.tiles != None
@@ -113,19 +121,23 @@ class MapState(PlainState):
         if self._before_first_update and tile_packet['known'] == 1:
             # At the start of the game, the agent can seen some fogged tiles around the starting position.
             self._state['terrain'][x, y] = tile_packet['terrain']
-            self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
+            self._state['extras'][x, y,
+                                  :] = tile_packet['extras'][:self._extra_num]
 
         if tile_packet['known'] == 2:
             # Tile state should be updated when the tile is seen.
             self._state['terrain'][x, y] = tile_packet['terrain']
-            self._state['extras'][x, y, :] = tile_packet['extras'][:self._extra_num]
+            self._state['extras'][x, y,
+                                  :] = tile_packet['extras'][:self._extra_num]
             self._state['tile_owner'][x, y] = tile_packet['owner']
 
             # Compute output for the tile without improvements.
-            self._state['output'][x, y, :] = self.rule_ctrl.terrains[tile_packet['terrain']]['output']
+            self._state['output'][x, y,
+                                  :] = self.rule_ctrl.terrains[tile_packet['terrain']]['output']
             # Tiles with no resource will have resource value 128.
             if tile_packet['resource'] != 128:
-                self._state['output'][x, y, :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
+                self._state['output'][x, y,
+                                      :] += self.rule_ctrl.resources[tile_packet['resource']]['output']
 
     def encode_to_json(self):
         return dict([(key, self._state[key].to_list()) for key in self._state.keys()])
@@ -143,12 +155,15 @@ class MapState(PlainState):
 
         for _, city in cities.items():
             city_tile = self.tiles[city['tile']]
-            self._state['city_owner'][city_tile['x'], city_tile['y']] = city_tile['owner']
+            self._state['city_owner'][city_tile['x'],
+                                      city_tile['y']] = city_tile['owner']
 
         for _, unit in units.items():
             unit_tile = self.tiles[unit['tile']]
-            self._state['unit'][unit_tile['x'], unit_tile['y'], unit['type']] += 1
-            self._state['unit_owner'][unit_tile['x'], unit_tile['y']] = unit['owner']
+            self._state['unit'][unit_tile['x'],
+                                unit_tile['y'], unit['type']] += 1
+            self._state['unit_owner'][unit_tile['x'],
+                                      unit_tile['y']] = unit['owner']
 
         return
 

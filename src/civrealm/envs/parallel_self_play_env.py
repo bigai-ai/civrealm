@@ -88,7 +88,8 @@ class ParallelSelfPlayEnv:
             if dones[env_id]:
                 ray.get(self.envs[env_id].close.remote())
                 # Get the final score
-                final_score = ray.get(self.envs[env_id].get_final_score.remote())
+                final_score = ray.get(
+                    self.envs[env_id].get_final_score.remote())
                 for playerid in final_score.keys():
                     if playerid not in self.recent_scores:
                         self.recent_scores[playerid] = {}
@@ -96,12 +97,15 @@ class ParallelSelfPlayEnv:
                     for tag in final_score[playerid].keys():
                         # Some keys are new and we need to add them
                         if tag not in self.recent_scores[playerid]:
-                            self.recent_scores[playerid][tag] = deque(maxlen=fc_args['score_window'])
-                        self.recent_scores[playerid][tag].append(final_score[playerid][tag])
+                            self.recent_scores[playerid][tag] = deque(
+                                maxlen=fc_args['score_window'])
+                        self.recent_scores[playerid][tag].append(
+                            final_score[playerid][tag])
                 while True:
                     try:
                         print("Reinitialze env....")
-                        (observation, info) = ray.get(self.envs[env_id].reset.remote())
+                        (observation, info) = ray.get(
+                            self.envs[env_id].reset.remote())
                         break
                     except Exception as e:
                         fc_logger.error(repr(e))
@@ -118,6 +122,6 @@ class ParallelSelfPlayEnv:
                 unfinished = False
 
         return observations, rewards, terminated, truncated, infos
-    
+
     def get_recent_scores(self):
         return {playerid: {tag: list(self.recent_scores[playerid][tag]) for tag in self.recent_scores[playerid].keys()} for playerid in self.recent_scores.keys()}

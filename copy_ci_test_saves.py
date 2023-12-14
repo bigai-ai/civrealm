@@ -1,6 +1,5 @@
 import os
 import subprocess
-import time
 
 test_dir = os.path.dirname(__file__)
 service_save_dir = "/var/lib/tomcat10/webapps/data/savegames/"
@@ -18,67 +17,5 @@ def copy_test_game_save():
         )
 
 
-def download_minitask_save():
-    """download and unzip minitask.zip save to CI freeciv-web service"""
-
-    zip_dir = os.path.join("/tmp/", "minigame.zip")
-    cache_dir = os.path.join(test_dir, "minigame.zip")
-    fileid = "1MB28bFHQPl0-KOGPEIa9d33StrU-S6lp"
-    download_command = f"wget --load-cookies /tmp/cookies.txt \"https://docs.google.com/uc?export=download&confirm=$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id={fileid}' -O- | sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')&id={fileid}\" -O {zip_dir} && rm -rf /tmp/cookies.txt"
-    # download zip
-
-    # Download minigame.zip from google drive if not found in builds/$CI_PROJECT_PATH
-    # wait for cache being extracted
-    time.sleep(20)
-    if os.path.isfile(cache_dir):
-        subprocess.check_call(f"cp {cache_dir} {zip_dir}", shell=True)
-    if os.path.isfile(zip_dir):
-        print("Found minigame.zip!")
-    else:
-        print("Downloading minigame.zip...")
-        call_output = str(
-            subprocess.check_output(
-                download_command,
-                shell=True,
-            )
-        )
-        print(call_output)
-        # subprocess might carry on before fully returned
-        time.sleep(5)
-        if not os.path.isfile(zip_dir):
-            raise Exception(
-                f"Failed to Download minigame.zip using download_command {download_command}"
-            )
-        print(f"Minigame downloaded to {zip_dir}.")
-
-    if not os.path.isfile(cache_dir):
-        subprocess.check_call(f"cp {zip_dir} {cache_dir} ", shell=True)
-    local_path = "/tmp/minigame/"
-    subprocess.check_call(f"unzip {zip_dir} -d {local_path}", shell=True)
-
-    cwd = os.path.join(local_path, "minitask")
-    print(f"Start unziping minitask saves")
-    for minitask_zip in os.listdir(cwd):
-        if not minitask_zip.endswith(".zip"):
-            continue
-        # copy zip
-        subprocess.check_call(
-            f"cp {os.path.join(cwd,minitask_zip)} {service_minitask_save_dir}",
-            shell=True,
-        )
-        # unzip subfolder
-        subprocess.check_call(
-            f"unzip -o {os.path.join(service_minitask_save_dir,minitask_zip)} -d {service_minitask_save_dir}",
-            shell=True,
-        )
-        subprocess.call(
-            f"rm {os.path.join(service_minitask_save_dir,minitask_zip)}", shell=True
-        )
-    subprocess.check_call(
-        f"touch {os.path.join(test_dir,'minitask_zipped.flag')}", shell=True
-    )
-
-
 if __name__ == "__main__":
     copy_test_game_save()
-    download_minitask_save()

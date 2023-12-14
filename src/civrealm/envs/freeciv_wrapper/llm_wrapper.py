@@ -82,7 +82,8 @@ class LLMWrapper(Wrapper):
 
     def reset(self, seed=None, options=None, **kwargs):
         if 'minitask_pattern' in kwargs:
-            observation, info = self.env.reset(minitask_pattern=kwargs['minitask_pattern'])
+            observation, info = self.env.reset(
+                minitask_pattern=kwargs['minitask_pattern'])
         else:
             observation, info = self.env.reset()
 
@@ -93,9 +94,11 @@ class LLMWrapper(Wrapper):
     def step(self, action):
         if action is not None:
             action_name = action[2]
-            action = (action[0], action[1], get_action_from_readable_name(action_name, self.action_keys))
+            action = (action[0], action[1], get_action_from_readable_name(
+                action_name, self.action_keys))
 
-        observation, reward, terminated, truncated, info = self.env.step(action)
+        observation, reward, terminated, truncated, info = self.env.step(
+            action)
         info['llm_info'] = self.get_llm_info(observation, info)
         info['my_player_id'] = self.controller.player_ctrl.my_player_id
         return observation, reward, terminated, truncated, info
@@ -121,7 +124,8 @@ class LLMWrapper(Wrapper):
                     y = obs[ctrl_type][unit_id]['y']
                     utype = obs[ctrl_type][unit_id]['type_rule_name']
 
-                    unit_dict = self.get_actor_info(x, y, obs, info, ctrl_type, unit_id, utype)
+                    unit_dict = self.get_actor_info(
+                        x, y, obs, info, ctrl_type, unit_id, utype)
                     if unit_dict:
                         llm_info[ctrl_type][unit_id] = unit_dict
 
@@ -135,7 +139,8 @@ class LLMWrapper(Wrapper):
                         x = obs[ctrl_type][city_id]['x']
                         y = obs[ctrl_type][city_id]['y']
 
-                        city_dict = self.get_actor_info(x, y, obs, info, ctrl_type, city_id)
+                        city_dict = self.get_actor_info(
+                            x, y, obs, info, ctrl_type, city_id)
                         if city_dict:
                             llm_info[ctrl_type][city_id] = city_dict
                     else:
@@ -163,16 +168,21 @@ class LLMWrapper(Wrapper):
             return dict()
         else:
             if ctrl_type not in self.ctrl_action_categories:
-                actor_info['available_actions'] = make_action_list_readable(available_actions, self.action_names)
+                actor_info['available_actions'] = make_action_list_readable(
+                    available_actions, self.action_names)
             else:
-                actor_info['available_actions'] = make_action_list_readable(action_mask(self.ctrl_action_categories[ctrl_type], available_actions), self.action_names)
+                actor_info['available_actions'] = make_action_list_readable(action_mask(
+                    self.ctrl_action_categories[ctrl_type], available_actions), self.action_names)
 
         actor_info['observations'] = dict()
-        actor_info['observations']['minimap'] = self.get_mini_map_info(x, y, self.tile_length_radius, self.tile_width_radius, self.tile_info_template)
-        actor_info['observations']['upper_map'] = self.get_mini_map_info(x, y, self.block_length_radius, self.block_width_radius, self.block_info_template)
+        actor_info['observations']['minimap'] = self.get_mini_map_info(
+            x, y, self.tile_length_radius, self.tile_width_radius, self.tile_info_template)
+        actor_info['observations']['upper_map'] = self.get_mini_map_info(
+            x, y, self.block_length_radius, self.block_width_radius, self.block_info_template)
 
         if ctrl_type == 'city':
-            actor_info['observations']['producing'] = self.get_city_producing(obs[ctrl_type], actor_id)
+            actor_info['observations']['producing'] = self.get_city_producing(
+                obs[ctrl_type], actor_id)
 
         fc_logger.debug(f'actor observations: {actor_info}')
 
@@ -181,9 +191,11 @@ class LLMWrapper(Wrapper):
     def get_city_producing(self, obs, actor_id):
         producing = None
         if obs[actor_id]['production_kind'] == VUT_UTYPE:
-            producing = self.controller.rule_ctrl.unit_types_list[obs[actor_id]['production_value'] - self.controller.rule_ctrl.ruleset_control['num_impr_types']]
+            producing = self.controller.rule_ctrl.unit_types_list[obs[actor_id]
+                                                                  ['production_value'] - self.controller.rule_ctrl.ruleset_control['num_impr_types']]
         elif obs[actor_id]['production_kind'] == VUT_IMPROVEMENT:
-            producing = self.controller.rule_ctrl.improvement_types_list[obs[actor_id]['production_value']]
+            producing = self.controller.rule_ctrl.improvement_types_list[
+                obs[actor_id]['production_value']]
         return producing
 
     def get_mini_map_info(self, x, y, length_r, width_r, template):
@@ -207,20 +219,28 @@ class LLMWrapper(Wrapper):
                 start_y = center_y - width_r
                 end_y = center_y + width_r + 1
 
-                status_arr = read_sub_arr_with_wrap(map_state['status'], start_x, end_x, start_y, end_y)
-                terrain_arr = read_sub_arr_with_wrap(map_state['terrain'], start_x, end_x, start_y, end_y)
-                extras_arr = read_sub_arr_with_wrap(map_state['extras'], start_x, end_x, start_y, end_y)
-                unit_arr = read_sub_arr_with_wrap(map_state['unit'], start_x, end_x, start_y, end_y)
-                unit_owner_arr = read_sub_arr_with_wrap(map_state['unit_owner'], start_x, end_x, start_y, end_y)
-                city_owner_arr = read_sub_arr_with_wrap(map_state['city_owner'], start_x, end_x, start_y, end_y)
+                status_arr = read_sub_arr_with_wrap(
+                    map_state['status'], start_x, end_x, start_y, end_y)
+                terrain_arr = read_sub_arr_with_wrap(
+                    map_state['terrain'], start_x, end_x, start_y, end_y)
+                extras_arr = read_sub_arr_with_wrap(
+                    map_state['extras'], start_x, end_x, start_y, end_y)
+                unit_arr = read_sub_arr_with_wrap(
+                    map_state['unit'], start_x, end_x, start_y, end_y)
+                unit_owner_arr = read_sub_arr_with_wrap(
+                    map_state['unit_owner'], start_x, end_x, start_y, end_y)
+                city_owner_arr = read_sub_arr_with_wrap(
+                    map_state['city_owner'], start_x, end_x, start_y, end_y)
 
                 unexplored_tiles_num = len(list(status_arr[status_arr == 0]))
                 if unexplored_tiles_num > 0:
-                    status_str = str(unexplored_tiles_num) + ' ' + 'tiles unexplored'
+                    status_str = str(unexplored_tiles_num) + \
+                        ' ' + 'tiles unexplored'
                     mini_map_info[ptile].append(status_str)
 
                 for terrain_id, terrain in enumerate(TERRAIN_NAMES):
-                    terrains_num = len(list(terrain_arr[terrain_arr == terrain_id]))
+                    terrains_num = len(
+                        list(terrain_arr[terrain_arr == terrain_id]))
                     if terrains_num > 0:
                         terrain_str = str(terrains_num) + ' ' + terrain
                         mini_map_info[ptile].append(terrain_str)
@@ -248,10 +268,13 @@ class LLMWrapper(Wrapper):
                             continue
 
                         if unit_owner == self.controller.player_ctrl.my_player_id:
-                            unit_owner_str += ' myself player_' + str(int(unit_owner))
+                            unit_owner_str += ' myself player_' + \
+                                str(int(unit_owner))
                         else:
                             ds_of_owner = self.controller.dipl_ctrl.diplstates[unit_owner]
-                            unit_owner_str += ' ' + DS_TXT[ds_of_owner] + ' player_' + str(int(unit_owner))
+                            unit_owner_str += ' ' + \
+                                DS_TXT[ds_of_owner] + ' player_' + \
+                                str(int(unit_owner))
                         owner_set.append(unit_owner)
                     mini_map_info[ptile].append(unit_owner_str)
 
@@ -262,7 +285,8 @@ class LLMWrapper(Wrapper):
                         continue
 
                     if city_owner == self.controller.player_ctrl.my_player_id:
-                        city_owner_str = str(owner_num) + ' cities of myself player_' + str(int(city_owner))
+                        city_owner_str = str(
+                            owner_num) + ' cities of myself player_' + str(int(city_owner))
                     else:
                         ds_of_owner = self.controller.dipl_ctrl.diplstates[city_owner]
                         city_owner_str = (str(owner_num) + ' cities of a ' + DS_TXT[ds_of_owner] +
@@ -279,5 +303,3 @@ def parse_llm_default_settings(config_file='../../../../llm_wrapper_settings.yml
         llm_default_settings = yaml.safe_load(file)
 
     return llm_default_settings
-
-

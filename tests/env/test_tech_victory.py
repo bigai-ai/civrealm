@@ -17,20 +17,22 @@ from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.configs import fc_args, fc_web_args
 from civrealm.freeciv.utils.port_utils import Ports
 
+
 @pytest.fixture(params=[
-    ("enabled", "SPACERACE|ALLIED"), 
-    ("enabled", "ALLIED"), 
-    ("disabled", "SPACERACE|ALLIED"), 
-    ("disabled", "ALLIED"), 
+    ("enabled", "SPACERACE|ALLIED"),
+    ("enabled", "ALLIED"),
+    ("disabled", "SPACERACE|ALLIED"),
+    ("disabled", "ALLIED"),
 ])
 def tech_env(request):
     endvictory, victories = request.param
     fc_args["endvictory"] = endvictory
     fc_args["victories"] = victories
     fc_args["debug.load_game"] = "testcontroller_T370_tech_victory"
-    env = gymnasium.make("freeciv/FreecivBase-v0", client_port=Ports.get())
+    env = gymnasium.make("civrealm/FreecivBase-v0", client_port=Ports.get())
     yield env, endvictory, victories
     env.close()
+
 
 def test_tech_victory(tech_env):
     fc_logger.info("test_tech_victory")

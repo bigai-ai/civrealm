@@ -22,7 +22,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T241_2023-09-12-14_20')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T241_2023-09-12-14_20')
     yield controller
 
     controller.handle_end_turn(None)

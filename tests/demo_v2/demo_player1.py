@@ -55,7 +55,8 @@ UNITS_TRACK = {
         "TARGET_CITY_DISCOVERY": [f'goto_{map_const.DIR8_NORTH}']*3+[f'goto_{map_const.DIR8_EAST}']+[f'goto_{map_const.DIR8_NORTH}'],
         # 机器人2：我希望进攻敌方单位，因为若是不消灭敌军我们无法安全继续前进抵达目标(指挥官选择【机器人 2】，因为战略不但需要根据情况灵活变化，而且2号机器人的方案符合指挥官意图。)
         "TARGET_PLANE_DISCOVERY": [f'goto_{map_const.DIR8_SOUTHWEST}']+[f'goto_{map_const.DIR8_NORTH}']+[f'goto_{map_const.DIR8_NORTHWEST}'] +\
-        [f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_EAST}']*5+[f'goto_{map_const.DIR8_NORTHEAST}'],
+        [f'goto_{map_const.DIR8_NORTH}']*2+[f'goto_{map_const.DIR8_EAST}'] * \
+        5+[f'goto_{map_const.DIR8_NORTHEAST}'],
         # 机器人2：我希望通过平原前往目标，尽快抵达目的地；
         "TARGET_GOAL_DESTROY": [f'goto_{map_const.DIR8_NORTHEAST}']*2+[f'goto_{map_const.DIR8_NORTH}']*4+[f'goto_{map_const.DIR8_NORTHWEST}']*4+[f'goto_{map_const.DIR8_NORTH}']
     },
@@ -80,9 +81,11 @@ def configure_test_logger():
             os.makedirs(log_dir)
 
     basename, ext = os.path.splitext(os.path.basename(logger_filename))
-    logger_filename = os.path.join(log_dir, f"{basename}_{fc_args['username']}{ext}")
+    logger_filename = os.path.join(
+        log_dir, f"{basename}_{fc_args['username']}{ext}")
     file_handler_with_id = logging.FileHandler(logger_filename, 'w')
-    formatter = logging.Formatter(LOGGING_CONFIG['formatters']['standard']['format'])
+    formatter = logging.Formatter(
+        LOGGING_CONFIG['formatters']['standard']['format'])
     file_handler_with_id.setFormatter(formatter)
 
     for handler in fc_logger.handlers[:]:
@@ -127,7 +130,8 @@ def test_move_to(controller):
 
                 # Get valid actions
                 try:
-                    valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
+                    valid_actions = unit_opt.get_actions(
+                        unit_id, valid_only=True)
                 except Exception as ex:
                     print("Exception : \n", ex)
                     continue
@@ -137,7 +141,8 @@ def test_move_to(controller):
 
                 action = UNITS_TRACK[unit_id][script][step]
 
-                print(f"Unit id: {unit_id}, expect action: {action}, valid_actions: {valid_actions}")
+                print(
+                    f"Unit id: {unit_id}, expect action: {action}, valid_actions: {valid_actions}")
 
                 # Append action
                 test_action_list.append(valid_actions[action])

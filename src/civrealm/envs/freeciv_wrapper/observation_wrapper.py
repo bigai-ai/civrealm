@@ -313,6 +313,11 @@ class CacheLastObs(Wrapper):
         self.cached_last_obs = None
         super().__init__(env)
 
+    def reset(self, *args, **kwargs):
+        obs, info = self.env.reset(*args, **kwargs)
+        self.cached_last_obs = deepcopy(obs)
+        return obs, info
+
     def step(self, action):
         obs, reward, terminated, truncated, info = self.env.step(action)
 

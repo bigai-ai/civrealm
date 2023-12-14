@@ -24,6 +24,7 @@ fc_args['ruleset'] = 'classic'
 fc_args['pytest'] = True
 fc_args['server_timeout'] = 5
 fc_args['self_play'] = False
+fc_args['max_turns'] = 1000
 
 docker_image_name = fc_web_args['image']
 test_dir = os.path.dirname(__file__)
@@ -37,7 +38,6 @@ else:
 try:
     s = subprocess.check_output('docker ps', shell=True)
     assert str(s).find("freeciv-web") != -1
-
     for username in next(os.walk(f'{test_dir}/game_save/'))[1]:
         subprocess.call(
             f'docker cp {test_dir}/game_save/{username} {docker_image_name}:/var/lib/{tomcat_dir}/webapps/data/savegames/',
@@ -51,6 +51,7 @@ def pytest_configure(config):
     worker_id = os.environ.get("PYTEST_XDIST_WORKER")
     fc_args["host"] = config.getoption('--host')
 
+
 @pytest.fixture(scope="module", autouse=True)
 def restore_fc_args_username():
     # restore fc_args to 'testcontroller' after beeing overwritten by minitask
@@ -58,8 +59,10 @@ def restore_fc_args_username():
     if fc_args["username"] == "minitask":
         fc_args["username"] = "testcontroller"
 
+
 def pytest_addoption(parser):
     parser.addoption("--host", action="store", default=fc_args["host"])
+
 
 def configure_test_logger(item):
     # Close and remove all old handlers and add a new one with the test name
@@ -69,6 +72,7 @@ def configure_test_logger(item):
     from civrealm.freeciv.utils.freeciv_logging import set_logging_file
     set_logging_file('tests', item.name)
     fc_logger.info(f"init tests: {item.name}")
+
 
 @pytest.hookimpl
 def pytest_runtest_call(item):

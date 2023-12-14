@@ -22,18 +22,20 @@ from civrealm.runners import ParallelRunner, A3CRunner
 
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings('ignore', message='.*The obs returned by the .* method.*')
+warnings.filterwarnings(
+    'ignore', message='.*The obs returned by the .* method.*')
 
 
 def main():
     if fc_args['batch_size_run'] == 1:
-        warnings.warn('batch_size_run is 1. Please use random_game.py for batch_size_run = 1.')
+        warnings.warn(
+            'batch_size_run is 1. Please use random_game.py for batch_size_run = 1.')
 
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
         agent = ControllerAgent()
-        runner = ParallelRunner('freeciv/FreecivBase-v0', agent, None, i)
-        # runner = A3CRunner('freeciv/FreecivBase-v0', agent, None, i)
+        runner = ParallelRunner('civrealm/FreecivBase-v0', agent, None, i)
+        # runner = A3CRunner('civrealm/FreecivBase-v0', agent, None, i)
         batchs = runner.run()
         print(f'Batch length: {len(batchs)}')
         # for batch in batchs:

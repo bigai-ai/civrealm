@@ -27,7 +27,8 @@ from civrealm.freeciv.utils.test_utils import get_first_observation_option
 @pytest.fixture
 def controller():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)
@@ -49,7 +50,8 @@ def test_irrigation(controller):
         # Get valid actions
         if unit_id == worker_id:
             valid_actions = unit_opt.get_actions(unit_id, valid_only=True)
-            test_action_list.append(valid_actions[f'goto_{map_const.DIR8_WEST}'])
+            test_action_list.append(
+                valid_actions[f'goto_{map_const.DIR8_WEST}'])
             print(valid_actions.keys())
             # There is no river or irrigated area nearby, the irrigation action is invalid.
             assert ('irrigation' not in valid_actions)
@@ -89,7 +91,8 @@ def test_irrigation(controller):
 
     # Move back to the original position where the irrigation action was invalid
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
-    valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(controller.ws_client)
+    valid_actions[f'goto_{map_const.DIR8_EAST}'].trigger_action(
+        controller.ws_client)
     controller.send_end_turn()
     controller.get_info_and_observation()
     valid_actions = unit_opt.get_actions(worker_id, valid_only=True)
@@ -114,7 +117,8 @@ def test_irrigation(controller):
 
 def main():
     controller = CivController(fc_args['username'])
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-10-05_23')
     test_irrigation(controller)
 
 

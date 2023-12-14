@@ -69,7 +69,8 @@ class MinitaskDifficulty(ExtendedEnum):
 
 DEFAULT_TASK = "minitask"
 MAX_ID = 999
-BATTLE_MINITASK_LIST = [_minitask for _minitask in MinitaskType.list() if _minitask.startswith("battle")]
+BATTLE_MINITASK_LIST = [
+    _minitask for _minitask in MinitaskType.list() if _minitask.startswith("battle")]
 
 
 class FreecivMinitaskEnv(FreecivBaseEnv):
@@ -78,7 +79,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
         super().__init__(username=username, client_port=client_port, is_minitask=True)
         fc_args['username'] = username
-        set_logging_file('.', username)
         self.filename = None
         self.task_type = None
         fc_args['debug.autosave'] = False
@@ -91,18 +91,24 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             minitask_pattern = dict()
 
         minitask_id = minitask_pattern.get('id', random.randint(0, max_id))
-        minitask_level = minitask_pattern.get('level', random.choice(MinitaskDifficulty.list()))
-        minitask_type = minitask_pattern.get('type', random.choice(MinitaskType.list()))
+        minitask_level = minitask_pattern.get(
+            'level', random.choice(MinitaskDifficulty.list()))
+        minitask_type = minitask_pattern.get(
+            'type', random.choice(MinitaskType.list()))
 
         if minitask_type not in MinitaskType.list():
-            raise ValueError(f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
+            raise ValueError(
+                f"Not supported type as {minitask_pattern}. The suppported list is {MinitaskType.list()}!")
         if minitask_id > max_id or minitask_id < 0:
-            raise ValueError(f"Not supported id as {minitask_id}. The suppported range is [0, {max_id}]!")
+            raise ValueError(
+                f"Not supported id as {minitask_id}. The suppported range is [0, {max_id}]!")
         if minitask_level not in MinitaskDifficulty.list():
             raise ValueError(
                 f"Not supported diffculty as {minitask_level}. The suppported list is {MinitaskDifficulty.list()}!")
 
-        minitask = '{}_T1_task_{}_level_{}_id_{}'.format(name, minitask_type, minitask_level, minitask_id)
+        minitask = '{}_T1_task_{}_level_{}_id_{}'.format(
+            name, minitask_type, minitask_level, minitask_id)
+        #set_logging_file('minitask', minitask)
         fc_logger.warning(f"Randomly selected minitask {minitask}!")
         return minitask
 
@@ -146,9 +152,11 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
     def set_minitask(self, seed, minitask_pattern, max_id):
         random.seed(seed)
-        minitask = self.get_minitask(fc_args['username'], minitask_pattern, max_id)
+        minitask = self.get_minitask(
+            fc_args['username'], minitask_pattern, max_id)
         self.filename = minitask
-        self.task_type = re.match(r"{}_T\d+_task_([a-z]+)_.*".format(fc_args['username']), minitask)[1]
+        self.task_type = re.match(
+            r"{}_T\d+_task_([a-z]+)_.*".format(fc_args['username']), minitask)[1]
         self.civ_controller.set_parameter('debug.load_game', minitask)
         return
 

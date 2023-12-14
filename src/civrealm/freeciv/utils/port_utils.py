@@ -85,7 +85,8 @@ class PortStatus:
                     subdict["restart"]
                     == self._cache.get(port, {"restart": -1})["restart"]
                 ):
-                    subdict["user"] = max(self._cache[port]["user"], subdict["user"])
+                    subdict["user"] = max(
+                        self._cache[port]["user"], subdict["user"])
         self._cache = copy(data)
 
         return data
@@ -144,7 +145,8 @@ class PortStatus:
         with FileLock(self.lock_file):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
                 lines = file.readlines()
-                occupied_ports = [int(line.strip().split()[0]) for line in lines]
+                occupied_ports = [int(line.strip().split()[0])
+                                  for line in lines]
         return [port for port in self._idles if port not in occupied_ports]
 
     def _check_release(self, occupied_ports):
@@ -159,7 +161,8 @@ class PortStatus:
         occupied_ports = list(
             filter(
                 # delete ports that has been restarted
-                lambda x: status.get(int(x[0]), {"restart": x[2]})["restart"] == x[2],
+                lambda x: status.get(int(x[0]), {"restart": x[2]})[
+                    "restart"] == x[2],
                 occupied_ports,
             )
         )
@@ -167,7 +170,8 @@ class PortStatus:
         occupied_ports = list(
             filter(
                 lambda x: not (
-                    ((status.get(int(x[0]), {"uptime": 0})["uptime"] - x[1]) > 30)
+                    ((status.get(int(x[0]), {"uptime": 0})[
+                     "uptime"] - x[1]) > 30)
                     and x[3] == 0
                 ),
                 occupied_ports,
@@ -182,27 +186,31 @@ class PortStatus:
         with FileLock(self.lock_file):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
                 lines = file.readlines()
-                ports_data = [list(map(int, line.strip().split())) for line in lines]
+                ports_data = [list(map(int, line.strip().split()))
+                              for line in lines]
 
             empties = []
             while True:
                 time.sleep(0.05)
                 ports_data = self._check_release(ports_data)
                 occupied_ports = [int(data[0]) for data in ports_data]
-                empties = [p for p in sorted(self._idles) if p not in occupied_ports]
+                empties = [p for p in sorted(
+                    self._idles) if p not in occupied_ports]
                 if port is not None and port in empties:
                     result = port
                     break
                 if port is None and len(empties) > 0:
                     # choose the port with minimal restart number
                     status = self.status
-                    result = min(empties, key=lambda port: status[port]["restart"])
+                    result = min(
+                        empties, key=lambda port: status[port]["restart"])
                     time.sleep(0.05)
                     break
 
             status = self.status
             ports_data.append(
-                (result, status[result]["uptime"], status[result]["restart"], 0)
+                (result, status[result]["uptime"],
+                 status[result]["restart"], 0)
             )
             occupied_ports_lines = [
                 f"{int(p)} {int(uptime)} {int(restart)} {int(user)}\n"
@@ -274,7 +282,8 @@ class PortStatusParser(HTMLParser):
                 self.data[self.current_port]["restart"] = int(data)
         if ":" in data:
             try:
-                timestamp = datetime.strptime(data, "%Y-%m-%d %H:%M:%S").timestamp()
+                timestamp = datetime.strptime(
+                    data, "%Y-%m-%d %H:%M:%S").timestamp()
                 self.data[self.current_port]["first_birth"] = int(timestamp)
                 self.after_date = True
             except Exception:

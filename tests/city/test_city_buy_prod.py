@@ -25,7 +25,8 @@ from civrealm.freeciv.utils.fc_types import VUT_UTYPE
 @pytest.fixture
 def controller():
     controller = CivController('testcontroller')
-    controller.set_parameter('debug.load_game', 'testcontroller_T27_2023-07-20-05_37')
+    controller.set_parameter(
+        'debug.load_game', 'testcontroller_T27_2023-07-20-05_37')
     yield controller
     # Delete gamesave saved in handle_begin_turn
     controller.handle_end_turn(None)

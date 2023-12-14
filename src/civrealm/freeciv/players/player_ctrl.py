@@ -53,7 +53,8 @@ class PlayerCtrl(CivPropController):
         self.endgame_player_info = []
 
         self.prop_state = PlayerState(self, rule_ctrl, clstate)
-        self.prop_actions = PlayerOptions(ws_client, rule_ctrl, city_ctrl, self.players)
+        self.prop_actions = PlayerOptions(
+            ws_client, rule_ctrl, city_ctrl, self.players)
 
     def register_all_handlers(self):
         self.register_handler(50, "handle_player_remove")
@@ -230,8 +231,10 @@ class PlayerCtrl(CivPropController):
     def handle_player_info(self, packet):
         """ Interpret player flags."""
         packet['flags'] = BitVector(bitlist=byte_to_bit_array(packet['flags']))
-        packet['gives_shared_vision'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_vision']))
-        packet['gives_shared_tiles'] = BitVector(bitlist=byte_to_bit_array(packet['gives_shared_tiles']))
+        packet['gives_shared_vision'] = BitVector(
+            bitlist=byte_to_bit_array(packet['gives_shared_vision']))
+        packet['gives_shared_tiles'] = BitVector(
+            bitlist=byte_to_bit_array(packet['gives_shared_tiles']))
         playerno = packet["playerno"]
         # Update player information
         if playerno not in self.players.keys() or self.players[playerno] is None:
@@ -248,7 +251,8 @@ class PlayerCtrl(CivPropController):
         # update_tech_screen()
 
         """ tell city_ctrl if tiles are shared between players """
-        self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]] = packet['gives_shared_tiles']
+        self.city_ctrl.prop_actions.tiles_shared[packet["playerno"]
+                                                 ] = packet['gives_shared_tiles']
 
     def handle_web_player_info_addition(self, packet):
         # Currently there is only one additional field expected_income、
@@ -278,7 +282,8 @@ class PlayerCtrl(CivPropController):
         if not self.clstate.client_is_observer() and old_inventions != None and self.player_is_myself(packet['id']):
             for i, invention in enumerate(packet['inventions']):
                 if invention != old_inventions[i] and invention == tech_const.TECH_KNOWN:
-                    fc_logger.info(f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")
+                    fc_logger.info(
+                        f"Gained new technology: {self.rule_ctrl.techs[i]['name']}")
                     break
 
     # TODO: Check whether there are other cases that would also lead to player removal, e.g., other players are
@@ -330,5 +335,7 @@ class PlayerCtrl(CivPropController):
             color_red = self.players[player_id]['color_red']
             color_green = self.players[player_id]['color_green']
             color_blue = self.players[player_id]['color_blue']
-            player_colors[player_id] = '#' + format_hex(color_red) + format_hex(color_green) + format_hex(color_blue)
+            player_colors[player_id] = '#' + \
+                format_hex(color_red) + format_hex(color_green) + \
+                format_hex(color_blue)
         return player_colors

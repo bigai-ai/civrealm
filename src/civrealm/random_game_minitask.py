@@ -23,7 +23,7 @@ import gymnasium
 
 
 def main():
-    env = gymnasium.make('freeciv/FreecivMinitask-v0')
+    env = gymnasium.make('civrealm/FreecivMinitask-v0')
     agent = ControllerAgent()
 
     observations, info = env.reset()
@@ -32,7 +32,8 @@ def main():
     while not done:
         try:
             action = agent.act(observations, info)
-            observations, reward, terminated, truncated, info = env.step(action)
+            observations, reward, terminated, truncated, info = env.step(
+                action)
             print(
                 f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, Truncated: {truncated}, Action: {action}')
             print(f'\tMinitask Info: {info["minitask"]}')

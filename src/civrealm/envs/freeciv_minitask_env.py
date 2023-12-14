@@ -108,7 +108,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
         minitask = '{}_T1_task_{}_level_{}_id_{}'.format(
             name, minitask_type, minitask_level, minitask_id)
-        #set_logging_file('minitask', minitask)
+        set_logging_file('minitask', minitask)
         fc_logger.warning(f"Randomly selected minitask {minitask}!")
         return minitask
 

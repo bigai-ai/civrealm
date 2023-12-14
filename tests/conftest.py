@@ -26,7 +26,7 @@ fc_args['server_timeout'] = 5
 fc_args['self_play'] = False
 fc_args['max_turns'] = 1000
 
-docker_image_name = fc_web_args['image']
+docker_image_name = fc_web_args['container']
 test_dir = os.path.dirname(__file__)
 if docker_image_name.startswith('freeciv-web'):
     tomcat_dir = 'tomcat10'

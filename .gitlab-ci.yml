@@ -96,3 +96,6 @@ local_pytest:
     - pytest -x
   tags:
     - local_pytest
+  only:
+    - dev
+

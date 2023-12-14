@@ -45,6 +45,8 @@ cache:
       - logs
   tags:
     - civ-pytest
+  rules:
+    - if: ($CI_COMMIT_BRANCH != "update")
 
 stages:
   - pages

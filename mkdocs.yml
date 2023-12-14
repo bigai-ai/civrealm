@@ -78,7 +78,11 @@ nav:
   - Advanced Materials:
       - Game:
           - Game Settings: advanced_materials/game_settings.md
-          - Full Game: advanced_materials/fullgame.md
+          - Full-Game:
+            - Usage: advanced_materials/fullgame_usage.md
+            - General Description: advanced_materials/fullgame_description.md
+            - Observation Details: advanced_materials/fullgame_observation.md
+            - Action Details: advanced_materials/fullgame_action.md
           - Mini-Game: 
             - Usage: advanced_materials/minigame_usage.md
             - Setting: advanced_materials/minigame_setting.md

@@ -45,6 +45,8 @@ cache:
       - logs
   tags:
     - civ-pytest
+  only:
+    - dev
 
 stages:
   - pages
@@ -94,3 +96,5 @@ local_pytest:
     - pytest -x
   tags:
     - local_pytest
+  only:
+    - dev

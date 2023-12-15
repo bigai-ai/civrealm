@@ -38,12 +38,12 @@ class PortStatus:
         self,
         host_url=f"http://{fc_args['host']}:{fc_web_args['port']}",
         status_url="pubstatus",
-        dev_ports=[6001],
+        dev_ports=[fc_web_args['client_port']],
         lock_file=os.path.join(TEMP_DIR, "civrealm.lock"),
     ):
         self.status_parser = PortStatusParser(host_url, status_url)
         self.status_parser.update()
-        self.service_birth = self.status_parser.data[6001]["first_birth"]
+        self.service_birth = self.status_parser.data[fc_web_args['client_port']]["first_birth"]
         self.dev_ports = dev_ports
         self.lock_file = lock_file
         self.occupied_ports_file = os.path.join(
@@ -257,7 +257,7 @@ class PortStatusParser(HTMLParser):
             ) from error
 
         self.feed(str(html))
-        if 6001 not in self.data:
+        if fc_web_args['client_port'] not in self.data:
             time.sleep(0.05)
             self.update()
 

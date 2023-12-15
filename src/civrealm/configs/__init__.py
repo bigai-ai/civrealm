@@ -73,17 +73,22 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
     with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
         fc_web_args = yaml.safe_load(file)
 
-    image = fc_web_args['services']['freeciv-web']['image']
-    server_port = fc_web_args['services']['freeciv-web']['ports'][0]
+    service = list(fc_web_args['services'].keys())[0]
+    image = fc_web_args['services'][service]['image']
+    fc_web_args['container'] = fc_web_args['services'][service]['container_name']
+
+    server_port = fc_web_args['services'][service]['ports'][0]
+    connect_port = int(fc_web_args['services'][service]['ports'][2].split(":")[1].split("-")[0])
+
     fc_web_args['tag'] = 'latest'
     fc_web_args['port'] = server_port.split(":")[0]
+    fc_web_args['client_port'] = connect_port + 1
+    fc_web_args['port_start_index'] = connect_port + 300
+
     if tag := re.search(r'\:(.*)', image):
         fc_web_args['tag'] = tag[1]
-        fc_web_args['image'] = tag[0].split('/')[1]
-    else:
-        fc_web_args['image'] = image.split('/')[1]
+    fc_web_args['image'] = image.split('/')[1]
     return fc_web_args
-
 
 fc_args = parse_args()
 fc_web_args = parse_fc_web_args()

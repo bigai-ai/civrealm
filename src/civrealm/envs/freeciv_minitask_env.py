@@ -79,7 +79,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
     def __init__(self, username: str = DEFAULT_TASK, client_port: int = fc_args['client_port']):
         super().__init__(username=username, client_port=client_port, is_minitask=True)
         fc_args['username'] = username
-        set_logging_file('.', username)
         self.filename = None
         self.task_type = None
         fc_args['debug.autosave'] = False
@@ -109,6 +108,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
 
         minitask = '{}_T1_task_{}_level_{}_id_{}'.format(
             name, minitask_type, minitask_level, minitask_id)
+        set_logging_file('minitask', minitask)
         fc_logger.warning(f"Randomly selected minitask {minitask}!")
         return minitask
 
@@ -145,7 +145,6 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         max_id : int
             The max id of mini-game.
         """
-
         self.set_minitask(seed, minitask_pattern, max_id)
         observations, info = super().reset(seed, options)
         self._set_minitask_info(info)
@@ -214,6 +213,7 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         return metrics
 
     def step(self, action):
+        fc_logger.debug(f"mini-env step action: {action}")
         observation, reward, terminated, truncated, info = super().step(action)
         self._set_minitask_info(info)
         return observation, reward, terminated, truncated, info

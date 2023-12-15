@@ -9,6 +9,7 @@ from civrealm.envs.freeciv_minitask_env import MinitaskType
 from civrealm.envs.freeciv_wrapper.tensor_wrapper import TensorWrapper
 from civrealm.envs.freeciv_wrapper.utils import *
 from civrealm.freeciv.utils.port_utils import Ports
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
 
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
 warnings.filterwarnings(
@@ -21,11 +22,10 @@ def env_with_type(request):
     env = gymnasium.make(
         "civrealm/FreecivTensorMinitask-v0",
         client_port=Ports.get(),
-        minitask_pattern=minitask_pattern,
+        minitask_pattern={"type": minitask_pattern},
     )
     yield env, minitask_pattern
     env.close()
-
 
 def test_minitask_tensor_env(env_with_type):
     # TODO: test other tasks, only buildcity and battle saves are supported now

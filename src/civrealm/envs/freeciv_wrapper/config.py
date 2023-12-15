@@ -498,8 +498,6 @@ action_layout = {
         "fortress": 1,
         "airbase": 1,
         "irrigation": 1,
-        "fallout": 1,
-        "pollution": 1,
         "keep_activity": 1,
         "paradrop": 1,
         "build_city": 1,

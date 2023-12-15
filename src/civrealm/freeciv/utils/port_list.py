@@ -1,4 +1,5 @@
 import docker
+from civrealm.configs import fc_args, fc_web_args
 
 # For 409 errors, it is possibly because the host uses docker desktop.
 # In this case, please set the DOCKER_HOST environment variable according to https://stackoverflow.com/questions/76919611/docker-python-client-cannot-connect-docker-desktop
@@ -30,9 +31,9 @@ multi = int(found_line.split(' ')[-1])
 # fc_logger.debug(f'*******Multi: {multi}')
 # print(f'*******Multi: {multi}')
 
-PORT_LIST = [6001]
+PORT_LIST = [fc_web_args['client_port']]
 dev_multi = int(multi * 3 / 4)
 eval_multi = multi - dev_multi
-DEV_PORT_LIST = [6300 + i for i in range(dev_multi)]
-EVAL_PORT_LIST = [6300 + dev_multi + i for i in range(eval_multi)]
+DEV_PORT_LIST = [fc_web_args['port_start_index'] + i for i in range(dev_multi)]
+EVAL_PORT_LIST = [fc_web_args['port_start_index'] + dev_multi + i for i in range(eval_multi)]
 PORT_LIST = PORT_LIST + DEV_PORT_LIST + EVAL_PORT_LIST

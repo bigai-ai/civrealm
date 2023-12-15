@@ -28,9 +28,8 @@ def allied_env(request):
     endvictory, victories = request.param
     fc_args["endvictory"] = endvictory
     fc_args["victories"] = victories
-    fc_args["debug.load_game"] = "testminitask_T39_allied_victory"
-    env = gymnasium.make("civrealm/FreecivBase-v0",
-                         client_port=Ports.get(), username="testminitask")
+    fc_args["debug.load_game"] = "testminitask_T5_allied_victory"
+    env = gymnasium.make("civrealm/FreecivBase-v0", client_port=Ports.get(), username="testminitask")
     yield env, endvictory, victories
     env.close()
 
@@ -40,11 +39,11 @@ def test_allied_victory(allied_env):
     env, endvictory, victories = allied_env
     _, info = env.reset()
     done = False
-    end_turn = 45
+    end_turn = 10
     while not done:
         _, reward, terminated, truncated, info = env.step(None)
         done = terminated or truncated or (info["turn"] == end_turn)
     if endvictory == "enabled" and "ALLIED" in victories:
-        assert info["turn"] == 40
+        assert info["turn"] == 7
     elif fc_web_args["tag"] >= "1.1":
         assert info["turn"] == end_turn, "To ensure that you have the latest version of freeciv-web/fciv-net image >= 1.1!"

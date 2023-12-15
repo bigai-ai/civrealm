@@ -112,6 +112,7 @@ class CivController(CivPropController):
         self.game_score = None
         # TODO: check whether reset_civ_controller should reset this
         self.is_minitask = is_minitask
+        self.messages = list()
 
         self.init_controllers()
 
@@ -805,6 +806,12 @@ class CivController(CivPropController):
 
         if message is None:
             return
+        
+        if 'failure loading savegame' in message.lower() or 'could not load savefile' in message.lower():
+            tmp_msgs = "\n".join(self.messages[-3:])
+            raise Exception(f'{message} \nhistory messages: {tmp_msgs}')
+        self.messages.append(message)
+
         if event is None or event < 0 or event >= E_UNDEFINED:
             fc_logger.info('Undefined message event type')
             fc_logger.info(packet)
@@ -820,13 +827,12 @@ class CivController(CivPropController):
             # assert(False)
         elif event == E_SCRIPT:
             self.parse_script_message(message)
-        elif ('game is over' in message.lower() or 'game ended' in message.lower()):
-            self.game_is_over = True
-
         # When AI is destroyed, we also receive E_DESTROYED event. So we need to check whether we are defeated.
         elif (event == E_GAME_END) or (event == E_DESTROYED and self.my_player_is_defeated()):
             self.game_is_end = True
-
+        elif ('game is over' in message.lower() or 'game ended' in message.lower()):
+            self.game_is_over = True
+        
         # elif event == E_DESTROYED and self.my_player_is_defeated():
         #     self.ws_client.stop_ioloop()
 
@@ -952,6 +958,8 @@ class CivController(CivPropController):
         self.city_ctrl.prop_actions.turn['turn'] = self.turn_manager.turn
         """ update city_unhappiness """
         self.update_city_unhappiness()
+
+        self.messages.clear()
 
     def handle_conn_info(self, packet):
         """

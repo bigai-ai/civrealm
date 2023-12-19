@@ -14,37 +14,37 @@
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
-from civrealm.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, LanguageAgent, DQNAgent
-from civrealm.configs import fc_args
+from civrealm.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RandomLLMAgent, DQNAgent
 import civrealm
 import gymnasium
-import warnings
-# FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
-warnings.filterwarnings(
-    'ignore', message='.*The obs returned by the .* method.*')
 
 
 def main():
     port = 6300
-    epoch_num = 2
+    epoch_num = 4
     for i in range(epoch_num):
-        # pool.apply(run, (process_num, port+i*process_num))
         run(port+i)
         import time
         time.sleep(1)
 
 
 def run(port):
-    env = gymnasium.make('civrealm/FreecivBase-v0', client_port=port)
-    agent = ControllerAgent()
+    env = gymnasium.make('civrealm/FreecivBase-v0')
+    agent = RandomAgent()
 
-    observations, info = env.reset()
+    observations, info = env.reset(client_port=port)
     done = False
+    step = 0
+
     while not done:
         try:
             action = agent.act(observations, info)
             observations, reward, terminated, truncated, info = env.step(
                 action)
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+            step += 1
             done = terminated or truncated
         except Exception as e:
             fc_logger.warning(repr(e))

@@ -94,6 +94,9 @@ class DiplomacyCtrl(CivPropController):
         # TODO: dipl_evaluator is not implemented yet
         self.dipl_evaluator = dipl_evaluator
 
+        # record the number of treaty acceptance and may be used in diplomacy_trade_tech minitask
+        self.acceptance_num = dict()
+
     def register_all_handlers(self):
         self.register_handler(59, "handle_player_diplstate")
         self.register_handler(96, "handle_diplomacy_init_meeting")
@@ -257,6 +260,11 @@ class DiplomacyCtrl(CivPropController):
         other_accepted = packet['other_accepted']
 
         if myself_accepted and other_accepted:
+            if counterpart not in self.acceptance_num:
+                self.acceptance_num[counterpart] = 1
+            else:
+                self.acceptance_num[counterpart] += 1
+
             if counterpart in self.diplomacy_request_queue:
                 del self.diplomacy_request_queue[self.diplomacy_request_queue.index(
                     counterpart)]

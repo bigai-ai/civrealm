@@ -62,6 +62,8 @@ class PortStatus:
             with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
                 pass  # Do nothing, just create an empty file
 
+            os.chmod(self.occupied_ports_file,mode=0o666)
+
     def __iter__(self):
         return self
 
@@ -226,6 +228,7 @@ class PortStatus:
         """
         with open(self.occupied_ports_file, "w", encoding="utf-8") as _:
             pass  # Do nothing, just create an empty file
+        os.chmod(self.occupied_ports_file, mode=0o666)
         if os.path.exists(self.lock_file):
             os.remove(self.lock_file)
 

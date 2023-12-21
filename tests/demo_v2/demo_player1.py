@@ -76,7 +76,7 @@ def configure_test_logger():
     # Close and remove all old handlers and add a new one with the test name
     logger_filename = LOGGING_CONFIG['handlers']['civrealmFileHandler']['filename']
     log_dir = os.path.join(os.path.dirname(logger_filename), 'tests')
-    with filelock.FileLock('/tmp/civrealm_test_logger_setup.lock'):
+    with filelock.FileLock('/tmp/civrealm_test_logger_setup.lock',mode=0o666):
         if not os.path.exists(log_dir):
             os.makedirs(log_dir)
 

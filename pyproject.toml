@@ -32,7 +32,7 @@ dependencies = [
     "websocket-client",
     "pytest",
     "pytest-xdist",
-    "filelock",
+    "filelock>=3.12.2",
     # The following packages are for parallel training
     "ray==2.6.3",
     # The following packages are for the LLM agent

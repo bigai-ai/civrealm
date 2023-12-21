@@ -51,7 +51,7 @@ class PortStatus:
         )
         self._cache = {}
 
-        with FileLock(self.lock_file):
+        with FileLock(self.lock_file, mode=0o666):
             if os.path.exists(self.occupied_ports_file):
                 return
 
@@ -142,7 +142,7 @@ class PortStatus:
         """
         the current status of all empty multiplayer ports.
         """
-        with FileLock(self.lock_file):
+        with FileLock(self.lock_file,mode=0o666):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
                 lines = file.readlines()
                 occupied_ports = [int(line.strip().split()[0])
@@ -183,7 +183,7 @@ class PortStatus:
         """
         get the specified port or the next empty port (port=None) in a thread-safe way.
         """
-        with FileLock(self.lock_file):
+        with FileLock(self.lock_file,mode=0o666):
             with open(self.occupied_ports_file, "r", encoding="utf-8") as file:
                 lines = file.readlines()
                 ports_data = [list(map(int, line.strip().split()))

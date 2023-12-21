@@ -45,9 +45,9 @@ class PortStatus:
         self.status_parser.update()
         self.service_birth = self.status_parser.data[fc_web_args['client_port']]["first_birth"]
         self.dev_ports = dev_ports
-        self.lock_file = lock_file
+        self.lock_file = lock_file+f"_{fc_args['host']}_{fc_args["port"]}"
         self.occupied_ports_file = os.path.join(
-            TEMP_DIR, f"civrealm_occupied_ports_{self.service_birth}.txt"
+            TEMP_DIR, f"civrealm_occupied_ports_{fc_args['host']}_{fc_args["port"]}_{self.service_birth}.txt"
         )
         self._cache = {}
 
@@ -56,7 +56,7 @@ class PortStatus:
                 return
 
             # Remove occupied_ports_file if docker restarted
-            for file in glob.glob(os.path.join(TEMP_DIR, r"civrealm*.txt")):
+            for file in glob.glob(os.path.join(TEMP_DIR, f"civrealm_occupied_ports_{fc_args['host']}_{fc_args["port"]}_*.txt")):
                 os.remove(file)
             # Create the occupied_ports_file
             with open(self.occupied_ports_file, "w", encoding="utf-8") as _:

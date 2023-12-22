@@ -73,7 +73,7 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
     with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
         fc_web_args = yaml.safe_load(file)
 
-    service = list(fc_web_args['services'].keys())[0]
+    service = fc_args['service']
     image = fc_web_args['services'][service]['image']
     fc_web_args['container'] = fc_web_args['services'][service]['container_name']
 

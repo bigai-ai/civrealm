@@ -48,7 +48,7 @@ build freeciv-web service from Docker:
 ```bash
 git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
 cd civrealm
-docker compose up -d
+docker compose up -d freeciv-web
 ```
 
 !!! tip "Docker permission"

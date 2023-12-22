@@ -75,6 +75,7 @@ class UnitCtrl(CivPropController):
         self.space_ctrl.register_with_parent(self)
         # store city name to prevent duplicate city names which can cause error
         self.city_name_list = []
+        self.assistant = None
 
     def register_all_handlers(self):
         self.register_handler(44, "handle_city_name_suggestion_info")
@@ -91,6 +92,7 @@ class UnitCtrl(CivPropController):
         self.register_handler(18, "handle_nuke_tile_info")
         self.register_handler(241, "handle_worker_task")
         # self.register_handler(258, "handle_goto_path")
+        self.register_handler(262, "handle_ai_player_action_response")
 
     def unit_owner(self, punit):
         """return player object for player owning punit"""
@@ -116,6 +118,11 @@ class UnitCtrl(CivPropController):
             if punit['owner'] == self.player_ctrl.my_player_id and punit['type'] == unit_type_id:
                 return True
         return False
+
+    def handle_ai_player_action_response(self, packet):
+        action = fc_types.ACTION_NAME_DICT[packet['action_type']]
+        self.assistant = ('unit', packet['actor_id'], action)
+        return
 
     def have_attack_unit(self):
         """Check if my units have attack unit."""

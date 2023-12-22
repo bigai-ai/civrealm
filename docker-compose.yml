@@ -1,6 +1,6 @@
 version: "3"
 services:
-
+    
   freeciv-web:
     image: freeciv/freeciv-web
     build: .

@@ -331,6 +331,16 @@ class CivController(CivPropController):
                 return True
 
         return False
+    
+    @property
+    def get_unit_assistant(self):
+        action = self.unit_ctrl.assistant
+        self.unit_ctrl.assistant = None
+        return action
+
+    @property
+    def my_player_id(self):
+        return self.player_ctrl.my_player_id
 
     def maybe_grant_control_to_player(self):
         """
@@ -689,6 +699,8 @@ class CivController(CivPropController):
         self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
+        self.ws_client.send_message(f"/set agentmode {fc_args['agentmode']}")
+
         requests.post(
             f"http://{self.host}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")
         self.turn_manager.turn = int(save_name.split('_')[1][1:])
@@ -807,7 +819,9 @@ class CivController(CivPropController):
         if message is None:
             return
         
-        if 'failure loading savegame' in message.lower() or 'could not load savefile' in message.lower():
+        if 'failure loading savegame' in message.lower() or \
+            'could not load savefile' in message.lower() or \
+            'game saving failed' in message.lower():
             tmp_msgs = "\n".join(self.messages[-3:])
             raise Exception(f'{message} \nhistory messages: {tmp_msgs}')
         self.messages.append(message)

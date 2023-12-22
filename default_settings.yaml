@@ -44,6 +44,8 @@ openchatbox: enabled
 ruleset: classic
 # The type of runner.
 runner_type: "parallel"
+# whether to alow an AI to help a player to get a action response
+agentmode: disabled
 
 # Parameters for parallel running
 # Number of environments running simultaneously to sample experience.

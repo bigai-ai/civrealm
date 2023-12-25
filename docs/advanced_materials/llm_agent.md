@@ -43,7 +43,7 @@ llm_info is a Dict consisting of 6 subspaces with keys "player", "city", tech", 
 Read llm_info of "unit 121" by:
 
 ````python
-info["info_info"]['unit']['121']
+info["llm_info"]['unit']['121']
 ````
 
 !!! note "Choose an existing unit or city"

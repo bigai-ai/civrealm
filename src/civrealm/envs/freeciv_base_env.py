@@ -83,7 +83,7 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         return self._observation_space
 
     def _take_screenshot(self):
-        if fc_args['debug.take_screenshot'] is False:
+        if not fc_args['debug.take_screenshot']:
             return
         turn = self.civ_controller.get_turn()
         screenshot_filename = os.path.join(

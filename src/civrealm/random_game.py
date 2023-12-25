@@ -24,8 +24,8 @@ import gymnasium
 
 def main():
     env = gymnasium.make('civrealm/FreecivBase-v0')
-    env = LLMWrapper(env)
-    agent = RandomLLMAgent()
+    # env = LLMWrapper(env)
+    agent = RandomAgent()
 
     observations, info = env.reset(client_port=fc_args['client_port'])
     done = False

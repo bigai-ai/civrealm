@@ -1688,7 +1688,7 @@ class ActGoto(StdAction):
         # if self.focus.punit['transported']:
         # return False
         # print(f"unit id: {self.focus.punit['id']}")
-        # print(self.focus.action_prob.keys())
+        #print(self.focus.action_prob.keys())
         if not action_prob_possible(self.focus.action_prob[self.dir8][fc_types.ACTION_UNIT_MOVE]):
             return False
         self.newtile = self.focus.map_ctrl.mapstep(self.focus.ptile, self.dir8)
@@ -1698,7 +1698,6 @@ class ActGoto(StdAction):
             self.focus.punit["tile"])
         self.move_dir = self.focus.map_ctrl.get_direction_for_step(
             target_idx, self.newtile)
-
         return not (self.move_dir is None or self.move_dir == -1)
 
     def _action_packet(self):

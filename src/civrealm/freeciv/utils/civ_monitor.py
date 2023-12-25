@@ -131,6 +131,11 @@ class CivMonitor():
     def init_global_view(self):
         self._driver.execute_script(
             'center_tile_mapcanvas(tiles[map.xsize*Math.floor(map.ysize/2)+Math.floor(map.xsize/2)])')
+        self._driver.execute_script(
+            "document.body.style.zoom='50%'")
+        self._driver.execute_script('camera.position.y = 2400')
+        self._driver.execute_script('camera.position.z -= 150')
+
         # For 3D version (FCIV-NET)
         if fc_web_args['image'] == 'fciv-net':
             self._driver.execute_script('camera.position.y = 2000')

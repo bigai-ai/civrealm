@@ -30,7 +30,7 @@ LOGGING_CONFIG = {
             'class': 'logging.FileHandler',
             # Change time.strftime('%%Y.%%m.%%d') to time.strftime('%%Y.%%m.%%d_%%H:%%M:%%S') to create a new file for each script
             'filename': os.path.join(logging_dir, f"{time.strftime('%Y.%m.%d')}_{fc_args['username']}.log"),
-            'mode': 'w',
+            'mode': 'a',
         },
         'consoleHandler': {
             'level': 'INFO',

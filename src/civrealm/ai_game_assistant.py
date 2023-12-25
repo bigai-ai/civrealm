@@ -17,24 +17,32 @@ import time
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.envs.freeciv_wrapper import LLMWrapper
 from civrealm.configs import fc_args
+from civrealm.freeciv.utils.port_utils import Ports
 import civrealm
 import gymnasium
+from civrealm.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, RandomLLMAgent, DQNAgent
+
+fc_args['agentmode'] = 'enabled'
 
 def main():
     env = gymnasium.make('civrealm/FreecivBase-v0')
-    env = LLMWrapper(env)
+    agent = RandomAgent()
 
-    observations, info = env.reset(client_port=fc_args['client_port'])
+    observations, info = env.reset(client_port=Ports.get())
     done = False
     step = 0
+    env.civ_controller.send_message("/set xsize=16")
+    env.civ_controller.send_message("/set ysize=16")
 
     while not done:
         try:
             # send request and wait for response
-            my_player_id = env.civ_controller.my_player_id
             # require image >= 1.4.1
+            my_player_id = env.civ_controller.my_player_id
             env.civ_controller.ws_client.send_request({'pid': 261, 'playerno': my_player_id}, (262, my_player_id))
+            env.civ_controller.lock_control()
             action = env.civ_controller.get_unit_assistant
+
             observations, reward, terminated, truncated, info = env.step(action)
             print(
                 f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
@@ -44,6 +52,7 @@ def main():
         except Exception as e:
             fc_logger.error(repr(e))
             raise e
+        break
     env.close()
 
     '''

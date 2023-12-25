@@ -120,6 +120,9 @@ class UnitCtrl(CivPropController):
         return False
 
     def handle_ai_player_action_response(self, packet):
+        if packet['actor_id'] == -1:
+            self.assistant = None
+            return
         action = fc_types.ACTION_NAME_DICT[packet['action_type']]
         self.assistant = ('unit', packet['actor_id'], action)
         return

@@ -23,15 +23,16 @@ from civrealm.freeciv.utils.port_utils import Ports
 import civrealm
 import gymnasium
 
+fc_args['openchatbox'] = 'disabled'
 fc_args['debug.headless'] = True
+fc_args['debug.take_screenshot'] = True
 fc_args['debug.window_size_x'] = 320
 fc_args['debug.window_size_y'] = 320
 fc_args['debug.get_webpage_image'] = ['map_tab']
 
 def main():
     env = gymnasium.make('civrealm/FreecivBase-v0')
-    env = LLMWrapper(env)
-    agent = RandomLLMAgent()
+    agent = RandomAgent()
     writer = H5pyWriter("test_dataset")
 
     observations, info = env.reset(client_port=Ports.get())

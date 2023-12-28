@@ -47,7 +47,7 @@ class MinitaskPlayerStatus(ExtendedEnum):
 
 ## 🗺️ Supported Types
 
-We have designed the following 10 types of mini-games:
+We have designed the following 14 types of mini-games:
 
 <table>
     <tr>
@@ -78,38 +78,57 @@ We have designed the following 10 types of mini-games:
         <td>Transport settlers by ships to another continent and build cities.</td>
     </tr>
     <tr>
-        <td rowspan="5">Battle</td>
+        <td rowspan="9">Battle</td>
         <td>5</td>
-        <td>battle_[ancient_era,industry_era,<br>info_era,medieval,modern_era]</td>
-        <td>Defeat enemy units on land tiles (units from various ages).</td>
+        <td>battle_ancient_era</td>
+        <td>Defeat enemy units on land tiles in ancient era.</td>
     </tr>
     <tr>
         <td>6</td>
+        <td>battle_industry_era</td>
+        <td>Defeat enemy units on land tiles in industry era.</td>
+    </tr>
+    <tr>
+        <td>7</td>
+        <td>battle_info_era</td>
+        <td>Defeat enemy units on land tiles in infomation era.</td>
+    </tr>
+    <tr>
+        <td>8</td>
+        <td>battle_medieval</td>
+        <td>Defeat enemy units on land tiles in medieval.</td>
+    </tr>
+    <tr>
+        <td>9</td>
+        <td>battle_modern_era</td>
+        <td>Defeat enemy units on land tiles in modern era.</td>
+    </tr>
+    <tr>
+        <td>10</td>
         <td>battle_attack_city</td>
         <td>Conquer an enemy city.</td>
     </tr>
     <tr>
-        <td>7</td>
+        <td>11</td>
         <td>battle_defend_city</td>
         <td>Against enemy invasion for a certain number of turns.</td>
     </tr>
     <tr>
-        <td>8</td>
+        <td>12</td>
         <td>battle_naval</td>
         <td>Defeat enemy fleet on the ocean (with Middle Times frigates).</td>
     </tr>
     <tr>
-        <td>9</td>
+        <td>13</td>
         <td>battle_naval_modern</td>
         <td>Defeat enemy fleet on the ocean (with several classes of modern ships).</td>
     </tr>
     <tr>
         <td>Diplomacy</td>
-        <td>10</td>
+        <td>14</td>
         <td>diplomacy_trade_tech</td>
         <td>Trade technologies with another civilization.</td>
     </tr>
-
 </table>
 
 The enumerated values are as follows:

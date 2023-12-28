@@ -48,12 +48,7 @@ class CivMonitor():
                 options.add_argument("--headless")
 
             self._driver = webdriver.Firefox(options=options)
-
-            if (size_x := fc_args['debug.window_size_x']) and (size_y := fc_args['debug.window_size_y']):
-                self._driver.set_window_size(size_x, size_y)
-            else:
-                self._driver.maximize_window()
-
+            self._driver.maximize_window()
             self._driver.get(f'http://{self._host}:{fc_web_args["port"]}/webclient/?action=multi&civserverport='
                              f'{self.client_port}&civserverhost=unknown&multi=true&type=multiplayer')
             sleep(2)
@@ -131,11 +126,6 @@ class CivMonitor():
     def init_global_view(self):
         self._driver.execute_script(
             'center_tile_mapcanvas(tiles[map.xsize*Math.floor(map.ysize/2)+Math.floor(map.xsize/2)])')
-        self._driver.execute_script(
-            "document.body.style.zoom='50%'")
-        self._driver.execute_script('camera.position.y = 2400')
-        self._driver.execute_script('camera.position.z -= 150')
-
         # For 3D version (FCIV-NET)
         if fc_web_args['image'] == 'fciv-net':
             self._driver.execute_script('camera.position.y = 2000')
@@ -171,6 +161,8 @@ class CivMonitor():
             bt_single_game.click()
         data = self._driver.get_screenshot_as_png()
         img = Image.open(io.BytesIO(data))
+        img = img.resize((fc_args['debug.window_size_x'], fc_args['debug.window_size_y']), 
+                         Image.Resampling.LANCZOS)
         return np.asarray(img)
 
     def get_webpage_image(self):

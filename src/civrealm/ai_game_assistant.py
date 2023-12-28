@@ -25,24 +25,27 @@ from civrealm.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent, 
 fc_args['agentmode'] = 'enabled'
 
 def main():
-    env = gymnasium.make('civrealm/FreecivBase-v0')
-    agent = RandomAgent()
-
-    observations, info = env.reset(client_port=Ports.get())
+    env = gymnasium.make('civrealm/FreecivMinitask-v0', client_port=Ports.get())
+    observations, info = env.reset(minitask_pattern={
+            "type": [
+                "battle_ancient_era", 
+                "battle_industry_era" ,
+                "battle_info_era", 
+                "battle_medieval", 
+                "battle_modern_era"]
+    })
     done = False
     step = 0
-    env.civ_controller.send_message("/set xsize=16")
-    env.civ_controller.send_message("/set ysize=16")
-
     while not done:
         try:
             # send request and wait for response
-            # require image >= 1.4.1
-            my_player_id = env.civ_controller.my_player_id
-            env.civ_controller.ws_client.send_request({'pid': 261, 'playerno': my_player_id}, (262, my_player_id))
-            env.civ_controller.lock_control()
-            action = env.civ_controller.get_unit_assistant
+            # require image >= 1.4.2
 
+            my_player_id = env.civ_controller.my_player_id
+            if env.civ_controller.get_unit_assistant is None:
+                env.civ_controller.ws_client.send_request({'pid': 261, 'playerno': my_player_id}, (262, my_player_id))
+                env.civ_controller.lock_control()
+            action = env.civ_controller.get_unit_assistant
             observations, reward, terminated, truncated, info = env.step(action)
             print(
                 f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
@@ -52,7 +55,6 @@ def main():
         except Exception as e:
             fc_logger.error(repr(e))
             raise e
-        break
     env.close()
 
     '''

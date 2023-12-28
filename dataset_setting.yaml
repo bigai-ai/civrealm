@@ -1,4 +1,4 @@
 # The path to the directory that stores the offline data
 data_dir: dataset
 # The name of dataset that contains the required fields
-test_dataset: ["image_data.map_tab", "entity_type", "action_name", "step_reward"]
+test_dataset: ["image_data.map_tab", "entity_type", "action_name", "step_reward", "mini_goal", "mini_score"]

@@ -35,6 +35,7 @@ from civrealm.freeciv.game.game_ctrl import IDENTITY_NUMBER_ZERO
 import civrealm.freeciv.players.player_const as player_const
 from civrealm.freeciv.units.unit_actions import UnitActions, UnitAction, FocusUnit
 from civrealm.freeciv.units.unit_state import UnitState
+import json
 import urllib
 import re
 import civrealm.freeciv.utils.fc_types as fc_types
@@ -75,7 +76,7 @@ class UnitCtrl(CivPropController):
         self.space_ctrl.register_with_parent(self)
         # store city name to prevent duplicate city names which can cause error
         self.city_name_list = []
-        self.assistant = None
+        self.assistant = []
 
     def register_all_handlers(self):
         self.register_handler(44, "handle_city_name_suggestion_info")
@@ -121,10 +122,17 @@ class UnitCtrl(CivPropController):
 
     def handle_ai_player_action_response(self, packet):
         if packet['actor_id'] == -1:
-            self.assistant = None
             return
-        action = fc_types.ACTION_NAME_DICT[packet['action_type']]
-        self.assistant = ('unit', packet['actor_id'], action)
+
+        # /* Decode the json data. */
+        packet['js_data'] = urllib.parse.unquote(packet['js_data'])
+        packet['js_data'] = json.loads(packet['js_data'])
+        print(f"ai packet: {packet}")
+
+        action_id = None
+        if packet['action_type'] == fc_types.ACTION_UNIT_MOVE:
+            action_id = f'goto_{packet["js_data"]["dir8"]}'
+        self.assistant.append(('unit', packet['actor_id'], action_id))
         return
 
     def have_attack_unit(self):

@@ -25,43 +25,50 @@ import gymnasium
 
 fc_args['openchatbox'] = 'disabled'
 fc_args['debug.headless'] = True
-fc_args['debug.take_screenshot'] = True
+fc_args['debug.take_screenshot'] = False
 fc_args['debug.window_size_x'] = 320
 fc_args['debug.window_size_y'] = 320
 fc_args['debug.get_webpage_image'] = ['map_tab']
 
 def main():
-    env = gymnasium.make('civrealm/FreecivBase-v0')
+    env = gymnasium.make('civrealm/FreecivMinitask-v0', client_port=Ports.get())
     agent = RandomAgent()
     writer = H5pyWriter("test_dataset")
-
-    observations, info = env.reset(client_port=Ports.get())
-    done = False
     step = 0
-    while not done:
-        try:
-            action = agent.act(observations, info)
-            old_observations, old_info = observations, info
-            observations, reward, terminated, truncated, info = env.step(
-                action)
-            if action is None:
-                action = ['game', -1, 'end_turn']
-            artifical_obs = {
-                'entity_type': action[0],
-                'action_name': action[2],
-                'step_reward': reward,
-            }
-            writer.insert([artifical_obs, old_info, old_observations])
-            print(
-                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
-                f'Truncated: {truncated}, action: {action}')
-            step += 1
-            done = terminated or truncated
-            if step >= 200:
-                break
-        except Exception as e:
-            fc_logger.error(repr(e))
-            raise e
+    for gid in range(10):
+        observations, info = env.reset(minitask_pattern={
+            "type": [
+                "battle_ancient_era", 
+                "battle_industry_era" ,
+                "battle_info_era", 
+                "battle_medieval", 
+                "battle_modern_era"]
+        })
+        done = False
+        while not done:
+            try:
+                action = agent.act(observations, info)
+                old_observations, old_info = observations, info
+                observations, reward, terminated, truncated, info = env.step(
+                    action)
+                if action is None:
+                    action = ['game', -1, 'end_turn']
+                artifical_obs = {
+                    'entity_type': action[0],
+                    'action_name': action[2],
+                    'step_reward': reward,
+                    'mini_goal': old_info['minitask']['mini_goal'],
+                    'mini_score': old_info['minitask']['mini_score']
+                }
+                writer.insert([artifical_obs, old_info, old_observations])
+                print(
+                    f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                    f'Truncated: {truncated}, action: {action}, ministak: {env.filename}')
+                step += 1
+                done = terminated or truncated
+            except Exception as e:
+                fc_logger.error(repr(e))
+                raise e
     writer.close()
     env.close()
 

@@ -334,8 +334,9 @@ class CivController(CivPropController):
     
     @property
     def get_unit_assistant(self):
-        action = self.unit_ctrl.assistant
-        self.unit_ctrl.assistant = None
+        if len(self.unit_ctrl.assistant) == 0:
+            return
+        action = self.unit_ctrl.assistant.pop(0)
         return action
 
     @property
@@ -831,7 +832,7 @@ class CivController(CivPropController):
             fc_logger.info(packet)
             fc_logger.info("\r\n")
             packet['event'] = event = E_UNDEFINED
-
+        
         if event == E_BAD_COMMAND:
             fc_logger.warning("Bad command event!")
             fc_logger.warning(message)

@@ -95,6 +95,9 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
             'level', random.choice(MinitaskDifficulty.list()))
         minitask_type = minitask_pattern.get(
             'type', random.choice(MinitaskType.list()))
+        
+        if isinstance(minitask_type, list):
+            minitask_type = random.choice(minitask_type)
 
         if minitask_type not in MinitaskType.list():
             raise ValueError(
@@ -145,9 +148,11 @@ class FreecivMinitaskEnv(FreecivBaseEnv):
         max_id : int
             The max id of mini-game.
         """
+        self.overall_mini_score = 0
         self.set_minitask(seed, minitask_pattern, max_id)
         observations, info = super().reset(seed, options)
         self._set_minitask_info(info)
+        self._last_minitask_score = None
         return observations, info
 
     def set_minitask(self, seed, minitask_pattern, max_id):

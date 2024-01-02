@@ -1,0 +1,18 @@
+[data-md-color-scheme="bigai"] {
+  --md-primary-fg-color: #BF242A;
+  --md-primary-fg-color--light: #DF9295;
+  --md-primary-fg-color--dark: #B11B1F;
+
+  --md-accent-fg-color: #FF9798;
+  --md-accent-fg-color--transparent: #FF979819;
+
+  --md-typeset-a-color: var(--md-primary-fg-color);
+
+  --md-code-hl-color: #4287FF1A;
+}
+.md-typeset__table {
+   min-width: 100%;
+}
+.md-typeset table:not([class]) {
+    display: table;
+}

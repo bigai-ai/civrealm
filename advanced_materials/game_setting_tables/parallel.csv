@@ -1,0 +1,4 @@
+Argument,Default value,Description
+batch_size_run,5,"Number of environments running simultaneously to sample experience."
+epoch_num,1,"Number of epochs to run. Each epoch runs batch_size_run environments."
+port_start,6300,"The port used by the first environment; other parallel environments use ports following this port."

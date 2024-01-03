@@ -1,5 +1,18 @@
 ## Actions
+In every step, an agent receives an observation and takes action in response to the observation. The agent can use any decision-making algorithm to make the choice of the action as long as the format of the action conforms with the prescribed format. In the base environment of Civrealm, an action is a tuple consisting of the type of actor, the index of the actor, and the name of the action, respectively. The type of actor specifies which type of actor the agent wants to control in this step. This type could be:
 
+* `unit` - The 'unit' actor handles many fine-grained operations. They can be categorized into three main types: engineering actions, which handle tasks like city construction, planting, mining, and more; movement actions, including moving, transportation, embarking, and so on; and military actions, such as attacking, fortifying, bribing, etc.
+* `city` - The 'city' actor develops and manages cities. Their actions include unit production, building construction, city worker assignment, and more. 
+* `dipl` - The 'dipl' actor is in charge of diplomacy actions including trading technologies, negotiating ceasefires, forming alliances, etc.
+* `gov` - The 'gov' actor allows the agent to change the government type to gain corresponding political benefits, adjust tax rates to balance economic expansion and citizen happiness, etc. 
+* `tech` - The 'tech' actor sets immediate or long-term goals for their technology research.
+
+The index of the actor specifies which actor of the specified type the agent wants to control. The name of the action denotes the specific action the agent requires the specified actor to take. For instance, if the agent wants to let a unit whose index is 111 plant trees, the action will be of the format `('unit', 111, 'plant')`. 
+
+!!! note
+    The observations returned by the environment include the indexes of the actors who can take actions in this step and the names of their actions that are allowed to be taken in the current state.
+
+For more details about the actions that each type of actor can take, please refer to the following tables.
 
 ### Unit Actions
 

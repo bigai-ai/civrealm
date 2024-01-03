@@ -1,12 +1,27 @@
+During the initialization of the environment:
+
+```python
+observations, info = env.reset(client_port=fc_args['client_port'])
+```
+and every step of the game:
+
+```python
+observations, reward, terminated, truncated, info = env.step(action)
+```
+The environment provides essential information about the game state, with the most crucial details being `observations` and `info`.
+
+## Info
+The `info` returned includes details about the current turn of the game and the actions available to the agent at this step. The dictionary "info['available_actions']" encompasses keys such as 'unit', 'city', 'dipl', 'gov', and 'tech', signifying the types of actors the agent can control. Within each actor type, sub-dictionaries exist, where the keys represent possible actions for the respective actor type, and the values are boolean indicators of action availability. Using this information, the agent can make informed decisions by selecting appropriate actions from the available set.
+
 ## Observations
-An observation reflects the game state in the current time step. It is a dictionary whose keys correspond to different aspects of the decision-making in the game. The keys of an observation useful for training include:
+The `observations` returned reflects the game state in the current time step. It is a dictionary whose keys correspond to different aspects of the decision-making in the game. The keys of `observations` useful for training include:
 
 * `map` - Overview on the map, i.e., status (known, visible, etc.), terrain types and potential extras.
-* `unit` - Overview of the status (health, activity, moves left, etc.) of units. Using this key on observation (i.e., observation['unit']) will retrieve a dictionary whose keys are the indexes of units, and the content under each unit index is the status of the corresponding unit.
-* `city` - Overview of the status of cities (improvements, production, etc.). Using this key on observation (i.e., observation['city']) will retrieve a dictionary whose keys are the indexes of cities, and the content under each city index is the status of the corresponding city.
-* `player` - Overview of the status of players. Using this key on observation (i.e., observation['player']) will retrieve a dictionary whose keys are the indexes of players, and the content under each player index is the status of the corresponding player. The status of each player conveys information about multiple aspects, including diplomacy, government, and technology.
+* `unit` - Overview of the status (health, activity, moves left, etc.) of units. Using this key on observation (i.e., observations['unit']) will retrieve a dictionary whose keys are the indexes of units, and the content under each unit index is the status of the corresponding unit.
+* `city` - Overview of the status of cities (improvements, production, etc.). Using this key on observation (i.e., observations['city']) will retrieve a dictionary whose keys are the indexes of cities, and the content under each city index is the status of the corresponding city.
+* `player` - Overview of the status of players. Using this key on observation (i.e., observations['player']) will retrieve a dictionary whose keys are the indexes of players, and the content under each player index is the status of the corresponding player. The status of each player conveys information about multiple aspects, including diplomacy, government, and technology.
 
-For more details about the observation, please refer to the following tables. Note that we describe the information about diplomacy, government, and technology contained in observation['player'] separately.
+For additional details regarding the observations, kindly consult the tables provided below. It's important to note that information pertaining to diplomacy, government, and technology within the observations' 'player' data is described separately.
 
 !!! note
     There exist other keys besides the above keys. However, the information under those keys is irrelevant to training, so we do not describe them here.

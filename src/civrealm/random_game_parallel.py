@@ -13,12 +13,10 @@
 # You should have received a copy of the GNU General Public License along
 # with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from civrealm.envs.freeciv_parallel_env import FreecivParallelEnv
-from civrealm.agents import BaseAgent, NoOpAgent, RandomAgent, ControllerAgent
+from civrealm.agents import ControllerAgent
 
 from civrealm.configs import fc_args
-from civrealm.runners import ParallelRunner, A3CRunner
+from civrealm.runners import ParallelRunner
 
 import warnings
 # FIXME: This is a hack to suppress the warning about the gymnasium spaces. Currently Gymnasium does not support hierarchical actions.
@@ -34,16 +32,10 @@ def main():
     epoch_num = fc_args['epoch_num']
     for i in range(epoch_num):
         agent = ControllerAgent()
-        runner = ParallelRunner('civrealm/FreecivBase-v0', agent, None, i)
-        # runner = A3CRunner('civrealm/FreecivBase-v0', agent, None, i)
+        runner = ParallelRunner('civrealm/FreecivBase-v0', agent)
         batchs = runner.run()
         print(f'Batch length: {len(batchs)}')
-        # for batch in batchs:
-        #     print(batch)
-
         runner.close()
-        import time
-        time.sleep(3)
 
 
 if __name__ == '__main__':

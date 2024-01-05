@@ -28,23 +28,35 @@ docker -v
 !!! warning "Do not use the original Freeciv-web"
     Please do NOT use the image built based on the [original Freeciv-web repo](https://github.com/freeciv/freeciv-web). The image has been customize to suit agent training functionalities. The latest commits in that repo might cause compatibility issues.
 
-There are 2 ways to start the customized Freeciv-web: use our pre-built docker image directly or compile the docker image from source code.
+There are 3 ways to start the customized Freeciv-web: pull from docker hub, use our pre-built docker image directly or compile the docker image from source code.
 
-### Method 1: Use the Docker Image Directly (**Recommended**)
+### Method 1: Pull from the Docker Hub (**Recommended**)
+
+You can pull our pre-built docker image from docker hub. Suppose the image version is named as `VERSION`.
+
+1. Pull the docker image to your local machine:
+```bash
+docker pull civrealm/freeciv-web:VERSION
+```
+
+2. Tag the docker image:
+```bash
+docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
+```
+
+### Method 2: Use the Docker Image Directly
 
 You can use our pre-built docker image file to directly start the Freeciv-web server, the steps are as follows:
 
 1. Download our customized docker image from <a href="../releases/releases.html">here</a>. Suppose the downloaded image file is named as `IMAGE_FILE_NAME`.
 
 2. Run the following command to load the downloaded docker image from the image file directory:
-
 ```bash
 docker load -i IMAGE_FILE_NAME
 ```
 
 3. Run the following command to clone Civrealm repo, and
 build freeciv-web service from Docker:
-
 ```bash
 git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
 cd civrealm
@@ -60,6 +72,6 @@ docker compose up -d freeciv-web
 !!! success "Freeciv-Web Service"
     After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
 
-### Method 2: Compile the Docker Image from Source Code
+### Method 3: Compile the Docker Image from Source Code
 
 You can also compile the source code to build the service follwing the instruction of Freeciv-web Repo from <a href="../releases/releases.html">here</a>. It has relatively large network overhead when building services, and could take a long time (up to 3 hours) to complete.

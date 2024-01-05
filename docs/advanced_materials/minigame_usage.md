@@ -4,33 +4,45 @@ Due to the multifaceted aspects of a full game, including economic expansion, mi
 
 By the end of this tutorial, you will be able to use API to play the mini-game.
 
-## Prepare Dataset
+## Load Mini-Game by freeciv-web
 
-<b>Before you start the mini-game</b>, you need to load the mini-game designed archives into the server’s laoding archive path.
+???- note "Prepare Dataset For Freeciv-web version == 1.3"
+    <b>Before you start the mini-game</b>, you need to load the mini-game designed archives into the server’s laoding archive path.
 
-The steps are as follows:
+    The steps are as follows:
 
-<b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
+    <b>Step 1: </b> find your used version on the releases page, and download the data files for the mini-game to your local path such as `/tmp/minigame/`
 
-<b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
+    <b>Step 2: </b> copy the data files, and extract them into the corresponding docker savegame path. If the docker image is `freeciv-web`, and the tomcat version is `10`, then execute the following commands:
 
-```bash
-#!/bin/bash
-image="freeciv-web"
-tomcat_version="tomcat10"
-local_path="/tmp/minigame/"
+    ```bash
+    #!/bin/bash
+    image="freeciv-web"
+    tomcat_version="tomcat10"
+    local_path="/tmp/minigame/"
 
-mkdir $local_path
-cd $local_path
-docker exec -it $image rm -r /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-docker exec -it $image mkdir -p /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-for minitask_zip in `ls`
-do
-    docker cp $minitask_zip $image:/var/lib/$tomcat_version/webapps/data/savegames/minitask/
-    docker exec -it $image unzip -o /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip -d /var/lib/$tomcat_version/webapps/data/savegames/minitask/
-    docker exec -it $image rm /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip
-done
-```
+    mkdir $local_path
+    cd $local_path
+    docker exec -it $image rm -r /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+    docker exec -it $image mkdir -p /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+    for minitask_zip in `ls`
+    do
+        docker cp $minitask_zip $image:/var/lib/$tomcat_version/webapps/data/savegames/minitask/
+        docker exec -it $image unzip -o /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip -d /var/lib/$tomcat_version/webapps/data/savegames/minitask/
+        docker exec -it $image rm /var/lib/$tomcat_version/webapps/data/savegames/minitask/$minitask_zip
+    done
+    ```
+
+To load the mini-game sav file `MINIGAME_FILE_NAME` by the freeciv-web service, follow these steps:
+
+1. Login by the Player name `minitask`, and click the `Customize Game` button;
+![minigame-login](../assets/minigame-login.png)
+
+2. Enter the command `/load MINIGAME_FILE_NAME` in the input box at the bottom;
+![minigame-load](../assets/minigame-load.png)
+
+3. Click the `Start Game` button to start the mini-game.
+![minigame-success](../assets/minigame-success.png)
 
 ## Initialize Random Mini-Game
 

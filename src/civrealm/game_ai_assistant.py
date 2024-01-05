@@ -25,9 +25,9 @@ from civrealm.freeciv.utils.data_handler import H5pyWriter
 # whether to save dataset
 fc_args['openchatbox'] = 'disabled'
 fc_args['debug.headless'] = True
-fc_args['debug.take_screenshot'] = True
-fc_args['debug.window_size_x'] = 320
-fc_args['debug.window_size_y'] = 320
+fc_args['debug.take_screenshot'] = False
+#fc_args['debug.window_size_x'] = 320
+#fc_args['debug.window_size_y'] = 320
 fc_args['debug.get_webpage_image'] = ['map_tab']
 
 # whether to use ai assistant

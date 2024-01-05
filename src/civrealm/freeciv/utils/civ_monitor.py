@@ -161,9 +161,13 @@ class CivMonitor():
             bt_single_game.click()
         data = self._driver.get_screenshot_as_png()
         img = Image.open(io.BytesIO(data))
-        img = img.resize((fc_args['debug.window_size_x'], fc_args['debug.window_size_y']), 
+        if fc_args['debug.window_size_x'] is not None and \
+            fc_args['debug.window_size_y'] is not None:
+            img = img.resize((fc_args['debug.window_size_x'], fc_args['debug.window_size_y']), 
                          Image.Resampling.LANCZOS)
-        return np.asarray(img)
+        res = np.asarray(img)
+        print("img shape: ", res.shape)
+        return res
 
     def get_webpage_image(self):
         data = dict()

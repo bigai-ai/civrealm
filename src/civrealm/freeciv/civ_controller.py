@@ -332,16 +332,25 @@ class CivController(CivPropController):
 
         return False
     
-    @property
-    def get_unit_assistant(self):
+    def get_assistant_action(self):
+        my_player_id = self.player_ctrl.my_player_id
+        if len(self.unit_ctrl.assistant) == 0:
+            packet = {
+                'pid': 261, 
+                'playerno': self.player_ctrl.my_player_id
+            }
+            fc_logger.info(packet)
+            self.ws_client.send_request(
+                packet, 
+                (262, self.player_ctrl.my_player_id)
+            )
+            self.lock_control()
+
         if len(self.unit_ctrl.assistant) == 0:
             return
+
         action = self.unit_ctrl.assistant.pop(0)
         return action
-
-    @property
-    def my_player_id(self):
-        return self.player_ctrl.my_player_id
 
     def maybe_grant_control_to_player(self):
         """
@@ -417,6 +426,7 @@ class CivController(CivPropController):
             #     info['available_actions'] = {}
             # else:
             info['available_actions'] = self.turn_manager.get_info()
+
         # add img array
         if fc_args['debug.get_webpage_image'] is not None:
             info['image_data'] = self.get_img_array()
@@ -463,6 +473,7 @@ class CivController(CivPropController):
         # Add begin_turn timeout handler
         self.ws_client.begin_turn_timeout_handle = self.ws_client.get_ioloop().call_later(
             fc_args['begin_turn_timeout'], self.begin_turn_timeout_callback)
+        fc_logger.info("-----self.ws_client.begin_turn_timeout_handle-----")
 
     def game_has_truncated(self) -> bool:
         """Returns True if the game has been truncated.
@@ -700,7 +711,7 @@ class CivController(CivPropController):
         self.ws_client.send_message('/set pingtimeout 720')
         self.ws_client.send_message(f"/set victories {fc_args['victories']}")
         self.ws_client.send_message(f"/set endvictory {fc_args['endvictory']}")
-        self.ws_client.send_message(f"/set agentmode {fc_args['agentmode']}")
+        self.ws_client.send_message(f"/set advisor {fc_args['advisor']}")
 
         requests.post(
             f"http://{self.host}:{fc_web_args['port']}/gamesetting?openchatbox={fc_args['openchatbox']}")

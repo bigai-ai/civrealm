@@ -124,15 +124,16 @@ class UnitCtrl(CivPropController):
         if packet['actor_id'] == -1:
             return
 
-        # /* Decode the json data. */
+        # Decode the json data.
         packet['js_data'] = urllib.parse.unquote(packet['js_data'])
         packet['js_data'] = json.loads(packet['js_data'])
-        print(f"ai packet: {packet}")
+        print(f">>> Ai Packet <<< {packet}")
 
-        action_id = None
+        # Parse the name of action.
+        action_name = fc_types.AI_ASSISTANT_ACTION_MAP[packet['action_type']]
         if packet['action_type'] == fc_types.ACTION_UNIT_MOVE:
-            action_id = f'goto_{packet["js_data"]["dir8"]}'
-        self.assistant.append(('unit', packet['actor_id'], action_id))
+            action_name = f'{action_name}_{packet["js_data"]["dir8"]}'
+        self.assistant.append(('unit', packet['actor_id'], action_name))
         return
 
     def have_attack_unit(self):

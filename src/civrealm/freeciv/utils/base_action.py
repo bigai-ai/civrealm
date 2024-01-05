@@ -45,7 +45,7 @@ class Action(ABC):
             # if 'unit_id' in packet:
             #     if packet['unit_id'] == 103:
             #         print(packet)
-            fc_logger.info(f"trigger_action. {packet}")
+            fc_logger.info(f"trigger_action. {packet}, wait_for_pid. {self.wait_for_pid}")
             ws_client.send_request(packet, self.wait_for_pid)
             return self.refresh_state_after_action(ws_client)
 

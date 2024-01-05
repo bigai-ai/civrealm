@@ -17,6 +17,7 @@ import os
 import csv
 import h5py
 import yaml
+import json
 from datetime import datetime
 from typing import final
 from civrealm.configs import fc_args
@@ -98,10 +99,13 @@ class BaseWriter(object):
             req_fields = [req_fields]
         return req_fields
 
-    def insert(self, input_data:list[dict[str, any]]):
-        for key in self.writers:
+    def insert(self, input_data:list[dict[str, any]], key:str=None):            
+        for writer_key in self.writers:
+            if key is not None:
+                self.insert_tick_data(writer_key, input_data, key)
+                continue
             tick_data = list()
-            for field in self.req_fields[key]:
+            for field in self.req_fields[writer_key]:
                 is_found = 0
                 for data in input_data:
                     if (_data := search(data, field)) is not None:
@@ -109,7 +113,7 @@ class BaseWriter(object):
                         is_found = 1
                         break
                 assert is_found == 1, f"Please make sure the input_data containing field {field}"
-            self.insert_tick_data(key, tick_data)
+            self.insert_tick_data(writer_key, tick_data)
         return
 
     def register_file_handler(self, key):
@@ -118,7 +122,7 @@ class BaseWriter(object):
     def register_writer(self):
         raise NotImplementedError
 
-    def insert_tick_data(self, key:str, tick_raw_data:list[any]):
+    def insert_tick_data(self, writer_key:str, tick_raw_data:list[any], key:str=None):
         raise NotImplementedError
 
     @final
@@ -137,9 +141,12 @@ class H5pyWriter(BaseWriter):
         self.writers[key] = 0
         return
 
-    def insert_tick_data(self, key:str, tick_raw_data:list[any]):
-        grp = self.file_handlers[key].create_group(str(self.writers[key]))
-        for i, field in enumerate(self.req_fields[key]):
+    def insert_tick_data(self, writer_key:str, tick_raw_data:list[any], key:str=None):
+        if key is not None:
+            self.file_handlers[writer_key].create_dataset(key, data=json.dumps(tick_raw_data))
+            return
+        grp = self.file_handlers[writer_key].create_group(str(self.writers[writer_key]))
+        for i, field in enumerate(self.req_fields[writer_key]):
             grp.create_dataset(field, data=tick_raw_data[i])
-        self.writers[key] += 1
+        self.writers[writer_key] += 1
         return

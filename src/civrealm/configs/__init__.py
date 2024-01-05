@@ -75,6 +75,7 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
 
     service = fc_args['service']
     image = fc_web_args['services'][service]['image']
+    host = fc_web_args['services'][service].get('environment', {}).get('host')
     fc_web_args['container'] = fc_web_args['services'][service]['container_name']
 
     server_port = fc_web_args['services'][service]['ports'][0]
@@ -87,6 +88,8 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
 
     if tag := re.search(r'\:(.*)', image):
         fc_web_args['tag'] = tag[1]
+    if host is not None:
+        fc_args['host'] = host
     fc_web_args['image'] = image.split('/')[1]
     return fc_web_args
 

@@ -47,7 +47,7 @@ ruleset: classic
 # The type of runner.
 runner_type: "parallel"
 # whether to alow an AI to help a player to get a action response
-agentmode: disabled
+advisor: disabled
 
 # Parameters for parallel running
 # Number of environments running simultaneously to sample experience.
@@ -76,7 +76,7 @@ debug:
   # The window size (height) for sceenshot.
   window_size_y: 
   # Get webpage image data by locating elements by ID on the web page. 
-  # *wait_for_observer* flag should be set to 'True' if enabling screenshots. 
+  # The parameter type is list. 
   # Options include, but are not limited to: ['cities_tab', 'tech_tab', 'players_tab', 'civ_tab', 'map_tab'].
   get_webpage_image: 
   # If true, auto save game in every turn begining. The save will be deleted in the end of that turn unless the program finds some issues in that turn.
@@ -103,7 +103,7 @@ debug:
   tensor_debug: False
   # The path to the directory that stores the log files.. Use null for the default path `civrealm/logs``. 
   logging_path: null
-
+  host:
 
 trainer:
   epoch: 300

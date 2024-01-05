@@ -685,3 +685,9 @@ packet_player_multiplier = 242
 packet_client_heartbeat = 254
 packet_goto_path_req = 257
 packet_info_text_req = 259
+
+# /* AI Assistant action mapping */
+AI_ASSISTANT_ACTION_MAP = {
+    ACTION_FOUND_CITY: "build_city",
+    ACTION_UNIT_MOVE: "goto",
+}

@@ -182,7 +182,8 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
         # self._observation_space = self.civ_controller.observation_space
         self.civ_controller.reset_civ_controller(client_port)
 
-        self.set_up_screenshots()
+        if fc_args['debug.take_screenshot']:
+            self.set_up_screenshots()
 
         if seed is not None:
             fc_args['debug.randomly_generate_seeds'] = False

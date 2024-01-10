@@ -1,0 +1,73 @@
+diff --git a/.gitignore b/.gitignore
+index 8aec9d3..7261f63 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -19,4 +19,5 @@ __pycache__/
+ .VSCodeCounter/
+ *.log
+ tmp.prof
+-dataset/
+\ No newline at end of file
++dataset/
++.github.patch
+\ No newline at end of file
+diff --git a/README.md b/README.md
+index b8d21a7..b7c6332 100644
+--- a/README.md
++++ b/README.md
+@@ -1,6 +1,6 @@
+ # *CivRealm*: A Learning and Reasoning Odyssey in *Civilization* for Decision-Making Agents
+ 
+-[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<http://civilization.pages.mybigai.ac.cn/civrealm>)
++[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<https://bigai-ai.github.io/civrealm/>)
+ 
+ CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/), a Civilization-inspired game. Within CivRealm, we provide interfaces for two typical agent types: tensor-based reinforcement learning agents based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents powered by language models.
+ 
+@@ -14,7 +14,7 @@ CivRealm is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) th
+ 
+ ## Prerequisites
+ 
+-In order to test the civrealm on <http://localhost>, kindly follow the docker installation instructions on <https://gitlab.mybigai.ac.cn/civilization/freeciv-web.git>.
++In order to test the civrealm on <http://localhost>, kindly follow the docker installation instructions on <https://bigai-ai.github.io/civrealm/getting_started/requirements.html>.
+ 
+ > :warning:
+ > Please make sure you have installed **the latest** docker engine and docker-compose.
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 8155214..e1ddabc 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -15,34 +15,6 @@ services:
+       - "8888:8080"
+     user: docker
+ 
+-  # test version compared with v1.4
+-  # 1. support build_city ai-assistant;
+-  # 2. update diplomacy minigame difficulty;
+-  freeciv-web-test:
+-    image: freeciv/freeciv-web:1.4.3
+-    container_name: freeciv-web-test
+-    environment: 
+-      host: civrealm-service.mybigai.ac.cn
+-    ports:
+-      - "8580:80"
+-      - "4502:4002"
+-      - "6500-6509:6000-6009"
+-      - "7500-7509:7000-7009"
+-      - "9588:8080"
+-    user: docker
+-
+-  # dev version
+-  freeciv-web-dev:
+-    image: freeciv/freeciv-web:1.4.3
+-    container_name: freeciv-web-dev
+-    ports:
+-      - "8680:80"
+-      - "4602:4002"
+-      - "6600-6609:6000-6009"
+-      - "7600-7609:7000-7009"
+-      - "9688:8080"
+-    user: docker
+-
+ volumes:
+   data:
+ 

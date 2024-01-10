@@ -44,6 +44,15 @@ docker pull civrealm/freeciv-web:VERSION
 docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
 ```
 
+!!! tip "Docker permission"
+    If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
+
+!!! tip "command not found: docker compose"
+    If the `docker compose` command is not found, please make sure that you have installed the docker version >= `24.0.6`.
+
+!!! success "Freeciv-Web Service"
+    After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
+
 ### Method 2: Use the Docker Image Directly
 
 You can use our pre-built docker image file to directly start the Freeciv-web server, the steps are as follows:
@@ -62,15 +71,6 @@ git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
 cd civrealm
 docker compose up -d freeciv-web
 ```
-
-!!! tip "Docker permission"
-    If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
-
-!!! tip "command not found: docker compose"
-    If the `docker compose` command is not found, please make sure that you have installed the docker version >= `24.0.6`.
-
-!!! success "Freeciv-Web Service"
-    After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
 
 ### Method 3: Compile the Docker Image from Source Code
 

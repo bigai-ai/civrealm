@@ -31,6 +31,18 @@ services:
       - "9588:8080"
     user: docker
 
+  # dev version
+  freeciv-web-dev:
+    image: freeciv/freeciv-web:1.4.3
+    container_name: freeciv-web-dev
+    ports:
+      - "8680:80"
+      - "4602:4002"
+      - "6600-6609:6000-6009"
+      - "7600-7609:7000-7009"
+      - "9688:8080"
+    user: docker
+
 volumes:
   data:
 

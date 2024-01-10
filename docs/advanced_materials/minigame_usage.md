@@ -133,3 +133,56 @@ After executing the commands, the log will be like:
 
 In the log, We can see that each step displays some fields from the above definitions as `Definition of Mini-game messages`, and some are auxiliary fields designed by mini-game itself such as `human_leader_alive`.
 
+## Play mini-game as a AI-assistant agent
+
+!!! warning
+    The AI-assistant agent only supports `development_build_city`.
+
+To engage in a dialogue with the rule-based AI assistant integrated within the freeciv server, please configure the following command:
+```bash
+fc_args['advisor'] = 'enabled'
+```
+
+The comprehensive script for invoking the AI assistant within the minigame setting is outlined below:
+```python
+import time
+from civrealm.freeciv.utils.freeciv_logging import fc_logger
+from civrealm.envs.freeciv_wrapper import LLMWrapper
+from civrealm.configs import fc_args
+from civrealm.freeciv.utils.port_utils import Ports
+import civrealm
+import gymnasium
+
+# enabled AI-assistant
+fc_args['advisor'] = 'enabled'
+
+def main():
+    env = gymnasium.make('civrealm/FreecivMinitask-v0', client_port=Ports.get())
+    step = 0
+    observations, info = env.reset(minitask_pattern={
+        "type": [
+            "development_build_city"]
+    })
+    done = False
+    while not done:
+        try:
+            # get AI-assistant action
+            action = env.civ_controller.get_assistant_action()
+            fc_logger.info(f"Prepare to act: {action}")
+            # env step
+            observations, reward, terminated, truncated, info = env.step(action)
+            print(
+                f'Step: {step}, Turn: {info["turn"]}, Reward: {reward}, Terminated: {terminated}, '
+                f'Truncated: {truncated}, action: {action}')
+            step += 1
+            done = terminated or truncated
+        except Exception as e:
+            fc_logger.error(repr(e))
+            raise e
+
+    env.close()
+
+if __name__ == '__main__':
+    main()
+
+```

@@ -17,3 +17,20 @@
         <td>Built in image </a></td>
     </tr>
 </table>
+
+## Version update announcement
+
+### Freeciv-web V1.4
+<table>
+    <tr>
+        <td bgcolor="Lavender"><b>Function</b></td>
+        <td bgcolor="Lavender"><b>Description</b></td>
+        <td bgcolor="Lavender"><b>Document</b></td>
+    </tr>
+    <tr>
+        <td>AI-assistant access</td>
+        <td>Accessing the AI-assistant entails leveraging the rule-based AI interface embedded within the server to offer users strategic guidance on subsequent actions. Significant enhancements include: <br>(1) The introduction of a new packet and process identifier (PID) to facilitate AI assistant action requests and responses;<br>(2) The incorporation of assistant fields within the unit structure to track planning status; </td>
+        <td><a href="../advanced_materials/minigame_usage.html#play-mini-game-as-a-ai-assistant-agent
+">Usage in mini-game</a></td>
+    </tr>
+</table>

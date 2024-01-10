@@ -6,10 +6,10 @@ The general pipeline of creating new mini-game is as follows:
 <div align=center>
 ```mermaid
 graph TD
-    A(Be clear about \nwhat to do) --> D(Use gtk tool to generate basic archive)
-    D --> F(Set mini-game messages by lua script)
-    F --> E(<b>Large batch auto random generation</b>)
-    E --> H{Mini-Game Validation}
+    A(<a href="#be-clear-about-what-to-do">Be clear about \nwhat to do<a>) --> D(<a href="#use-gtk-tool-to-generate-basic-archive">Use gtk tool to generate basic archive</a>)
+    D --> F(<a href="#set-mini-game-messages-by-lua-script">Set mini-game messages by lua script</a>)
+    F --> E(<b><a href="#large-batch-auto-random-generation">Large batch auto random generation</a></b>)
+    E --> H{<a href="#mini-game-validation">Mini-Game Validation</a>}
     H --> |Not Pass| J{Bug from \nCivrealm}
     J --> |Yes| K[Contribute bugfix for Civrealm]
     J --> |No| D
@@ -39,7 +39,7 @@ At the beginning of designing a mini-game, you have to answer the following ques
 
 These questions will be given appropriate suggestions to some extent below.
 
-## <b><i>Use gtk tool to generate basic archive</i></b>
+## Use gtk tool to generate basic archive
 
 The tool of freeciv-gtk is provided by freeciv official team to help us design the very basic version of each mini-game. Please follow the instructions in ((<https://github.com/freeciv/freeciv/tree/main/doc>)) to install the tool and run it, specify the game settings and ruleset, which would be like:
 

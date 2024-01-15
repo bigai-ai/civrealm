@@ -534,47 +534,6 @@ class ActDisband(StdAction):
 class ActActSel(StdAction):
     action_key = "action_selection"
 
-
-class ActTileInfo(StdAction):
-    action_key = "tile_info"
-
-    def is_action_valid(self):
-        return False
-
-    def key_tile_info(self):
-        """Requests information on a seen tile"""
-        if self.current_focus != []:
-            punit = self.current_focus[0]
-            ptile = self.map_ctrl.index_to_tile(punit['tile'])
-            if ptile != None:
-                self.popit_req(ptile)
-
-    def popit_req(self, ptile):
-        """ request tile popup """
-        if ptile == None:
-            return
-
-        infos['location']['x'] = ptile['x']
-        infos['location']['y'] = ptile['y']
-        if tile_get_known(ptile) in [TILE_KNOWN_UNSEEN, TILE_UNKNOWN]:
-            show_dialog_message("Tile info", "Location: x:" +
-                                ptile['x'] + " y:" + ptile['y'])
-            return
-
-        punit_id = 0
-        punit = find_visible_unit(ptile)
-        if punit != None:
-            punit_id = punit['id']
-
-        focus_unit_id = 0
-        if self.current_focus != []:
-            focus_unit_id = current_focus[0]['id']
-
-        packet = {"pid": packet_info_text_req, "visible_unit": punit_id,
-                  "loc": ptile['index'], "focus_unit": focus_unit_id}
-        self.ws_client.send_request(packet)
-
-
 class EngineerAction(UnitAction):
     # If a unit is performing an engineering action, we don't show it in the valid action list again. If the unit continues to perform the same action again, we cannot receive response from the server.
     def is_action_valid(self):
@@ -1776,45 +1735,6 @@ class ActHutEnter(StdAction):
                                    self.newtile['index'],
                                    fc_types.ACTION_HUT_ENTER)
 
-# Use ActGetActionPro to replace this action
-# class ActGetAttackPro(UnitAction):
-#     """Attack unit on target tile"""
-#     action_key = "get_attack"
-
-#     def __init__(self, focus, dir8):
-#         super().__init__(focus)
-#         self.action_key += "_%i" % dir8
-#         self.dir8 = dir8
-
-#     def is_action_valid(self):
-#         # The dir8 direction has an enemy unit
-#         # TODO: we assume only one unit in the tile for now
-#         if self.dir8 in self.focus.enemy_units:
-#             # It seems that the target_unit_id in the _action_packet does not matter for now. The target_tile_id is required.
-#             self.target_unit_id = self.focus.enemy_units[self.dir8][0]['id']
-#             self.target_tile_id = self.focus.enemy_units[self.dir8][0]['tile']
-#         else:
-#             self.target_unit_id = None
-#             self.target_tile_id = None
-
-#         unit_type = self.focus.ptype
-#         # TODO: check which unit types cannot perform the attack action.
-#         worker = unit_type['worker'] or unit_type['name'] == 'Explorer'
-#         return self.target_unit_id != None and not worker
-
-#     def _action_packet(self):
-#         actor_unit = self.focus.punit
-#         packet = {"pid": packet_unit_get_actions,
-#                   "actor_unit_id": actor_unit['id'],
-#                   "target_tile_id": self.target_tile_id,
-#                   "target_unit_id": self.target_unit_id,
-#                   "target_extra_id": -1,
-#                   "request_kind": 0
-#                   }
-#         self.wait_for_pid = 90
-
-#         return packet
-
 # TODO: the pro from the current server is inaccurate for build_road and pillage action. Add more notes if find other inaccurate action pro. Fix those actions if the server is updated to provide accurate pro in the future.
 
 
@@ -2149,39 +2069,3 @@ class ActEmbark(UnitAction):
                                      self.target_unit_id,
                                      fc_types.ACTION_TRANSPORT_EMBARK)
         return packet
-
-
-def order_wants_direction(order, act_id, ptile):
-
-    #  Returns True if the order preferably should be performed from an
-    #  adjacent tile.
-
-    action = actions[act_id]
-    if order == fc_types.ORDER_PERFORM_ACTION and action == None:
-        # /* Bad action id or action rule data not received and stored
-        # * properly. */
-        logger.warning("Asked to put invalid action " +
-                       act_id + " in an order.")
-        return False
-
-    if order in [fc_types.ORDER_MOVE, ORDER_ACTION_MOVE]:
-        return True
-    elif order == fc_types.ORDER_PERFORM_ACTION:
-        if action['min_distance'] > 0:
-            # Always illegal to do to a target on the actor's own tile.
-            return True
-
-        if action['max_distance'] < 1:
-            # Always illegal to perform to a target on a neighbor tile. */
-            return False
-
-        # FIXME: allied units and cities shouldn't always make actions be
-        # performed from the neighbor tile.
-
-        if tile_city(ptile) != None or tile_units(ptile).length != 0:
-            # Won't be able to move to the target tile to perform the action on top of it.
-            return True
-
-        return False
-    else:
-        return False

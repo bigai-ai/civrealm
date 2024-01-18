@@ -20,4 +20,3 @@ __pycache__/
 *.log
 tmp.prof
 dataset/
-commit-github

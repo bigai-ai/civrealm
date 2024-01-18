@@ -5,7 +5,7 @@ tmpbranch="tmp"$timestamp
 
 # check github
 if [[ -z `git config --get remote.bigai-ai.url` ]]; then
-        git remote add bigai-ai https://github.com/pringwong/civrealm.git
+        git remote add bigai-ai https://github.com/bigai-ai/civrealm.git
 fi
 git pull bigai-ai
 

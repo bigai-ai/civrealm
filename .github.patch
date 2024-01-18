@@ -1,17 +1,13 @@
 diff --git a/.gitignore b/.gitignore
-index 8aec9d3..7261f63 100644
+index 0c245e2..35a37bc 100644
 --- a/.gitignore
 +++ b/.gitignore
-@@ -19,4 +19,5 @@ __pycache__/
- .VSCodeCounter/
+@@ -20,3 +20,5 @@ __pycache__/
  *.log
  tmp.prof
--dataset/
-\ No newline at end of file
-+dataset/
+ dataset/
 +.github.patch
 +commit-github
-\ No newline at end of file
 diff --git a/README.md b/README.md
 index b8d21a7..b7c6332 100644
 --- a/README.md

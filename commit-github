@@ -5,25 +5,29 @@ tmpbranch="tmp"$timestamp
 
 # check github
 if [[ -z `git config --get remote.bigai-ai.url` ]]; then
-        git remote add bigai-ai https://github.com/bigai-ai/civrealm.git
+        git remote add bigai-ai git@github.com:bigai-ai/civrealm.git
 fi
 git pull bigai-ai
 
 # push to github
 git checkout dev
-git checkout -b $tmpbranch
 if git apply --check .github.patch; then
+        # create tmp branch
+        git checkout -b $tmpbranch
+        # apply patch
         git apply .github.patch
+        # commit changes
         git add .
         git commit -m "compatible with github"
+        # merge to github
         git checkout bigai-ai/dev
         git merge -Xours $tmpbranch
+        # push to github
         git add .
         git commit -m "to github"
         git push bigai-ai HEAD:dev
+        # delete tmp branch
+        git branch -D $tmpbranch
 fi
-
-# delete tmp branch
-git branch -D $tmpbranch
 git checkout dev
 

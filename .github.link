@@ -1,0 +1,27 @@
+[
+    {
+        "key": "document",
+        "gitlab": "http://civilization.pages.mybigai.ac.cn/civrealm",
+        "github": "https://bigai-ai.github.io/civrealm"
+    },
+    {
+        "key": "civrealm",
+        "gitlab": "https://gitlab.mybigai.ac.cn/civilization/civrealm",
+        "github": "https://github.com/bigai-ai/civrealm"
+    },
+    {
+        "key": "tensor-agent",
+        "gitlab": "https://gitlab.mybigai.ac.cn/civilization/freeciv-tensor-baseline",
+        "github": "https://github.com/bigai-ai/civrealm-tensor-baseline"
+    },
+    {
+        "key": "llm-agent",
+        "gitlab": "https://gitlab.mybigai.ac.cn/civilization/freeciv-llm-baseline",
+        "github": "https://github.com/bigai-ai/civrealm-llm-baseline"
+    },
+    {
+        "key": "civrealm-sav",
+        "gitlab": "https://gitlab.mybigai.ac.cn/civilization/freeciv-sav",
+        "github": "https://github.com/bigai-ai/civrealm-sav"
+    }
+]

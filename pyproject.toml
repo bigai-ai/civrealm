@@ -48,11 +48,14 @@ dependencies = [
     "matplotlib"
 ]
 
-
 [project.scripts]
 test_civrealm = "civrealm.random_game:main"
 update_freeciv_web_docker = "civrealm.freeciv.build_server:update_docker_image"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
+
+[project.urls]
+Homepage = "https://github.com/bigai-ai/civrealm"
+Issues = "https://github.com/bigai-ai/civrealm/issues"
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning", "ignore:.*obs returned by the.*method.*", "ignore:.*Casting input x to numpy array.*"]
@@ -146,6 +149,4 @@ addopts = [
     
     # Deprecated test
     # "tests/unit/test_disband.py",
-
-
 ]

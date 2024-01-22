@@ -11,7 +11,8 @@ We also provide a set of tools for training and evaluating agents, as well as a 
 
 ## About
 
-CivRealm is a fork of [freeciv-bot](https://github.com/chris1869/freeciv-bot) that was initiated several years ago and further developed by [BIGAI](https://www.bigai.ai/). Going forward, CivRealm will be maintained in the long term.
+CivRealm is developed based on [freeciv-bot](https://github.com/chris1869/freeciv-bot), depending on [freeciv-web](<https://github.com/freeciv/freeciv-web>) and [FCIV-NET](<https://github.com/fciv-net/fciv-net>). 
+Moving forward, CivRealm will be maintained by [BIGAI](https://www.bigai.ai/) in the long term.
 
 ## Prerequisites
 
@@ -23,7 +24,7 @@ In order to test the civrealm on <http://localhost>, kindly follow the docker in
 
 ## Installation
 
-Installation for civrealm developers
+Installation for CivRealm developers
 
 ```bash
 cd civrealm
@@ -121,3 +122,16 @@ The following are some common issues that you may encounter when running the cod
   ```
 
 * If the screenshot is not centered on the location of your first unit, it is because you are using multiple displays. Please ensure the Firefox browser for screenshot pops up on your primary display.
+
+## Check out our paper
+Our paper is available on [Arxiv](https://arxiv.org/abs/2401.10568). If you find our code or databases useful, please consider citing us!
+
+```bibtex
+@inproceedings{qi2024civrealm,
+  title     = {CivRealm: A Learning and Reasoning Odyssey in Civilization for Decision-Making Agents},
+  author    = {Siyuan Qi and Shuo Chen and Yexin Li and Xiangyu Kong and Junqi Wang and Bangcheng Yang and Pring Wong and Yifan Zhong and Xiaoyuan Zhang and Zhaowei Zhang and Nian Liu and Wei Wang and Yaodong Yang and Song-Chun Zhu},
+  booktitle = {International Conference on Learning Representations},
+  year      = {2024},
+  url       = {https://openreview.net/forum?id=UBVNwD3hPN}
+}
+```

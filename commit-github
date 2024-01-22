@@ -1,7 +1,36 @@
 #!/bin/bash
+readarray -t link_array < <(jq --compact-output '.[]' .github.link)
+
+function replace_url(){
+        for item in "${link_array[@]}"; do
+                gitlab_name=$(jq --raw-output '.gitlab' <<< "$item")
+                github_name=$(jq --raw-output '.github' <<< "$item")
+                if [ `grep -c "$gitlab_name" $1` -ne '0' ]; then
+                        sed -i "s#$gitlab_name#$github_name#g" $1
+                        echo "Replaced file $1 containing $gitlab_name"
+                fi
+        done
+}
+function recur(){
+        files=`ls $1`
+        for file in $files
+        do
+                dir=$1/$file
+                if test -d $dir
+                then
+                        if grep -q "docs" <<< "$dir"; then
+                                recur $dir
+                        fi
+                else
+                        replace_url $dir
+                fi
+        done
+}
 
 timestamp=$(date +%s)
 tmpbranch="tmp"$timestamp
+
+recur .
 
 # check github
 if [[ -z `git config --get remote.bigai-ai.url` ]]; then

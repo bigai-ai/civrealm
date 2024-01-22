@@ -30,8 +30,6 @@ function recur(){
 timestamp=$(date +%s)
 tmpbranch="tmp"$timestamp
 
-recur .
-
 # check github
 if [[ -z `git config --get remote.bigai-ai.url` ]]; then
         git remote add bigai-ai git@github.com:bigai-ai/civrealm.git
@@ -45,12 +43,14 @@ if git apply --check .github.patch; then
         git checkout -b $tmpbranch
         # apply patch
         git apply .github.patch
+        # replace url
+        recur .
         # commit changes
         git add .
         git commit -m "compatible with github"
         # merge to github
         git checkout bigai-ai/dev
-        git merge -Xours $tmpbranch
+        git merge -Xtheirs $tmpbranch
         # push to github
         git add .
         git commit -m "to github"
@@ -59,4 +59,3 @@ if git apply --check .github.patch; then
         git branch -D $tmpbranch
 fi
 git checkout dev
-

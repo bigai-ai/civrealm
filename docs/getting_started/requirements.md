@@ -67,7 +67,7 @@ docker load -i IMAGE_FILE_NAME
 3. Run the following command to clone Civrealm repo, and
 build freeciv-web service from Docker:
 ```bash
-git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
+git clone https://github.com/bigai-ai/civrealm.git civrealm
 cd civrealm
 docker compose up -d freeciv-web
 ```

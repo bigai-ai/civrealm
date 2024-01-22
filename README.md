@@ -1,8 +1,12 @@
 # *CivRealm*: A Learning and Reasoning Odyssey in *Civilization* for Decision-Making Agents
 
-[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<https://bigai-ai.github.io/civrealm/>)
+<div align="center">
 
-CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web) based on [Freeciv](https://www.freeciv.org/), a Civilization-inspired game. Within CivRealm, we provide interfaces for two typical agent types: tensor-based reinforcement learning agents (see [Tensor-agent Repo](https://github.com/bigai-ai/civrealm-tensor-baseline)) based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents (see [LLM-agent Repo](https://github.com/bigai-ai/civrealm-llm-baseline)) powered by language models.
+[[Arxiv Paper]](https://arxiv.org/abs/2401.10568)
+[[PDF]](https://arxiv.org/pdf/2401.10568.pdf)
+[[Docs]](https://bigai-ai.github.io/civrealm/)
+[[LLM Agents]](https://github.com/bigai-ai/civrealm-llm-baseline)
+[[Tensor Agent]](https://github.com/bigai-ai/civrealm-tensor-baseline)
 
 [![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<https://bigai-ai.github.io/civrealm>)
 [![GitHub license](https://img.shields.io/github/license/bigai-ai/civrealm)](https://github.com/bigai-ai/civrealm/blob/main/LICENSE)

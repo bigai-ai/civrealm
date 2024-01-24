@@ -9,8 +9,8 @@
 [[Tensor Agent]](https://github.com/bigai-ai/civrealm-tensor-baseline)
 
 [![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<http://civilization.pages.mybigai.ac.cn/civrealm>)
-[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/civrealm)](https://pypi.org/project/civrealm/)
-[![PyPI](https://img.shields.io/pypi/v/civrealm)](https://pypi.org/project/civrealm/)
+<!-- [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/civrealm)](https://pypi.org/project/civrealm/) -->
+<!-- [![PyPI](https://img.shields.io/pypi/v/civrealm)](https://pypi.org/project/civrealm/) -->
 <!-- [![PyPI Status](https://pepy.tech/badge/civrealm)](https://pepy.tech/project/civrealm) -->
 [![GitHub license](https://img.shields.io/github/license/bigai-ai/civrealm)](https://github.com/bigai-ai/civrealm/blob/main/LICENSE)
 
@@ -35,8 +35,8 @@ We also provide a set of tools for training and evaluating agents, as well as a 
 
 ## About
 
-CivRealm is developed based on [freeciv-bot](https://github.com/chris1869/freeciv-bot), depending on [freeciv-web](<https://github.com/freeciv/freeciv-web>) and [FCIV-NET](<https://github.com/fciv-net/fciv-net>).
-Moving forward, CivRealm will be maintained by [BIGAI](https://www.bigai.ai/) in the long term.
+CivRealm is developed based on [freeciv-bot](https://github.com/chris1869/freeciv-bot), dependent on [freeciv-web](<https://github.com/freeciv/freeciv-web>) and [FCIV-NET](<https://github.com/fciv-net/fciv-net>).
+In the future, CivRealm will be maintained by [BIGAI](https://www.bigai.ai/).
 
 ## Prerequisites
 
@@ -44,11 +44,11 @@ CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 20.04 an
 
 ## Installation
 
-Installing the MineDojo stable version is as simple as:
+<!-- Installing the CivRealm stable version is as simple as:
 
 ```bash
 pip install civrealm
-```
+``` -->
 
 To install the latest version from the source code or contribute to the project, please follow the instructions below:
 

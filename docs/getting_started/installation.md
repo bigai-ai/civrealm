@@ -2,7 +2,7 @@
 
 ## Python Version
 
-Civrealm requires Python version `>=3.8`.
+Civrealm requires Python version `>=3.8` and tested until `3.11`.
 
 !!! note "Python Environment"
     We suggest using [Anaconda](https://www.anaconda.com/data-science-platform) to create a clean virtual environment for installation.

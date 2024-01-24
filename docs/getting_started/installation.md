@@ -71,7 +71,7 @@ test_civrealm --username=myagent1 --client_port=6001
 <!-- 
 ### Update the freeciv-web image
 
-Start the freeciv-web docker with the "docker-compose.yml" file in the civrealm folder:
+Start the freeciv-web docker with the "docker-compose.yaml" file in the civrealm folder:
 
 ```bash
 docker compose up -d

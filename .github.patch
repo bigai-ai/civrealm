@@ -9,10 +9,10 @@ index 0c245e2..35a37bc 100644
 +.github.patch
 +commit-github
 +.github.link
-diff --git a/docker-compose.yml b/docker-compose.yml
+diff --git a/docker-compose.yaml b/docker-compose.yaml
 index 8155214..e1ddabc 100644
---- a/docker-compose.yml
-+++ b/docker-compose.yml
+--- a/docker-compose.yaml
++++ b/docker-compose.yaml
 @@ -15,34 +15,6 @@ services:
        - "8888:8080"
      user: docker

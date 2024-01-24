@@ -36,7 +36,7 @@ def parse_args():
         os.path.join(CURRENT_DIR,
                      '../../../default_settings.yaml'))
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_file', help="configuration file *.yml", type=str,
+    parser.add_argument('--config_file', help="configuration file *.yaml", type=str,
                         required=False, default=default_config_file)
     args, remaining_argv = parser.parse_known_args()
 
@@ -68,7 +68,7 @@ def parse_args():
     return vars(args)
 
 
-def parse_fc_web_args(config_file='../../../docker-compose.yml'):
+def parse_fc_web_args(config_file='../../../docker-compose.yaml'):
 
     with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
         fc_web_args = yaml.safe_load(file)

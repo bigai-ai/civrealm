@@ -35,16 +35,16 @@ elif docker_image_name.startswith('fciv-net'):
 else:
     raise ValueError(f'Unknown docker image name: {docker_image_name}')
 
-try:
-    if fc_args['host'] == 'localhost':
-        s = subprocess.check_output('docker ps', shell=True)
-        assert str(s).find("freeciv-web") != -1
-        for username in next(os.walk(f'{test_dir}/game_save/'))[1]:
-            subprocess.call(
-                f'docker cp {test_dir}/game_save/{username} {docker_image_name}:/var/lib/{tomcat_dir}/webapps/data/savegames/',
-                shell=True, executable='/bin/bash')
-except Exception:
-    print("Cannot find docker locally! Assume testing in CI mode.")
+# try:
+#     if fc_args['host'] == 'localhost':
+#         s = subprocess.check_output('docker ps', shell=True)
+#         assert str(s).find("freeciv-web") != -1
+#         for username in next(os.walk(f'{test_dir}/game_save/'))[1]:
+#             subprocess.call(
+#                 f'docker cp {test_dir}/game_save/{username} {docker_image_name}:/var/lib/{tomcat_dir}/webapps/data/savegames/',
+#                 shell=True, executable='/bin/bash')
+# except Exception:
+#     print("Cannot find docker locally! Assume testing in CI mode.")
 
 def pytest_configure(config):
     # This function will be called once by each worker

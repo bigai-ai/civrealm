@@ -3,17 +3,14 @@ services:
 
   # stable version
   freeciv-web:
-    image: freeciv/freeciv-web:1.4
+    image: freeciv/freeciv-web:1.4.3
     container_name: freeciv-web
-    volumes:
-      - "data:/var/lib/tomcat10/webapps/data"
     ports:
       - "8080:80"
       - "4002:4002"
       - "6000-6009:6000-6009"
       - "7000-7009:7000-7009"
       - "8888:8080"
-    user: docker
 
   # test version compared with v1.4
   # 1. support build_city ai-assistant;
@@ -42,7 +39,4 @@ services:
       - "7600-7609:7000-7009"
       - "9688:8080"
     user: docker
-
-  volumes:
-  data:
 

@@ -16,7 +16,7 @@
 import docker
 import os
 import subprocess
-from civrealm.configs import fc_web_args
+from civrealm.configs import fc_web_args, fc_args
 
 # Change this to 'fciv-net' if you are using fciv-net
 docker_image_name = 'freeciv-web'
@@ -47,6 +47,7 @@ def build_freeciv_web_service(image_version='latest'):
             f'freeciv/{docker_image_name}:{image_version}',
             "sleep infinity",
             user="docker",
+            name=fc_args['service'],
             ports=fc_web_args['port_map'],
             detach=True,
             auto_remove=True,

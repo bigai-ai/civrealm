@@ -323,8 +323,12 @@ class UnitActions(ActionList):
 
     def _can_actor_act(self, unit_id):
         punit = self.unit_data[unit_id].punit
-        return punit['movesleft'] > 0 and not punit['done_moving'] and \
-            punit['ssa_controller'] == fc_types.SSA_NONE and not punit['keep_activity']
+        return (
+            punit['movesleft'] > 0 and \
+            not punit['done_moving'] and \
+            punit['ssa_controller'] == fc_types.SSA_NONE and \
+            not punit['keep_activity']
+        )
         # punit['ssa_controller'] == SSA_NONE and punit['activity'] == ACTIVITY_IDLE
 
     def _can_query_action_pro(self, unit_id):
@@ -984,7 +988,6 @@ class ActFortify(UnitAction):
 
         if self.focus.punit['transported'] and self.focus.punit['transported_by'] > 0 and self.focus.pcity is None:
             return False
-
         return (self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFIED and self.focus.punit['activity'] != fc_types.ACTIVITY_FORTIFYING)
 
     def _action_packet(self):

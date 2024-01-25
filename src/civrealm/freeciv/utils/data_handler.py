@@ -23,7 +23,7 @@ from typing import final
 from civrealm.configs import fc_args
 import numpy as np
 
-def parse_dataset_settings(config_file='../../../../dataset_setting.yaml'):
+def parse_dataset_settings(config_file='../../configs/dataset_setting.yaml'):
     with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
         dataset_settings = yaml.safe_load(file)
     return dataset_settings

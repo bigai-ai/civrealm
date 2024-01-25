@@ -297,7 +297,7 @@ class LLMWrapper(Wrapper):
         return mini_map_info
 
 
-def parse_llm_default_settings(config_file='../../../../llm_wrapper_settings.yaml'):
+def parse_llm_default_settings(config_file='../configs/llm_wrapper_settings.yaml'):
 
     with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
         llm_default_settings = yaml.safe_load(file)

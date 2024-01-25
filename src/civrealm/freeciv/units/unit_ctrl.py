@@ -130,9 +130,13 @@ class UnitCtrl(CivPropController):
         print(f">>> Ai Packet <<< {packet}")
 
         # Parse the name of action.
-        action_name = fc_types.AI_ASSISTANT_ACTION_MAP[packet['action_type']]
-        if packet['action_type'] == fc_types.ACTION_UNIT_MOVE:
-            action_name = f'{action_name}_{packet["js_data"]["dir8"]}'
+
+        if packet['js_data'].get('is_activity') == 1:
+            action_name = fc_types.ACTIVITY_ACTION_MAP[packet['action_type']]
+        else:
+            action_name = fc_types.AI_ASSISTANT_ACTION_MAP[packet['action_type']]
+            if packet['action_type'] == fc_types.ACTION_UNIT_MOVE:
+                action_name = f'{action_name}_{packet["js_data"]["dir8"]}'
         self.assistant.append(('unit', packet['actor_id'], action_name))
         return
 

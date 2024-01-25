@@ -16,7 +16,7 @@
 import docker
 import os
 import subprocess
-
+from civrealm.configs import fc_web_args
 
 # Change this to 'fciv-net' if you are using fciv-net
 docker_image_name = 'freeciv-web'
@@ -25,6 +25,36 @@ docker_image_name = 'freeciv-web'
 def run_bash_command(cmd):
     subprocess.call(cmd, shell=True, executable='/bin/bash')
 
+def build_freeciv_web_service(image_version='latest'):
+    """ Coding by AI. """
+    client = docker.from_env()
+
+    # pull image
+    try:
+        client.images.pull(f'civrealm/{docker_image_name}', tag=image_version)
+    except docker.errors.ImageNotFound:
+        print(f"Image civrealm/{docker_image_name}:{image_version} not found.")
+
+    # rename image
+    try:
+        client.images.get(f'civrealm/{docker_image_name}:' + image_version).tag(f'freeciv/{docker_image_name}:{image_version}')
+    except docker.errors.ImageNotFound:
+        print(f"Image civrealm/{docker_image_name}:{image_version} not found, cannot tag.")
+
+    # start container
+    try:
+        container = client.containers.run(
+            f'freeciv/{docker_image_name}:{image_version}',
+            "sleep infinity",
+            user="docker",
+            ports=fc_web_args['port_map'],
+            detach=True,
+            auto_remove=True,
+        )
+        print(f"Container {container.id} is running.")
+    except docker.errors.ContainerError as e:
+        print(f"Failed to start container: {e}")
+    return
 
 def build_docker_img():
     client = docker.from_env()

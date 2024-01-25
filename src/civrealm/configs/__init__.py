@@ -78,6 +78,17 @@ def parse_fc_web_args(config_file='docker-compose.yaml'):
     host = fc_web_args['services'][service].get('environment', {}).get('host')
     fc_web_args['container'] = fc_web_args['services'][service]['container_name']
 
+    port_map = {}
+    for p_map in fc_web_args['services'][service]['ports']:
+        container_port_set, local_port_set = p_map.split(":")
+        if "-" in  container_port_set:
+            container_start_port, container_end_port = container_port_set.split("-")
+            local_start_port, local_end_port = local_port_set.split("-")
+            for idx in range(int(container_end_port)-int(container_start_port)+1):
+                port_map[int(local_start_port)+idx] = int(container_start_port)+idx
+        else:
+            port_map[int(local_port_set)] = int(container_port_set)
+
     server_port = fc_web_args['services'][service]['ports'][0]
     connect_port = int(fc_web_args['services'][service]['ports'][2].split(":")[1].split("-")[0])
 
@@ -91,10 +102,13 @@ def parse_fc_web_args(config_file='docker-compose.yaml'):
     if host is not None:
         fc_args['host'] = host
     fc_web_args['image'] = image.split('/')[1]
+    fc_web_args['port_map'] = port_map
     return fc_web_args
 
 fc_args = parse_args()
 fc_web_args = parse_fc_web_args()
+
+print(fc_web_args)
 
 # Override server host and port with envirionment variables
 # CIVREALM_HOST_URL and CIVREALM_HOST_PORT

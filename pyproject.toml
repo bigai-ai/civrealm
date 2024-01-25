@@ -57,8 +57,9 @@ dev = [
 
 [project.scripts]
 test_civrealm = "civrealm.random_game:main"
-update_freeciv_web_docker = "civrealm.freeciv.build_server:update_docker_image"
+build_freeciv_web_service = "civrealm.freeciv.build_server:build_freeciv_web_service"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
+
 
 [project.urls]
 Homepage = "https://github.com/bigai-ai/civrealm"

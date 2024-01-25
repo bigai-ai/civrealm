@@ -43,6 +43,6 @@ services:
       - "9688:8080"
     user: docker
 
-volumes:
+  volumes:
   data:
 

@@ -20,17 +20,17 @@ readme = "README.md"
 license = {text = "GLP3.0"}
 classifiers = [
     "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: Science/Research",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
     "Topic :: Games/Entertainment :: Turn Based Strategy",
     "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
-    "Environment :: Console",
-    "Programming Language :: Python :: 3",
 ]
 keywords = ["civrealm", "freeciv", "ai", "reinforcement-learning", "openai-gym"]
 dependencies = [
+    'importlib-resources',
     'pyyaml>=5.4.1',
     'overrides',
     'wheel',
@@ -66,6 +66,12 @@ Homepage = "https://github.com/bigai-ai/civrealm"
 Issues = "https://github.com/bigai-ai/civrealm/issues"
 Documentation = "https://bigai-ai.github.io/civrealm/"
 Source = "https://github.com/bigai-ai/civrealm"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+civrealm = ["*.yaml"]
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning", "ignore:.*obs returned by the.*method.*", "ignore:.*Casting input x to numpy array.*"]

@@ -16,8 +16,12 @@
 import os
 import yaml
 import numpy as np
-from civrealm.envs import FreecivBaseEnv
+
+from importlib_resources import files
 from gymnasium.core import Wrapper
+
+from civrealm.configs import load_config
+from civrealm.envs import FreecivBaseEnv
 from civrealm.freeciv.utils.fc_types import ACTIVITY_IDLE, ACTIVITY_FORTIFIED, ACTIVITY_SENTRY, ACTIVITY_FORTIFYING
 from civrealm.freeciv.map.map_const import TERRAIN_NAMES, EXTRA_NAMES
 from civrealm.freeciv.utils.language_agent_utility import (DIR, action_mask,
@@ -27,9 +31,6 @@ from civrealm.freeciv.players.player_const import DS_TXT
 from civrealm.freeciv.utils.utility import read_sub_arr_with_wrap
 from civrealm.freeciv.utils.freeciv_logging import fc_logger
 from civrealm.freeciv.utils.fc_types import VUT_UTYPE, VUT_IMPROVEMENT
-
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class LLMWrapper(Wrapper):
@@ -71,7 +72,7 @@ class LLMWrapper(Wrapper):
 
     def __init__(self, env: FreecivBaseEnv):
         super().__init__(env)
-        self.llm_default_settings = parse_llm_default_settings()
+        self.llm_default_settings = load_config('llm_wrapper_settings.yaml')
 
         (self.action_names, self.tile_length_radius, self.tile_width_radius, self.tile_info_template,
          self.block_length_radius, self.block_width_radius, self.block_info_template, self.ctrl_types,
@@ -295,11 +296,3 @@ class LLMWrapper(Wrapper):
 
             tile_id += 1
         return mini_map_info
-
-
-def parse_llm_default_settings(config_file='../configs/llm_wrapper_settings.yaml'):
-
-    with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
-        llm_default_settings = yaml.safe_load(file)
-
-    return llm_default_settings

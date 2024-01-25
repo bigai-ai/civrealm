@@ -1,1 +1,1 @@
-recursive-include civrealm *.yaml 
+recursive-include src/civrealm *.yaml 

@@ -28,9 +28,31 @@ docker -v
 !!! warning "Do not use the original Freeciv-web"
     Please do NOT use the image built based on the [original Freeciv-web repo](https://github.com/freeciv/freeciv-web). The image has been customize to suit agent training functionalities. The latest commits in that repo might cause compatibility issues.
 
-There are 3 ways to start the customized Freeciv-web: pull from docker hub, use our pre-built docker image directly or compile the docker image from source code.
+There are 4 ways to start the customized Freeciv-web: use pull from docker hub, use our pre-built docker image directly or compile the docker image from source code.
 
-### Method 1: Pull from the Docker Hub (**Recommended**)
+### Method 1: Using civrealm's built-in commands (**Recommended**)
+
+Remove the existing freeciv-web service as following:
+```bash
+remove_freeciv_web_service
+```
+
+Download the latest freeciv-web image as following:
+```bash
+download_freeciv_web_image
+```
+
+Start the freeciv-web service as following:
+```bash
+start_freeciv_web_service
+```
+
+To automatically remove the existing freeciv-web service, pull the latest freeciv-web image, and start the freeciv-web service, you can the following command:
+```bash
+build_freeciv_web_service
+```
+
+### Method 2: Pull from the Docker Hub
 
 You can pull our pre-built docker image from docker hub. Suppose the image version is named as `VERSION`.
 
@@ -44,6 +66,14 @@ docker pull civrealm/freeciv-web:VERSION
 docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
 ```
 
+3. Run the following command to clone Civrealm repo, and
+build freeciv-web service from Docker:
+```bash
+git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
+cd civrealm/src/civrealm/configs
+docker compose up -d freeciv-web
+```
+
 !!! tip "Docker permission"
     If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
 
@@ -53,7 +83,7 @@ docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
 !!! success "Freeciv-Web Service"
     After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
 
-### Method 2: Use the Docker Image Directly
+### Method 3: Use the Docker Image Directly
 
 You can use our pre-built docker image file to directly start the Freeciv-web server, the steps are as follows:
 
@@ -64,14 +94,8 @@ You can use our pre-built docker image file to directly start the Freeciv-web se
 docker load -i IMAGE_FILE_NAME
 ```
 
-3. Run the following command to clone Civrealm repo, and
-build freeciv-web service from Docker:
-```bash
-git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
-cd civrealm
-docker compose up -d freeciv-web
-```
+3. Follow the step 3 of Method 2 to compose up service.
 
-### Method 3: Compile the Docker Image from Source Code
+### Method 4: Compile the Docker Image from Source Code
 
 You can also compile the source code to build the service follwing the instruction of Freeciv-web Repo from <a href="../releases/releases.html">here</a>. It has relatively large network overhead when building services, and could take a long time (up to 3 hours) to complete.

@@ -3,7 +3,7 @@ services:
 
   # stable version
   freeciv-web:
-    image: freeciv/freeciv-web:1.4.3
+    image: freeciv/freeciv-web:latest
     container_name: freeciv-web
     ports:
       - "8080:80"
@@ -11,12 +11,11 @@ services:
       - "6000-6009:6000-6009"
       - "7000-7009:7000-7009"
       - "8888:8080"
+    user: docker
 
-  # test version compared with v1.4
-  # 1. support build_city ai-assistant;
-  # 2. update diplomacy minigame difficulty;
+  # test version
   freeciv-web-test:
-    image: freeciv/freeciv-web:1.4.3
+    image: freeciv/freeciv-web:1.4.4
     container_name: freeciv-web-test
     environment: 
       host: civrealm-service.mybigai.ac.cn
@@ -30,7 +29,7 @@ services:
 
   # dev version
   freeciv-web-dev:
-    image: freeciv/freeciv-web:1.4.3
+    image: freeciv/freeciv-web:1.4.4
     container_name: freeciv-web-dev
     ports:
       - "8680:80"

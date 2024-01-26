@@ -16,7 +16,7 @@
 import docker
 import os
 import subprocess
-
+from civrealm.configs import fc_web_args, fc_args
 
 # Change this to 'fciv-net' if you are using fciv-net
 docker_image_name = 'freeciv-web'
@@ -24,6 +24,73 @@ docker_image_name = 'freeciv-web'
 
 def run_bash_command(cmd):
     subprocess.call(cmd, shell=True, executable='/bin/bash')
+
+
+def check_container_exists(service_name=fc_args['service']):
+    try:
+        result = subprocess.run(
+            ['docker', 'ps', '--format={{.Names}}'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        if service_name in result.stdout.split("\n"):
+            return True
+        return False
+
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while checking for container: {e.stderr}")
+        return False
+
+
+def download_freeciv_web_image(image_version='latest'):
+    # pull image
+    pull_command = f"docker pull civrealm/freeciv-web:{image_version}"
+    subprocess.run(pull_command, shell=True, check=True)
+
+    # rename image
+    tag_command = f"docker tag civrealm/freeciv-web:{image_version} freeciv/freeciv-web:{image_version}"
+    subprocess.run(tag_command, shell=True, check=True)
+
+    return
+
+
+def stop_freeciv_web_service(service_name=fc_args['service']):
+    if check_container_exists(service_name):
+        print(f"Stop service container: {service_name}")
+        stop_service_command = f"docker stop {service_name}"
+        subprocess.run(stop_service_command, shell=True, check=True)
+    return
+
+
+def start_freeciv_web_service(image_version='latest'):
+    client = docker.from_env()
+
+    # start container
+    try:
+        container = client.containers.run(
+            f'freeciv/{docker_image_name}:{image_version}',
+            "sleep infinity",
+            user="docker",
+            name=fc_args['service'],
+            ports=fc_web_args['port_map'],
+            detach=True,
+            auto_remove=True,
+        )
+        print(f"Container {container.id} is running.")
+    except docker.errors.ContainerError as e:
+        print(f"Failed to start container: {e}")
+
+    client.close()
+    return
+
+
+def build_freeciv_web_service(service_name=fc_args['service'], image_version='latest'):
+    stop_freeciv_web_service(service_name)
+    download_freeciv_web_image(image_version)
+    start_freeciv_web_service(image_version)
+    return
 
 
 def build_docker_img():

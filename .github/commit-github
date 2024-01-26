@@ -1,5 +1,6 @@
 #!/bin/bash
-readarray -t link_array < <(jq --compact-output '.[]' .github.link)
+cd ..
+readarray -t link_array < <(jq --compact-output '.[]' .github/.github.link)
 
 function replace_url(){
         for item in "${link_array[@]}"; do
@@ -11,6 +12,7 @@ function replace_url(){
                 fi
         done
 }
+
 function recur(){
         files=`ls $1`
         for file in $files
@@ -29,32 +31,33 @@ function recur(){
 
 timestamp=$(date +%s)
 tmpbranch="tmp"$timestamp
+remote="bigai-ai"
 
 # check github
-if [[ -z `git config --get remote.bigai-ai.url` ]]; then
-        git remote add bigai-ai git@github.com:bigai-ai/civrealm.git
+if [[ -z `git config --get remote.$remote.url` ]]; then
+        git remote add $remote git@github.com:$remote/civrealm.git
 fi
-git pull bigai-ai
+git pull $remote
 
 # push to github
 git checkout dev
-if git apply --check .github.patch; then
+if git apply --check .github/.github.patch; then
         # create tmp branch
         git checkout -b $tmpbranch
         # apply patch
-        git apply .github.patch
+        git apply .github/.github.patch
         # replace url
         recur .
         # commit changes
         git add .
         git commit -m "compatible with github"
         # merge to github
-        git checkout bigai-ai/dev
+        git checkout $remote/dev
         git merge -Xtheirs $tmpbranch
         # push to github
         git add .
         git commit -m "to github"
-        git push bigai-ai HEAD:dev
+        git push $remote HEAD:dev
         # delete tmp branch
         git branch -D $tmpbranch
 fi

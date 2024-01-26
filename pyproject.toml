@@ -1,61 +1,80 @@
 [project]
 name = "civrealm"
-version = "0.1"
-description = "CivRealm is a reinforcement learning environment for the open-source strategy game Freeciv with the Freeciv-web client."
+version = "0.1.2"
+description = "CivRealm is an interactive environment for AI agents for the open-source strategy game Freeciv with the Freeciv-web client."
 authors = [
-    {name = "Chris1869", email = "chris1869@github.com"},
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
     {name = "Shuo Chen", email = "chenshuo@bigai.ai"},
+    {name = "Yexin Li", email = "liyexin@bigai.ai"},
     {name = "Xiangyu Kong", email = "kongxiangyu@bigai.ai"},
+    {name = "Pring Wong", email = "huangping@bigai.ai"},
+    {name = "Bangcheng Yang", email = "yangbangcheng@bigai.ai"},
+    {name = "Chris1869", email = "chris1869@github.com"},
     {name = "Junqi Wang", email = "wangjunqi@bigai.ai"},
     {name = "Yifan Zhong", email = "zhongyifan@bigai.ai"},
     {name = "Zhaowei Zhang", email = "zhangzhaowei@bigai.ai"},
-    {name = "Yexin Li", email = "liyexin@bigai.ai"},
-    {name = "Ping Huang", email = "huangping@bigai.ai"},
-    {name = "Bangcheng Yang", email = "yangbangcheng@bigai.ai"},
     {name = "Xiaoyuan Zhang", email = "zhangxiaoyuan@bigai.ai"},
     {name = "Nian Liu", email = "liunian@bigai.ai"}
 ]
 readme = "README.md"
 license = {text = "GLP3.0"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Programming Language :: Python :: 3",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Games/Entertainment :: Turn Based Strategy",
+    "License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)",
+]
+keywords = ["civrealm", "freeciv", "ai", "reinforcement-learning", "openai-gym"]
 dependencies = [
-    "pyyaml>=5.4.1",
-    "overrides",
-    "wheel",
-    "docker",
-    "urllib3", 
-    "BitVector", 
-    "numpy", 
-    "tornado==6.3.2", 
-    "gymnasium==0.29.1", 
-    "selenium==4.9.1", 
-    "websocket-client",
-    "pytest",
-    "pytest-xdist",
-    "filelock>=3.12.2",
+    'importlib-resources',
+    'pyyaml>=5.4.1',
+    'overrides',
+    'wheel',
+    'docker',
+    'urllib3', 
+    'BitVector', 
+    'numpy', 
+    'tornado==6.3.2', 
+    'gymnasium==0.29.1', 
+    'selenium==4.9.1', 
+    'websocket-client',
+    'filelock>=3.12.2',
+    'matplotlib',
     # The following packages are for parallel training
-    "ray==2.6.3",
-    # The following packages are for the LLM agent
-    "tiktoken",
-    "openai",
-    "langchain",
-    "pinecone-client",
-    "func-timeout",
-    "requests",
-    "ipdb",
-    # The following packages are for the tensor-based agent
-    "torch",
-    "matplotlib"
+    'ray==2.6.3; python_version < "3.12"',
+]
+requires-python = ">= 3.8"
+
+[project.optional-dependencies]
+dev = [
+    'pytest',
+    'pytest-xdist'
 ]
 
 [project.scripts]
 test_civrealm = "civrealm.random_game:main"
-update_freeciv_web_docker = "civrealm.freeciv.build_server:update_docker_image"
+download_freeciv_web_image = "civrealm.freeciv.build_server:download_freeciv_web_image"
+start_freeciv_web_service = "civrealm.freeciv.build_server:start_freeciv_web_service"
+stop_freeciv_web_service = "civrealm.freeciv.build_server:stop_freeciv_web_service"
+build_freeciv_web_service = "civrealm.freeciv.build_server:build_freeciv_web_service"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
+
 
 [project.urls]
 Homepage = "https://github.com/bigai-ai/civrealm"
 Issues = "https://github.com/bigai-ai/civrealm/issues"
+Documentation = "https://bigai-ai.github.io/civrealm/"
+Source = "https://github.com/bigai-ai/civrealm"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+civrealm = ["*.yaml"]
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore::DeprecationWarning", "ignore:.*obs returned by the.*method.*", "ignore:.*Casting input x to numpy array.*"]

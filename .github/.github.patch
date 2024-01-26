@@ -9,19 +9,19 @@ index 0c245e2..35a37bc 100644
 +.github.patch
 +commit-github
 +.github.link
-diff --git a/docker-compose.yml b/docker-compose.yml
-index 8155214..e1ddabc 100644
---- a/docker-compose.yml
-+++ b/docker-compose.yml
-@@ -15,34 +15,6 @@ services:
+
+diff --git a/src/civrealm/configs/docker-compose.yaml b/src/civrealm/configs/docker-compose.yaml
+index 62f114a..1f61e22 100644
+--- a/src/civrealm/configs/docker-compose.yaml
++++ b/src/civrealm/configs/docker-compose.yaml
+@@ -12,30 +12,3 @@ services:
+       - "7000-7009:7000-7009"
        - "8888:8080"
      user: docker
- 
--  # test version compared with v1.4
--  # 1. support build_city ai-assistant;
--  # 2. update diplomacy minigame difficulty;
+-
+-  # test version
 -  freeciv-web-test:
--    image: freeciv/freeciv-web:1.4.3
+-    image: freeciv/freeciv-web:1.4.4
 -    container_name: freeciv-web-test
 -    environment: 
 -      host: civrealm-service.mybigai.ac.cn
@@ -35,7 +35,7 @@ index 8155214..e1ddabc 100644
 -
 -  # dev version
 -  freeciv-web-dev:
--    image: freeciv/freeciv-web:1.4.3
+-    image: freeciv/freeciv-web:1.4.4
 -    container_name: freeciv-web-dev
 -    ports:
 -      - "8680:80"
@@ -45,6 +45,3 @@ index 8155214..e1ddabc 100644
 -      - "9688:8080"
 -    user: docker
 -
- volumes:
-   data:
- 

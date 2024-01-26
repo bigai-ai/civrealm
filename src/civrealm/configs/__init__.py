@@ -16,8 +16,7 @@ import re
 import os
 import argparse
 import yaml
-
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+from importlib_resources import files
 
 
 def boolean_string(s):
@@ -27,16 +26,21 @@ def boolean_string(s):
     return s == 'true'
 
 
+def load_config(config_file):
+    with open(files('civrealm.configs').joinpath(config_file), 'r') as file:
+        config = yaml.safe_load(file)
+    return config
+
+
 def parse_args():
     """
     Initialize default arguments with yaml and renew values with input arguments.
     """
 
-    default_config_file = os.path.normpath(
-        os.path.join(CURRENT_DIR,
-                     '../../../default_settings.yaml'))
+    default_config_file = files('civrealm.configs').joinpath(
+        'default_settings.yaml')
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config_file', help="configuration file *.yml", type=str,
+    parser.add_argument('--config_file', help="configuration file *.yaml", type=str,
                         required=False, default=default_config_file)
     args, remaining_argv = parser.parse_known_args()
 
@@ -68,18 +72,28 @@ def parse_args():
     return vars(args)
 
 
-def parse_fc_web_args(config_file='../../../docker-compose.yml'):
-
-    with open(f'{CURRENT_DIR}/{config_file}', 'r') as file:
-        fc_web_args = yaml.safe_load(file)
+def parse_fc_web_args(docker_compose_file='docker-compose.yaml'):
+    fc_web_args = load_config(docker_compose_file)
 
     service = fc_args['service']
     image = fc_web_args['services'][service]['image']
     host = fc_web_args['services'][service].get('environment', {}).get('host')
     fc_web_args['container'] = fc_web_args['services'][service]['container_name']
 
+    port_map = {}
+    for p_map in fc_web_args['services'][service]['ports']:
+        container_port_set, local_port_set = p_map.split(":")
+        if "-" in  container_port_set:
+            container_start_port, container_end_port = container_port_set.split("-")
+            local_start_port, local_end_port = local_port_set.split("-")
+            for idx in range(int(container_end_port)-int(container_start_port)+1):
+                port_map[int(local_start_port)+idx] = int(container_start_port)+idx
+        else:
+            port_map[int(local_port_set)] = int(container_port_set)
+
     server_port = fc_web_args['services'][service]['ports'][0]
-    connect_port = int(fc_web_args['services'][service]['ports'][2].split(":")[1].split("-")[0])
+    connect_port = int(fc_web_args['services'][service]
+                       ['ports'][2].split(":")[1].split("-")[0])
 
     fc_web_args['tag'] = 'latest'
     fc_web_args['port'] = server_port.split(":")[0]
@@ -91,7 +105,9 @@ def parse_fc_web_args(config_file='../../../docker-compose.yml'):
     if host is not None:
         fc_args['host'] = host
     fc_web_args['image'] = image.split('/')[1]
+    fc_web_args['port_map'] = port_map
     return fc_web_args
+
 
 fc_args = parse_args()
 fc_web_args = parse_fc_web_args()

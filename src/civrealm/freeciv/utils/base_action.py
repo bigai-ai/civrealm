@@ -180,11 +180,13 @@ class ActionList(object):
     def trigger_single_action(self, actor_id, action_id):
         # FIXME: unsed function
         act = self._action_dict[actor_id][action_id]
-        if not self._can_actor_act(actor_id):
-            raise Exception('_can_actor_act error')
+        # if not self._can_actor_act(actor_id):
+        #     raise Exception('_can_actor_act error')
         if act.is_action_valid():
             act.trigger_action(self.ws_client)
             return True
+        print(f"Action {action_id} of {actor_id} is not valid")
+        fc_logger.info(f"Action {action_id} of {actor_id} is not valid")
         return False
 
     def trigger_wanted_actions(self, controller_wants):

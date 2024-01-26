@@ -1,0 +1,14 @@
+version: "3"
+services:
+
+  # stable version
+  freeciv-web:
+    image: freeciv/freeciv-web:latest
+    container_name: freeciv-web
+    ports:
+      - "8080:80"
+      - "4002:4002"
+      - "6000-6009:6000-6009"
+      - "7000-7009:7000-7009"
+      - "8888:8080"
+    user: docker

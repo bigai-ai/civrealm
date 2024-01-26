@@ -166,7 +166,6 @@ class CivMonitor():
             img = img.resize((fc_args['debug.window_size_x'], fc_args['debug.window_size_y']), 
                          Image.Resampling.LANCZOS)
         res = np.asarray(img)
-        print("img shape: ", res.shape)
         return res
 
     def get_webpage_image(self):

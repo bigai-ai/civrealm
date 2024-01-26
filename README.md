@@ -8,7 +8,7 @@
 [[LLM Agents]](https://github.com/bigai-ai/civrealm-llm-baseline)
 [[Tensor Agent]](https://github.com/bigai-ai/civrealm-tensor-baseline)
 
-[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<http://civilization.pages.mybigai.ac.cn/civrealm>)
+[![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<https://bigai-ai.github.io/civrealm>)
 [![PyPI](https://img.shields.io/pypi/v/civrealm)](https://pypi.org/project/civrealm/)
 [![PyPI - Python Version](https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/bigai-ai/civrealm/dev/pyproject.toml)](https://pypi.org/project/civrealm/)
 [![PyPI Status](https://pepy.tech/badge/civrealm)](https://pepy.tech/project/civrealm)
@@ -16,9 +16,9 @@
 
 </div>
 
-CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web), based on [Freeciv](https://www.freeciv.org/), a Civilization-like game. Within CivRealm, we provide interfaces for two typical types of agents: tensor-based reinforcement learning agents (see [Tensor-agent Repo](https://gitlab.mybigai.ac.cn/civilization/freeciv-tensor-baseline)) based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents (see [LLM-agent Repo](http://civilization.pages.mybigai.ac.cn/civrealm)) driven by language models.
+CivRealm is an interactive environment for the open-source strategy game [Freeciv-web](https://github.com/freeciv/freeciv-web), based on [Freeciv](https://www.freeciv.org/), a Civilization-like game. Within CivRealm, we provide interfaces for two typical types of agents: tensor-based reinforcement learning agents (see [Tensor-agent Repo](https://github.com/bigai-ai/civrealm-tensor-baseline)) based on the [Gymnasium](https://gymnasium.farama.org/) API, and language-based agents (see [LLM-agent Repo](https://bigai-ai.github.io/civrealm)) driven by language models.
 
-We also provide a set of tools for training and evaluating agents, as well as a set of baselines for both types of agents. We hope that CivRealm can serve as a testbed for the development and evaluation of agents that can learn and reason in complex environments. Detailed usage of the CivRealm API can be found in the [Documentation](http://civilization.pages.mybigai.ac.cn/civrealm).
+We also provide a set of tools for training and evaluating agents, as well as a set of baselines for both types of agents. We hope that CivRealm can serve as a testbed for the development and evaluation of agents that can learn and reason in complex environments. Detailed usage of the CivRealm API can be found in the [Documentation](https://bigai-ai.github.io/civrealm).
 
 ![Punic War](docs/assets/punic_war_base.jpg)
 

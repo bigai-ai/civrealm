@@ -28,51 +28,56 @@ docker -v
 !!! warning "Do not use the original Freeciv-web"
     Please do NOT use the image built based on the [original Freeciv-web repo](https://github.com/freeciv/freeciv-web). The image has been customize to suit agent training functionalities. The latest commits in that repo might cause compatibility issues.
 
-There are 4 ways to start the customized Freeciv-web: use pull from docker hub, use our pre-built docker image directly or compile the docker image from source code.
+There are 4 ways to download/build the customized Freeciv web image: 1. use CivRealm's built-in commands (recommended), 2. pull from the docker hub, 3. download and load our pre-built docker image, or 4. compile the docker image from source.
 
-### Method 1: Using civrealm's built-in commands (**Recommended**)
+### Method 1: Using CivRealm's built-in commands (**Recommended**)
 
-Remove the existing freeciv-web service as following:
-```bash
-remove_freeciv_web_service
-```
+1. Stop the existing freeciv-web service as follows. You can skip this step if you have not started the freeciv-web service before.
 
-Download the latest freeciv-web image as following:
-```bash
-download_freeciv_web_image
-```
+    ```bash
+    stop_freeciv_web_service
+    ```
+    !!! note "Stop Container"
+        This command keeps the image and only removes the container.
 
-Start the freeciv-web service as following:
-```bash
-start_freeciv_web_service
-```
+2. Download the latest freeciv-web image by the following command. You can skip this step if you have already downloaded the latest image.
 
-To automatically remove the existing freeciv-web service, pull the latest freeciv-web image, and start the freeciv-web service, you can the following command:
-```bash
-build_freeciv_web_service
-```
+    ```bash
+    download_freeciv_web_image
+    ```
+
+3. Start the freeciv-web service by running:
+
+    ```bash
+    start_freeciv_web_service
+    ```
+
+We also provide a command `build_freeciv_web_service` that combines the above three commands for convenience. It automatically remove the existing freeciv-web service, fetch the latest freeciv-web image, and start the freeciv-web service.
 
 ### Method 2: Pull from the Docker Hub
 
-You can pull our pre-built docker image from docker hub. Suppose the image version is named as `VERSION`.
+You can pull our pre-built docker image from the docker hub. Assume the image version is named `VERSION'.
 
 1. Pull the docker image to your local machine:
-```bash
-docker pull civrealm/freeciv-web:VERSION
-```
+
+    ```bash
+    docker pull civrealm/freeciv-web:VERSION
+    ```
 
 2. Tag the docker image:
-```bash
-docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
-```
 
-3. Run the following command to clone Civrealm repo, and
-build freeciv-web service from Docker:
-```bash
-git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
-cd civrealm/src/civrealm/configs
-docker compose up -d freeciv-web
-```
+    ```bash
+    docker tag civrealm/freeciv-web:VERSION freeciv/freeciv-web:VERSION
+    ```
+
+3. Run the following command to clone the civrealm repo and build the
+freeciv-web service from Docker:
+
+    ```bash
+    git clone https://gitlab.mybigai.ac.cn/civilization/civrealm.git civrealm
+    cd civrealm/src/civrealm/configs
+    docker compose up -d freeciv-web
+    ```
 
 !!! tip "Docker permission"
     If the docker command complains about the sudo permission, please follow the instruction [here](https://askubuntu.com/questions/477551/how-can-i-use-docker-without-sudo).
@@ -83,18 +88,19 @@ docker compose up -d freeciv-web
 !!! success "Freeciv-Web Service"
     After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
 
-### Method 3: Use the Docker Image Directly
+### Method 3: Download and Load the Docker Image
 
 You can use our pre-built docker image file to directly start the Freeciv-web server, the steps are as follows:
 
 1. Download our customized docker image from <a href="../releases/releases.html">here</a>. Suppose the downloaded image file is named as `IMAGE_FILE_NAME`.
 
 2. Run the following command to load the downloaded docker image from the image file directory:
+
 ```bash
 docker load -i IMAGE_FILE_NAME
 ```
 
-3. Follow the step 3 of Method 2 to compose up service.
+3. Follow the step 3 of Method 2 to compose the docker service service.
 
 ### Method 4: Compile the Docker Image from Source Code
 

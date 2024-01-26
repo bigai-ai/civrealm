@@ -25,6 +25,7 @@ docker_image_name = 'freeciv-web'
 def run_bash_command(cmd):
     subprocess.call(cmd, shell=True, executable='/bin/bash')
 
+
 def check_container_exists(service_name=fc_args['service']):
     try:
         result = subprocess.run(
@@ -42,6 +43,7 @@ def check_container_exists(service_name=fc_args['service']):
         print(f"An error occurred while checking for container: {e.stderr}")
         return False
 
+
 def download_freeciv_web_image(image_version='latest'):
     # pull image
     pull_command = f"docker pull civrealm/freeciv-web:{image_version}"
@@ -53,15 +55,16 @@ def download_freeciv_web_image(image_version='latest'):
 
     return
 
-def remove_freeciv_web_service(service_name=fc_args['service']):
+
+def stop_freeciv_web_service(service_name=fc_args['service']):
     if check_container_exists(service_name):
         print(f"Stop service container: {service_name}")
         stop_service_command = f"docker stop {service_name}"
         subprocess.run(stop_service_command, shell=True, check=True)
     return
 
+
 def start_freeciv_web_service(image_version='latest'):
-    """ Coding by AI. """
     client = docker.from_env()
 
     # start container
@@ -82,11 +85,13 @@ def start_freeciv_web_service(image_version='latest'):
     client.close()
     return
 
+
 def build_freeciv_web_service(service_name=fc_args['service'], image_version='latest'):
-    remove_freeciv_web_service(service_name)
+    stop_freeciv_web_service(service_name)
     download_freeciv_web_image(image_version)
     start_freeciv_web_service(image_version)
     return
+
 
 def build_docker_img():
     client = docker.from_env()

@@ -18,7 +18,13 @@ conda activate civrealm
 
 ## Installation
 
-Clone the CivRealm repository from GitHub and enter the directory. Then
+You can install the CivRealm stable version by:
+
+```bash
+pip install civrealm
+```
+
+For CivRealm developers, clone the CivRealm repository from GitHub and enter the directory. Then
 install through pip with the source code in the CivRealm folder:
 
 ```bash
@@ -27,6 +33,14 @@ pip install -e .
 ```
 
 ## Test the Installation
+
+Before testing the installation, please make sure that the freeciv-web service is running. You can check the status of the freeciv-web service by running:
+
+```bash
+docker ps
+```
+
+You should see a docker container named `freeciv-web` running.
 
 ### Single-Player Mode (Against Built-in AIs)
 

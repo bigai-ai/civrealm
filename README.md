@@ -2,16 +2,16 @@
 
 <div align="center">
 
-[[Arxiv Paper]](https://arxiv.org/abs/2401.10568)
+[[Arxiv]](https://arxiv.org/abs/2401.10568)
 [[PDF]](https://arxiv.org/pdf/2401.10568.pdf)
 [[Docs]](https://bigai-ai.github.io/civrealm/)
 [[LLM Agents]](https://github.com/bigai-ai/civrealm-llm-baseline)
 [[Tensor Agent]](https://github.com/bigai-ai/civrealm-tensor-baseline)
 
 [![Documentation Status](https://readthedocs.org/projects/openreview-py/badge/?version=latest)](<http://civilization.pages.mybigai.ac.cn/civrealm>)
-<!-- [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/civrealm)](https://pypi.org/project/civrealm/) -->
-<!-- [![PyPI](https://img.shields.io/pypi/v/civrealm)](https://pypi.org/project/civrealm/) -->
-<!-- [![PyPI Status](https://pepy.tech/badge/civrealm)](https://pepy.tech/project/civrealm) -->
+[![PyPI](https://img.shields.io/pypi/v/civrealm)](https://pypi.org/project/civrealm/)
+[![PyPI - Python Version](https://img.shields.io/python/required-version-toml?tomlFilePath=https://raw.githubusercontent.com/bigai-ai/civrealm/dev/pyproject.toml)](https://pypi.org/project/civrealm/)
+[![PyPI Status](https://pepy.tech/badge/civrealm)](https://pepy.tech/project/civrealm)
 [![GitHub license](https://img.shields.io/github/license/bigai-ai/civrealm)](https://github.com/bigai-ai/civrealm/blob/main/LICENSE)
 
 </div>
@@ -40,15 +40,15 @@ In the future, CivRealm will be maintained by [BIGAI](https://www.bigai.ai/).
 
 ## Prerequisites
 
-CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 20.04 and Mac OS X. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <https://gitlab.mybigai.ac.cn/civilization/freeciv-web.git>.
+CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 22.04, Mac OS X, and Windows. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <https://gitlab.mybigai.ac.cn/civilization/freeciv-web.git>.
 
 ## Installation
 
-<!-- Installing the CivRealm stable version is as simple as:
+You can install the CivRealm stable version by:
 
 ```bash
 pip install civrealm
-``` -->
+```
 
 To install the latest version from the source code or contribute to the project, please follow the instructions below:
 
@@ -83,6 +83,14 @@ docker compose up -d
 -->
 
 ## Testing the Installation
+
+Before testing the installation, please make sure that the freeciv-web service is running. You can check the status of the freeciv-web service by running:
+
+```bash
+docker ps
+```
+
+You should see a docker container named `freeciv-web` running.
 
 ### Single player mode (against built-in AIs)
 

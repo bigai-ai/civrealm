@@ -1,6 +1,6 @@
 [project]
 name = "civrealm"
-version = "0.1.1"
+version = "0.1.2"
 description = "CivRealm is an interactive environment for AI agents for the open-source strategy game Freeciv with the Freeciv-web client."
 authors = [
     {name = "Siyuan Qi", email = "syqi@bigai.ai"},
@@ -59,7 +59,7 @@ dev = [
 test_civrealm = "civrealm.random_game:main"
 download_freeciv_web_image = "civrealm.freeciv.build_server:download_freeciv_web_image"
 start_freeciv_web_service = "civrealm.freeciv.build_server:start_freeciv_web_service"
-remove_freeciv_web_service = "civrealm.freeciv.build_server:remove_freeciv_web_service"
+stop_freeciv_web_service = "civrealm.freeciv.build_server:stop_freeciv_web_service"
 build_freeciv_web_service = "civrealm.freeciv.build_server:build_freeciv_web_service"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
 

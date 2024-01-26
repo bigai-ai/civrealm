@@ -25,21 +25,44 @@ docker_image_name = 'freeciv-web'
 def run_bash_command(cmd):
     subprocess.call(cmd, shell=True, executable='/bin/bash')
 
-def build_freeciv_web_service(image_version='latest'):
-    """ Coding by AI. """
-    client = docker.from_env()
-
-    # pull image
+def check_container_exists(service_name=fc_args['service']):
     try:
-        client.images.pull(f'civrealm/{docker_image_name}', tag=image_version)
-    except docker.errors.ImageNotFound:
-        print(f"Image civrealm/{docker_image_name}:{image_version} not found.")
+        result = subprocess.run(
+            ['docker', 'ps', '--format={{.Names}}'],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
+        )
+
+        if service_name in result.stdout.split("\n"):
+            return True
+        return False
+
+    except subprocess.CalledProcessError as e:
+        print(f"An error occurred while checking for container: {e.stderr}")
+        return False
+
+def download_freeciv_web_image(image_version='latest'):
+    # pull image
+    pull_command = f"docker pull civrealm/freeciv-web:{image_version}"
+    subprocess.run(pull_command, shell=True, check=True)
 
     # rename image
-    try:
-        client.images.get(f'civrealm/{docker_image_name}:' + image_version).tag(f'freeciv/{docker_image_name}:{image_version}')
-    except docker.errors.ImageNotFound:
-        print(f"Image civrealm/{docker_image_name}:{image_version} not found, cannot tag.")
+    tag_command = f"docker tag civrealm/freeciv-web:{image_version} freeciv/freeciv-web:{image_version}"
+    subprocess.run(tag_command, shell=True, check=True)
+
+    return
+
+def remove_freeciv_web_service(service_name=fc_args['service']):
+    if check_container_exists(service_name):
+        print(f"Stop service container: {service_name}")
+        stop_service_command = f"docker stop {service_name}"
+        subprocess.run(stop_service_command, shell=True, check=True)
+    return
+
+def start_freeciv_web_service(image_version='latest'):
+    """ Coding by AI. """
+    client = docker.from_env()
 
     # start container
     try:
@@ -55,6 +78,14 @@ def build_freeciv_web_service(image_version='latest'):
         print(f"Container {container.id} is running.")
     except docker.errors.ContainerError as e:
         print(f"Failed to start container: {e}")
+
+    client.close()
+    return
+
+def build_freeciv_web_service(service_name=fc_args['service'], image_version='latest'):
+    remove_freeciv_web_service(service_name)
+    download_freeciv_web_image(image_version)
+    start_freeciv_web_service(image_version)
     return
 
 def build_docker_img():

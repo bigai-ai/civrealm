@@ -57,6 +57,9 @@ dev = [
 
 [project.scripts]
 test_civrealm = "civrealm.random_game:main"
+download_freeciv_web_image = "civrealm.freeciv.build_server:download_freeciv_web_image"
+start_freeciv_web_service = "civrealm.freeciv.build_server:start_freeciv_web_service"
+remove_freeciv_web_service = "civrealm.freeciv.build_server:remove_freeciv_web_service"
 build_freeciv_web_service = "civrealm.freeciv.build_server:build_freeciv_web_service"
 update_javascript_for_clean_screenshot = "civrealm.freeciv.build_server:update_javascript_for_clean_screenshot"
 

@@ -34,7 +34,7 @@ elif docker_image_name.startswith('fciv-net'):
     tomcat_dir = 'tomcat9'
 else:
     raise ValueError(f'Unknown docker image name: {docker_image_name}')
-
+# test anything
 # try:
 #     if fc_args['host'] == 'localhost':
 #         s = subprocess.check_output('docker ps', shell=True)

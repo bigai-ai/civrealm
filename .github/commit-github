@@ -40,25 +40,13 @@ fi
 git pull $remote
 
 # push to github
-git checkout dev
-if git apply --check .github/.github.patch; then
-        # create tmp branch
-        git checkout -b $tmpbranch
-        # apply patch
-        git apply .github/.github.patch
-        # replace url
-        recur .
-        # commit changes
-        git add .
-        git commit -m "compatible with github"
-        # merge to github
-        git checkout $remote/dev
-        git merge -Xtheirs $tmpbranch
-        # push to github
-        git add .
-        git commit -m "to github"
-        git push $remote HEAD:dev
-        # delete tmp branch
-        git branch -D $tmpbranch
-fi
+git checkout $remote/dev
+git merge -Xtheirs dev
+#if git apply --check .github/.github.patch; then
+ #       git apply .github/.github.patch
+#fi
+recur .
+git add .
+git commit -m "update link"
+git push -u $remote HEAD:dev
 git checkout dev

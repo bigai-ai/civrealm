@@ -23,5 +23,10 @@
         "key": "civrealm-sav",
         "gitlab": "https://gitlab.mybigai.ac.cn/civilization/freeciv-sav",
         "github": "https://github.com/bigai-ai/civrealm-sav"
+    },
+    {
+        "key": "civrealm-ssh",
+        "gitlab": "ssh://git@gitlab.mybigai.ac.cn:2222/civilization/civrealm.git",
+        "github": "git@github.com:bigai-ai/civrealm.git"
     }
 ]

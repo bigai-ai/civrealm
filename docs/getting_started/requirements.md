@@ -74,7 +74,7 @@ You can pull our pre-built docker image from the docker hub. Assume the image ve
 freeciv-web service from Docker:
 
     ```bash
-    git clone https://github.com/bigai-ai/civrealm.git civrealm
+    git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/civrealm.git civrealm
     cd civrealm/src/civrealm/configs
     docker compose up -d freeciv-web
     ```
@@ -100,7 +100,7 @@ You can use our pre-built docker image file to directly start the Freeciv-web se
 docker load -i IMAGE_FILE_NAME
 ```
 
-3. Follow the step 3 of Method 2 to compose the docker service service.
+3. Follow the step 3 of Method 2 to start the docker service.
 
 ### Method 4: Compile the Docker Image from Source Code
 

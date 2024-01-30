@@ -36,15 +36,15 @@ We also provide a set of tools for training and evaluating agents, as well as a 
 ## About
 
 CivRealm is developed based on [freeciv-bot](https://github.com/chris1869/freeciv-bot), dependent on [freeciv-web](<https://github.com/freeciv/freeciv-web>) and [FCIV-NET](<https://github.com/fciv-net/fciv-net>).
-In the future, CivRealm will be maintained by [BIGAI](https://www.bigai.ai/).
+In the future, CivRealm will be maintained by BIGAI.
 
 ## Prerequisites
 
-CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 22.04, Mac OS X, and Windows. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <http://civilization.pages.mybigai.ac.cn/civrealm/getting_started/requirements.htmlt>.
+CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 22.04, Mac OS X, and Windows. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <http://civilization.pages.mybigai.ac.cn/civrealm/getting_started/requirements.html>.
 
 ## Installation
 
-You can install the CivRealm stable version by:
+You can install the stable version of CivRealm by:
 
 ```bash
 pip install civrealm
@@ -139,16 +139,6 @@ The following are some common issues that you may encounter when running the cod
     ```bash
     127.0.0.1 maxcdn.bootstrapcdn.com
     127.0.0.1 cdn.webglstats.com
-    ```
-
-- If you encounter the following error when running `sudo civ_prep_selenium.sh`, please try [this solution](https://unix.stackexchange.com/questions/724518/the-following-packages-have-unmet-dependencies-containerd-io).
-
-    ```bash
-    ...
-    The following packages have unmet dependencies:
-    containerd.io : Conflicts: containerd
-                    Conflicts: runc
-    ...
     ```
 
 - If you see the following error when running `test_civrealm`,  please see [this solution](https://stackoverflow.com/questions/72405117/selenium-geckodriver-profile-missing-your-firefox-profile-cannot-be-loaded). If this does not solve the problem, please check `geckodriver.log` for more information.

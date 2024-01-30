@@ -40,7 +40,7 @@ In the future, CivRealm will be maintained by BIGAI.
 
 ## Prerequisites
 
-CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 22.04, Mac OS X, and Windows. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <http://civilization.pages.mybigai.ac.cn/civrealm/getting_started/requirements.html>.
+CivRealm requires Python `≥ 3.8` and docker. We have tested on Ubuntu 22.04, Mac OS X, and Windows. To test CivRealm on <http://localhost>, please follow the docker installation instructions on <https://bigai-ai.github.io/civrealm/getting_started/requirements.html>.
 
 ## Installation
 

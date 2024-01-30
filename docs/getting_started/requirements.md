@@ -74,7 +74,7 @@ You can pull our pre-built docker image from the docker hub. Assume the image ve
 freeciv-web service from Docker:
 
     ```bash
-    git clone ssh://git@gitlab.mybigai.ac.cn:2222/civilization/civrealm.git civrealm
+    git clone git@github.com:bigai-ai/civrealm.git civrealm
     cd civrealm/src/civrealm/configs
     docker compose up -d freeciv-web
     ```

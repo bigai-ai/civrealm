@@ -47,6 +47,6 @@ git merge -Xtheirs dev
 #fi
 recur .
 git add .
-git commit -m "update link"
+git commit -m "Update docs."
 git push -u $remote HEAD:dev
 git checkout dev

@@ -30,6 +30,9 @@ docker -v
 
 There are 4 ways to download/build the customized Freeciv web image: 1. use CivRealm's built-in commands (recommended), 2. pull from the docker hub, 3. download and load our pre-built docker image, or 4. compile the docker image from source.
 
+!!! success "Freeciv-Web Service"
+    After starting the Freeciv-web service, you can connect to the Freeciv-web server via the host machine <a href="http://localhost:8080/">localhost:8080</a> using a standard browser.
+
 ### Method 1: Using CivRealm's built-in commands (**Recommended**)
 
 1. Stop the existing freeciv-web service as follows. You can skip this step if you have not started the freeciv-web service before.
@@ -37,6 +40,7 @@ There are 4 ways to download/build the customized Freeciv web image: 1. use CivR
     ```bash
     stop_freeciv_web_service
     ```
+
     !!! note "Stop Container"
         This command keeps the image and only removes the container.
 
@@ -84,9 +88,6 @@ freeciv-web service from Docker:
 
 !!! tip "command not found: docker compose"
     If the `docker compose` command is not found, please make sure that you have installed the docker version >= `24.0.6`.
-
-!!! success "Freeciv-Web Service"
-    After completing the above steps successfully, the freeciv-web service is started. You can connect to docker via host machine <a href="http://localhost:8080/">localhost:8080</a> using standard browser in general.
 
 ### Method 3: Download and Load the Docker Image
 

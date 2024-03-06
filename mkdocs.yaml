@@ -1,5 +1,5 @@
-site_name: CivRealm
-repo_url: https://github.com/bigai-ai/civrealm
+site_name: CivRealm Documentation
+repo_url: https://gitlab.mybigai.ac.cn/civilization/civrealm
 repo_name: civilization/civrealm
 copyright: Copyright &copy; 2023 BIGAI
 site_dir: public
@@ -79,14 +79,14 @@ nav:
       - Game:
           - Game Settings: advanced_materials/game_settings.md
           - Full-Game:
-            - Usage: advanced_materials/fullgame_usage.md
-            - General Description: advanced_materials/fullgame_description.md
-            - Observation Details: advanced_materials/fullgame_observation.md
-            - Action Details: advanced_materials/fullgame_action.md
-          - Mini-Game: 
-            - Usage: advanced_materials/minigame_usage.md
-            - Setting: advanced_materials/minigame_setting.md
-            - Create Minigame: advanced_materials/minigame_create.md
+              - Usage: advanced_materials/fullgame_usage.md
+              - General Description: advanced_materials/fullgame_description.md
+              - Observation Details: advanced_materials/fullgame_observation.md
+              - Action Details: advanced_materials/fullgame_action.md
+          - Mini-Game:
+              - Usage: advanced_materials/minigame_usage.md
+              - Setting: advanced_materials/minigame_setting.md
+              - Create Minigame: advanced_materials/minigame_create.md
       - Agent:
           - Tensor Agent: advanced_materials/tensor_agent.md
           - LLM Agent: advanced_materials/llm_agent.md

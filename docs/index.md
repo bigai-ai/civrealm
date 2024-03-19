@@ -1,3 +1,7 @@
+---
+description: CivRealm is an interactive environment for the open-source strategy game.
+---
+
 # *CivRealm*: A Learning and Reasoning Odyssey in *Civilization* for Decision-Making Agents
 
 ![Punic War](assets/punic_war_base.jpg)

@@ -1,0 +1,2299 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="minigame_create.html">
+      
+      
+        <link rel="next" href="llm_agent.html">
+      
+      
+      <link rel="icon" href="../assets/logo-64.png">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.14">
+    
+    
+      
+        <title>Tensor Agent - CivRealm Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.10ba22f1.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+  
+  
+  
+  
+  <style>:root{--md-annotation-icon:url('data:image/svg+xml;charset=utf-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 12a10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2a10 10 0 0 1 10 10M6 13h8l-3.5 3.5 1.42 1.42L17.84 12l-5.92-5.92L10.5 7.5 14 11H6v2Z"/></svg>');}</style>
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../css/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="bigai" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#tensor-agent" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../index.html" title="CivRealm Documentation" class="md-header__button md-logo" aria-label="CivRealm Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo-h48.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            CivRealm Documentation
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Tensor Agent
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+    
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bigai-ai/civrealm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="m503.5 204.6-.7-1.8-69.7-181.78c-1.4-3.57-3.9-6.59-7.2-8.64-2.4-1.55-5.1-2.515-8-2.81-2.9-.295-5.7.083-8.4 1.11-2.7 1.02-5.1 2.66-7.1 4.78-1.9 2.12-3.3 4.67-4.1 7.44l-47 144H160.8l-47.1-144c-.8-2.77-2.2-5.31-4.1-7.43-2-2.12-4.4-3.75-7.1-4.77a18.1 18.1 0 0 0-8.38-1.113 18.4 18.4 0 0 0-8.04 2.793 18.09 18.09 0 0 0-7.16 8.64L9.267 202.8l-.724 1.8a129.57 129.57 0 0 0-3.52 82c7.747 26.9 24.047 50.7 46.447 67.6l.27.2.59.4 105.97 79.5 52.6 39.7 32 24.2c3.7 1.9 8.3 4.3 13 4.3 4.7 0 9.3-2.4 13-4.3l32-24.2 52.6-39.7 106.7-79.9.3-.3c22.4-16.9 38.7-40.6 45.6-67.5 8.6-27 7.4-55.8-2.6-82z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    civilization/civrealm
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../index.html" class="md-tabs__link">
+        
+  
+    
+  
+  Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../getting_started/requirements.html" class="md-tabs__link">
+          
+  
+    
+  
+  Getting Started
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+    
+  
+  
+    
+    
+      
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="game_settings.html" class="md-tabs__link">
+          
+  
+    
+  
+  Advanced Materials
+
+        </a>
+      </li>
+    
+  
+
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../api_reference/environments.html" class="md-tabs__link">
+          
+  
+    
+  
+  API Reference
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../releases/releases.html" class="md-tabs__link">
+        
+  
+    
+  
+  Releases
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../notes/contribute.html" class="md-tabs__link">
+          
+  
+    
+  
+  Notes
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../misc/faq.html" class="md-tabs__link">
+          
+  
+    
+  
+  Misc
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../index.html" title="CivRealm Documentation" class="md-nav__button md-logo" aria-label="CivRealm Documentation" data-md-component="logo">
+      
+  <img src="../assets/logo-h48.png" alt="logo">
+
+    </a>
+    CivRealm Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bigai-ai/civrealm" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc.--><path d="m503.5 204.6-.7-1.8-69.7-181.78c-1.4-3.57-3.9-6.59-7.2-8.64-2.4-1.55-5.1-2.515-8-2.81-2.9-.295-5.7.083-8.4 1.11-2.7 1.02-5.1 2.66-7.1 4.78-1.9 2.12-3.3 4.67-4.1 7.44l-47 144H160.8l-47.1-144c-.8-2.77-2.2-5.31-4.1-7.43-2-2.12-4.4-3.75-7.1-4.77a18.1 18.1 0 0 0-8.38-1.113 18.4 18.4 0 0 0-8.04 2.793 18.09 18.09 0 0 0-7.16 8.64L9.267 202.8l-.724 1.8a129.57 129.57 0 0 0-3.52 82c7.747 26.9 24.047 50.7 46.447 67.6l.27.2.59.4 105.97 79.5 52.6 39.7 32 24.2c3.7 1.9 8.3 4.3 13 4.3 4.7 0 9.3-2.4 13-4.3l32-24.2 52.6-39.7 106.7-79.9.3-.3c22.4-16.9 38.7-40.6 45.6-67.5 8.6-27 7.4-55.8-2.6-82z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    civilization/civrealm
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Getting Started
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Getting Started
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_1" id="__nav_2_1_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Install and Setup
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_1">
+            <span class="md-nav__icon md-icon"></span>
+            Install and Setup
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/requirements.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Requirements
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/installation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Installation
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2_2" id="__nav_2_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Quick Start
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_2_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2_2">
+            <span class="md-nav__icon md-icon"></span>
+            Quick Start
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/basic_usage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Basic Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/first_agent.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Your First Agent
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/visualization.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Visualization
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started/trouble_shooting.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Trouble Shooting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Advanced Materials
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Advanced Materials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1" id="__nav_3_1_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Game
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1">
+            <span class="md-nav__icon md-icon"></span>
+            Game
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="game_settings.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Game Settings
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_2" id="__nav_3_1_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Full-Game
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_2">
+            <span class="md-nav__icon md-icon"></span>
+            Full-Game
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="fullgame_usage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="fullgame_description.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    General Description
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="fullgame_observation.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Observation Details
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="fullgame_action.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Action Details
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_1_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_1_3" id="__nav_3_1_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Mini-Game
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            Mini-Game
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="minigame_usage.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Usage
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="minigame_setting.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Setting
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="minigame_create.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Create Minigame
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3_2" id="__nav_3_2_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Agent
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3_2">
+            <span class="md-nav__icon md-icon"></span>
+            Agent
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Tensor Agent
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="tensor_agent.html" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Tensor Agent
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#civrealm-tensor-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌏 Civrealm Tensor Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌏 Civrealm Tensor Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-architecture-for-a-tensor-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤖 Network Architecture for a Tensor Agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-civrealm-tensor-baseline-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏃 Using civrealm-tensor-baseline Repository
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏃 Using civrealm-tensor-baseline Repository">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏌️ Getting Started
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runner-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runner Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="llm_agent.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    LLM Agent
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="">
+            
+  
+  <span class="md-ellipsis">
+    Train Scheme
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3_3">
+            <span class="md-nav__icon md-icon"></span>
+            Train Scheme
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="parallel_training.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Parallel Training
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="architecture.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Architecture
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    API Reference
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/environments.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Environments
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/wrappers.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Wrappers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../api_reference/observations.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Observations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../releases/releases.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Releases
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Notes
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Notes
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notes/contribute.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Contribute To CivRealm
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../notes/benchmarks.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Performance Benchmarks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Misc
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            Misc
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../misc/faq.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../misc/resources.html" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Resources
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#civrealm-tensor-environment" class="md-nav__link">
+    <span class="md-ellipsis">
+      🌏 Civrealm Tensor Environment
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🌏 Civrealm Tensor Environment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      Quick Start
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#observation" class="md-nav__link">
+    <span class="md-ellipsis">
+      Observation
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#action" class="md-nav__link">
+    <span class="md-ellipsis">
+      Action
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#network-architecture-for-a-tensor-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      🤖 Network Architecture for a Tensor Agent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-civrealm-tensor-baseline-repository" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏃 Using civrealm-tensor-baseline Repository
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="🏃 Using civrealm-tensor-baseline Repository">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      🏌️ Getting Started
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runner-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Runner Configuration
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#conclusion" class="md-nav__link">
+    <span class="md-ellipsis">
+      Conclusion
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="tensor-agent">Tensor Agent</h1>
+<p>Welcome to Civrealm Tensor Agent!
+This documentation will guide you through the process of training tensor-based agents,
+specifically using the Proximal Policy Optimization (PPO), in the Civrealm Environment.
+We will first provide an overview of the Civrealm Tensor Env,
+followed by instructions on how to use the civrealm-tensor-baseline repository
+to train a PPO agent on this environment.</p>
+<h2 id="civrealm-tensor-environment">🌏 Civrealm Tensor Environment</h2>
+<p>The Civrealm Tensor Environment is a reinforcement learning environment wrapped
+upon Civrealm Base Env specifically designed for training agents using tensor-based algorithms.
+This environment</p>
+<ul>
+<li>offer immutable spaces for mutable observation and actions,</li>
+<li>provides flattened, tensorized observation and action spaces,</li>
+<li>restrict available actions in order to reduce meaningless actions,</li>
+<li>offers delta game score as a basic reward for RL agents,</li>
+<li>provide parallel environments with batched inputs and outputs for efficient training,</li>
+</ul>
+<p>and various modular wrappers which are open to customize your own environment.</p>
+<h3 id="quick-start">Quick Start</h3>
+<p>Start a single FreecivTensor environment :</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;freeciv/FreecivTensor-v0&quot;</span><span class="p">,</span> <span class="n">client_port</span><span class="o">=</span><span class="n">Ports</span><span class="o">.</span><span class="n">get</span><span class="p">())</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</span></code></pre></div>
+<p>Start a parallel tensor environment with 8 parallel FreecivTensor envs:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># Training Fullgame</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">env</span> <span class="o">=</span> <span class="n">gymnasium</span><span class="o">.</span><span class="n">make</span><span class="p">(</span><span class="s2">&quot;civtensor/TensorBaselineEnv-v0&quot;</span><span class="p">,</span> <span class="n">parallel_number</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;fullgame&quot;</span><span class="p">)</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># Training Minitasks</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># env = gymnasium.make(&quot;civtensor/TensorBaselineEnv-v0&quot;, parallel_number=8,task=&quot;development_build_city normal&quot;)</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">obs</span><span class="p">,</span> <span class="n">info</span> <span class="o">=</span> <span class="n">env</span><span class="o">.</span><span class="n">reset</span><span class="p">()</span>
+</span></code></pre></div>
+<h3 id="observation">Observation</h3>
+<p>The observation space is a gymnasium.Dict() consisting of 9 subspaces with keys listed below.</p>
+<p>Observations can be immutable and mutable.</p>
+<p><strong>Immutable Obs</strong>: <code>map</code>, <code>player</code>, <code>rules</code>.</p>
+<p>hey have fixed dimensions through the game-play.</p>
+<details class="- note">
+<summary>Immutable Observations</summary>
+<p><table> <thead> <tr> <th bgcolor="Lavender"><b>Immutables</b></th> <th bgcolor="Lavender"><b>Field</b></th> <th bgcolor="Lavender"><b>Dimension</b></th> </tr> </thead> <tr> <th rowspan="1">rules</th> <td>build_cost</td> <td>(120,)</td> </tr> <tr> <th rowspan="8">map</th> <td>status</td> <td>(84, 56, 3)</td> </tr> <tr> <td>terrain</td> <td>(84, 56, 14)</td> </tr> <tr> <td>extras</td> <td>(84, 56, 34)</td> </tr> <tr> <td>output</td> <td>(84, 56, 6)</td> </tr> <tr> <td>tile_owner</td> <td>(84, 56, 1)</td> </tr> <tr> <td>city_owner</td> <td>(84, 56, 1)</td> </tr> <tr> <td>unit</td> <td>(84, 56, 52)</td> </tr> <tr> <td>unit_owner</td> <td>(84, 56, 1)</td> </tr> <tr> <th rowspan="16">player</th> <td>score</td> <td>(1,)</td> </tr> <tr> <td>is_alive</td> <td>(1,)</td> </tr> <tr> <td>turns_alive</td> <td>(1,)</td> </tr> <tr> <td>government</td> <td>(6,)</td> </tr> <tr> <td>target_government</td> <td>(7,)</td> </tr> <tr> <td>tax</td> <td>(1,)</td> </tr> <tr> <td>science</td> <td>(1,)</td> </tr> <tr> <td>luxury</td> <td>(1,)</td> </tr> <tr> <td>gold</td> <td>(1,)</td> </tr> <tr> <td>culture</td> <td>(1,)</td> </tr> <tr> <td>revolution_finishes</td> <td>(1,)</td> </tr> <tr> <td>science_cost</td> <td>(1,)</td> </tr> <tr> <td>tech_upkeep</td> <td>(1,)</td> </tr> <tr> <td>techs_researched</td> <td>(1,)</td> </tr> <tr> <td>total_bulbs_prod</td> <td>(1,)</td> </tr> <tr> <td>techs</td> <td>(87,)</td> </tr> </table></p>
+</details>
+<p><strong>Mutable Obs</strong>: <code>unit</code>, <code>city</code>, <code>others_unit</code>, <code>others_city</code>, <code>others_player</code>, <code>dipl</code>.</p>
+<p>The number of units, cities, and other mutable observations are constantly changing.
+Nevertheless, we truncate or pad mutable entities to a fixed size.</p>
+<table>
+<thead>
+<tr>
+<th>Mutables</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>unit</td>
+<td>128</td>
+</tr>
+<tr>
+<td>city</td>
+<td>32</td>
+</tr>
+<tr>
+<td>others_unit</td>
+<td>128</td>
+</tr>
+<tr>
+<td>others_city</td>
+<td>64</td>
+</tr>
+<tr>
+<td>others_player</td>
+<td>10</td>
+</tr>
+<tr>
+<td>dipl</td>
+<td>10</td>
+</tr>
+</tbody>
+</table>
+<details class="- note">
+<summary>Mutable Observations for a Single Entity</summary>
+<p><table><thead> <tr> <th bgcolor="Lavender">Mutables</th> <th bgcolor="Lavender">Field</th> <th bgcolor="Lavender">Dimension per Entity</th> </tr> </thead> <tr> <th rowspan="37">city</th> <td>owner</td> <td>(1,)</td> </tr> <tr> <td>size</td> <td>(1,)</td> </tr> <tr> <td>x</td> <td>(1,)</td> </tr> <tr> <td>y</td> <td>(1,)</td> </tr> <tr> <td>food_stock</td> <td>(1,)</td> </tr> <tr> <td>granary_size</td> <td>(1,)</td> </tr> <tr> <td>granary_turns</td> <td>(1,)</td> </tr> <tr> <td>production_value</td> <td>(120,)</td> </tr> <tr> <td>city_radius_sq</td> <td>(1,)</td> </tr> <tr> <td>buy_cost</td> <td>(1,)</td> </tr> <tr> <td>shield_stock</td> <td>(1,)</td> </tr> <tr> <td>disbanded_shields</td> <td>(1,)</td> </tr> <tr> <td>caravan_shields</td> <td>(1,)</td> </tr> <tr> <td>last_turns_shield_surplus</td> <td>(1,)</td> </tr> <tr> <td>improvements</td> <td>(68,)</td> </tr> <tr> <td>luxury</td> <td>(1,)</td> </tr> <tr> <td>science</td> <td>(1,)</td> </tr> <tr> <td>prod_food</td> <td>(1,)</td> </tr> <tr> <td>surplus_food</td> <td>(1,)</td> </tr> <tr> <td>prod_gold</td> <td>(1,)</td> </tr> <tr> <td>surplus_gold</td> <td>(1,)</td> </tr> <tr> <td>prod_shield</td> <td>(1,)</td> </tr> <tr> <td>surplus_shield</td> <td>(1,)</td> </tr> <tr> <td>prod_trade</td> <td>(1,)</td> </tr> <tr> <td>surplus_trade</td> <td>(1,)</td> </tr> <tr> <td>bulbs</td> <td>(1,)</td> </tr> <tr> <td>city_waste</td> <td>(1,)</td> </tr> <tr> <td>city_corruption</td> <td>(1,)</td> </tr> <tr> <td>city_pollution</td> <td>(1,)</td> </tr> <tr> <td>state</td> <td>(5,)</td> </tr> <tr> <td>turns_to_prod_complete</td> <td>(1,)</td> </tr> <tr> <td>prod_process</td> <td>(1,)</td> </tr> <tr> <td>ppl_angry</td> <td>(6,)</td> </tr> <tr> <td>ppl_unhappy</td> <td>(6,)</td> </tr> <tr> <td>ppl_content</td> <td>(6,)</td> </tr> <tr> <td>ppl_happy</td> <td>(6,)</td> </tr> <tr> <td>before_change_shields</td> <td>(1,)</td> </tr> <tr> <th rowspan="22">unit</th> <td>owner</td> <td>(1,)</td> </tr> <tr> <td>health</td> <td>(1,)</td> </tr> <tr> <td>veteran</td> <td>(1,)</td> </tr> <tr> <td>x</td> <td>(1,)</td> </tr> <tr> <td>y</td> <td>(1,)</td> </tr> <tr> <td>type_rule_name</td> <td>(52,)</td> </tr> <tr> <td>type_attack_strength</td> <td>(1,)</td> </tr> <tr> <td>type_defense_strength</td> <td>(1,)</td> </tr> <tr> <td>type_firepower</td> <td>(1,)</td> </tr> <tr> <td>type_build_cost</td> <td>(1,)</td> </tr> <tr> <td>type_convert_time</td> <td>(1,)</td> </tr> <tr> <td>type_obsoleted_by</td> <td>(53,)</td> </tr> <tr> <td>type_hp</td> <td>(1,)</td> </tr> <tr> <td>type_move_rate</td> <td>(1,)</td> </tr> <tr> <td>type_vision_radius_sq</td> <td>(1,)</td> </tr> <tr> <td>type_worker</td> <td>(1,)</td> </tr> <tr> <td>type_can_transport</td> <td>(1,)</td> </tr> <tr> <td>home_city</td> <td>(1,)</td> </tr> <tr> <td>moves_left</td> <td>(1,)</td> </tr> <tr> <td>upkeep_food</td> <td>(1,)</td> </tr> <tr> <td>upkeep_shield</td> <td>(1,)</td> </tr> <tr> <td>upkeep_gold</td> <td>(1,)</td> </tr> <tr> <th rowspan="9">others_city</th> <td>owner</td> <td>(1,)</td> </tr> <tr> <td>size</td> <td>(1,)</td> </tr> <tr> <td>improvements</td> <td>(68,)</td> </tr> <tr> <td>style</td> <td>(10,)</td> </tr> <tr> <td>capital</td> <td>(1,)</td> </tr> <tr> <td>occupied</td> <td>(1,)</td> </tr> <tr> <td>walls</td> <td>(1,)</td> </tr> <tr> <td>happy</td> <td>(1,)</td> </tr> <tr> <td>unhappy</td> <td>(1,)</td> </tr> <tr> <th rowspan="11">others_unit</th> <td>owner</td> <td>(1,)</td> </tr> <tr> <td>veteran</td> <td>(1,)</td> </tr> <tr> <td>x</td> <td>(1,)</td> </tr> <tr> <td>y</td> <td>(1,)</td> </tr></tr> <tr> <td>type</td> <td>(52,)</td> </tr> <tr> <td>occupied</td> <td>(1,)</td> </tr> <tr> <td>transported</td> <td>(1,)</td> </tr> <tr> <td>hp</td> <td>(1,)</td> </tr> <tr> <td>activity</td> <td>(1,)</td> </tr> <tr> <td>activity_tgt</td> <td>(1,)</td> </tr> <tr> <td>transported_by</td> <td>(1,)</td> </tr> <tr> <th rowspan="5">others_player</th> <td>score</td> <td>(1,)</td> </tr> <tr> <td>is_alive</td> <td>(2,)</td> </tr> <tr> <td>love</td> <td>(12,)</td> </tr> <tr> <td>diplomatic_state</td> <td>(8,)</td> </tr> <tr> <td>techs</td> <td>(87,)</td> </tr> <tr> <th rowspan="5">dipl</th> <td>type</td> <td>(20,)</td> </tr> <tr> <td>give_city</td> <td>(32,)</td> </tr> <tr> <td>ask_city</td> <td>(64,)</td> </tr> <tr> <td>give_gold</td> <td>(16,)</td> </tr> <tr> <td>ask_gold</td> <td>(16,)</td> </tr> </table></p>
+</details>
+<h3 id="action">Action</h3>
+<p>In tensor environment, the complete action space is</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>spaces.Dict(
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>            {
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>                &quot;actor_type&quot;: spaces.Discrete(len(self.actor_type_list)),
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>                &quot;city_id&quot;: spaces.Discrete(self.action_config[&quot;resize&quot;][&quot;city&quot;]),
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>                &quot;city_action_type&quot;: spaces.Discrete(
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>                    sum(self.action_config[&quot;action_layout&quot;][&quot;city&quot;].values())
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>                ),
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>                &quot;unit_id&quot;: spaces.Discrete(self.action_config[&quot;resize&quot;][&quot;unit&quot;]),
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>                &quot;unit_action_type&quot;: spaces.Discrete(
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>                    sum(self.action_config[&quot;action_layout&quot;][&quot;unit&quot;].values())
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>                ),
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>                &quot;dipl_id&quot;: spaces.Discrete(self.action_config[&quot;resize&quot;][&quot;dipl&quot;]),
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>                &quot;dipl_action_type&quot;: spaces.Discrete(
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>                    sum(self.action_config[&quot;action_layout&quot;][&quot;dipl&quot;].values())
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a>                ),
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a>                &quot;gov_action_type&quot;: spaces.Discrete(
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a>                    sum(self.action_config[&quot;action_layout&quot;][&quot;gov&quot;].values())
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a>                ),
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a>                &quot;tech_action_type&quot;: spaces.Discrete(
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a>                    sum(self.action_config[&quot;action_layout&quot;][&quot;tech&quot;].values())
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a>                ),
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>            }
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a>        )
+</span></code></pre></div>
+<p>The <code>actor_type</code> indicate which actor type this action belongs to, the value <span class="arithmatex">\(\in [0\dots5]\)</span> indicating <code>city</code>,<code>unit</code>,<code>gov</code>,<code>dipl</code>,<code>tech</code>,<code>end-turn</code> respectively.</p>
+<p>For a mutable type <code>$mutable</code>, <code>${mutable}_id</code> indicates the position of the unit to take this action in the list of entities. For example, <code>unit_id=0</code> might indicate a <code>Settler</code> located at a specific tile.</p>
+<p><code>${actor_type}_action_type</code> is an action index which can be translated into a specific action, for example <code>goto_8</code> or <code>stop_negotiation</code>.</p>
+<details class="tip" open="open">
+<summary>Tip</summary>
+<p>Although the full action space is a Cartesion product of 9 subspaces, the <code>actor_type</code> will determine which category of entity should execute this action, and <code>${actor_type}_id</code> will determine which entity should execute a specific action <code>${actor_type}_action_type</code>.</p>
+<p>Thus it suffices for the env to only look at 3 tuples: <code>(actor_type, ${actor_type}_id, ${actor_type}_action_type)</code>, and it's legitimate to pass a 3-tuple if their values and types are compatible.</p>
+</details>
+<details class="-note">
+<summary>Action Space Details</summary>
+<p><table> <tr> <th bgcolor="Lavender">Category</th> <th bgcolor="Lavender">Actions</th> <th bgcolor="Lavender">Count</th> </tr> <tr> <td rowspan="8">city</td> <td>city_work_None_</td> <td>4</td> </tr> <tr> <td>city_unwork_None_</td> <td>4</td> </tr> <tr> <td>city_work_</td> <td>20</td> </tr> <tr> <td>city_unwork_</td> <td>20</td> </tr> <tr> <td>city_buy_production</td> <td>1</td> </tr> <tr> <td>city_change_specialist_</td> <td>3</td> </tr> <tr> <td>city_sell</td> <td>35</td> </tr> <tr> <td>produce</td> <td>120</td> </tr> <tr> <td rowspan="37">unit</td> <td>transform_terrain</td> <td>1</td> </tr> <tr> <td>mine</td> <td>1</td> </tr> <tr> <td>cultivate</td> <td>1</td> </tr> <tr> <td>plant</td> <td>1</td> </tr> <tr> <td>fortress</td> <td>1</td> </tr> <tr> <td>airbase</td> <td>1</td> </tr> <tr> <td>irrigation</td> <td>1</td> </tr> <tr> <td>fallout</td> <td>1</td> </tr> <tr> <td>pollution</td> <td>1</td> </tr> <tr> <td>keep_activity</td> <td>1</td> </tr> <tr> <td>paradrop</td> <td>1</td> </tr> <tr> <td>build_city</td> <td>1</td> </tr> <tr> <td>join_city</td> <td>1</td> </tr> <tr> <td>fortify</td> <td>1</td> </tr> <tr> <td>build_road</td> <td>1</td> </tr> <tr> <td>build_railroad</td> <td>1</td> </tr> <tr> <td>pillage</td> <td>1</td> </tr> <tr> <td>set_homecity</td> <td>1</td> </tr> <tr> <td>airlift</td> <td>1</td> </tr> <tr> <td>upgrade</td> <td>1</td> </tr> <tr> <td>deboard</td> <td>1</td> </tr> <tr> <td>board</td> <td>1</td> </tr> <tr> <td>unit_unload</td> <td>1</td> </tr> <tr> <td>cancel_order</td> <td>1</td> </tr> <tr> <td>goto_</td> <td>8</td> </tr> <tr> <td>attack_</td> <td>8</td> </tr> <tr> <td>conquer_city_</td> <td>8</td> </tr> <tr> <td>spy_bribe_unit_</td> <td>8</td> </tr> <tr> <td>spy_steal_tech_</td> <td>8</td> </tr> <tr> <td>spy_sabotage_city_</td> <td>8</td> </tr> <tr> <td>hut_enter_</td> <td>8</td> </tr> <tr> <td>embark_</td> <td>8</td> </tr> <tr> <td>disembark_</td> <td>8</td> </tr> <tr> <td>trade_route_</td> <td>9</td> </tr> <tr> <td>marketplace_</td> <td>9</td> </tr> <tr> <td>embassy_stay_</td> <td>8</td> </tr> <tr> <td>investigate_spend_</td> <td>8</td> </tr> <tr> <td rowspan="24">dipl</td> <td>stop_negotiation_</td> <td>1</td> </tr> <tr> <td>accept_treaty_</td> <td>1</td> </tr> <tr> <td>cancel_treaty_</td> <td>1</td> </tr> <tr> <td>cancel_vision_</td> <td>1</td> </tr> <tr> <td>add_clause_ShareMap_</td> <td>2</td> </tr> <tr> <td>remove_clause_ShareMap_</td> <td>2</td> </tr> <tr> <td>add_clause_ShareSeaMap_</td> <td>2</td> </tr> <tr> <td>remove_clause_ShareSeaMap_</td> <td>2</td> </tr> <tr> <td>add_clause_Vision_</td> <td>2</td> </tr> <tr> <td>remove_clause_Vision_</td> <td>2</td> </tr> <tr> <td>add_clause_Embassy_</td> <td>2</td> </tr> <tr> <td>remove_clause_Embassy_</td> <td>2</td> </tr> <tr> <td>add_clause_Ceasefire_</td> <td>2</td> </tr> <tr> <td>remove_clause_Ceasefire_</td> <td>2</td> </tr> <tr> <td>add_clause_Peace_</td> <td>2</td> </tr> <tr> <td>remove_clause_Peace_</td> <td>2</td> </tr> <tr> <td>add_clause_Alliance_</td> <td>2</td> </tr> <tr> <td>remove_clause_Alliance_</td> <td>2</td> </tr> <tr> <td>trade_tech_clause_Advance_</td> <td>174</td> </tr> <tr> <td>remove_clause_Advance_</td> <td>174</td> </tr> <tr> <td>trade_gold_clause_TradeGold_</td> <td>30</td> </tr> <tr> <td>remove_clause_TradeGold_</td> <td>30</td> </tr> <tr> <td>trunc_trade_city_clause_TradeCity_</td> <td>96</td> </tr> <tr> <td>trunc_remove_clause_TradeCity_</td> <td>96</td> </tr> <tr> <td rowspan="7">gov</td> <td>change_gov_Anarchy</td> <td>1</td> </tr> <tr> <td>change_gov_Despotism</td> <td>1</td> </tr> <tr> <td>change_gov_Monarchy</td> <td>1</td> </tr> <tr> <td>change_gov_Communism</td> <td>1</td> </tr> <tr> <td>change_gov_Republic</td> <td>1</td> </tr> <tr> <td>change_gov_Democracy</td> <td>1</td> </tr> <tr> <td>set_sci_luax_tax</td> <td>66</td> </tr> <tr> <td>tech</td> <td>research</td> <td>87</td> </tr> </table></p>
+</details>
+<p>You can copy the above HTML table and use it in your HTML file or any other HTML-supported platform.</p>
+<h2 id="network-architecture-for-a-tensor-agent">🤖 Network Architecture for a Tensor Agent</h2>
+<p><img alt="Tensor Architecture" src="../assets/tensor-architecture.png" /></p>
+<p>To effectively handle multi-source and variable-length inputs,
+we draw inspiration from <a href="https://www.nature.com/articles/s41586-019-1724-z">AlphaStar</a>
+and implement a serialized hierarchical feature extraction and action selection approach,
+as shown above.
+This method involves generating layered actions and predicting value function outputs,
+and our neural network architecture comprises three main components:
+representation learning, action selection, and value estimation.</p>
+<p><strong>Representation</strong>.
+At the representation level, we adopt a hierarchical structure.
+In the lower layer, we extract controller features using various models like
+MLP, Transformer, and CNN, depending on whether the input is a
+single vector, sequence, or image-based.
+These extracted features are then fed into a transformer to facilitate attention across different entities,
+creating globally meaningful representations.
+Additionally,
+we utilize an RNN to combine the current-state features with the memory state,
+enabling conditional policy decisions based on the state history.</p>
+<p><strong>Action selection</strong>.
+At the action selection level, we leverage the learned representations to make decisions.
+In the actor selection module,
+we determine the primary action category to be executed,
+including options like unit, city, government, technology, diplomacy, or termination.
+Subsequently,
+we employ a pointer network to select the specific action ID to be executed,
+followed by the determination of the exact action to be performed.</p>
+<p><strong>Value estimation</strong>. To enable the use of an actor-critic algorithm,
+we incorporate a value prediction head after the representation learning phase.
+This shared representation part of the network benefits both the actor and critic,
+enhancing training efficiency.</p>
+<p><strong>Training</strong>.
+We use the <a href="https://arxiv.org/abs/1707.06347">Proximal Policy Optimization (PPO)</a>
+algorithm to train the agent.
+To mitigate the on-policy sample complexity of PPO,
+we harness <a href="https://www.ray.io/">Ray</a> for parallelizing tensor environments,
+optimizing training speed and efficiency.</p>
+<h2 id="using-civrealm-tensor-baseline-repository">🏃 Using civrealm-tensor-baseline Repository</h2>
+<p>The civrelam-tensor-baseline repository is a collection of code and utilities
+that provide a baseline implementation for training reinforcement learning agents
+using tensor-based algorithms.</p>
+<p>It includes an implementation of the PPO algorithm,
+which we will use to train our agents in the Civrealm Tensor Environment.</p>
+<h3 id="getting-started">🏌️ Getting Started</h3>
+<p>To get started, follow these steps:</p>
+<ol>
+<li>
+<p>Clone the civrealm-tensor-baseline repository from GitHub and enter the directory:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>civrealm-tensor-baseline
+</span></code></pre></div>
+</li>
+<li>
+<p>Install the required dependencies by running:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span>.
+</span></code></pre></div>
+</li>
+<li>
+<p>Training
+    PPO baseline for <strong>fullgame</strong></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>examples
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python<span class="w"> </span>train.py
+</span></code></pre></div>
+<p>In default, this would start a runner with the config specified in <code>civrealm-tensor-baseline/civtensor/configs/</code>.</p>
+</li>
+<li>
+<p><strong>OR</strong> Train PPO baseline for <strong>minitasks</strong>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>examples
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>python<span class="w"> </span>run.py
+</span></code></pre></div>
+<p>In default, this would start a sequence of runners each with a minitask config specified in <code>civrealm-tensor-baseline/examples/run_configs</code>.
+Either will start the training process, allowing the agent to interact with the environment,
+collect experiences, and update its policy using the PPO algorithm.</p>
+</li>
+<li>
+<p>Monitor the training progress and evaluate the agent's performance,
+    using the provided metrics and visualization tools in
+    the civrealm-tensor-baseline repository.</p>
+<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>examples/results/freeciv_tensor_env/<span class="nv">$game_type</span>/ppo/installtest/seed-XXXXXXXXX
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1"># where $game_type = fullgame or minitask</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>tensorboard<span class="w"> </span>--logdir<span class="w"> </span>logs/
+</span></code></pre></div>
+The output of the last command should return a url.
+<img alt="Terminal Output" src="../assets/tensorboard.png" />
+Visit this url with your favorite web browser, and you can view your agent performance in real time.
+<img alt="Tensorboard Web" src="../assets/tensorboard-web.png" /></p>
+</li>
+</ol>
+<p>Congratulations!
+You have successfully set up the Civrealm Tensor Agent and
+started training a PPO agent on the Civrealm Tensor Environment,
+using the civrealm-tensor-baseline repository.</p>
+<h3 id="runner-configuration">Runner Configuration</h3>
+<p>The default configs reside in <code>civtensor/configs/</code></p>
+<p><code>freeciv_tensor_env.yaml</code> defines environment-related properties. You may specify which task to run by specifying <code>task_name</code>.
+<div class="language-python highlight"><span class="filename">civtensor/configs/env_cfgs/freeciv_tensor_env.yaml</span><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">task_name</span><span class="p">:</span> <span class="n">fullgame</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">env_args</span><span class="p">:</span>
+</span></code></pre></div></p>
+<ul>
+<li>Acceptable <code>task_name</code> are <code>"fullgame"</code> or <code>"$minitask_type $minitask_difficulty"</code>. </li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For available mini-task types and difficulties, please check <a href="./minigame.md">minigame</a></p>
+</div>
+<p><code>ppo.yaml</code> defines environment-related properties. You may specify which task to run by specifying <code>task_name</code>.</p>
+<details class="note">
+<summary>Details of <code>ppo.yaml</code></summary>
+<div class="language-python highlight"><span class="filename">civtensor/configs/algos_cfgs/ppo.yaml</span><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">seed</span><span class="p">:</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  <span class="c1"># whether to use the specified seed</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  <span class="n">seed_specify</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  <span class="c1"># seed</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  <span class="n">seed</span><span class="p">:</span> <span class="mi">1</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="n">device</span><span class="p">:</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>  <span class="c1"># whether to use CUDA</span>
+</span><span id="__span-9-8"><a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>  <span class="n">cuda</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-9"><a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>  <span class="c1"># whether to set CUDA deterministic</span>
+</span><span id="__span-9-10"><a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>  <span class="n">cuda_deterministic</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-11"><a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>  <span class="c1"># arg to torch.set_num_threads</span>
+</span><span id="__span-9-12"><a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>  <span class="n">torch_threads</span><span class="p">:</span> <span class="mi">4</span>
+</span><span id="__span-9-13"><a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a><span class="n">train</span><span class="p">:</span>
+</span><span id="__span-9-14"><a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>  <span class="c1"># number of parallel environments for training data collection</span>
+</span><span id="__span-9-15"><a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>  <span class="n">n_rollout_threads</span><span class="p">:</span> <span class="mi">8</span>
+</span><span id="__span-9-16"><a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>  <span class="c1"># number of total training steps</span>
+</span><span id="__span-9-17"><a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>  <span class="n">num_env_steps</span><span class="p">:</span> <span class="mi">10000000</span>
+</span><span id="__span-9-18"><a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>  <span class="c1"># number of steps per environment per training data collection</span>
+</span><span id="__span-9-19"><a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>  <span class="n">episode_length</span><span class="p">:</span> <span class="mi">125</span>
+</span><span id="__span-9-20"><a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>  <span class="c1"># logging interval</span>
+</span><span id="__span-9-21"><a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>  <span class="n">log_interval</span><span class="p">:</span> <span class="mi">1</span>
+</span><span id="__span-9-22"><a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>  <span class="c1"># evaluation interval</span>
+</span><span id="__span-9-23"><a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>  <span class="n">eval_interval</span><span class="p">:</span> <span class="mi">5</span>
+</span><span id="__span-9-24"><a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>  <span class="c1"># whether to use ValueNorm</span>
+</span><span id="__span-9-25"><a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>  <span class="n">use_valuenorm</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-26"><a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a>  <span class="c1"># whether to use linear learning rate decay</span>
+</span><span id="__span-9-27"><a id="__codelineno-9-27" name="__codelineno-9-27" href="#__codelineno-9-27"></a>  <span class="n">use_linear_lr_decay</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-9-28"><a id="__codelineno-9-28" name="__codelineno-9-28" href="#__codelineno-9-28"></a>  <span class="c1"># whether to consider the case of truncation when an episode is done</span>
+</span><span id="__span-9-29"><a id="__codelineno-9-29" name="__codelineno-9-29" href="#__codelineno-9-29"></a>  <span class="n">use_proper_time_limits</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-30"><a id="__codelineno-9-30" name="__codelineno-9-30" href="#__codelineno-9-30"></a>  <span class="c1"># if set, load models from this directory; otherwise, randomly initialise the models</span>
+</span><span id="__span-9-31"><a id="__codelineno-9-31" name="__codelineno-9-31" href="#__codelineno-9-31"></a>  <span class="n">model_dir</span><span class="p">:</span> <span class="o">~</span>
+</span><span id="__span-9-32"><a id="__codelineno-9-32" name="__codelineno-9-32" href="#__codelineno-9-32"></a><span class="nb">eval</span><span class="p">:</span>
+</span><span id="__span-9-33"><a id="__codelineno-9-33" name="__codelineno-9-33" href="#__codelineno-9-33"></a>  <span class="c1"># whether to use evaluation</span>
+</span><span id="__span-9-34"><a id="__codelineno-9-34" name="__codelineno-9-34" href="#__codelineno-9-34"></a>  <span class="n">use_eval</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-35"><a id="__codelineno-9-35" name="__codelineno-9-35" href="#__codelineno-9-35"></a>  <span class="c1"># number of parallel environments for evaluation</span>
+</span><span id="__span-9-36"><a id="__codelineno-9-36" name="__codelineno-9-36" href="#__codelineno-9-36"></a>  <span class="n">n_eval_rollout_threads</span><span class="p">:</span> <span class="mi">1</span>
+</span><span id="__span-9-37"><a id="__codelineno-9-37" name="__codelineno-9-37" href="#__codelineno-9-37"></a>  <span class="c1"># number of episodes per evaluation</span>
+</span><span id="__span-9-38"><a id="__codelineno-9-38" name="__codelineno-9-38" href="#__codelineno-9-38"></a>  <span class="n">eval_episodes</span><span class="p">:</span> <span class="mi">20</span>
+</span><span id="__span-9-39"><a id="__codelineno-9-39" name="__codelineno-9-39" href="#__codelineno-9-39"></a><span class="n">render</span><span class="p">:</span>
+</span><span id="__span-9-40"><a id="__codelineno-9-40" name="__codelineno-9-40" href="#__codelineno-9-40"></a>  <span class="c1"># whether to use render</span>
+</span><span id="__span-9-41"><a id="__codelineno-9-41" name="__codelineno-9-41" href="#__codelineno-9-41"></a>  <span class="n">use_render</span><span class="p">:</span> <span class="kc">False</span>
+</span><span id="__span-9-42"><a id="__codelineno-9-42" name="__codelineno-9-42" href="#__codelineno-9-42"></a>  <span class="c1"># number of episodes to render</span>
+</span><span id="__span-9-43"><a id="__codelineno-9-43" name="__codelineno-9-43" href="#__codelineno-9-43"></a>  <span class="n">render_episodes</span><span class="p">:</span> <span class="mi">10</span>
+</span><span id="__span-9-44"><a id="__codelineno-9-44" name="__codelineno-9-44" href="#__codelineno-9-44"></a><span class="n">model</span><span class="p">:</span>
+</span><span id="__span-9-45"><a id="__codelineno-9-45" name="__codelineno-9-45" href="#__codelineno-9-45"></a>  <span class="c1"># hidden dimension</span>
+</span><span id="__span-9-46"><a id="__codelineno-9-46" name="__codelineno-9-46" href="#__codelineno-9-46"></a>  <span class="n">hidden_dim</span><span class="p">:</span> <span class="mi">256</span>
+</span><span id="__span-9-47"><a id="__codelineno-9-47" name="__codelineno-9-47" href="#__codelineno-9-47"></a>  <span class="c1"># hidden dimension for rnn</span>
+</span><span id="__span-9-48"><a id="__codelineno-9-48" name="__codelineno-9-48" href="#__codelineno-9-48"></a>  <span class="n">rnn_hidden_dim</span><span class="p">:</span> <span class="mi">1024</span>
+</span><span id="__span-9-49"><a id="__codelineno-9-49" name="__codelineno-9-49" href="#__codelineno-9-49"></a>  <span class="c1"># number of heads in transformer</span>
+</span><span id="__span-9-50"><a id="__codelineno-9-50" name="__codelineno-9-50" href="#__codelineno-9-50"></a>  <span class="n">n_head</span><span class="p">:</span> <span class="mi">2</span>
+</span><span id="__span-9-51"><a id="__codelineno-9-51" name="__codelineno-9-51" href="#__codelineno-9-51"></a>  <span class="c1"># number of layers in transformer</span>
+</span><span id="__span-9-52"><a id="__codelineno-9-52" name="__codelineno-9-52" href="#__codelineno-9-52"></a>  <span class="n">n_layers</span><span class="p">:</span> <span class="mi">2</span>
+</span><span id="__span-9-53"><a id="__codelineno-9-53" name="__codelineno-9-53" href="#__codelineno-9-53"></a>  <span class="c1"># dropout probability</span>
+</span><span id="__span-9-54"><a id="__codelineno-9-54" name="__codelineno-9-54" href="#__codelineno-9-54"></a>  <span class="n">drop_prob</span><span class="p">:</span> <span class="mi">0</span>
+</span><span id="__span-9-55"><a id="__codelineno-9-55" name="__codelineno-9-55" href="#__codelineno-9-55"></a>  <span class="c1"># number of rnn layers</span>
+</span><span id="__span-9-56"><a id="__codelineno-9-56" name="__codelineno-9-56" href="#__codelineno-9-56"></a>  <span class="n">n_rnn_layers</span><span class="p">:</span> <span class="mi">2</span>
+</span><span id="__span-9-57"><a id="__codelineno-9-57" name="__codelineno-9-57" href="#__codelineno-9-57"></a>  <span class="c1"># initialization method for network parameters, choose from xavier_uniform_, orthogonal_, ...</span>
+</span><span id="__span-9-58"><a id="__codelineno-9-58" name="__codelineno-9-58" href="#__codelineno-9-58"></a>  <span class="n">initialization_method</span><span class="p">:</span> <span class="n">orthogonal_</span>
+</span><span id="__span-9-59"><a id="__codelineno-9-59" name="__codelineno-9-59" href="#__codelineno-9-59"></a>  <span class="c1"># gain of the output layer of the network.</span>
+</span><span id="__span-9-60"><a id="__codelineno-9-60" name="__codelineno-9-60" href="#__codelineno-9-60"></a>  <span class="n">gain</span><span class="p">:</span> <span class="mf">0.01</span>
+</span><span id="__span-9-61"><a id="__codelineno-9-61" name="__codelineno-9-61" href="#__codelineno-9-61"></a>  <span class="c1"># length of data chunk; only useful when use_recurrent_policy is True; episode_length has to be a multiple of data_chunk_length</span>
+</span><span id="__span-9-62"><a id="__codelineno-9-62" name="__codelineno-9-62" href="#__codelineno-9-62"></a>  <span class="n">data_chunk_length</span><span class="p">:</span> <span class="mi">10</span>
+</span><span id="__span-9-63"><a id="__codelineno-9-63" name="__codelineno-9-63" href="#__codelineno-9-63"></a>  <span class="c1"># actor learning rate</span>
+</span><span id="__span-9-64"><a id="__codelineno-9-64" name="__codelineno-9-64" href="#__codelineno-9-64"></a>  <span class="n">lr</span><span class="p">:</span> <span class="mf">0.0005</span>
+</span><span id="__span-9-65"><a id="__codelineno-9-65" name="__codelineno-9-65" href="#__codelineno-9-65"></a>  <span class="c1"># eps in Adam</span>
+</span><span id="__span-9-66"><a id="__codelineno-9-66" name="__codelineno-9-66" href="#__codelineno-9-66"></a>  <span class="n">opti_eps</span><span class="p">:</span> <span class="mf">0.00001</span>
+</span><span id="__span-9-67"><a id="__codelineno-9-67" name="__codelineno-9-67" href="#__codelineno-9-67"></a>  <span class="c1"># weight_decay in Adam</span>
+</span><span id="__span-9-68"><a id="__codelineno-9-68" name="__codelineno-9-68" href="#__codelineno-9-68"></a>  <span class="n">weight_decay</span><span class="p">:</span> <span class="mi">0</span>
+</span><span id="__span-9-69"><a id="__codelineno-9-69" name="__codelineno-9-69" href="#__codelineno-9-69"></a><span class="n">algo</span><span class="p">:</span>
+</span><span id="__span-9-70"><a id="__codelineno-9-70" name="__codelineno-9-70" href="#__codelineno-9-70"></a>  <span class="c1"># ppo parameters</span>
+</span><span id="__span-9-71"><a id="__codelineno-9-71" name="__codelineno-9-71" href="#__codelineno-9-71"></a>  <span class="c1"># number of epochs for actor update</span>
+</span><span id="__span-9-72"><a id="__codelineno-9-72" name="__codelineno-9-72" href="#__codelineno-9-72"></a>  <span class="n">ppo_epoch</span><span class="p">:</span> <span class="mi">5</span>
+</span><span id="__span-9-73"><a id="__codelineno-9-73" name="__codelineno-9-73" href="#__codelineno-9-73"></a>  <span class="c1"># whether to use clipped value loss</span>
+</span><span id="__span-9-74"><a id="__codelineno-9-74" name="__codelineno-9-74" href="#__codelineno-9-74"></a>  <span class="n">use_clipped_value_loss</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-75"><a id="__codelineno-9-75" name="__codelineno-9-75" href="#__codelineno-9-75"></a>  <span class="c1"># clip parameter</span>
+</span><span id="__span-9-76"><a id="__codelineno-9-76" name="__codelineno-9-76" href="#__codelineno-9-76"></a>  <span class="n">clip_param</span><span class="p">:</span> <span class="mf">0.2</span>
+</span><span id="__span-9-77"><a id="__codelineno-9-77" name="__codelineno-9-77" href="#__codelineno-9-77"></a>  <span class="c1"># number of mini-batches per epoch</span>
+</span><span id="__span-9-78"><a id="__codelineno-9-78" name="__codelineno-9-78" href="#__codelineno-9-78"></a>  <span class="n">num_mini_batch</span><span class="p">:</span> <span class="mi">1</span>
+</span><span id="__span-9-79"><a id="__codelineno-9-79" name="__codelineno-9-79" href="#__codelineno-9-79"></a>  <span class="c1"># coefficient for entropy term in actor loss</span>
+</span><span id="__span-9-80"><a id="__codelineno-9-80" name="__codelineno-9-80" href="#__codelineno-9-80"></a>  <span class="n">entropy_coef</span><span class="p">:</span> <span class="mf">0.01</span>
+</span><span id="__span-9-81"><a id="__codelineno-9-81" name="__codelineno-9-81" href="#__codelineno-9-81"></a>  <span class="c1"># coefficient for value loss</span>
+</span><span id="__span-9-82"><a id="__codelineno-9-82" name="__codelineno-9-82" href="#__codelineno-9-82"></a>  <span class="n">value_loss_coef</span><span class="p">:</span> <span class="mf">0.001</span>
+</span><span id="__span-9-83"><a id="__codelineno-9-83" name="__codelineno-9-83" href="#__codelineno-9-83"></a>  <span class="c1"># whether to clip gradient norm</span>
+</span><span id="__span-9-84"><a id="__codelineno-9-84" name="__codelineno-9-84" href="#__codelineno-9-84"></a>  <span class="n">use_max_grad_norm</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-85"><a id="__codelineno-9-85" name="__codelineno-9-85" href="#__codelineno-9-85"></a>  <span class="c1"># max gradient norm (0.5?)</span>
+</span><span id="__span-9-86"><a id="__codelineno-9-86" name="__codelineno-9-86" href="#__codelineno-9-86"></a>  <span class="n">max_grad_norm</span><span class="p">:</span> <span class="mf">10.0</span>
+</span><span id="__span-9-87"><a id="__codelineno-9-87" name="__codelineno-9-87" href="#__codelineno-9-87"></a>  <span class="c1"># whether to use Generalized Advantage Estimation (GAE)</span>
+</span><span id="__span-9-88"><a id="__codelineno-9-88" name="__codelineno-9-88" href="#__codelineno-9-88"></a>  <span class="n">use_gae</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-89"><a id="__codelineno-9-89" name="__codelineno-9-89" href="#__codelineno-9-89"></a>  <span class="c1"># discount factor</span>
+</span><span id="__span-9-90"><a id="__codelineno-9-90" name="__codelineno-9-90" href="#__codelineno-9-90"></a>  <span class="n">gamma</span><span class="p">:</span> <span class="mf">0.99</span>
+</span><span id="__span-9-91"><a id="__codelineno-9-91" name="__codelineno-9-91" href="#__codelineno-9-91"></a>  <span class="c1"># GAE lambda</span>
+</span><span id="__span-9-92"><a id="__codelineno-9-92" name="__codelineno-9-92" href="#__codelineno-9-92"></a>  <span class="n">gae_lambda</span><span class="p">:</span> <span class="mf">0.95</span>
+</span><span id="__span-9-93"><a id="__codelineno-9-93" name="__codelineno-9-93" href="#__codelineno-9-93"></a>  <span class="c1"># whether to use huber loss</span>
+</span><span id="__span-9-94"><a id="__codelineno-9-94" name="__codelineno-9-94" href="#__codelineno-9-94"></a>  <span class="n">use_huber_loss</span><span class="p">:</span> <span class="kc">True</span>
+</span><span id="__span-9-95"><a id="__codelineno-9-95" name="__codelineno-9-95" href="#__codelineno-9-95"></a>  <span class="c1"># huber delta</span>
+</span><span id="__span-9-96"><a id="__codelineno-9-96" name="__codelineno-9-96" href="#__codelineno-9-96"></a>  <span class="n">huber_delta</span><span class="p">:</span> <span class="mf">10.0</span>
+</span><span id="__span-9-97"><a id="__codelineno-9-97" name="__codelineno-9-97" href="#__codelineno-9-97"></a><span class="n">logger</span><span class="p">:</span>
+</span><span id="__span-9-98"><a id="__codelineno-9-98" name="__codelineno-9-98" href="#__codelineno-9-98"></a>  <span class="c1"># logging directory</span>
+</span><span id="__span-9-99"><a id="__codelineno-9-99" name="__codelineno-9-99" href="#__codelineno-9-99"></a>  <span class="n">log_dir</span><span class="p">:</span> <span class="s2">&quot;./results&quot;</span>
+</span></code></pre></div>
+</details>
+<h2 id="conclusion">Conclusion</h2>
+<p>In this guide, we introduced the Civrealm Tensor Environment and explained
+how to use the civrealm-tensor-baseline repository to train a PPO agent on this environment.</p>
+<p>We encourage you to explore the various features and customization options available,
+and experiment with different reinforcement learning algorithms to
+further enhance your agent's performance. Happy training!</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var tab,labels=set.querySelector(".tabbed-labels");for(tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 BIGAI
+    </div>
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.tabs", "navigation.sections", "navigation.indexes", "content.code.copy", "content.code.select", "content.tabs.link"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.bd41221c.min.js"></script>
+      
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+      
+        <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+      
+    
+  </body>
+</html>

@@ -21,6 +21,7 @@ import time
 import datetime
 import matplotlib.pyplot as plt
 from BitVector import BitVector
+import numpy as np
 
 import gymnasium
 from gymnasium import utils
@@ -107,11 +108,18 @@ class FreecivBaseEnv(gymnasium.Env, utils.EzPickle):
                              if isinstance(x, BitVector) else x.tolist())
 
     def _record_action(self, available_actions, action):
+        def encode_action(x):
+            if hasattr(x, 'encode_to_json'):
+                return x.encode_to_json()
+            elif isinstance(x, (np.bool_, np.generic)):
+                return x.item()
+            return x
+
         self._record_to_file('available_action',
-                             available_actions, lambda x: x.encode_to_json())
+                             available_actions, encode_action)
         if action:
             self._record_to_file('chosen_action', action,
-                                 lambda x: x.encode_to_json())
+                                 encode_action)
         self._record_step_count += 1
 
     def _get_info_and_observation(self):

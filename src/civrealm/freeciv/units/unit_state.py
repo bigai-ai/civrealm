@@ -57,6 +57,11 @@ class UnitState(DictState):
         unit_state['health'] = punit['hp']
         unit_state['veteran'] = punit['veteran']
 
+        # Current activity and server-side agent, so a client can tell an idle unit from a
+        # working or auto-controlled one without re-issuing orders every turn.
+        unit_state['activity'] = punit.get('activity', 0)
+        unit_state['ssa_controller'] = punit.get('ssa_controller', 0)
+
         # Info from the unit's tile
         tile = self.map_ctrl.index_to_tile(punit['tile'])
         unit_state['x'] = tile['x']
@@ -92,6 +97,8 @@ class UnitState(DictState):
             'owner': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             'health': gymnasium.spaces.Box(low=0, high=100, shape=(1,), dtype=np.uint8),
             'veteran': gymnasium.spaces.Box(low=0, high=1, shape=(1,), dtype=np.uint8),
+            'activity': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
+            'ssa_controller': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             # TODO: may change this to actual map size
             'x': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),
             'y': gymnasium.spaces.Box(low=0, high=255, shape=(1,), dtype=np.uint8),

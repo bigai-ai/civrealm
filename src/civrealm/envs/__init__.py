@@ -1,4 +1,7 @@
-from .parallel_tensor_env import ParallelTensorEnv
+try:
+    from .parallel_tensor_env import ParallelTensorEnv
+except ImportError:  # ray is optional (not available on every Python version); the single-env classes work without it
+    ParallelTensorEnv = None
 from .freeciv_minitask_env import FreecivMinitaskEnv
 from .freeciv_base_env import FreecivBaseEnv
 from .freeciv_tensor_env import FreecivTensorEnv

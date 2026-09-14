@@ -558,7 +558,9 @@ class AcceptTreaty(StartNegotiate):
 
         clauses = self.diplomacy_clause_map[self.counterpart['playerno']]
         for clause in clauses:
-            if clause['giver'] == self.cur_player['playerno']:
+            # A pact has no direction, and AddClause lists it only with us as the giver: checked
+            # from the counterpart's side, every pact it proposed read as never acceptable.
+            if clause['giver'] == self.cur_player['playerno'] or clause['type'] in CONFLICTING_CLAUSES:
                 if not self.is_existing_clause_valid(self.counterpart['playerno'], self.cur_player, self.counterpart, clause):
                     return False
             else:

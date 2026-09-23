@@ -22,3 +22,10 @@ globals().update(
         get_version()
     ).__dict__
 )
+
+# Server-side agents (freeciv 3.x): autoworker / autoexplore are requested with
+# packet_unit_server_side_agent_set, not with a unit activity.
+packet_unit_server_side_agent_set = 74
+SSA_AUTOWORKER = 1
+SSA_AUTOEXPLORE = 2
+SSA_NONE = 0

@@ -279,8 +279,11 @@ class UnitActions(ActionList):
                           ActParadrop, ActBuildCity, ActJoinCity, ActFortify, ActBuildRoad,
                           ActBuildRailRoad, ActPillage, ActHomecity, ActAirlift, ActUpgrade, ActDeboard,
                           ActBoard, ActUnloadUnit, ActCancelOrder,
-                          # ActDisband, ActAutoSettler, ActExplore, ActNoOrders,
-                          # ActTileInfo, ActActSel, ActSEntry, ActWait, ActNuke
+                          ActAutoSettler, ActSEntry,
+                          # ActExplore: the freeciv-web server build refuses SSA_AUTOEXPLORE silently
+                          # (unit_server_side_agent_set returns FALSE), so it stays unregistered.
+                          # ActDisband, ActNoOrders,
+                          # ActTileInfo, ActActSel, ActWait, ActNuke
                           ]:
             self.add_action(unit_id, act_class(unit_focus))
 
@@ -476,6 +479,10 @@ class StdAction(UnitAction):
 
 class ActSEntry(StdAction):
     action_key = "sentry"
+
+    def is_action_valid(self):
+        # Already sentried units cannot be sentried again.
+        return self.focus.punit['activity'] != fc_types.ACTIVITY_SENTRY
 
     def _action_packet(self):
         return self._request_new_unit_activity(fc_types.ACTIVITY_SENTRY, EXTRA_NONE)
@@ -843,32 +850,35 @@ class ActFallout(ActOnExtra):
 
 
 class ActAutoSettler(UnitAction):
-    """Call to request (from the server) that the focus unit is put into autosettler mode."""
+    """Hand the focus unit to the server's auto-worker agent (freeciv 3.x server-side agent)."""
     action_key = "autosettlers"
 
     def is_action_valid(self):
-        return False
-        return self.focus.ptype["name"] in ["Settlers", "Workers", "Engineers"]
-
-    def _action_packet(self):
-        packet = {"pid": fc_types.packet_unit_autosettlers,
-                  "unit_id": self.focus.punit['id']}
-        return packet
-
-
-class ActExplore(UnitAction):
-    action_key = "explore"
-
-    def is_action_valid(self):
-        # Is already performing explore, no need to show this action again.
-        if self.focus.punit['activity'] == fc_types.ACTIVITY_EXPLORE:
-            return False
-        return self.focus.ptype["name"] == "Explorer"
+        if self.focus.punit.get('ssa_controller', fc_types.SSA_NONE) != fc_types.SSA_NONE:
+            return False   # already under server control
+        return bool(self.focus.ptype.get("worker", False)) or             self.focus.ptype["name"] in ["Settlers", "Workers", "Engineers"]
 
     def _action_packet(self):
         self.wait_for_pid = (63, self.focus.punit['id'])
-        # self.wait_for_pid = 63
-        return self._request_new_unit_activity(fc_types.ACTIVITY_EXPLORE, EXTRA_NONE)
+        return {"pid": fc_types.packet_unit_server_side_agent_set,
+                "unit_id": self.focus.punit['id'],
+                "agent": fc_types.SSA_AUTOWORKER}
+
+
+class ActExplore(UnitAction):
+    """Hand the focus unit to the server's auto-explore agent (freeciv 3.x server-side agent)."""
+    action_key = "explore"
+
+    def is_action_valid(self):
+        if self.focus.punit.get('ssa_controller', fc_types.SSA_NONE) != fc_types.SSA_NONE:
+            return False   # already exploring (or otherwise server controlled)
+        return self.focus.ptype["name"] == "Explorer" or self.focus.ptype.get("move_rate", 0) >= 2
+
+    def _action_packet(self):
+        self.wait_for_pid = (63, self.focus.punit['id'])
+        return {"pid": fc_types.packet_unit_server_side_agent_set,
+                "unit_id": self.focus.punit['id'],
+                "agent": fc_types.SSA_AUTOEXPLORE}
 
 
 class ActParadrop(UnitAction):

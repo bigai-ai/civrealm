@@ -70,8 +70,8 @@ class PlayerState(DictState):
 
         if player_state['government'] in self.rule_ctrl.governments:
             player_state['government_name'] = self.rule_ctrl.governments[player_state['government']]['name']
-        if player_state['researching'] in self.rule_ctrl.governments:
-            player_state['research_name'] = self.rule_ctrl.governments[player_state['researching']]['name']
+        if player_state['researching'] in self.rule_ctrl.techs:
+            player_state['research_name'] = self.rule_ctrl.techs[player_state['researching']]['name']
 
         return player_state
 
